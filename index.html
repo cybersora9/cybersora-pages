@@ -1189,6 +1189,11 @@
   a.card:hover .card__go{ transform:translateX(4px); }
   .card__title{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);}
   .card__body{margin:0;font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
+  /* znak firmowy nad kartą Sadzonek — goły inline SVG jak .pas__znak, bez
+     pudełka .prod__logo (maisa chce ten sam, "bare" charakter co przy
+     "Trzy, które już chodzą", nie boksowaną ikonkę katalogu) */
+  .card__znak{display:block;}
+  .card__znak svg{height:30px;width:auto;display:block;}
 
   /* ---- product tile extras: logo slot, price, add-to-cart ---- */
   .prod__logo{
@@ -1759,28 +1764,33 @@
      bloku i rozbijalby go. Caly znak jest czarny, rozni sie tylko waga. */
   .footer__brand b{color:#0a0a0d;font-weight:800;}
   .footer__nav{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;}
+  /* WCAG AA (19.09): czarny #0a0a0d na krwistym --th-solid dawal 3,70:1,
+     ponizej progu 4,50 dla tekstu normalnej wielkosci (zgloszone przez
+     maisa jako "ledwo co widac"). Bialy #f6f2f3 (juz uzywany na stronie,
+     m.in. w znakach projektow) daje 4,82:1 na tym samym tle. Logotyp
+     w .footer__brand zostaje czarny — to duzy, pogrubiony tekst, prog
+     dla niego to 3,00 i 3,70 go przechodzi. */
   .footer__nav a{
-    color:#0a0a0d;
+    color:#f6f2f3;
     text-decoration:none;
     font-size:var(--t-ui);
     font-weight:600;
-    opacity:.85;
-    transition:opacity .2s ease;
   }
-  .footer__nav a:hover{opacity:1;text-decoration:underline;}
+  /* Bylo opacity:.85 w spoczynku — przy bialym tekscie to zjada kontrast
+     z powrotem ponizej 4,50:1 (4,82:1 trzyma sie tylko przy pelnym kryciu).
+     Afordancja hover zostaje samym podkresleniem, bez przygaszania. */
+  .footer__nav a:hover{text-decoration:underline;}
   .footer__mail{
-    color:#0a0a0d;
+    color:#f6f2f3;
     font-weight:600;
     text-decoration:none;
-    opacity:.85;
-    transition:opacity .2s ease;
     overflow-wrap:anywhere;
   }
-  .footer__mail:hover{opacity:1;text-decoration:underline;}
+  .footer__mail:hover{text-decoration:underline;}
   .footer__mail:focus-visible,
   .footer__nav a:focus-visible,
   .soc:focus-visible{
-    outline:2px solid #0a0a0d;
+    outline:2px solid #f6f2f3;
     outline-offset:3px;
   }
   /* Drobna linia u dolu lewej kolumny idzie tym samym mono co logotyp po
@@ -1788,13 +1798,19 @@
   .footer__line{
     font-family:var(--mono,ui-monospace,'Cascadia Code','SFMono-Regular',Consolas,monospace);
     font-size:var(--t-instrument);
-    color:rgba(0,0,0,.6);
+    color:#f6f2f3;
     letter-spacing:var(--ls-instrument);
   }
+  /* WCAG AA (19.09): rgba(0,0,0,.6) na krwistym tle to ciemnoczerwony na
+     czerwonym — praktycznie nieczytelne, gorsze niz reszta stopki przed
+     poprawka. Policzone: nawet bialy przy .75-.95 krycia nie dobija 4,50:1
+     na tym tle przy drobnym foncie (--t-instrument nie kwalifikuje sie jako
+     "duzy tekst"), wiec zostaje pelne krycie #f6f2f3 (4,82:1) — hex-kod w
+     ::after nizej dalej ma wlasna, przygaszona opacity, to on zostaje
+     "cichym detalem", nie ta linia z "Made in Poland" i copyrightem. */
   /* M5 (18.09, PROPOZYCJA_PRZEBUDOWY.md pkt 7, opcja B) — system hex-adresow
      z M4.5 domyka sie w stopce, jedynym miejscu na stronie, ktore go dotad nie
-     mialo. Kolor bierze rgba(0,0,0,.6) jak reszta tej linii, bo tlo stopki jest
-     krwiste (M3), nie ciemne — --muted-dark tu by nie przeszedl kontrastem. */
+     mialo. */
   .footer__line::after{
     content:attr(data-hex);
     margin-left:.9em;
@@ -3422,16 +3438,54 @@
             <p class="card__body">Skanuje podobne oferty na Vinted i podpowiada optymalną cenę, zanim wystawisz przedmiot.</p>
           </article>
           <article class="card">
+            <!-- ten sam znak co w .pas__znak wyzej (sekcja "Trzy, ktore juz chodza") -->
+            <span class="card__znak" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak SalonDesk">
+              <mask id="znak-salondesk-card" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+                <rect width="64" height="64" fill="#000"/>
+                <rect x="17" y="9" width="30" height="21" rx="3.5" fill="#fff"/>
+                <rect x="20" y="12" width="24" height="15" rx="1.5" fill="#000"/>
+                <rect x="22.5" y="14.8" width="19" height="2" rx="1" fill="#fff"/>
+                <rect x="22.5" y="18.6" width="19" height="2" rx="1" fill="#fff"/>
+                <rect x="22.5" y="22.4" width="11.5" height="2" rx="1" fill="#fff"/>
+                <rect x="11" y="34" width="42" height="9.5" rx="3" fill="#fff"/>
+                <rect x="14.5" y="36.4" width="35" height="2.2" rx="1.1" fill="#000"/>
+                <rect x="27" y="40" width="10" height="2" rx="1" fill="#000"/>
+                <rect x="6" y="47.5" width="52" height="6" rx="3" fill="#fff"/>
+                <rect x="10" y="50.6" width="44" height="1.4" rx="0.7" fill="#000"/>
+              </mask>
+              <rect width="64" height="64" fill="currentColor" mask="url(#znak-salondesk-card)"/>
+            </svg></span>
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">SalonDesk</h3>
             <p class="card__body">Kasa i magazyn dla salonu beauty, już działa u pierwszego klienta — teraz dogrywamy transakcyjność zapisów i audyt liczb, ponad 1800 testów w bramce.</p>
           </article>
           <article class="card">
+            <!-- ten sam znak co w .pas__znak wyzej (sekcja "Trzy, ktore juz chodza") -->
+            <span class="card__znak" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="4 0 180 120" role="img" aria-label="pycodemath — znak">
+              <g stroke-linecap="round">
+                <path d="M68,20 C69,11 57,12 55,23 C51,40 54,50 46,62 C38,74 41,82 36,94 C33,105 22,105 20,95"
+                      fill="none" stroke="#e11d33" stroke-width="9"/>
+                <path d="M96,44 L120,63 L96,82" fill="none" stroke="#f6f2f3" stroke-width="9" stroke-linejoin="round"/>
+              </g>
+              <rect x="138" y="76" width="30" height="10" rx="3" fill="#e11d33"/>
+            </svg></span>
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Pycodemath</h3>
             <p class="card__body">Silnik matematyki symbolicznej dla agentów AI, opublikowany na PyPI — pracujemy nad wersją 0.4 z generatorem kodu, 690 testów zielonych.</p>
           </article>
           <article class="card">
+            <!-- transparentna przerobka znaku procentu z rachmistrz-sygnet-krew.svg —
+                 oryginal mial pelne czerwone tlo + dwie poziome belki niezwiazane
+                 z symbolem procentu; 19.09 maisa: ta wersja "tragiczna", wyciete
+                 belki, zostal goly procent, jeden kolor, zaokraglone koncowki
+                 kreski (grubsza, w stylu Pycodemath) -->
+            <span class="card__znak" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="18 5 98 88" role="img" aria-label="Rachmistrz + Blackwall — znak">
+              <g fill="none" stroke="#e11d33" stroke-width="14" stroke-linecap="round">
+                <circle cx="38" cy="32" r="14"/>
+                <circle cx="96" cy="66" r="14"/>
+                <line x1="100" y1="16" x2="34" y2="82"/>
+              </g>
+            </svg></span>
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Rachmistrz + Blackwall</h3>
             <p class="card__body">Kalkulator RRSO i rat kredytowych z własnym systemem licencji, 85 testów w bramce — czeka na decyzję o pierwszej sprzedaży.</p>
@@ -5036,7 +5090,12 @@ var MOOD_PARAMS = {
   tool:     {spin: 6,   breathAmp: 0.10, breathFreq: 2.0, size: 1.20, glow: 0.65, fibers: 0.95, frame: 0.74, burn: 0.55, wave: 0.35, scan: 0.72},
   thinking: {spin: 2.2, breathAmp: 0.09, breathFreq: 1.1, size: 1.05, glow: 0.50, fibers: 0.45, frame: 0.46, burn: 0.30, wave: 0.28, scan: 0.50},
   speaking: {spin: 1.3, breathAmp: 0.16, breathFreq: 3.2, size: 1.15, glow: 0.60, fibers: 0.50, frame: 0.40, burn: 0.46, wave: 0.75, scan: 0.30},
-  error:    {spin: 0,   breathAmp: 0.22, breathFreq: 9.0, size: 1.10, glow: 0.80, fibers: 0.80, frame: 0.90, burn: 0.70, wave: 0.20, scan: 0.00}
+  error:    {spin: 0,   breathAmp: 0.22, breathFreq: 9.0, size: 1.10, glow: 0.80, fibers: 0.80, frame: 0.90, burn: 0.70, wave: 0.20, scan: 0.00},
+  /* Profil TYLKO dla kuli w pasku (navOrb, 19.09) — ta sama gestosc/blask
+     co 'calm', ale zero oddechu/fali/skanu: obraca sie i nic wiecej.
+     Nigdy nie dostaje setMood/flare z zewnatrz, wiec te zera sa ostatnim
+     slowem, nie punktem startowym do animacji. */
+  static:   {spin: 1,   breathAmp: 0,    breathFreq: 0,   size: 1.00, glow: 0.35, fibers: 0.22, frame: 0.16, burn: 0.18, wave: 0.00, scan: 0.00}
 };
 var MOOD_KEYS = ['spin','breathAmp','breathFreq','size','glow','fibers','frame','burn','wave','scan'];
 
@@ -5400,11 +5459,13 @@ var FS_SKLAD = [
   '}'
 ].join('\n');
 
-/* Jedno wywołanie = jedna kula na jednym <canvas>. Znak tekstowy (mark),
-   mała kula w pasku i duża kula w .face są WIDZAMI tego samego stanu, nie
-   osobnymi źródłami prawdy — stąd ten sam SOMI_MOOD/PULSE rusza wszystkie
-   naraz (patrz `orbs.forEach` niżej). */
-function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe){
+/* Jedno wywołanie = jedna kula na jednym <canvas>. Znak tekstowy (mark)
+   i duża kula w .face są WIDZAMI tego samego stanu, nie osobnymi źródłami
+   prawdy — stąd ten sam SOMI_MOOD/PULSE rusza je oba (patrz `moodOrbs.forEach`
+   niżej). Kula w pasku (navOrb) jest z tego celowo WYŁĄCZONA (19.09, maisa:
+   "niech ona jest statyczna, obraca sie spokojnie, nic wiecej") — dostaje
+   własny, martwy profil `static` i nigdy nie zmienia nastroju. */
+function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe, initMood){
   glowStrength = glowStrength == null ? 0.8 : glowStrength;
   kamera = kamera == null ? ORB_FRAME.mala.kamera : kamera;
   if(!canvas) return null;
@@ -5990,7 +6051,7 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
       glowEl.style.background = 'radial-gradient(circle, #' + kolorCel.getHexString() + ' 0%, transparent 70%)';
     }
   }
-  applyMood('calm', true);
+  applyMood(initMood || 'calm', true);
 
   return {
     setMood: function(m){
@@ -6020,23 +6081,29 @@ var somiDemoCanvas = document.getElementById('somiDemoOrb');
 var somiDemoGlow = document.querySelector('.somi-demo__orb-glow');
 var somiDemoOrb;
 
-var orbs = [
-  /* JEDNA instancja zamiast trzech z terminala (pasek boczny + twarz + czolo).
-     Wariant MALY: kadr 322:205 i kamera ORB_FRAME.pasek — ten sam ksztalt,
-     ktory w terminalu stoi w pasku bocznym, 460 punktow, slabsza poswiata
-     (0.35), bo na tak malym polu mocniejsza zalewa cala chmure.
-     Po M2.1 plotno ma tyle pikseli, ile zajmuje na ekranie (82x52, po
-     przewinieciu 69x44), a nie 322x205 skalowane w dol prawie czterokrotnie. */
-  /* Sila poswiaty 0,16 — bylo 0,35 do 11.09 (maisa: "to swiatlo jest za duze"). */
-  makeOrb(navOrbCanvas, 0.0022, 460, navOrbGlow, 0.16, ORB_FRAME.pasek.kamera, 20260910),
-  /* DRUGA INSTANCJA (18.09) — sekcja "SOMI z bliska". Kamera i N wziete
-     WPROST z ORB_FRAME.mala ("punkt odniesienia, na stronie nieuzywany" —
-     az do teraz), bo to DOKLADNIE ten wariant: kadr 322:205 przy wysokosci
-     bliskiej 205 px, dla ktorego 460 punktow i poswiata 0,35 byly juz
-     zmierzone w terminalu (mala/pasek boczny), zamiast zgadywac nowe liczby. */
-  somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, 460, somiDemoGlow, 0.35, ORB_FRAME.mala.kamera, 20260918)
-].filter(Boolean);
+/* JEDNA instancja zamiast trzech z terminala (pasek boczny + twarz + czolo).
+   Wariant MALY: kadr 322:205 i kamera ORB_FRAME.pasek — ten sam ksztalt,
+   ktory w terminalu stoi w pasku bocznym, 460 punktow, slabsza poswiata
+   (0.35), bo na tak malym polu mocniejsza zalewa cala chmure.
+   Po M2.1 plotno ma tyle pikseli, ile zajmuje na ekranie (82x52, po
+   przewinieciu 69x44), a nie 322x205 skalowane w dol prawie czterokrotnie. */
+/* Sila poswiaty 0,16 — bylo 0,35 do 11.09 (maisa: "to swiatlo jest za duze"). */
+/* Profil 'static' (19.09) — ta kula ma tylko rotowac, patrz komentarz przy
+   MOOD_PARAMS.static i przy makeOrb. */
+var navOrb = makeOrb(navOrbCanvas, 0.0022, 460, navOrbGlow, 0.16, ORB_FRAME.pasek.kamera, 20260910, 'static');
+/* DRUGA INSTANCJA (18.09) — sekcja "SOMI z bliska". Kamera i N wziete
+   WPROST z ORB_FRAME.mala ("punkt odniesienia, na stronie nieuzywany" —
+   az do teraz), bo to DOKLADNIE ten wariant: kadr 322:205 przy wysokosci
+   bliskiej 205 px, dla ktorego 460 punktow i poswiata 0,35 byly juz
+   zmierzone w terminalu (mala/pasek boczny), zamiast zgadywac nowe liczby. */
+somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, 460, somiDemoGlow, 0.35, ORB_FRAME.mala.kamera, 20260918);
+var orbs = [navOrb, somiDemoOrb].filter(Boolean);
 if(!orbs.length) return;  // brak WebGL na obu — znak tekstowy zostaje jedynym wskaźnikiem
+
+/* Tylko somiDemoOrb sluchacza globalnego nastroju/flary — navOrb zostaje
+   na wlasnym, martwym profilu 'static' na zawsze (patrz komentarz przy
+   makeOrb, 19.09). */
+var moodOrbs = orbs.filter(function(o){ return o !== navOrb; });
 
 /* Druga kula NIE moze chodzic caly czas — zasada 4 planu ("najwyzej dwie
    pracujace petle animacji") jest juz wyczerpana przez mape czastek + kule
@@ -6062,13 +6129,13 @@ if(somiDemoOrb){
 var realMood = window.SOMI_MOOD;
 window.SOMI_MOOD = function(m){
   realMood(m);
-  orbs.forEach(function(o){ o.setMood(m); });
+  moodOrbs.forEach(function(o){ o.setMood(m); });
 };
 
 var realPulse = window.SOMI_PULSE;
 window.SOMI_PULSE = function(){
   realPulse();
-  orbs.forEach(function(o){ o.flare(); });
+  moodOrbs.forEach(function(o){ o.flare(); });
 };
 };
 </script>
