@@ -1,0 +1,4 @@
+# Biblioteka z zewnatrz — git nie ma jej przerabiac koncow linii.
+# Bez tego przy kazdym pobraniu na Windowsie plik "zmienia sie" w LF->CRLF
+# i wchodzi do diffa jako 600 KB szumu.
+vendor/** -text
