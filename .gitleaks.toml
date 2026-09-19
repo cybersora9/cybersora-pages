@@ -1,0 +1,10 @@
+title = "gitleaks config — cybersora-pages"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Znane, celowo jawne wartosci (nie sekrety)"
+regexes = [
+  '''c4523b4b-92d5-4d0e-ac9b-e7c4de8b4000''', # Web3Forms access_key — z zalozenia publiczny klucz client-side
+]
