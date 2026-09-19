@@ -21,6 +21,7 @@
 <meta name="twitter:description" content="Studio kodu, designu i motion. Własne produkty AI dla resellerów Vinted, kalkulatory, boty i radary ofert.">
 <meta name="twitter:image" content="og-image.png">
 <meta name="theme-color" content="#0e0e12">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Jedyny font potrzebny do pierwszego malowania hero. crossorigin jest
      OBOWIAZKOWE nawet dla pliku z tego samego serwera: fonty leca w trybie
      anonimowym CORS i bez tego atrybutu przegladarka pobralaby plik DWA RAZY,
@@ -3333,6 +3334,7 @@
             <span>Twój e-mail</span>
             <input type="email" name="email" required placeholder="ty@przyklad.pl">
           </label>
+          <div class="h-captcha" data-captcha="true"></div>
           <button class="cta-big" type="submit">Wyślij zapytanie do SOMI &rarr;</button>
         </form>
 
@@ -3588,6 +3590,7 @@
               <span>Opisz, o co chodzi</span>
               <textarea name="cmessage" rows="5" required placeholder="Im więcej konkretów, tym szybciej i trafniej odpowiemy…"></textarea>
             </label>
+            <div class="h-captcha" data-captcha="true"></div>
             <button class="cta-big" type="submit">Wyślij zgłoszenie &rarr;</button>
             <p class="orderform__eta">odpowiadamy w ciągu ~24h</p>
           </form>
@@ -4626,6 +4629,7 @@
       e.preventDefault();
       const fd = new FormData(form);
       if (fd.get('botcheck')) return; // honeypot: bot wypelnil pole niewidoczne dla czlowieka
+      if (!fd.get('h-captcha-response')) { alert('Zaznacz proszę hCaptcha.'); return; }
       const topicText = form.elements['ctopic'].selectedOptions[0]?.text || fd.get('ctopic') || '';
       const subject = 'Zgłoszenie ze strony: ' + topicText;
       const b =
@@ -4645,7 +4649,8 @@
           subject: subject,
           from_name: fd.get('cname') || 'Zgłoszenie ze strony',
           email: fd.get('cemail') || '',
-          message: b
+          message: b,
+          'h-captcha-response': fd.get('h-captcha-response') || ''
         });
         if (data.success) {
           body.innerHTML = '<span class="t-label">✔ WYSŁANO</span>\n\n' +
@@ -4701,6 +4706,7 @@
       e.preventDefault();
       const fd = new FormData(orderForm);
       if (fd.get('botcheck')) return; // honeypot
+      if (!fd.get('h-captcha-response')) { alert('Zaznacz proszę hCaptcha.'); return; }
       const type = fd.get('type') || '';
       const budget = fd.get('budget') || '';
       const desc = fd.get('desc') || '';
@@ -4715,7 +4721,8 @@
           subject: subject,
           from_name: 'Zamówienie ze strony',
           email: email,
-          message: msg
+          message: msg,
+          'h-captcha-response': fd.get('h-captcha-response') || ''
         });
         if (data.success) {
           if (orderTerminalBody) {
@@ -6325,5 +6332,9 @@ window.SOMI_PULSE = function(){
   else addEventListener('load', function(){ setTimeout(start, 400); });
 })();
 </script>
+<!-- hCaptcha (Moduł 1, PROMPT_BEZPIECZENSTWO.md): renderuje widget .h-captcha
+     i wypełnia ukryte textarea[name=h-captcha-response], które czytamy
+     ręcznie w wyslijDoWeb3Forms zamiast używać ich natywnego <form>. -->
+<script src="https://web3forms.com/client/script.js" async defer></script>
 </body>
 </html>
