@@ -625,6 +625,14 @@
   .nav__mascot.has-orb .nav__orb{display:flex;}
   .nav__mascot.has-orb .mascot,
   .nav__mascot.has-orb .mascot__zzz{display:none;}
+  /* Miedzy sprawdzeniem WebGL-a a wejsciem kuli (pobranie+rozruch three.js,
+     patrz komentarz przy oknie `load` nizej) maskotka stala widoczna i po
+     chwili znikala pod kula — mrugniecie zgloszone 20.09. Ta klasa chowa ja
+     NATYCHMIAST (zanim przegladarka w ogole namaluje pierwsza klatke), zamiast
+     pustego miejsca przez ulamek sekundy. Zdejmowana z powrotem, jesli kula
+     jednak nie wstanie (patrz JS) — inaczej pasek zostalby pusty na zawsze. */
+  .nav__mascot.is-loading .mascot,
+  .nav__mascot.is-loading .mascot__zzz{opacity:0;}
   /* Poświata jest osobnym rozmytym elementem POD płótnem, nie filtrem na samym
      płótnie — tak samo jak w terminalu: drop-shadow na buforze WebGL potrafi
      narysować kwadratową ramkę zamiast miękkiego klosza. Tło wstawia JS
@@ -5038,17 +5046,25 @@
     if(!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) return;
   } catch(e){ return; }
 
+  /* Od tego miejsca kula PRAWIE na pewno wstanie (WebGL już potwierdzony) —
+     chowamy maskotkę od razu, zamiast dać jej mignąć, dopóki three.js się
+     ściągnie i uruchomi. Jeśli mimo to coś zawiedzie niżej (pobranie, błąd
+     w __somiOrbBoot, brak WebGL na TEJ konkretnej karcie), klasa schodzi
+     z powrotem i maskotka wraca — pasek nigdy nie zostaje pusty na stałe. */
+  btn.classList.add('is-loading');
+
   window.addEventListener('load', function(){
     var tag = document.createElement('script');
     tag.src = 'vendor/three.min.js';
-    tag.onerror = function(){};   /* cisza, nie błąd — w pasku zostaje maskotka */
+    tag.onerror = function(){ btn.classList.remove('is-loading'); };   /* zapas — maskotka wraca */
     tag.onload = function(){
       try {
         window.__somiOrbBoot(canvas, glow);
         /* makeOrb odsłania płótno dopiero, gdy renderer wstał. Jeśli dalej jest
            schowane, WebGL padł na TEJ karcie — maskotka zostaje na miejscu. */
-        if(!canvas.hidden) btn.classList.add('has-orb');
-      } catch(e){}
+        if(!canvas.hidden){ btn.classList.add('has-orb'); btn.classList.remove('is-loading'); }
+        else btn.classList.remove('is-loading');
+      } catch(e){ btn.classList.remove('is-loading'); }
     };
     document.head.appendChild(tag);
   });
@@ -5475,6 +5491,13 @@ var FS_SKLAD = [
 function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe, initMood){
   glowStrength = glowStrength == null ? 0.8 : glowStrength;
   kamera = kamera == null ? ORB_FRAME.mala.kamera : kamera;
+  /* Kula w pasku (initMood='static') ma TYLKO rotowac — patrz MOOD_PARAMS.static.
+     Ale przechylenie ponizej i precesja pierscieni (szukaj `esStatic` nizej) sa
+     TWARDO wpisane w petle, poza systemem MOOD_PARAMS — zaden zestaw wartosci
+     stanu ich nie wylaczy. To byla prawdziwa przyczyna "ekspresji" zgloszonej
+     20.09 (kula kiwa sie i patrzy na boki mimo profilu static), nie brakujacy
+     parametr w MOOD_PARAMS. */
+  var esStatic = (initMood === 'static');
   if(!canvas) return null;
   var renderer;
   try {
@@ -5825,7 +5848,9 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
        się jako dwa niezależne mechanizmy — i o to chodzi. */
     ramaRotY -= spin * 0.26;
     group.rotation.y = autoRotY + userRotY;
-    group.rotation.x = Math.sin(t / 4000) * 0.15 + userRotX;
+    /* esStatic: kula w pasku ma tylko rotowac wokol Y (spin), bez kiwania
+       glowa po X — to kiwanie bylo zaszyte tu na sztywno, poza MOOD_PARAMS. */
+    group.rotation.x = esStatic ? userRotX : (Math.sin(t / 4000) * 0.15 + userRotX);
     var cel = 1 + 0.05 * flara;   /* skok skali przy rozbłysku — 0,16 do 11.09 */
     group.scale.lerp(SKALA.set(cel, cel, cel), 0.22);
     rama.rotation.y = ramaRotY + userRotY * 0.6;
@@ -5835,10 +5860,12 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
     for(ri = 0; ri < PIERSCIENIE.length; ri++){
       R = PIERSCIENIE[ri];
       /* PRECESJA: oś pierścienia wędruje sama, powoli, każdy w swoim tempie —
-         stąd wrażenie żyroskopu zamiast obręczy przyklejonej do kuli. */
+         stąd wrażenie żyroskopu zamiast obręczy przyklejonej do kuli.
+         esStatic: zostaje sam obrót Y (spin), osie X/Z stoją — inaczej kula
+         "static" dalej by żyła przez same pierścienie. */
       R.rotation.y = R.userData.by + ramaRotY * R.userData.tempo;
-      R.rotation.x = R.userData.bx + Math.sin(t * 0.00012 * R.userData.tempo) * 0.20;
-      R.rotation.z = R.userData.bz + Math.cos(t * 0.00009 * R.userData.tempo + ri) * 0.16;
+      R.rotation.x = esStatic ? R.userData.bx : (R.userData.bx + Math.sin(t * 0.00012 * R.userData.tempo) * 0.20);
+      R.rotation.z = esStatic ? R.userData.bz : (R.userData.bz + Math.cos(t * 0.00009 * R.userData.tempo + ri) * 0.16);
     }
     scene.updateMatrixWorld(true);
 
