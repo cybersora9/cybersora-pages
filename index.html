@@ -212,6 +212,25 @@
     font-family:var(--f-sans);
     font-variant-numeric:tabular-nums; /* Research F (18.09): cyfry rownej szerokosci wszedzie — PyPI 0.3.0, 24/7, hex-kody, statystyki. Zero ryzyka: nie zmienia ukladu, tylko szerokosc cyfr. */
   }
+  /* ---------- ZIARNO SITEWIDE (PROPOZYCJA_WIZUAL.md krok 1, 21.09) ----------
+     Faktura, nie ruch: statyczny feTurbulence jako data-URI, zero pliku,
+     zero HTTP request. mix-blend-mode:overlay dziala na tym co pod spodem,
+     wiec sam w sobie nie wnosi koloru (sekcja 1 planu). Nie liczy sie do
+     budzetu "dwoch pracujacych petli" (mapa czastek + kula SOMI) — nic tu
+     sie nie animuje, wiec prefers-reduced-motion nie ma nic do wylaczenia.
+     z-index:150 — nad navem (40) i main (10), pod lightboxem Sztuki (200),
+     zeby ziarno nie brudzilo powiekszonej grafiki w podgladzie. */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:150;
+    pointer-events:none;
+    opacity:.04;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:180px 180px;
+  }
 
   /* ---------- persistent particle background (never rebuilt on view change) ---------- */
   /* M4.1 (11.09) — MAPA ZYJE TYLKO W HERO.
@@ -343,56 +362,36 @@
   @keyframes navItemIn{
     from{opacity:0;transform:translateY(-8px);}
   }
-  /* KANJI 空 (sora) — niebo. Czyta sie dokladnie jak druga polowa nazwy,
-     wiec nie jest ozdoba, tylko podpisem. Stoi przy logotypie, za cienka
-     kreska, zeby nie czytalo sie jako kolejna litera slowa.
-     FONT CJK MUSI BYC PODANY OSOBNO: systemowy stos lacinski tego znaku nie ma
-     i przegladarka wstawilaby pusty prostokat. */
-  /* サイバー空 — "saiba sora", czyli nazwa zapisana po japonsku.
-     サイバー to standardowy zapis "cyber" (jak w サイバー攻撃 — cyberatak);
-     kreska ー na koncu jest czescia zapisu, nie ozdoba. 空 czyta sie "sora"
-     i znaczy niebo (oraz "pustka" — patrz PLAN_STRONY).
-     HIERARCHIA: "cyber" idzie ciszej i mniejsze, 空 zostaje pelne i krwiste,
-     bo to ONO jest sednem — inaczej znak utonalby w ciagu katakany.
-     FONT CJK MUSI BYC PODANY OSOBNO: systemowy stos lacinski tych znakow nie ma
-     i przegladarka wstawilaby puste prostokaty. */
-  .brand__kanji{
-    font-family:"Yu Gothic UI","Yu Gothic","Meiryo","MS Gothic","Noto Sans JP","Hiragino Sans",sans-serif;
+  /* KANJI サイバー空 WYCIETE 21.09 na prosbe maisy ("te znaki chinskie mozna
+     wyjebac i to kanji") — zwalnia miejsce w navie dla .brand__second nizej. */
+  /* Druga tozsamosc obok logotypu — cybersora pisze kod, deadsora robi
+     mroczny collage (ten sam czlowiek, patrz PROPOZYCJA_WIZUAL.md sekcja 0:
+     "nie laczymy dwoch stylow, dokanczamy jeden"). Cicho, mniejszym stopniem
+     i muted-dark, zeby cybersora zostala glownym podpisem, a deadsora dopiskiem. */
+  .brand__second{
+    font-family:var(--mono);
+    font-size:.62em;
     font-weight:600;
-    font-size:1.16em;
-    line-height:var(--lh-display);
-    color:var(--th-hot);
+    letter-spacing:var(--ls-instrument);
+    text-transform:lowercase;
+    color:var(--muted-dark);
     margin-left:.5rem;
     padding-left:.5rem;
-    border-left:1px solid rgba(255,255,255,.18);
-    vertical-align:-.04em;
+    border-left:1px solid rgba(255,255,255,.14);
+    vertical-align:.02em;
     white-space:nowrap;
   }
-  /* ROWNE ZE SOBA (poprawka maisy 11.09). Wczesniej "cyber" szlo mniejsze
-     (.72em) i wygaszone (opacity .6) — miala z tego wyjsc hierarchia, a wyszly
-     dwa rozne napisy sklejone w jeden: inna wysokosc znakow i inny kolor.
-     Teraz katakana i kanji maja TEN SAM rozmiar i TEN SAM kolor, wiec czytaja
-     sie jak jedno slowo. <i> zostaje wylacznie jako hak do chowania "cyber"
-     na waskim ekranie (progi nizej). */
-  /* rozmiar: BRAK wlasnej deklaracji = dziedziczy 1.16em z rodzica, czyli
-     dokladnie to samo, co dawne jawne 1em (T2 — jedna wartosc mniej) */
-  .brand__kanji i{
-    font-style:normal;
-    opacity:1;
-    letter-spacing:var(--ls-label);
-  }
-  /* PROGI WZIETE Z POMIARU, nie z sufitu (11.09, ramka o szerokosci telefonu;
-     mierzony luz miedzy prawa krawedzia logotypu a przyciskiem "Napisz do nas"):
-       • pelne サイバー空: przy 480 px luz -24 px, przy 560 px +54 px → prog 560
-       • samo 空:       przy 376 px luz -10 px, przy 420 px +34 px → prog 400
-     Ponizej progu logotyp WCHODZIL NA PRZYCISK — zlapane na zrzucie, znak byl
-     doslownie zaslaniany. Stad schodkowanie zamiast jednego breakpointu. */
-  @media (max-width:560px){
-    .brand__kanji i{display:none;}          /* zostaje samo 空 */
-    .brand__kanji{margin-left:.32rem;padding-left:.32rem;}
-  }
-  @media (max-width:400px){
-    .brand__kanji{display:none;}            /* zostaje sama nazwa */
+  /* PROG ZMIERZONY (21.09, ta sama metoda co przy kanji: iframe o zadanej
+     szerokosci + getBoundingClientRect, nie zmiana rozmiaru okna — patrz
+     "JAK TESTOWAC" w PROMPT_M4.md). .nav__bar ma grid 1fr auto 1fr (logotyp |
+     linki na srodku | CTA), wiec linki przesuwaja sie w lewo razem z calym
+     paskiem — proba reuzycia progu 900px (burger) OKAZALA SIE ZLA: miedzy
+     900 a ~1130px logotyp z dopiskiem realnie NACHODZIL na linki (zmierzony
+     ujemny odstep, np. -81px przy 920px). Dopiero od ok. 1150px jest trwaly,
+     rosnacy zapas (+22px). Ponizej 900px linki i tak wypadaja z ukladu do
+     panelu (position:absolute), wiec tam dopisek juz nie koliduje. */
+  @media (max-width:1150px){
+    .brand__second{display:none;}
   }
 
   .nav__brand{
@@ -408,6 +407,15 @@
   }
   .nav__brand b{color:var(--th-hot);font-weight:800;transition:color .9s var(--ease-soft);}
   .nav__brand:hover b{text-shadow:0 0 16px color-mix(in srgb, var(--th-hot) 70%, transparent);}
+  /* ---------- ZNAK BLACKWALL W NAVIE (PROPOZYCJA_WIZUAL.md krok 3, 21.09) ----------
+     Ta sama geometria co favicon.svg (kanciasty nawias + literka S), tylko
+     bez plytki tla — goly, transparentny znak przed tekstem. STATYCZNY: bez
+     ciaglego .bwg jittera z archiwum marki, bo to byloby trzecia pracujaca
+     petla (budzet: max dwie — mapa czastek + kula SOMI). Zamiast tego
+     subtelny hover jak reszta linkow navu (text-shadow 14px w .nav__link:hover
+     wyzej) — tu drop-shadow, bo to SVG, nie tekst. */
+  .nav__mark{display:inline-block;vertical-align:-3px;margin-right:.42em;transition:filter .25s ease;}
+  .nav__brand:hover .nav__mark{filter:drop-shadow(0 0 6px color-mix(in srgb, var(--th-hot) 65%, transparent));}
   /* KROPKA PRZY LOGOTYPIE WYCIETA 11.09 na prosbe maisy. Byla krwistym kolkiem
      z poswiata zaraz za nazwa; po dodaniu kanji siedziala tuz za znakiem i
      robila z niego trzeci element zamiast podpisu. Powrot = przywrocic ten
@@ -880,6 +888,24 @@
     94.6%{ text-shadow:-1px 0 var(--th-hot), 1px 0 rgba(80,220,255,.85); transform:translate(0,0); }
     95.2%,100%{ text-shadow:none; transform:translate(0,0); }
   }
+  /* ---------- GLITCH JEDNORAZOWY — naglowek "Sztuka" (PROPOZYCJA_WIZUAL.md sekcja 4) ----------
+     Echo "can u still hear me?" z deadsory — TECHNIKA (blad druku jako
+     zdarzenie), nie kopia tekstu. Rozni sie od sitewide .slogan (glitchFlick,
+     rzadki tik co 7s w petli): tu jedno mocne drzenie i cisza, "uzyte raz, nie
+     wszedzie" — jedyny SMIALY moment na cala strone (sekcja 0 planu). Odpala
+     sie na kazdym wejsciu w widok Sztuki, bo .view resetuje animacje przy
+     kazdym przelaczeniu z display:none (ten sam mechanizm co .view{animation:
+     viewIn}) — nie trzeba osobnego JS ani IntersectionObserver. */
+  .slogan.slogan--glitch-once{animation:sztukaGlitch 1s steps(1) both;}
+  @keyframes sztukaGlitch{
+    0%{ text-shadow:none; transform:translate(0,0); }
+    8%{ text-shadow:-3px 0 var(--th-hot), 3px 0 rgba(80,220,255,.85); transform:translate(-2px,0); }
+    16%{ text-shadow:3px 0 var(--th-hot), -3px 0 rgba(80,220,255,.85); transform:translate(2px,0); }
+    24%{ text-shadow:none; transform:translate(0,0); }
+    32%{ text-shadow:-2px 0 var(--th-hot), 2px 0 rgba(80,220,255,.85); transform:translate(-1px,0); }
+    40%{ text-shadow:2px 0 var(--th-hot), -2px 0 rgba(80,220,255,.85); transform:translate(1px,0); }
+    48%,100%{ text-shadow:none; transform:translate(0,0); }
+  }
   .slogan .thin{
     display:block;
     font-weight:400;
@@ -1179,6 +1205,53 @@
   }
   .card:hover::before{opacity:1;}
   .card:hover::after{opacity:1;transform:scale(1);}
+
+  /* ---------- NAROZNIKI HUD SITEWIDE (PROPOZYCJA_WIZUAL.md krok 2, 21.09) ----------
+     Ten sam motyw co .card::after (dwa rogi, gora-lewo + dol-prawo), ale bez
+     wypelnienia i bez ukrywania na hover — .card nagradza kliknieciem, te tu
+     sa CICHYM, stalym podpisem tla (sekcja 3 planu: "narozniki, dzis tylko na
+     .card, rozciagniete na caly szkielet strony"). Dlatego nizsza, stala
+     opacity zamiast 0→1 przy hover. */
+  .hero{position:relative;}
+  .hero::after{
+    content:"";
+    position:absolute;inset:26px;
+    pointer-events:none;
+    background:
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 22px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 1.5px 22px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 22px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 1.5px 22px no-repeat;
+    background-repeat:no-repeat;
+    opacity:.4;
+  }
+  .manifest__item{position:relative;}
+  .manifest__item::after{
+    content:"";
+    position:absolute;inset:-18px;
+    pointer-events:none;
+    background:
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 16px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 1.5px 16px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 16px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 1.5px 16px no-repeat;
+    background-repeat:no-repeat;
+    opacity:.32;
+  }
+  /* stopka: KRWISTE tlo, wiec akcent w --th-accent by zniknal — ciemny
+     znak jak tekst logotypu (.footer__brand: color:#0a0a0d). Jeden rog,
+     nie cztery: "stopka ma byc cicha, nie krzyczec" (sekcja 3 planu). */
+  .footer__brand{position:relative;}
+  .footer__brand::after{
+    content:"";
+    position:absolute;inset:-10px -16px;
+    pointer-events:none;
+    background:
+      linear-gradient(color-mix(in srgb, #0a0a0d 55%, transparent),color-mix(in srgb, #0a0a0d 55%, transparent)) top left / 12px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, #0a0a0d 55%, transparent),color-mix(in srgb, #0a0a0d 55%, transparent)) top left / 1.5px 12px no-repeat;
+    background-repeat:no-repeat;
+    opacity:.4;
+  }
   .card__tag{
     display:inline-flex;align-items:center;gap:.5em;
     font-family:var(--mono,ui-monospace,'SFMono-Regular',Consolas,monospace);
@@ -1198,11 +1271,99 @@
   a.card:hover .card__go{ transform:translateX(4px); }
   .card__title{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);}
   .card__body{margin:0;font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
-  /* znak firmowy nad kartą Sadzonek — goły inline SVG jak .pas__znak, bez
-     pudełka .prod__logo (maisa chce ten sam, "bare" charakter co przy
-     "Trzy, które już chodzą", nie boksowaną ikonkę katalogu) */
-  .card__znak{display:block;}
-  .card__znak svg{height:30px;width:auto;display:block;}
+  /* ---------- SADZONKI: ŚCIEŻKA WZROSTU (sesja 1, 20.09) ----------
+     Karty "Nad czym teraz pracujemy" dostały WŁASNE klasy (.growth/.seed),
+     NIE .cards/.card — te są dzielone z całym katalogiem produktów
+     (siatka równych kolumn, mały goły znak) i nie mają udźwignąć innego
+     kontraktu wizualnego. Tu chodzi o dosłowne rozwinięcie metafory
+     "sadzonek": rozmiar i wysokość każdej karty rosną z zaawansowaniem
+     projektu, karty stoją po przekątnej zamiast w rzędzie. Kolejność
+     potwierdzona z maisą 20.09: SalonDesk (żywy klient, podpisana umowa)
+     → Pycodemath (publiczny na PyPI) → Rachmistrz (działa, czeka na
+     decyzję o sprzedaży) → Frostwall (sama biblioteka, bez frontu).
+     Popup po kliknięciu to SESJA 2 (patrz PROMPT_KARTY_SADZONKI.md) —
+     tu tylko stan spoczynku; `.seed` jest już `<button>`, żeby druga
+     sesja dopisała tylko obsługę kliknięcia, nie przebudowywała znaczników. */
+  .growth{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    gap:1.5rem;
+  }
+  .seed{
+    position:relative;
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    background:rgba(255,255,255,.015);
+    overflow:hidden;
+    isolation:isolate;
+    cursor:pointer;
+    font:inherit;
+    text-align:left;
+    color:inherit;
+    padding:0;
+    -webkit-appearance:none;
+    appearance:none;
+    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+  }
+  .seed:hover,.seed:focus-visible{
+    transform:translateY(-5px);
+    border-color:color-mix(in srgb, var(--th-hot) 45%, transparent);
+    box-shadow:0 16px 34px -12px color-mix(in srgb, var(--th-hot) 35%, transparent);
+  }
+  .seed:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  /* rozmiar rosnie ze stopniem zaawansowania; suma szerokosci + odstepow
+     (280+252+228+206 + 3x24px = 1038px) miesci sie w kontenerze 1080px
+     (.services__inner) — powyzej 1100px viewportu rzad NIE zawija sie
+     przypadkowo w polowie, ponizej przechodzi w kolumne (patrz media query) */
+  .seed[data-stage="1"]{width:280px;min-height:320px;margin-top:0;}
+  .seed[data-stage="2"]{width:252px;min-height:296px;margin-top:22px;}
+  .seed[data-stage="3"]{width:228px;min-height:272px;margin-top:44px;}
+  .seed[data-stage="4"]{width:206px;min-height:250px;margin-top:66px;}
+  .seed__code{
+    position:absolute;inset:0;padding:18px;
+    font-family:var(--mono);font-size:11px;line-height:1.8;
+    color:rgba(225,29,51,.16);white-space:pre;pointer-events:none;
+  }
+  .seed__mark{position:absolute;color:#e11d33;pointer-events:none;}
+  .seed__mark svg{display:block;width:100%;height:auto;}
+  /* pozycja/procent kazdego znaku przeniesione wprost z zaakceptowanej
+     makiety (artifact YP37MwLwr8FgL2HHBZUZCK), przeliczone na % wzgledem
+     280x300px karty z makiety, zeby skalowaly sie z rozmiarem stopnia */
+  .seed[data-stage="1"] .seed__mark{width:78%;right:-9%;bottom:-9%;opacity:.10;}
+  .seed[data-stage="2"] .seed__mark{width:82%;right:-11%;bottom:-5%;opacity:.10;}
+  .seed[data-stage="3"] .seed__mark{width:68%;right:-6%;bottom:-6%;opacity:.11;}
+  .seed[data-stage="4"] .seed__mark{width:68%;right:-7%;bottom:-7%;opacity:.11;}
+  .seed__scrim{
+    position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(135deg, var(--ink) 0%, var(--ink) 42%, color-mix(in srgb, var(--ink) 60%, transparent) 62%, transparent 90%);
+  }
+  .seed__content{
+    position:relative;z-index:2;flex-grow:1;
+    display:flex;flex-direction:column;gap:.6rem;
+    padding:1.4rem 1.3rem 1.5rem;
+  }
+  .seed__tag{
+    display:block;
+    font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:var(--th-hot);
+  }
+  .seed__title{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);color:#f6f2f3;}
+  .seed__body{margin:0;font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
+  .seed__hint{
+    margin-top:auto;padding-top:.4rem;
+    font-size:var(--t-ui);font-weight:600;letter-spacing:.02em;
+    color:rgba(246,242,243,.4);
+    transition:color .25s ease,transform .25s var(--ease-soft);
+  }
+  .seed:hover .seed__hint,.seed:focus-visible .seed__hint{color:var(--th-hot);transform:translateX(4px);}
+  @media (max-width:1100px){
+    .growth{flex-direction:column;align-items:stretch;}
+    .seed[data-stage]{width:100%;min-height:0;margin-top:0;}
+  }
 
   /* ---- product tile extras: logo slot, price, add-to-cart ---- */
   .prod__logo{
@@ -1772,6 +1933,10 @@
   /* Na krwistym tle bialy akcent w logotypie bylby jedyna jasna rzecza w calym
      bloku i rozbijalby go. Caly znak jest czarny, rozni sie tylko waga. */
   .footer__brand b{color:#0a0a0d;font-weight:800;}
+  /* ten sam znak co .nav__mark, mniejszy, jednym kolorem — na krwistym tle
+     dwubarwny (crimson+kosc) znaczylby tyle, co drugi jasny akcent obok
+     tekstu, a stopka "ma byc cicha, nie krzyczec" (sekcja 3 planu). */
+  .footer__mark{display:inline-block;vertical-align:-2px;margin-right:.4em;}
   .footer__nav{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;}
   /* WCAG AA (19.09): czarny #0a0a0d na krwistym --th-solid dawal 3,70:1,
      ponizej progu 4,50 dla tekstu normalnej wielkosci (zgloszone przez
@@ -2100,6 +2265,113 @@
     .nav__brand{font-size:var(--t-body);}
   }
 
+  /* ---- Sztuka: galeria prac + lightbox (21.09) ---- */
+  .sztuka__grid{
+    display:grid;
+    gap:1.1rem;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  }
+  .sztuka__item{
+    position:relative;
+    display:block;
+    width:100%;
+    aspect-ratio:1/1;
+    margin:0;padding:0;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    overflow:hidden;
+    background:rgba(255,255,255,.015);
+    cursor:pointer;
+    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+  }
+  /* narozniki HUD zamiast goliej ramki (PROPOZYCJA_WIZUAL.md sekcja 4) —
+     "jak reszta strony", czyli cichy, staly podpis, nie hover-reveal .card */
+  .sztuka__item::after{
+    content:"";
+    position:absolute;inset:9px;
+    pointer-events:none;
+    z-index:2;
+    background:
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) top left / 14px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) top left / 1.5px 14px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) bottom right / 14px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) bottom right / 1.5px 14px no-repeat;
+    background-repeat:no-repeat;
+    opacity:.4;
+    transition:opacity .3s ease;
+  }
+  .sztuka__item:hover::after{opacity:.85;}
+  .sztuka__item img{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+    transition:transform .4s ease;
+  }
+  /* ---------- DUOTONE + HOVER-REVEAL (PROPOZYCJA_WIZUAL.md sekcja 4, 21.09) ----------
+     Baza wczytana = duotone (--ink -> --th-hot, skrypt sztuka/duotone.py), zeby
+     galeria na pierwszy rzut oka czytala sie jako jedna seria pod marka. Warstwa
+     .sztuka__color to oryginalny kolor, na wierzchu, startuje z opacity:0 —
+     hover/focus podnosi ja do 1, wiec praca nie znika, jest nagroda za
+     zainteresowanie. Tylko (hover:hover): na dotyku nie ma najechania, a
+     kliknieciu tak czy inaczej otwiera lightbox z pelnym kolorem — to JEST
+     "tap reveal" na mobile, nie trzeba go duplikowac osobnym JS-em. */
+  .sztuka__color{
+    position:absolute;inset:0;
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  @media (hover:hover){
+    .sztuka__item:hover .sztuka__color,
+    .sztuka__item:focus-visible .sztuka__color{opacity:1;}
+  }
+  .sztuka__item:hover{
+    transform:translateY(-5px);
+    border-color:color-mix(in srgb, var(--th-hot) 55%, transparent);
+    box-shadow:0 16px 34px -12px color-mix(in srgb, var(--th-hot) 45%, transparent);
+  }
+  .sztuka__item:hover img{transform:scale(1.05);}
+  .sztuka__item:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+
+  .sztuka__lightbox{
+    position:fixed;inset:0;z-index:200;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,6,9,.92);
+    padding:4vh 4vw;
+    backdrop-filter:blur(4px);
+  }
+  .sztuka__lb-img{
+    max-width:min(90vw,900px);
+    max-height:88vh;
+    border-radius:10px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+    opacity:0;
+    transform:scale(.97);
+    transition:opacity .25s ease,transform .25s ease;
+  }
+  .sztuka__lightbox.is-ready .sztuka__lb-img{opacity:1;transform:none;}
+  .sztuka__lb-close,.sztuka__lb-prev,.sztuka__lb-next{
+    position:absolute;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.16);
+    color:#fff;
+    border-radius:999px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .2s ease,border-color .2s ease;
+  }
+  .sztuka__lb-close:hover,.sztuka__lb-prev:hover,.sztuka__lb-next:hover{
+    background:color-mix(in srgb, var(--th-hot) 25%, transparent);
+    border-color:color-mix(in srgb, var(--th-hot) 55%, transparent);
+  }
+  .sztuka__lb-close{top:20px;right:20px;width:44px;height:44px;font-size:1.5rem;line-height:1;}
+  .sztuka__lb-prev,.sztuka__lb-next{top:50%;transform:translateY(-50%);width:48px;height:48px;font-size:1.3rem;}
+  .sztuka__lb-prev{left:16px;}
+  .sztuka__lb-next{right:16px;}
+  @media (max-width:640px){
+    .sztuka__lb-prev,.sztuka__lb-next{width:40px;height:40px;}
+    .sztuka__lb-close{width:38px;height:38px;top:12px;right:12px;}
+  }
+
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto;}
     .view{animation:none;}
@@ -2122,12 +2394,17 @@
     .somi__row,.somi__chip{animation:somiFadeIn .2s ease both;}
     .somi__chip:hover{transform:none;}
     .slogan{animation:none;}
+    .slogan.slogan--glitch-once{animation:none;text-shadow:none;transform:none;}
     /* mascot: a static friendly face — no blink, no zzz, no hop */
     .nav__mascot{animation:none;}
     .mascot__lid{animation:none;}
     .mascot__pupil{transition:opacity .2s ease;}
     .nav__mascot:hover .mascot,.nav__mascot.is-hop .mascot{transform:none;animation:none;}
     .mascot__zzz{display:none;}
+    .sztuka__item,.sztuka__item img,.sztuka__color{transition:none;}
+    .sztuka__item:hover{transform:none;}
+    .sztuka__item:hover img{transform:none;}
+    .sztuka__lb-img{transition:none;opacity:1;transform:none;}
   }
   @keyframes somiFadeIn{
     from{opacity:0;}
@@ -2231,14 +2508,15 @@
       </svg>
       <span class="mascot__zzz" aria-hidden="true">z</span>
     </button>
-      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora — Start">cyber<b>sora</b><span class="brand__kanji" aria-hidden="true"><i>サイバー</i>空</span></a>
+      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora / deadsora — Start"><svg class="nav__mark" viewBox="0 0 134 100" width="27" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)" stroke="var(--th-accent)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)" stroke="#f6f2f3"/></g></svg>cyber<b>sora</b><span class="brand__second">/ deadsora</span></a>
     </div>
 
     <div class="nav__links" id="navlinks">
       <a href="#start"     class="nav__link is-active" data-nav="start">Start</a>
       <a href="#products"  class="nav__link"           data-nav="products">Produkty</a>
       <a href="#somi"      class="nav__link"           data-nav="somi">SOMI</a>
-      <a href="#onas"      class="nav__link"           data-nav="onas">O nas</a>
+      <a href="#onas"      class="nav__link"           data-nav="onas">O mnie</a>
+      <a href="#sztuka"    class="nav__link"           data-nav="sztuka">Sztuka</a>
       <a href="#rnd"       class="nav__link"           data-nav="rnd">Sadzonki</a>
       <a href="#contact"   class="nav__link"           data-nav="contact">Kontakt</a>
       <span class="nav__magic" aria-hidden="true"></span>
@@ -2248,7 +2526,7 @@
       <!-- Przelacznik PL/ENG WYCIETY 18.09: ENG byl trwale wygaszony (brak wersji),
            co czytalo sie jako "niedokonczone" w pierwszym miejscu, na ktore patrzy oko.
            Miejsce na ikony socjali jest tutaj, czeka na adresy profili. -->
-      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do nas</a>
+      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do mnie</a>
       <button class="nav__burger" type="button" aria-expanded="false" aria-controls="navlinks" aria-label="Otwórz menu">
         <span></span><span></span><span></span>
       </button>
@@ -2271,9 +2549,9 @@
       <span class="hero__stamp" aria-hidden="true">made in poland</span>
 
       <div class="hero__type">
-        <h1 class="slogan hero__slogan">Piszemy software<span class="thin">na zamówienie</span></h1>
-        <p class="hero__lead">Aplikacje, boty i narzędzia — od pierwszej rozmowy do wdrożenia. Własne produkty piszemy tym samym kodem, co zlecenia.</p>
-        <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do nas</a>
+        <h1 class="slogan hero__slogan">Piszę software<span class="thin">na zamówienie</span></h1>
+        <p class="hero__lead">Aplikacje, boty i narzędzia — od pierwszej rozmowy do wdrożenia. Własne produkty piszę tym samym kodem, co zlecenia.</p>
+        <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do mnie</a>
       </div>
 
       <!-- pas faktow: kazda pozycja ma pokrycie (PyPI 0.3.0, podpisana umowa,
@@ -2298,7 +2576,7 @@
         </div>
         <div class="manifest__item">
           <h2 class="manifest__head">Kod, który pracuje<span>kiedy śpisz</span></h2>
-          <p class="manifest__body">Nasze radary przeglądają rynek 24 godziny na dobę i zwracają tylko to, co ma sens. To nie demo na pokaz — to chodzi u nas codziennie.</p>
+          <p class="manifest__body">Moje radary przeglądają rynek 24 godziny na dobę i zwracają tylko to, co ma sens. To nie demo na pokaz — to chodzi u mnie codziennie.</p>
         </div>
       </div>
     </section>
@@ -2346,7 +2624,7 @@
           <article class="card">
             <span class="card__tag">Radar</span>
             <h3 class="card__title">Radary ofert</h3>
-            <p class="card__body">Nasze własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia.</p>
+            <p class="card__body">Moje własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia.</p>
             <a class="card__go" href="#contact" data-nav="contact">Zapytaj o dostęp &rarr;</a>
           </article>
         </div>
@@ -2492,7 +2770,8 @@
           <a href="#start" data-nav="start">Start</a>
           <a href="#products" data-nav="products">Produkty</a>
           <a href="#somi" data-nav="somi">SOMI</a>
-          <a href="#onas" data-nav="onas">O nas</a>
+          <a href="#onas" data-nav="onas">O mnie</a>
+          <a href="#sztuka" data-nav="sztuka">Sztuka</a>
           <a href="#rnd" data-nav="rnd">Sadzonki</a>
           <a href="#contact" data-nav="contact">Kontakt</a>
           <a href="#polityka" data-nav="polityka">Polityka prywatności</a>
@@ -2534,7 +2813,7 @@
 
         <div class="footer__line" data-hex="0x1A0A">Made in Poland &middot; &copy; 2026 cybersora</div>
         </div>
-        <div class="footer__brand">cyber<b>sora</b></div>
+        <div class="footer__brand"><svg class="footer__mark" viewBox="0 0 134 100" width="20" height="15" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17" stroke="#0a0a0d"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)"/></g></svg>cyber<b>sora</b></div>
       </div>
     </footer>
   </section>
@@ -2897,7 +3176,7 @@
           <article class="card" data-category="marketplace">
             <span class="card__tag">Radar</span>
             <h3 class="card__title">Radary ofert</h3>
-            <p class="card__body">Nasze własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia, z oceną i uzasadnieniem.</p>
+            <p class="card__body">Moje własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia, z oceną i uzasadnieniem.</p>
             <a class="card__go" href="#contact" data-nav="contact">Zapytaj o dostęp &rarr;</a>
           </article>
           <article class="card" data-category="marketplace">
@@ -3189,7 +3468,7 @@
                 <div class="somi-demo__orb-glow" aria-hidden="true"></div>
               </div>
             </div>
-            <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówimy wprost, co jest gotowe, a co nie.</p>
+            <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówię wprost, co jest gotowe, a co nie. To mój pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
             <ul class="somi-demo__parts">
               <li><span class="somi-demo__tag is-live">już teraz</span> Rozmowa w pasku na górze — pyta, odpowiada, pokazuje, od czego zacząć.</li>
               <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text">Radar ofert (Useme, Upwork) — działa w tle od tygodni, 156 leadów z jednego skanu. Podłączenie do tego czatu jeszcze przed nami.</span>
@@ -3289,7 +3568,7 @@
           <article class="card">
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Deep research</h3>
-            <p class="card__body">Nasze scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu.</p>
+            <p class="card__body">Moje scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu.</p>
           </article>
           <article class="card">
             <span class="card__tag">W budowie</span>
@@ -3378,12 +3657,18 @@
   </section>
 
   <!-- O NAS -->
-  <section class="view" data-view="onas" aria-label="O nas" hidden>
+  <section class="view" data-view="onas" aria-label="O mnie" hidden>
     <div class="hero">
       <div class="overlay">
-        <div class="eyebrow">kim jesteśmy</div>
-        <h1 class="slogan">JEDYNI TACY<span class="thin">na rynku</span></h1>
-        <p class="stub">Cybersora to młoda firma prowadzona przez dwie osoby — bez agencyjnego rozdęcia, podwykonawców i pośredników. Kod, design i wzrost robimy sami, od pierwszej rozmowy do wdrożenia.</p>
+        <div class="eyebrow">kim jestem</div>
+        <h1 class="slogan">O mnie</h1>
+        <p class="stub">Cybersora to marka, którą prowadzę sam — bez agencyjnego rozdęcia, podwykonawców i pośredników. Kod, design i wzrost robię sam, od pierwszej rozmowy do wdrożenia.</p>
+        <!-- liczby z DANE.md (audyt 20.09, cztery-miesiace-linkedin), pod marka cybersora -->
+        <dl class="hero__rail">
+          <div class="hero__fact"><dt>Commity</dt><dd>764 / 84 dni</dd></div>
+          <div class="hero__fact"><dt>Rytm</dt><dd>47 dni z commitem</dd></div>
+          <div class="hero__fact"><dt>Kod i dokumentacja</dt><dd>413 515 linii</dd></div>
+        </dl>
       </div>
     </div>
 
@@ -3395,19 +3680,19 @@
         </div>
         <div class="cards">
           <article class="card">
-            <span class="card__tag">Zespół</span>
-            <h3 class="card__title">Dwie osoby, cała robota</h3>
-            <p class="card__body">Bez podwykonawców i pośredników — kod, design i kontakt z klientem prowadzimy sami. Mniej warstw, szybsze decyzje, żadnych niespodzianek.</p>
+            <span class="card__tag">Solo</span>
+            <h3 class="card__title">Jedna osoba, cała robota</h3>
+            <p class="card__body">Bez podwykonawców i pośredników — kod, design i kontakt z klientem prowadzę sam. Mniej warstw, szybsze decyzje, żadnych niespodzianek.</p>
           </article>
           <article class="card">
             <span class="card__tag">Produkt</span>
-            <h3 class="card__title">Budujemy to, czego sami używamy</h3>
-            <p class="card__body">Nasze radary, boty i narzędzia AI pracują u nas na co dzień, zanim trafią do oferty — nie sprzedajemy niczego, czego sami nie przetestowaliśmy.</p>
+            <h3 class="card__title">Buduję to, czego sam używam</h3>
+            <p class="card__body">Moje radary, boty i narzędzia AI pracują u mnie na co dzień, zanim trafią do oferty — nie sprzedaję niczego, czego sam nie przetestowałem.</p>
           </article>
           <article class="card">
             <span class="card__tag">Rynek</span>
             <h3 class="card__title">Bez odpowiednika</h3>
-            <p class="card__body">Nie znajdziesz drugiego studia, które łączy własne produkty AI, realny kod i marketing pod jedną marką — bez udawania korporacji, którą nie jesteśmy.</p>
+            <p class="card__body">Nie znajdziesz drugiego freelancera, który łączy własne produkty AI, realny kod i marketing pod jedną marką — bez udawania agencji, którą nie jestem.</p>
           </article>
         </div>
       </div>
@@ -3418,9 +3703,35 @@
          naglowka. -->
     <section class="proof reveal" aria-label="Znajdziesz nas też">
       <div class="proof__inner">
-        <span class="proof__item">znajdziesz nas też na <b><a class="proof__link" href="https://useme.com/pl/roles/contractor/songbird,657683/" target="_blank" rel="noopener">Useme</a></b></span>
+        <span class="proof__item">znajdziesz mnie też na <b><a class="proof__link" href="https://useme.com/pl/roles/contractor/songbird,657683/" target="_blank" rel="noopener">Useme</a></b></span>
         <span class="proof__item">pierwsze opinie — bez podkolorowanych cytatów — pojawią się, jak tylko powstaną</span>
         <span class="proof__item">kontakt: <b><a class="proof__link" href="mailto:cybersora@zohomail.eu,wojtekzieba.w@gmail.com">cybersora@zohomail.eu</a></b></span>
+      </div>
+    </section>
+  </section>
+
+  <!-- SZTUKA (21.09) — portfolio artystyczne, deadsora/winterdropsdead.
+       6 z 7 grafik zrodlowych (4.jpg wyciete na wyrazna prosbe). Bez podpisow
+       na start — nie wymyslam tytulow prac za maise. -->
+  <section class="view" data-view="sztuka" aria-label="Sztuka" hidden>
+    <div class="hero">
+      <div class="overlay">
+        <div class="eyebrow">poza kodem</div>
+        <h1 class="slogan slogan--glitch-once">Sztuka</h1>
+        <p class="stub">Grafiki, które robię poza programowaniem — osobny projekt, osobny ton. Kliknij, żeby powiększyć.</p>
+      </div>
+    </div>
+
+    <section class="services" aria-label="Galeria prac">
+      <div class="services__inner">
+        <div class="sztuka__grid">
+          <button class="sztuka__item" type="button" data-full="sztuka/full/01.jpg" aria-label="Powiększ grafikę 1 z 6"><img src="sztuka/thumb/01-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/01.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/02.jpg" aria-label="Powiększ grafikę 2 z 6"><img src="sztuka/thumb/02-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/02.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/03.jpg" aria-label="Powiększ grafikę 3 z 6"><img src="sztuka/thumb/03-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/03.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/04.jpg" aria-label="Powiększ grafikę 4 z 6"><img src="sztuka/thumb/04-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/04.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/05.jpg" aria-label="Powiększ grafikę 5 z 6"><img src="sztuka/thumb/05-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/05.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/06.jpg" aria-label="Powiększ grafikę 6 z 6"><img src="sztuka/thumb/06-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/06.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
+        </div>
       </div>
     </section>
   </section>
@@ -3431,7 +3742,7 @@
       <div class="overlay">
         <div class="eyebrow">przyszłość &middot; R&amp;D</div>
         <h1 class="slogan">SADZONKI<span class="thin">to, co dopiero kiełkuje</span></h1>
-        <p class="stub">Rzeczy, które jeszcze nie są gotowe, ale już nad nimi siedzimy — dorzucamy je tu na bieżąco, żebyście widzieli, ile faktycznie dzieje się w tle, zanim coś trafi do oferty.</p>
+        <p class="stub">Rzeczy, które jeszcze nie są gotowe, ale już nad nimi siedzę — dorzucam je tu na bieżąco, żebyś widział/a, ile faktycznie dzieje się w tle, zanim coś trafi do oferty.</p>
       </div>
     </div>
 
@@ -3441,11 +3752,18 @@
           <div class="services__eyebrow" data-hex="0xD417">w szklarni</div>
           <h2 class="services__title">Nad czym teraz pracujemy</h2>
         </div>
-        <div class="cards">
-          <article class="card">
+        <!-- ścieżka wzrostu (sesja 1, 20.09) — .growth/.seed, NIE .cards/.card,
+             patrz uzasadnienie przy definicji klas w <style>. Popup po kliknięciu
+             = sesja 2, na razie <button> bez obsługi (celowo bierny). -->
+        <div class="growth">
+          <button type="button" class="seed" data-stage="1" data-project="salondesk" aria-label="SalonDesk — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">zapis.klient = "Anna K."
+zapis.status = "OPLACONE"
+kasa.dodaj(zapis, kwota)
+magazyn.sprawdz(zapasy)</div>
             <!-- ten sam znak co w .pas__znak wyzej (sekcja "Trzy, ktore juz chodza") -->
-            <span class="card__znak" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak SalonDesk">
-              <mask id="znak-salondesk-card" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+            <span class="seed__mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak SalonDesk">
+              <mask id="znak-salondesk-seed" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
                 <rect width="64" height="64" fill="#000"/>
                 <rect x="17" y="9" width="30" height="21" rx="3.5" fill="#fff"/>
                 <rect x="20" y="12" width="24" height="15" rx="1.5" fill="#000"/>
@@ -3458,15 +3776,23 @@
                 <rect x="6" y="47.5" width="52" height="6" rx="3" fill="#fff"/>
                 <rect x="10" y="50.6" width="44" height="1.4" rx="0.7" fill="#000"/>
               </mask>
-              <rect width="64" height="64" fill="currentColor" mask="url(#znak-salondesk-card)"/>
+              <rect width="64" height="64" fill="currentColor" mask="url(#znak-salondesk-seed)"/>
             </svg></span>
-            <span class="card__tag">W budowie</span>
-            <h3 class="card__title">SalonDesk</h3>
-            <p class="card__body">Kasa i magazyn dla salonu beauty, już działa u pierwszego klienta — teraz dogrywamy transakcyjność zapisów i audyt liczb, ponad 1800 testów w bramce.</p>
-          </article>
-          <article class="card">
+            <div class="seed__scrim" aria-hidden="true"></div>
+            <div class="seed__content">
+              <span class="seed__tag">[ W budowie ]</span>
+              <h3 class="seed__title">SalonDesk</h3>
+              <p class="seed__body">Kasa i magazyn dla salonu beauty.</p>
+              <span class="seed__hint">▸ otwórz</span>
+            </div>
+          </button>
+          <button type="button" class="seed" data-stage="2" data-project="pycodemath" aria-label="Pycodemath — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">d/dx sin(x) = cos(x)
+simplify(expr) -&gt; wynik
+solve(x**2 - 4, x)
+generuj_kod(wzor)</div>
             <!-- ten sam znak co w .pas__znak wyzej (sekcja "Trzy, ktore juz chodza") -->
-            <span class="card__znak" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="4 0 180 120" role="img" aria-label="pycodemath — znak">
+            <span class="seed__mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="4 0 180 120" role="img" aria-label="pycodemath — znak">
               <g stroke-linecap="round">
                 <path d="M68,20 C69,11 57,12 55,23 C51,40 54,50 46,62 C38,74 41,82 36,94 C33,105 22,105 20,95"
                       fill="none" stroke="#e11d33" stroke-width="9"/>
@@ -3474,35 +3800,51 @@
               </g>
               <rect x="138" y="76" width="30" height="10" rx="3" fill="#e11d33"/>
             </svg></span>
-            <span class="card__tag">W budowie</span>
-            <h3 class="card__title">Pycodemath</h3>
-            <p class="card__body">Silnik matematyki symbolicznej dla agentów AI, opublikowany na PyPI — pracujemy nad wersją 0.4 z generatorem kodu, 690 testów zielonych.</p>
-          </article>
-          <article class="card">
+            <div class="seed__scrim" aria-hidden="true"></div>
+            <div class="seed__content">
+              <span class="seed__tag">[ W budowie ]</span>
+              <h3 class="seed__title">Pycodemath</h3>
+              <p class="seed__body">Silnik matematyki symbolicznej dla agentów AI.</p>
+              <span class="seed__hint">▸ otwórz</span>
+            </div>
+          </button>
+          <button type="button" class="seed" data-stage="3" data-project="rachmistrz" aria-label="Rachmistrz — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">rata = oblicz_rate(kwota, n)
+rrso = stopa + prowizja
+if not licencja.wazna(): stop
+raport.rrso(rrso)</div>
             <!-- transparentna przerobka znaku procentu z rachmistrz-sygnet-krew.svg —
                  oryginal mial pelne czerwone tlo + dwie poziome belki niezwiazane
                  z symbolem procentu; 19.09 maisa: ta wersja "tragiczna", wyciete
                  belki, zostal goly procent, jeden kolor, zaokraglone koncowki
                  kreski (grubsza, w stylu Pycodemath) -->
-            <span class="card__znak" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="18 5 98 88" role="img" aria-label="Rachmistrz — znak">
+            <span class="seed__mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="18 5 98 88" role="img" aria-label="Rachmistrz — znak">
               <g fill="none" stroke="#e11d33" stroke-width="14" stroke-linecap="round">
                 <circle cx="38" cy="32" r="14"/>
                 <circle cx="96" cy="66" r="14"/>
                 <line x1="100" y1="16" x2="34" y2="82"/>
               </g>
             </svg></span>
-            <span class="card__tag">W budowie</span>
-            <h3 class="card__title">Rachmistrz</h3>
-            <p class="card__body">Kalkulator RRSO i rat kredytowych, zabezpieczony licencją Frostwall — 85 testów w bramce, czeka na decyzję o pierwszej sprzedaży.</p>
-          </article>
-          <article class="card">
+            <div class="seed__scrim" aria-hidden="true"></div>
+            <div class="seed__content">
+              <span class="seed__tag">[ W budowie ]</span>
+              <h3 class="seed__title">Rachmistrz</h3>
+              <p class="seed__body">Kalkulator RRSO i rat kredytowych.</p>
+              <span class="seed__hint">▸ otwórz</span>
+            </div>
+          </button>
+          <button type="button" class="seed" data-stage="4" data-project="frostwall" aria-label="Frostwall — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">podpis = sign(dane, klucz)
+verify(podpis, klucz_pub)
+if not aktywacja.wazna(): blokuj
+fingerprint(maszyna)</div>
             <!-- Frostwall = osobna biblioteka licencjonowania (Documents\frostwall),
                  NIE ta sama rzecz co logo cybersory "Blackwall" — 21.07 świadomie
                  rozdzielone pod dwie różne nazwy, wcześniejsza karta je myliła.
                  Płatek śniegu narysowany od zera (3 przekątne przez środek + po
                  jednej gałązce na każdym z 6 ramion), jednym kolorem jak reszta
                  znaków — SZKIC do potwierdzenia, nie finalna decyzja wizualna. -->
-            <span class="card__znak" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Frostwall — znak">
+            <span class="seed__mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Frostwall — znak">
               <g fill="none" stroke="#e11d33" stroke-width="8" stroke-linecap="round">
                 <line x1="6" y1="32" x2="58" y2="32"/>
                 <line x1="19" y1="9.5" x2="45" y2="54.5"/>
@@ -3515,10 +3857,14 @@
                 <line x1="46.08" y1="17.61" x2="37.42" y2="12.61"/>
               </g>
             </svg></span>
-            <span class="card__tag">W budowie</span>
-            <h3 class="card__title">Frostwall</h3>
-            <p class="card__body">Biblioteka licencjonowania offline (Ed25519, zero serwera) — chroni Rachmistrza i kolejne produkty przed kopiowaniem bez zgody, 43 testy zielone.</p>
-          </article>
+            <div class="seed__scrim" aria-hidden="true"></div>
+            <div class="seed__content">
+              <span class="seed__tag">[ W budowie ]</span>
+              <h3 class="seed__title">Frostwall</h3>
+              <p class="seed__body">Biblioteka licencjonowania offline.</p>
+              <span class="seed__hint">▸ otwórz</span>
+            </div>
+          </button>
         </div>
       </div>
     </section>
@@ -3656,7 +4002,7 @@
         <div class="policy">
           <article class="policy__item">
             <h3 class="policy__title">Kto administruje danymi</h3>
-            <p class="policy__body">Administratorem jest CyberSora — dwuosobowy zespół prowadzący tę stronę. Kontakt w każdej sprawie związanej z danymi: <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.</p>
+            <p class="policy__body">Administratorem jest CyberSora, prowadzona przeze mnie. Kontakt w każdej sprawie związanej z danymi: <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.</p>
           </article>
 
           <article class="policy__item">
@@ -3697,6 +4043,14 @@
     </section>
   </section>
 </main>
+
+<!-- lightbox galerii Sztuka (21.09) -->
+<div class="sztuka__lightbox" id="sztukaLightbox" hidden role="dialog" aria-modal="true" aria-label="Podgląd grafiki">
+  <button class="sztuka__lb-close" type="button" id="sztukaLbClose" aria-label="Zamknij podgląd">&times;</button>
+  <button class="sztuka__lb-prev" type="button" id="sztukaLbPrev" aria-label="Poprzednia grafika">&larr;</button>
+  <img class="sztuka__lb-img" id="sztukaLbImg" src="" alt="">
+  <button class="sztuka__lb-next" type="button" id="sztukaLbNext" aria-label="Następna grafika">&rarr;</button>
+</div>
 
 <!-- SOMI chat -->
 <div class="somi">
@@ -3781,6 +4135,7 @@
     products:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 0, fluid: 0, scan: 1 } },
     somi:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 1, grid: 0, fluid: 0, scan: 0 } },
     onas:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 1, fluid: 0, scan: 0 } },
+    sztuka:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 1, fluid: 0, scan: 0 } },
     rnd:       { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 0, fluid: 1, scan: 0 } },
     contact:   { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, grid: 0, fluid: 0, scan: 0 } },
     polityka:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, grid: 0, fluid: 0, scan: 0 } }
@@ -4141,7 +4496,7 @@
   const burger = document.querySelector('.nav__burger');
   const links = [...bar.querySelectorAll('.nav__link')];
   const views = [...document.querySelectorAll('.view')];
-  const NAMES = ['start', 'products', 'somi', 'onas', 'rnd', 'contact', 'polityka'];
+  const NAMES = ['start', 'products', 'somi', 'onas', 'sztuka', 'rnd', 'contact', 'polityka'];
 
   /* PRODUKTY SCHOWANE (11.09, prosba maisy: "schowalbym te produkty poki co").
      Nic nie jest kasowane: sekcja, karty, trasa i przyciski zostaja w kodzie —
@@ -5007,6 +5362,51 @@
   } else {
     revealEls.forEach(el => el.classList.add('in'));
   }
+
+  /* ===================== Sztuka: lightbox galerii (21.09) ===================== */
+  (() => {
+    const items = [...document.querySelectorAll('.sztuka__item')];
+    if (!items.length) return;
+    const lb = document.getElementById('sztukaLightbox');
+    const lbImg = document.getElementById('sztukaLbImg');
+    const btnClose = document.getElementById('sztukaLbClose');
+    const btnPrev = document.getElementById('sztukaLbPrev');
+    const btnNext = document.getElementById('sztukaLbNext');
+    let idx = 0;
+    let lastFocus = null;
+
+    function show(i) {
+      idx = (i + items.length) % items.length;
+      lb.classList.remove('is-ready');
+      lbImg.src = items[idx].dataset.full;
+      lbImg.alt = items[idx].getAttribute('aria-label') || '';
+      requestAnimationFrame(() => lb.classList.add('is-ready'));
+    }
+    function openAt(i) {
+      lastFocus = document.activeElement;
+      show(i);
+      lb.hidden = false;
+      document.body.style.overflow = 'hidden';
+      btnClose.focus();
+    }
+    function close() {
+      lb.hidden = true;
+      lb.classList.remove('is-ready');
+      document.body.style.overflow = '';
+      if (lastFocus) lastFocus.focus();
+    }
+    items.forEach((el, i) => el.addEventListener('click', () => openAt(i)));
+    btnClose.addEventListener('click', close);
+    btnPrev.addEventListener('click', () => show(idx - 1));
+    btnNext.addEventListener('click', () => show(idx + 1));
+    lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+    window.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') show(idx - 1);
+      else if (e.key === 'ArrowRight') show(idx + 1);
+    });
+  })();
 
   /* ===================== boot ===================== */
   let rz;
