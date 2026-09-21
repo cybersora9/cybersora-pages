@@ -288,23 +288,26 @@
       radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(0,0,0,.5) 100%);
   }
 
-  /* layer 0 — corner blobs: static blur, only the position drifts (transform-only motion) */
-  .bg__blob{
+  /* BLOOMY (3 rozmyte bloby w rogach) USUNIETE 21.09 na prosbe maisy
+     ("chodzilo mi doslownie o tlo" — patrz PROPOZYCJA_TLO_BLACKWALL.md
+     sekcja 0+3). Mialy trzy wlasne petle dryfu ponad zadeklarowany budzet
+     dwoch pracujacych petli (mapa + kula SOMI) — usuniecie go przywraca. */
+
+  /* duzy, statyczny znak Blackwall za mapa (wariant A z PROPOZYCJA_TLO_BLACKWALL.md).
+     Ta sama geometria co .nav__mark, tylko goly i wielki; STATYCZNY (zero
+     nowej petli), pod canvas#map w warstwach. */
+  .bg__mark{
     position:absolute;
-    aspect-ratio:1;
-    border-radius:50%;
-    background:radial-gradient(circle, color-mix(in srgb, var(--th-accent) 90%, transparent), transparent 70%);
-    filter:blur(90px);
+    top:50%;left:50%;
+    height:78%;
+    aspect-ratio:134/100;
+    transform:translate(-50%,-50%);
     z-index:0;
+    opacity:.07;
+    fill:none;
+    stroke:var(--th-accent);
     pointer-events:none;
-    will-change:transform;
   }
-  .bg__blob--a{width:48vw;left:-18vw;bottom:-20vw;opacity:.08;animation:blobA 110s ease-in-out infinite;}
-  .bg__blob--b{width:55vw;right:-20vw;top:-22vw;opacity:.06;animation:blobB 128s ease-in-out infinite;}
-  .bg__blob--c{width:40vw;left:-15vw;top:-16vw;opacity:.05;animation:blobC 94s ease-in-out infinite;}
-  @keyframes blobA{0%,100%{transform:translate(0,0);}50%{transform:translate(6vw,-5vw);}}
-  @keyframes blobB{0%,100%{transform:translate(0,0);}50%{transform:translate(-5vw,6vw);}}
-  @keyframes blobC{0%,100%{transform:translate(0,0);}50%{transform:translate(4vw,4vw);}}
 
   /* ---------- pasek na cala szerokosc (wzor: CD Projekt Red — plaski i cichy) ----------
      Bylo do 10.09: plywajaca szklana pigulka — width:min(940px,100%), border-radius:999px,
@@ -367,8 +370,17 @@
   /* Druga tozsamosc obok logotypu — cybersora pisze kod, deadsora robi
      mroczny collage (ten sam czlowiek, patrz PROPOZYCJA_WIZUAL.md sekcja 0:
      "nie laczymy dwoch stylow, dokanczamy jeden"). Cicho, mniejszym stopniem
-     i muted-dark, zeby cybersora zostala glownym podpisem, a deadsora dopiskiem. */
+     i muted-dark, zeby cybersora zostala glownym podpisem, a deadsora dopiskiem.
+     SWITCH (wariant c, PROPOZYCJA_TLO_BLACKWALL.md sekcja 2, 21.09): to teraz
+     wlasny <button data-nav="sztuka">, nie martwy <span> — otwiera widok Sztuka
+     jak link "Sztuka" w menu, ale ubrany w poczucie fizycznego przelacznika
+     (kropka-dioda + podswietlenie, gdy widok=sztuka). Zero nowej petli —
+     wylacznie CSS transition na zmiane stanu, jednorazowa, nie w kolku. */
   .brand__second{
+    all:unset;
+    cursor:pointer;
+    display:inline-block;
+    position:relative;
     font-family:var(--mono);
     font-size:.62em;
     font-weight:600;
@@ -376,10 +388,33 @@
     text-transform:lowercase;
     color:var(--muted-dark);
     margin-left:.5rem;
-    padding-left:.5rem;
+    padding-left:1.3rem;
     border-left:1px solid rgba(255,255,255,.14);
     vertical-align:.02em;
     white-space:nowrap;
+    transition:color .35s var(--ease-soft), border-color .35s var(--ease-soft), text-shadow .35s var(--ease-soft);
+  }
+  .brand__second::before{
+    content:"";
+    position:absolute;
+    left:.55rem;top:50%;
+    width:5px;height:5px;
+    border-radius:50%;
+    transform:translateY(-50%);
+    background:rgba(255,255,255,.25);
+    transition:background .35s var(--ease-soft), box-shadow .35s var(--ease-soft);
+  }
+  .brand__second:hover{color:var(--muted);}
+  .brand__second:active{opacity:.72;}
+  .brand__second:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  html[data-route="sztuka"] .brand__second{
+    color:var(--th-hot);
+    border-left-color:color-mix(in srgb, var(--th-hot) 55%, transparent);
+    text-shadow:0 0 8px color-mix(in srgb, var(--th-hot) 55%, transparent);
+  }
+  html[data-route="sztuka"] .brand__second::before{
+    background:var(--th-hot);
+    box-shadow:0 0 6px color-mix(in srgb, var(--th-hot) 70%, transparent);
   }
   /* PROG ZMIERZONY (21.09, ta sama metoda co przy kanji: iframe o zadanej
      szerokosci + getBoundingClientRect, nie zmiana rozmiaru okna — patrz
@@ -2307,23 +2342,11 @@
     display:block;
     transition:transform .4s ease;
   }
-  /* ---------- DUOTONE + HOVER-REVEAL (PROPOZYCJA_WIZUAL.md sekcja 4, 21.09) ----------
-     Baza wczytana = duotone (--ink -> --th-hot, skrypt sztuka/duotone.py), zeby
-     galeria na pierwszy rzut oka czytala sie jako jedna seria pod marka. Warstwa
-     .sztuka__color to oryginalny kolor, na wierzchu, startuje z opacity:0 —
-     hover/focus podnosi ja do 1, wiec praca nie znika, jest nagroda za
-     zainteresowanie. Tylko (hover:hover): na dotyku nie ma najechania, a
-     kliknieciu tak czy inaczej otwiera lightbox z pelnym kolorem — to JEST
-     "tap reveal" na mobile, nie trzeba go duplikowac osobnym JS-em. */
-  .sztuka__color{
-    position:absolute;inset:0;
-    opacity:0;
-    transition:opacity .4s ease;
-  }
-  @media (hover:hover){
-    .sztuka__item:hover .sztuka__color,
-    .sztuka__item:focus-visible .sztuka__color{opacity:1;}
-  }
+  /* DUOTONE + HOVER-REVEAL ZDJETE 21.09 na prosbe maisy ("usunac ten cover
+     czerwony... i po prostu bordery ladnie zrobic") — grafiki pokazuja od razu
+     wlasny kolor, `.sztuka__color` i crossfade caly wylecial (nie bylo juz co
+     odkrywac). Narozniki HUD (`::after` wyzej) zostaja bez zmian — to one sa
+     "bordery ladnie zrobione", o ktore prosila. */
   .sztuka__item:hover{
     transform:translateY(-5px);
     border-color:color-mix(in srgb, var(--th-hot) 55%, transparent);
@@ -2383,7 +2406,6 @@
     .nav__cta::after{display:none;}
     .nav__bar,.nav__bar.is-condensed{transition:none;}
     .nav__link{transition:color .25s ease, text-shadow .25s ease;}
-    .bg__blob{animation:none;}
     .reveal{opacity:1;transform:none;transition:none;}
     /* celownik i siatka sa statyczne i zostaja; znika sam przejazd smugi */
     .pas__znak::after{display:none;}
@@ -2401,7 +2423,7 @@
     .mascot__pupil{transition:opacity .2s ease;}
     .nav__mascot:hover .mascot,.nav__mascot.is-hop .mascot{transform:none;animation:none;}
     .mascot__zzz{display:none;}
-    .sztuka__item,.sztuka__item img,.sztuka__color{transition:none;}
+    .sztuka__item,.sztuka__item img{transition:none;}
     .sztuka__item:hover{transform:none;}
     .sztuka__item:hover img{transform:none;}
     .sztuka__lb-img{transition:none;opacity:1;transform:none;}
@@ -2459,9 +2481,12 @@
 
 <!-- persistent particle field: stays put while views swap above it -->
 <div class="bg" id="stage">
-  <div class="bg__blob bg__blob--a" aria-hidden="true"></div>
-  <div class="bg__blob bg__blob--b" aria-hidden="true"></div>
-  <div class="bg__blob bg__blob--c" aria-hidden="true"></div>
+  <svg class="bg__mark" viewBox="0 0 134 100" aria-hidden="true" focusable="false">
+    <g stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17">
+      <path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)"/>
+      <path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)"/>
+    </g>
+  </svg>
   <canvas id="map"></canvas>
 </div>
 
@@ -2508,7 +2533,7 @@
       </svg>
       <span class="mascot__zzz" aria-hidden="true">z</span>
     </button>
-      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora / deadsora — Start"><svg class="nav__mark" viewBox="0 0 134 100" width="27" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)" stroke="var(--th-accent)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)" stroke="#f6f2f3"/></g></svg>cyber<b>sora</b><span class="brand__second">/ deadsora</span></a>
+      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora — Start"><svg class="nav__mark" viewBox="0 0 134 100" width="27" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)" stroke="var(--th-accent)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)" stroke="#f6f2f3"/></g></svg>cyber<b>sora</b></a><button type="button" class="brand__second" data-nav="sztuka" aria-pressed="false" aria-label="deadsora — przełącz na Sztukę">/ deadsora</button>
     </div>
 
     <div class="nav__links" id="navlinks">
@@ -3725,12 +3750,12 @@
     <section class="services" aria-label="Galeria prac">
       <div class="services__inner">
         <div class="sztuka__grid">
-          <button class="sztuka__item" type="button" data-full="sztuka/full/01.jpg" aria-label="Powiększ grafikę 1 z 6"><img src="sztuka/thumb/01-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/01.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/02.jpg" aria-label="Powiększ grafikę 2 z 6"><img src="sztuka/thumb/02-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/02.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/03.jpg" aria-label="Powiększ grafikę 3 z 6"><img src="sztuka/thumb/03-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/03.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/04.jpg" aria-label="Powiększ grafikę 4 z 6"><img src="sztuka/thumb/04-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/04.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/05.jpg" aria-label="Powiększ grafikę 5 z 6"><img src="sztuka/thumb/05-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/05.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/06.jpg" aria-label="Powiększ grafikę 6 z 6"><img src="sztuka/thumb/06-duo.jpg" alt="" loading="lazy" width="480" height="480"><img class="sztuka__color" src="sztuka/thumb/06.jpg" alt="" loading="lazy" aria-hidden="true" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/01.jpg" aria-label="Powiększ grafikę 1 z 6"><img src="sztuka/thumb/01.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/02.jpg" aria-label="Powiększ grafikę 2 z 6"><img src="sztuka/thumb/02.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/03.jpg" aria-label="Powiększ grafikę 3 z 6"><img src="sztuka/thumb/03.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/04.jpg" aria-label="Powiększ grafikę 4 z 6"><img src="sztuka/thumb/04.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/05.jpg" aria-label="Powiększ grafikę 5 z 6"><img src="sztuka/thumb/05.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/06.jpg" aria-label="Powiększ grafikę 6 z 6"><img src="sztuka/thumb/06.jpg" alt="" loading="lazy" width="480" height="480"></button>
         </div>
       </div>
     </section>
@@ -4584,6 +4609,8 @@ fingerprint(maszyna)</div>
       l.classList.toggle('is-active', on);
       if (on) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current');
     });
+    const deadSwitch = document.querySelector('.brand__second');
+    if (deadSwitch) deadSwitch.setAttribute('aria-pressed', view === 'sztuka' ? 'true' : 'false');
     /* zmiana trasy = "coś się dzieje": kula rozbłyska i sama wraca do spokoju.
        Powrót jest tutaj, a nie w SOMI_MOOD, bo to wołający wie, że rozbłysk ma
        być chwilowy — stan 'wow' sam z siebie trwa, dopóki ktoś go nie zdejmie. */
