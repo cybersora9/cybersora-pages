@@ -120,6 +120,13 @@
     --th-hot:#ff3a52;
     --th-solid:#d4132b;
     --th-cta-text:#fff;
+    /* DeadSora (21.09): NIE nowy kolor UI calej trasy — to naruszaloby
+       "JEDEN KOLOR NA CALEJ STRONIE" wyzej. To pojedynczy znak dla drugiej,
+       swiadomie odrebnej tozsamosci (patrz [[deadsora-project]]), uzywany
+       WYLACZNIE w tle-marce za widokiem Sztuka. Ta sama krew co --th-accent,
+       ale zeschnieta/martwa — ciemniejszy, mniej nasycony oksbord zamiast
+       zywej czerwieni. Na zadanie maisy: "podobne kolory ale inne zarazem". */
+    --dead-accent:#7a1035;
     /* Kroje (T1, 13.09). --mono nazywa sie tak, jak istniejace wywolania
        var(--mono, ...) rozsiane po arkuszu — zmienna nigdy nie byla
        zdefiniowana, wiec wszystkie leacaly po cichu na fallbacku.
@@ -293,21 +300,33 @@
      sekcja 0+3). Mialy trzy wlasne petle dryfu ponad zadeklarowany budzet
      dwoch pracujacych petli (mapa + kula SOMI) — usuniecie go przywraca. */
 
-  /* duzy, statyczny znak Blackwall za mapa (wariant A z PROPOZYCJA_TLO_BLACKWALL.md).
-     Ta sama geometria co .nav__mark, tylko goly i wielki; STATYCZNY (zero
-     nowej petli), pod canvas#map w warstwach. */
-  .bg__mark{
+  /* Blackwall watermark (.bg__mark, wariant Start/cybersora) USUNIETY 21.09
+     na wyrazne zadanie maisy (sesja naprawcza po torn-wipe): stroke-width 17
+     w viewBox 134x100, skalowany do 78% wysokosci hero, dawal ~93px grubosci
+     linii — kanciaste bloki zaslaniajace canvas#map (jedyny prawdziwy cover
+     strony) zamiast czytelnego znaku. .nav__mark (maly znak w logotypie,
+     24-30px) dziala dobrze przy tej skali i ZOSTAJE bez zmian. NIE
+     przywracac wariantu cybersora — decyzja dotyczyla obu wariantow znaku.
+
+     Punkt C (22.09): w miejsce usunietego wariantu deadsora dodany NOWY,
+     MALY znak kota (.bg__cat, geometria z artefaktu "The Coding Black Cat"),
+     zamiast kolejnego wielkiego watermarku — maisa wybrala explicite ten
+     kierunek. */
+  .bg__cat{
     position:absolute;
-    top:50%;left:50%;
-    height:78%;
-    aspect-ratio:134/100;
-    transform:translate(-50%,-50%);
+    right:5%;
+    bottom:7%;
+    width:clamp(84px,11vw,150px);
+    height:auto;
     z-index:0;
-    opacity:.07;
-    fill:none;
-    stroke:var(--th-accent);
+    opacity:0;
     pointer-events:none;
+    transition:opacity .5s var(--ease-soft);
   }
+  .bg__cat .cat-tail{stroke:var(--dead-accent);stroke-width:6;fill:none;}
+  .bg__cat .cat-body{fill:var(--dead-accent);}
+  .bg__cat .cat-accent{fill:var(--ink);}
+  html[data-route="sztuka"] .bg__cat{opacity:.16;}
 
   /* ---------- pasek na cala szerokosc (wzor: CD Projekt Red — plaski i cichy) ----------
      Bylo do 10.09: plywajaca szklana pigulka — width:min(940px,100%), border-radius:999px,
@@ -1000,10 +1019,14 @@
      Reguly wisza pod `.hero--start` — `.hero` jest wspolny dla szesciu widokow. */
   .hero--start{
     --hero-pad:clamp(16px,3vw,40px);   /* ta sama wartosc co --nav-pad w pasku */
+    --edge-w:clamp(40px,6vw,72px);     /* szerokosc .hero__edge — patrz nizej */
     place-items:stretch;               /* zdejmuje wysrodkowanie z .hero */
     align-content:end;
     justify-items:start;
-    padding:0 var(--hero-pad) clamp(3.2rem,9vh,6rem);
+    /* lewy padding liczy sie z hero-pad + szerokosc poszarpanego pasa, zeby
+       tekst nie chowal sie pod czarna sciana (byl blad 21.09 — pas byl
+       szerszy niz --hero-pad, "Piszę"/"software"/CTA wchodzily pod spod). */
+    padding:0 var(--hero-pad) clamp(3.2rem,9vh,6rem) calc(var(--hero-pad) + var(--edge-w));
     text-align:left;
   }
   /* kurtyna od lewej: tyle kontrastu, zeby tekst czytal sie nad czastkami, i ani
@@ -1024,10 +1047,11 @@
      wtedy wraca do ukladu i wchodzi na pas faktow. Pozycjonowanie tylko tam,
      gdzie jest potrzebne. */
   .hero__type,.hero__rail{position:relative;z-index:1;}
-  .hero__stamp{z-index:1;}
+  .hero__stamp{z-index:3;}
   /* podpowiedz zostaje po lewej, w tym samym gutterze co naglowek — po prawej
-     wchodzila na przycisk SOMI w rogu ekranu */
-  .hero--start .hint{position:absolute;z-index:1;left:var(--hero-pad);right:auto;}
+     wchodzila na przycisk SOMI w rogu ekranu. left liczy sie tak samo jak
+     padding hero--start (hero-pad + edge-w), zeby nie chowac sie pod pas. */
+  .hero--start .hint{position:absolute;z-index:1;left:calc(var(--hero-pad) + var(--edge-w));right:auto;}
 
   /* tekst nie moze lapac myszy — mapa pod spodem reaguje na kursor.
      Wyjatek: przycisk (tak samo, jak stary `.overlay a`). */
@@ -1073,11 +1097,13 @@
   }
 
   /* stempel na krawedzi kadru — MADE IN POLAND zostaje w kadrze, ale przestaje
-     udawac oferte */
+     udawac oferte. Przesuniety nizej (72% zamiast 50%) 21.09, zeby zrobic
+     miejsce na wordmark CYBERSORA nad nim — ten sam duet co "CYBERPUNK"/
+     "2077" w referencji (PROPOZYCJA_KRAWEDZIE_WORDMARK.md). */
   .hero__stamp{
     position:absolute;
     right:var(--hero-pad);
-    top:50%;
+    top:91%;
     transform:translateY(-50%);
     writing-mode:vertical-rl;
     text-transform:uppercase;
@@ -1086,6 +1112,69 @@
     letter-spacing:var(--ls-brand);
     color:rgba(255,255,255,.32);
     pointer-events:none;
+    z-index:3;
+  }
+
+  /* ---------- POSZARPANE KRAWEDZIE + WORDMARK (PROPOZYCJA_KRAWEDZIE_WORDMARK.md,
+     wariant B, 21.09) ----------
+     Rama plakatowa wzorem okladki Cyberpunk 2077: dwa czarne pasy z podartym
+     brzegiem po bokach hero Startu (lewy = sam pas, prawy = pas + wordmark
+     "CYBERSORA" nad istniejacym stemplem MADE IN POLAND). Wjezdzaja RAZ przy
+     kazdym pokazaniu widoku Start (`animation`, ten sam trik co
+     .slogan--glitch-once — .view resetuje animacje przy kazdym przelaczeniu
+     z display:none) — zero nowej pracujacej petli. TYLKO hero Startu, znika
+     ponizej 900px jak .hero__stamp (referencja to szeroki poziomy kadr, nie
+     mieści się na telefonie). */
+  .hero--start{overflow:hidden;}
+  .hero__edge{
+    position:absolute;
+    top:0;bottom:0;
+    width:var(--edge-w);
+    background:#000;
+    z-index:2;
+    pointer-events:none;
+  }
+  .hero__edge--l{
+    left:0;
+    clip-path:polygon(0 0,100% 0,68% 7%,100% 14%,64% 21%,100% 29%,70% 37%,100% 45%,66% 53%,100% 61%,72% 68%,100% 76%,66% 84%,100% 92%,70% 100%,0 100%);
+    animation:edgeInL .9s var(--ease-soft) both;
+  }
+  .hero__edge--r{
+    right:0;
+    clip-path:polygon(100% 0,0 0,32% 7%,0 14%,36% 21%,0 29%,30% 37%,0 45%,34% 53%,0 61%,28% 68%,0 76%,34% 84%,0 92%,30% 100%,100% 100%);
+    animation:edgeInR .9s var(--ease-soft) both;
+  }
+  @keyframes edgeInL{ from{transform:translateX(-100%);} to{transform:translateX(0);} }
+  @keyframes edgeInR{ from{transform:translateX(100%);} to{transform:translateX(0);} }
+  .hero__wordmark{
+    position:absolute;
+    /* right-anchor siedzi w POLOWIE pasa .hero__edge--r (nie za nim), zeby
+       wiekszosc litery bylo na otwartym tle, a tylko koniuszek "nurkowal"
+       pod czarna sciane — to ta interakcja ze sciana, o ktora chodzilo w
+       referencji, bez chowania calego slowa (blad pierwszej proby 21.09). */
+    right:calc(var(--edge-w) * .4);
+    top:20%;
+    transform:translateY(-50%) rotate(-90deg);
+    transform-origin:right center;
+    white-space:nowrap;
+    font-family:var(--f-sans);
+    font-weight:800;
+    font-size:clamp(2.6rem,7.5vw,5.5rem);
+    letter-spacing:.02em;
+    line-height:1;
+    color:#fff;
+    z-index:3;
+    pointer-events:none;
+    opacity:0;
+    animation:wordmarkIn 1s var(--ease-soft) .35s both;
+  }
+  .hero__wordmark b{color:var(--th-hot);font-weight:800;}
+  @keyframes wordmarkIn{
+    from{opacity:0; transform:translateY(-50%) rotate(-90deg) translateX(-16px);}
+    to{opacity:1; transform:translateY(-50%) rotate(-90deg) translateX(0);}
+  }
+  @media (max-width:900px){
+    .hero__edge,.hero__wordmark{display:none;}
   }
 
   @media (max-width:900px){
@@ -2395,6 +2484,56 @@
     .sztuka__lb-close{width:38px;height:38px;top:12px;right:12px;}
   }
 
+  /* ---------- PRZEJSCIA MIEDZY WIDOKAMI (View Transitions API) ----------
+     21.09: go() (JS) owija kazda nawigacje w document.startViewTransition()
+     zamiast golego .view{animation:viewIn} — jeden wspolny jezyk ruchu dla
+     linkow, hasha I switcha "/ deadsora", zamiast osobnych, niespietych
+     ozdob. Wariant 2 z PROPOZYCJA_PRZEJSCIA_CYBERPUNK.md: postrzepiony
+     zygzak w tym samym rytmie co .hero__edge (linie ~1137), przeskalowany
+     na cala szerokosc ekranu, plus jeden krotki glitch-flash na wejsciu.
+     Fallback: gdy przegladarka nie wspiera API, startViewTransition po
+     prostu nie istnieje jako metoda (patrz JS) — zero regresji, dostaje
+     dzisiejszy zwykly fade z .view{animation:viewIn}. */
+  ::view-transition-old(root),
+  ::view-transition-new(root){
+    animation:none;
+    mix-blend-mode:normal;
+  }
+  ::view-transition-group(root){
+    animation-duration:.6s;
+  }
+  ::view-transition-old(root){
+    animation:tornWipeOut .6s var(--ease-soft) both;
+  }
+  ::view-transition-new(root){
+    animation:tornWipeIn .6s var(--ease-soft) both,
+              vtGlitchFlash .22s steps(1) both;
+  }
+  @keyframes tornWipeOut{
+    0%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
+    100%{clip-path:polygon(
+      130% 0,170% 0,
+      138% 7%,170% 14%,134% 21%,170% 29%,140% 37%,170% 45%,
+      136% 53%,170% 61%,142% 68%,170% 76%,136% 84%,170% 92%,
+      140% 100%,130% 100%
+    );}
+  }
+  @keyframes tornWipeIn{
+    0%{clip-path:polygon(
+      -70% 0,-30% 0,
+      -38% 7%,-70% 14%,-34% 21%,-70% 29%,-40% 37%,-70% 45%,
+      -36% 53%,-70% 61%,-42% 68%,-70% 76%,-36% 84%,-70% 92%,
+      -40% 100%,-30% 100%
+    );}
+    100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
+  }
+  @keyframes vtGlitchFlash{
+    0%{filter:none;}
+    30%{filter:drop-shadow(-3px 0 var(--th-hot)) drop-shadow(3px 0 rgba(80,220,255,.85));}
+    60%{filter:drop-shadow(3px 0 var(--th-hot)) drop-shadow(-3px 0 rgba(80,220,255,.85));}
+    100%{filter:none;}
+  }
+
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto;}
     .view{animation:none;}
@@ -2427,6 +2566,12 @@
     .sztuka__item:hover{transform:none;}
     .sztuka__item:hover img{transform:none;}
     .sztuka__lb-img{transition:none;opacity:1;transform:none;}
+    .hero__edge--l{animation:none;transform:translateX(0);}
+    .hero__edge--r{animation:none;transform:translateX(0);}
+    .hero__wordmark{animation:none;opacity:1;transform:translateY(-50%) rotate(-90deg);}
+    ::view-transition-group(root),
+    ::view-transition-old(root),
+    ::view-transition-new(root){animation:none !important;}
   }
   @keyframes somiFadeIn{
     from{opacity:0;}
@@ -2477,17 +2622,24 @@
   <symbol id="cat-files" viewBox="0 0 24 24">
     <path d="M3.5 7.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
   </symbol>
+  <!-- deadsora mark (punkt C): geometria 1:1 z artefaktu "The Coding Black Cat —
+       logo test" (claude.ai/artifact/KTWFyVUizW8XrEV6gMgR9r), monochrom
+       --dead-accent zamiast dwukolorowej wersji z artefaktu — patrz .bg__cat. -->
+  <symbol id="blackcat-mark" viewBox="0 0 200 190">
+    <path class="cat-tail" d="M168,76 C 196,82 202,44 178,28" stroke-linecap="round"/>
+    <path class="cat-body" d="M 30 70 L 52 10 L 100 55 L 148 10 L 170 70 Q 182 130 100 178 Q 18 130 30 70 Z"/>
+    <ellipse class="cat-accent" cx="76" cy="98" rx="7" ry="10"/>
+    <ellipse class="cat-accent" cx="124" cy="98" rx="7" ry="10"/>
+    <polygon class="cat-accent" points="94,120 106,120 100,129"/>
+  </symbol>
 </svg>
 
 <!-- persistent particle field: stays put while views swap above it -->
 <div class="bg" id="stage">
-  <svg class="bg__mark" viewBox="0 0 134 100" aria-hidden="true" focusable="false">
-    <g stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17">
-      <path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)"/>
-      <path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)"/>
-    </g>
-  </svg>
   <canvas id="map"></canvas>
+  <svg class="bg__cat" viewBox="0 0 200 190" aria-hidden="true" focusable="false">
+    <use href="#blackcat-mark"/>
+  </svg>
 </div>
 
 <!-- pasek na cala szerokosc: [kula SOMI + logo] [linki] [CTA] -->
@@ -2571,6 +2723,9 @@
          i po prawej ma puste pole. MADE IN POLAND schodzi z roli naglowka
          (haslo-flaga nie mowila, co oferujemy) do roli stempla na krawedzi kadru. -->
     <div class="hero hero--start">
+      <div class="hero__edge hero__edge--l" aria-hidden="true"></div>
+      <div class="hero__edge hero__edge--r" aria-hidden="true"></div>
+      <span class="hero__wordmark" aria-hidden="true">cyber<b>sora</b></span>
       <span class="hero__stamp" aria-hidden="true">made in poland</span>
 
       <div class="hero__type">
@@ -4598,41 +4753,59 @@ fingerprint(maszyna)</div>
   }
 
   function go(view, push) {
-    if (!NAMES.includes(view)) view = 'start';
-    if (view === 'products' && !PRODUKTY_WIDOCZNE) view = 'start';   // patrz PRODUKTY_WIDOCZNE
-    // route theme: CSS switches via data-route, both canvases via themeTarget
-    document.documentElement.dataset.route = view;
-    themeTarget = THEMES[view] || THEMES.start;
-    views.forEach(v => { v.hidden = (v.dataset.view !== view); });
-    links.forEach(l => {
-      const on = l.dataset.nav === view;
-      l.classList.toggle('is-active', on);
-      if (on) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current');
-    });
-    const deadSwitch = document.querySelector('.brand__second');
-    if (deadSwitch) deadSwitch.setAttribute('aria-pressed', view === 'sztuka' ? 'true' : 'false');
-    /* zmiana trasy = "coś się dzieje": kula rozbłyska i sama wraca do spokoju.
-       Powrót jest tutaj, a nie w SOMI_MOOD, bo to wołający wie, że rozbłysk ma
-       być chwilowy — stan 'wow' sam z siebie trwa, dopóki ktoś go nie zdejmie. */
-    window.SOMI_MOOD('wow');
-    setTimeout(() => window.SOMI_MOOD('calm'), 1200);
-    requestAnimationFrame(() => moveMagic(activeLink()));
-    closeMenu();
-    window.scrollTo(0, 0);
-    /* M4.1: kazdy widok ma wlasne hero i wlasna jego wysokosc — tlo i mapa
-       musza sie do niego przemierzyc po podmianie widoku, nie przed.
-       Mierzymy dwa razy: OD RAZU, zeby wysokosc byla dobra nawet gdyby klatka
-       nigdy nie przyszla (karta w tle), i jeszcze raz po klatce, gdy uklad
-       nowego widoku jest juz policzony do konca. */
-    dopasujTloDoHero();
-    requestAnimationFrame(() => {
+    const apply = () => {
+      if (!NAMES.includes(view)) view = 'start';
+      if (view === 'products' && !PRODUKTY_WIDOCZNE) view = 'start';   // patrz PRODUKTY_WIDOCZNE
+      // route theme: CSS switches via data-route, both canvases via themeTarget
+      document.documentElement.dataset.route = view;
+      themeTarget = THEMES[view] || THEMES.start;
+      views.forEach(v => { v.hidden = (v.dataset.view !== view); });
+      links.forEach(l => {
+        const on = l.dataset.nav === view;
+        l.classList.toggle('is-active', on);
+        if (on) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current');
+      });
+      const deadSwitch = document.querySelector('.brand__second');
+      if (deadSwitch) deadSwitch.setAttribute('aria-pressed', view === 'sztuka' ? 'true' : 'false');
+      /* zmiana trasy = "coś się dzieje": kula rozbłyska i sama wraca do spokoju.
+         Powrót jest tutaj, a nie w SOMI_MOOD, bo to wołający wie, że rozbłysk ma
+         być chwilowy — stan 'wow' sam z siebie trwa, dopóki ktoś go nie zdejmie. */
+      window.SOMI_MOOD('wow');
+      setTimeout(() => window.SOMI_MOOD('calm'), 1200);
+      requestAnimationFrame(() => moveMagic(activeLink()));
+      closeMenu();
+      window.scrollTo(0, 0);
+      /* M4.1: kazdy widok ma wlasne hero i wlasna jego wysokosc — tlo i mapa
+         musza sie do niego przemierzyc po podmianie widoku, nie przed.
+         Mierzymy dwa razy: OD RAZU, zeby wysokosc byla dobra nawet gdyby klatka
+         nigdy nie przyszla (karta w tle), i jeszcze raz po klatce, gdy uklad
+         nowego widoku jest juz policzony do konca. */
       dopasujTloDoHero();
-      buildParticles();
-      buildSparks();
-      buildChips();
-    });
-    if (push !== false && ('#' + view) !== location.hash) {
-      history.replaceState(null, '', '#' + view);
+      requestAnimationFrame(() => {
+        dopasujTloDoHero();
+        buildParticles();
+        buildSparks();
+        buildChips();
+      });
+      if (push !== false && ('#' + view) !== location.hash) {
+        history.replaceState(null, '', '#' + view);
+      }
+    };
+
+    /* 21.09: kazda nawigacja (link, hash, switch "/ deadsora") przechodzi
+       przez ten SAM most torn-wipe, patrz PROPOZYCJA_PRZEJSCIA_CYBERPUNK.md.
+       Bez wsparcia albo z prefers-reduced-motion: apply() leci od razu,
+       DOM i tak sie zmienia — zero regresji, po prostu bez animacji. */
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (document.startViewTransition && !reduceMotion) {
+      /* .ready odrzuca sie z InvalidStateError, gdy karta jest w tle w
+         momencie klikniecia (np. alt-tab) — apply() i tak sie wykonuje,
+         po prostu bez animacji. Bez tego .catch to byl niezlapany wyjatek
+         w konsoli (zlapane live: "Transition was aborted... Document
+         hidden"). */
+      document.startViewTransition(apply).ready.catch(() => {});
+    } else {
+      apply();
     }
   }
 
