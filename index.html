@@ -572,149 +572,9 @@
   .nav__burger[aria-expanded="true"] span:nth-child(2){opacity:0;}
   .nav__burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
-  /* ---------- mini-SOMI mascot: cloud with a face, lives beside the logo ----------
-     Rule: transform/opacity + CSS vars only. Eyes track the cursor via --ex/--ey
-     (JS sets just those two vars; the transition smooths it — no rAF here). */
-  .nav__mascot{
-    position:relative;
-    flex-shrink:0;
-    display:inline-flex;
-    align-items:center;
-    padding:0;
-    background:transparent;
-    border:none;
-    line-height:0;
-    color:var(--th-hot);
-    transition:color .9s var(--ease-soft);
-    cursor:pointer;
-    animation:navItemIn .45s ease .12s backwards;
-  }
-  .mascot{
-    width:27px;height:34px;
-    display:block;
-    transition:transform .25s var(--ease-soft);
-  }
-  .nav__mascot:hover .mascot{transform:scale(1.08);}
-
-  .mascot__pupil{
-    transform-box:fill-box;transform-origin:center;
-    transform:translate(var(--ex,0px),var(--ey,0px)) scale(var(--ps,1));
-    transition:transform .15s ease, opacity .2s ease;
-  }
-  .mascot__happy,.mascot__wow{opacity:0;transition:opacity .2s ease;}
-  .mascot__mouth{
-    transform-box:fill-box;transform-origin:center;
-    transition:transform .2s ease, opacity .2s ease;
-  }
-
-  .mascot__lid{
-    transform-box:fill-box;
-    transform-origin:center;
-    animation:mascotBlink 4.6s ease-in-out infinite;
-  }
-  .mascot__eye--r .mascot__lid{animation-delay:.18s;}
-  @keyframes mascotBlink{
-    0%,92%,100%{transform:scaleY(1);}
-    96%{transform:scaleY(.08);}
-  }
-
-  .nav__mascot.is-happy .mascot__pupil{opacity:0;}
-  .nav__mascot.is-happy .mascot__happy{opacity:1;}
-  .nav__mascot.is-happy .mascot__mouth{transform:scaleX(1.25);}
-
-  .nav__mascot.is-wink .mascot__eye--l .mascot__lid{animation:none;transform:scaleY(.08);}
-  .nav__mascot.is-wink .mascot__mouth{transform:rotate(-9deg);}
-
-  .nav__mascot.is-wow{--ps:1.35;}
-  .nav__mascot.is-wow .mascot__mouth{opacity:0;}
-  .nav__mascot.is-wow .mascot__wow{opacity:1;}
-
-  .nav__mascot.is-sleep .mascot__lid{animation:none;transform:scaleY(.08);}
-  .nav__mascot.is-sleep .mascot__zzz{animation:mascotZzz 2.4s ease-in-out infinite;}
-
-  .nav__mascot.is-hop .mascot{animation:mascotHop .35s var(--ease-soft);}
-  @keyframes mascotHop{
-    0%,100%{transform:translateY(0);}
-    40%{transform:translateY(-3px);}
-  }
-
-  .mascot__zzz{
-    position:absolute;
-    top:-2px;right:-3px;
-    font-size:var(--t-eyebrow);font-weight:600;
-    color:var(--th-hot);
-    opacity:0;
-    pointer-events:none;
-  }
-  @keyframes mascotZzz{
-    0%{opacity:0;transform:translate(0,2px) scale(.7);}
-    30%{opacity:.9;}
-    100%{opacity:0;transform:translate(3px,-8px) scale(1);}
-  }
-
-  .nav__mascot:focus-visible{
-    outline:2px solid var(--th-hot);
-    outline-offset:3px;
-    border-radius:999px;
-  }
-  @media (max-width:640px){
-    .mascot{width:25px;height:32px;}
-  }
-
-  /* ---------- kula SOMI: to samo miejsce w pasku, co maskotka ----------
-     Widoczna dopiero, gdy three.js dojedzie i WebGL wystartuje (klasa has-orb
-     na przycisku) — do tego czasu, i na zawsze na sprzęcie bez WebGL-a,
-     w pasku siedzi maskotka wyżej. Wysokość płótna schodzi razem z paskiem
-     po przewinięciu (64 → 52 px), żeby kula nie wystawała poza pasek. */
-  /* Slot jest WEZSZY niz plotno i przycina je po bokach — swiadomie.
-     Kadr 322:205 ma kule w srodku i szerokie puste marginesy: wlokna siegaja
-     17,6 px od srodka, a plotno przy wysokosci 52 px ma ich 41. Nieprzyciete
-     dawaloby 82 px szerokosci slotu przy 52 px wysokosci: w pasku robila sie
-     dziura miedzy kula a logotypem, a na telefonie te 30 px nadmiaru bije sie
-     o miejsce z burgerem i CTA. Przycinam TYLKO pustke: 56 px zostawia po
-     28 px od srodka, wiecej niz siegaja wlokna.
-     Ta wysokosc jest po M2.1 rowniez ROZMIAREM BUFORA — JS czyta ja ze slotu
-     (wysokoscSlotu) i tyle samo pikseli daje rendererowi, wiec zmiana tych
-     liczb zmienia rozdzielczosc kuli, nie tylko jej skalowanie. */
-  .nav__orb{
-    position:relative;display:none;flex-shrink:0;overflow:hidden;
-    width:56px;height:52px;
-    align-items:center;justify-content:center;
-  }
-  .nav__orb canvas{display:block;height:52px;width:auto;max-width:none;flex:none;}
-  .nav__bar.is-condensed .nav__orb{width:48px;height:44px;}
-  .nav__bar.is-condensed .nav__orb canvas{height:44px;}
-  .nav__mascot.has-orb .nav__orb{display:flex;}
-  .nav__mascot.has-orb .mascot,
-  .nav__mascot.has-orb .mascot__zzz{display:none;}
-  /* Miedzy sprawdzeniem WebGL-a a wejsciem kuli (pobranie+rozruch three.js,
-     patrz komentarz przy oknie `load` nizej) maskotka stala widoczna i po
-     chwili znikala pod kula — mrugniecie zgloszone 20.09. Ta klasa chowa ja
-     NATYCHMIAST (zanim przegladarka w ogole namaluje pierwsza klatke), zamiast
-     pustego miejsca przez ulamek sekundy. Zdejmowana z powrotem, jesli kula
-     jednak nie wstanie (patrz JS) — inaczej pasek zostalby pusty na zawsze. */
-  .nav__mascot.is-loading .mascot,
-  .nav__mascot.is-loading .mascot__zzz{opacity:0;}
-  /* Poświata jest osobnym rozmytym elementem POD płótnem, nie filtrem na samym
-     płótnie — tak samo jak w terminalu: drop-shadow na buforze WebGL potrafi
-     narysować kwadratową ramkę zamiast miękkiego klosza. Tło wstawia JS
-     (applyMood), stąd tu tylko kształt i rozmycie. */
-  .nav__orb-glow{
-    position:absolute;left:50%;top:50%;
-    /* KOŁO, nie 62% obu boków: płótno jest szersze niż wyższe (322x205),
-       więc procent szerokości rozciągnąłby poświatę w elipsę pod okrągłą kulą. */
-    height:50%;aspect-ratio:1;   /* 62% do 11.09 — poswiata siegala za daleko poza kule */
-    transform:translate(-50%,-50%);
-    border-radius:50%;
-    filter:blur(9px);
-    pointer-events:none;
-  }
-  /* Krycia nie ustawiam tutaj: wstawia je JS (glowStrength przy makeOrb),
-     inline, więc reguła z arkusza i tak by nie doszła. */
-  @media (max-width:640px){
-    .nav__orb{width:48px;height:44px;}
-    .nav__orb canvas{height:44px;}
-  }
+  /* mini-SOMI mascot + kula SOMI (nav__mascot/nav__orb) USUNIETE na prosbe
+     maisy, 22.09 — kulka w pasku i czat, ktory otwierala, znikaja calkowicie
+     (nie hide-only jak deadsora: to skasowany kod, nie schowany). */
 
   .nav__brand:focus-visible,
   .nav__link:focus-visible,
@@ -725,159 +585,8 @@
     border-radius:999px;
   }
 
-  /* ---------- SOMI chat (graphite glass + crimson, matches the nav) ---------- */
-  .somi{
-    position:fixed;
-    right:18px;bottom:18px;
-    z-index:40;
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    gap:12px;
-  }
-  .somi__logo{color:var(--crimson-hot);display:block;}
-  /* Guzik-launcher z pulsujacym pierscieniem WYCIETY 18.09 — jedynym wejsciem
-     do czatu jest kula/maskotka w pasku. Kontener .somi zostaje: trzyma panel
-     czatu w rogu. */
-
-  /* chat window — same corner, same glass; a real conversation inside */
-  .somi__chat{
-    display:flex;
-    flex-direction:column;
-    width:min(340px,calc(100vw - 28px));
-    height:min(420px,70vh);
-    border-radius:18px;
-    background:rgba(14,14,18,.72);
-    border:1px solid rgba(255,255,255,.12);
-    -webkit-backdrop-filter:blur(16px) saturate(1.25);
-    backdrop-filter:blur(16px) saturate(1.25);
-    box-shadow:0 18px 44px rgba(0,0,0,.45);
-    overflow:hidden;
-    transform-origin:100% 100%;
-    animation:somiPop .3s var(--ease-soft) both; /* fade + rise + scale, no overshoot */
-  }
-  .somi__chat[hidden]{display:none;}
-  @keyframes somiPop{
-    from{opacity:0;transform:translateY(10px) scale(.96);}
-    to{opacity:1;transform:none;}
-  }
-  .somi__top{
-    display:flex;align-items:center;gap:.6rem;
-    padding:.75rem .6rem .65rem 1rem;
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  .somi__logo--head{width:22px;height:27px;}
-  .somi__name{
-    font-size:var(--t-ui);font-weight:600;
-    letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
-    color:var(--crimson-hot);
-  }
-  .somi__status{
-    display:flex;align-items:center;gap:.45em;
-    font-size:var(--t-label);color:rgba(255,255,255,.5);
-  }
-  .somi__dot{
-    width:7px;height:7px;border-radius:50%;
-    background:var(--crimson-hot);
-    box-shadow:0 0 8px rgba(255,58,82,.8);
-  }
-  .somi__close{
-    margin-left:auto;
-    width:28px;height:28px;
-    display:grid;place-items:center;
-    background:transparent;border:none;
-    border-radius:50%;
-    color:rgba(255,255,255,.55);
-    font-size:var(--t-title);line-height:var(--lh-display);
-    cursor:pointer;
-    transition:color .2s ease;
-  }
-  .somi__close:hover{color:#fff;}
-
-  .somi__log{
-    flex:1;
-    overflow-y:auto;
-    padding:.9rem .9rem .4rem;
-    display:flex;flex-direction:column;gap:.55rem;
-    scrollbar-width:thin;
-    scrollbar-color:rgba(255,255,255,.25) transparent;
-  }
-  .somi__row{
-    display:flex;align-items:flex-end;gap:.45rem;
-    animation:somiMsgIn .3s var(--ease-soft) both;
-  }
-  .somi__row--user{justify-content:flex-end;}
-  @keyframes somiMsgIn{
-    from{opacity:0;transform:translateY(8px) scale(.96);}
-    to{opacity:1;transform:none;}
-  }
-  .somi__logo--mini{flex:0 0 auto;width:16px;height:20px;opacity:.9;margin-bottom:.1rem;}
-  .somi__msg{
-    max-width:82%;
-    padding:.55rem .8rem;
-    font-size:var(--t-body);line-height:var(--lh-text);color:#fff;
-    border-radius:14px;
-  }
-  .somi__msg--somi{
-    background:rgba(255,255,255,.07);
-    border:1px solid rgba(255,255,255,.08);
-    border-bottom-left-radius:4px;
-  }
-  .somi__msg--user{
-    background:var(--crimson-solid);
-    border:1px solid rgba(255,58,82,.5);
-    border-bottom-right-radius:4px;
-    box-shadow:0 4px 12px rgba(225,29,51,.3);
-  }
-  .somi__typing{display:inline-flex;gap:5px;align-items:center;padding:.15em 0;}
-  .somi__typing i{
-    width:6px;height:6px;border-radius:50%;
-    background:rgba(255,255,255,.55);
-    animation:somiTyping 1s ease-in-out infinite;
-  }
-  .somi__typing i:nth-child(2){animation-delay:.15s;}
-  .somi__typing i:nth-child(3){animation-delay:.3s;}
-  @keyframes somiTyping{
-    0%,60%,100%{transform:translateY(0);opacity:.45;}
-    30%{transform:translateY(-4px);opacity:1;}
-  }
-
-  .somi__chips{
-    display:flex;flex-wrap:wrap;gap:.4rem;
-    padding:.35rem .9rem 0;
-  }
-  .somi__chips:empty{padding:0;}
-  .somi__chip{
-    font:inherit;font-size:var(--t-ui);font-weight:600;color:#fff;
-    padding:.42rem .85rem;
-    border-radius:999px;
-    background:rgba(225,29,51,.10);
-    border:1px solid rgba(255,58,82,.45);
-    cursor:pointer;
-    animation:somiMsgIn .3s var(--ease-soft) both;
-    transition:background .2s ease, transform .2s ease;
-  }
-  .somi__chip:hover{background:var(--crimson-solid);transform:translateY(-1px);}
-
-  /* input-look bar: decorative, answers come from the chips above it */
-  .somi__input{
-    margin:.6rem .9rem .9rem;
-    padding:.55rem .95rem;
-    border-radius:999px;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.09);
-    font-size:var(--t-body);color:rgba(255,255,255,.35);
-    user-select:none;
-  }
-
-  .somi__chip:focus-visible,
-  .somi__close:focus-visible{
-    outline:2px solid var(--crimson-hot);
-    outline-offset:3px;
-  }
-  @media (max-width:640px){
-    .somi{right:14px;bottom:14px;}
-  }
+  /* SOMI chat (panel .somi/#somichat) USUNIETY na prosbe maisy, 22.09 — patrz
+     notatka przy .nav__mascot wyzej. */
 
   /* ---------- swappable views over the fixed background (SPA) ---------- */
   main{position:relative;z-index:10;}
@@ -1019,14 +728,10 @@
      Reguly wisza pod `.hero--start` — `.hero` jest wspolny dla szesciu widokow. */
   .hero--start{
     --hero-pad:clamp(16px,3vw,40px);   /* ta sama wartosc co --nav-pad w pasku */
-    --edge-w:clamp(40px,6vw,72px);     /* szerokosc .hero__edge — patrz nizej */
     place-items:stretch;               /* zdejmuje wysrodkowanie z .hero */
     align-content:end;
     justify-items:start;
-    /* lewy padding liczy sie z hero-pad + szerokosc poszarpanego pasa, zeby
-       tekst nie chowal sie pod czarna sciana (byl blad 21.09 — pas byl
-       szerszy niz --hero-pad, "Piszę"/"software"/CTA wchodzily pod spod). */
-    padding:0 var(--hero-pad) clamp(3.2rem,9vh,6rem) calc(var(--hero-pad) + var(--edge-w));
+    padding:0 var(--hero-pad) clamp(3.2rem,9vh,6rem);
     text-align:left;
   }
   /* kurtyna od lewej: tyle kontrastu, zeby tekst czytal sie nad czastkami, i ani
@@ -1047,11 +752,9 @@
      wtedy wraca do ukladu i wchodzi na pas faktow. Pozycjonowanie tylko tam,
      gdzie jest potrzebne. */
   .hero__type,.hero__rail{position:relative;z-index:1;}
-  .hero__stamp{z-index:3;}
   /* podpowiedz zostaje po lewej, w tym samym gutterze co naglowek — po prawej
-     wchodzila na przycisk SOMI w rogu ekranu. left liczy sie tak samo jak
-     padding hero--start (hero-pad + edge-w), zeby nie chowac sie pod pas. */
-  .hero--start .hint{position:absolute;z-index:1;left:calc(var(--hero-pad) + var(--edge-w));right:auto;}
+     wchodzila na przycisk SOMI w rogu ekranu */
+  .hero--start .hint{position:absolute;z-index:1;left:var(--hero-pad);right:auto;}
 
   /* tekst nie moze lapac myszy — mapa pod spodem reaguje na kursor.
      Wyjatek: przycisk (tak samo, jak stary `.overlay a`). */
@@ -1097,13 +800,11 @@
   }
 
   /* stempel na krawedzi kadru — MADE IN POLAND zostaje w kadrze, ale przestaje
-     udawac oferte. Przesuniety nizej (72% zamiast 50%) 21.09, zeby zrobic
-     miejsce na wordmark CYBERSORA nad nim — ten sam duet co "CYBERPUNK"/
-     "2077" w referencji (PROPOZYCJA_KRAWEDZIE_WORDMARK.md). */
+     udawac oferte */
   .hero__stamp{
     position:absolute;
     right:var(--hero-pad);
-    top:91%;
+    top:50%;
     transform:translateY(-50%);
     writing-mode:vertical-rl;
     text-transform:uppercase;
@@ -1112,69 +813,6 @@
     letter-spacing:var(--ls-brand);
     color:rgba(255,255,255,.32);
     pointer-events:none;
-    z-index:3;
-  }
-
-  /* ---------- POSZARPANE KRAWEDZIE + WORDMARK (PROPOZYCJA_KRAWEDZIE_WORDMARK.md,
-     wariant B, 21.09) ----------
-     Rama plakatowa wzorem okladki Cyberpunk 2077: dwa czarne pasy z podartym
-     brzegiem po bokach hero Startu (lewy = sam pas, prawy = pas + wordmark
-     "CYBERSORA" nad istniejacym stemplem MADE IN POLAND). Wjezdzaja RAZ przy
-     kazdym pokazaniu widoku Start (`animation`, ten sam trik co
-     .slogan--glitch-once — .view resetuje animacje przy kazdym przelaczeniu
-     z display:none) — zero nowej pracujacej petli. TYLKO hero Startu, znika
-     ponizej 900px jak .hero__stamp (referencja to szeroki poziomy kadr, nie
-     mieści się na telefonie). */
-  .hero--start{overflow:hidden;}
-  .hero__edge{
-    position:absolute;
-    top:0;bottom:0;
-    width:var(--edge-w);
-    background:#000;
-    z-index:2;
-    pointer-events:none;
-  }
-  .hero__edge--l{
-    left:0;
-    clip-path:polygon(0 0,100% 0,68% 7%,100% 14%,64% 21%,100% 29%,70% 37%,100% 45%,66% 53%,100% 61%,72% 68%,100% 76%,66% 84%,100% 92%,70% 100%,0 100%);
-    animation:edgeInL .9s var(--ease-soft) both;
-  }
-  .hero__edge--r{
-    right:0;
-    clip-path:polygon(100% 0,0 0,32% 7%,0 14%,36% 21%,0 29%,30% 37%,0 45%,34% 53%,0 61%,28% 68%,0 76%,34% 84%,0 92%,30% 100%,100% 100%);
-    animation:edgeInR .9s var(--ease-soft) both;
-  }
-  @keyframes edgeInL{ from{transform:translateX(-100%);} to{transform:translateX(0);} }
-  @keyframes edgeInR{ from{transform:translateX(100%);} to{transform:translateX(0);} }
-  .hero__wordmark{
-    position:absolute;
-    /* right-anchor siedzi w POLOWIE pasa .hero__edge--r (nie za nim), zeby
-       wiekszosc litery bylo na otwartym tle, a tylko koniuszek "nurkowal"
-       pod czarna sciane — to ta interakcja ze sciana, o ktora chodzilo w
-       referencji, bez chowania calego slowa (blad pierwszej proby 21.09). */
-    right:calc(var(--edge-w) * .4);
-    top:20%;
-    transform:translateY(-50%) rotate(-90deg);
-    transform-origin:right center;
-    white-space:nowrap;
-    font-family:var(--f-sans);
-    font-weight:800;
-    font-size:clamp(2.6rem,7.5vw,5.5rem);
-    letter-spacing:.02em;
-    line-height:1;
-    color:#fff;
-    z-index:3;
-    pointer-events:none;
-    opacity:0;
-    animation:wordmarkIn 1s var(--ease-soft) .35s both;
-  }
-  .hero__wordmark b{color:var(--th-hot);font-weight:800;}
-  @keyframes wordmarkIn{
-    from{opacity:0; transform:translateY(-50%) rotate(-90deg) translateX(-16px);}
-    to{opacity:1; transform:translateY(-50%) rotate(-90deg) translateX(0);}
-  }
-  @media (max-width:900px){
-    .hero__edge,.hero__wordmark{display:none;}
   }
 
   @media (max-width:900px){
@@ -2239,7 +1877,7 @@
      wysoki, SalonDesk kwadratowy), wiec normalizuje je WYSOKOSC, a nie szerokosc
      — inaczej szeroki sygnet optycznie przytloczylby dwa pozostale. */
   .pas__marka{display:flex;flex-direction:column;align-items:flex-start;gap:.95rem;}
-  .pas__znak svg{height:clamp(44px,5.2vw,66px);width:auto;display:block;}
+  .pas__znak svg{height:clamp(52px,5.8vw,76px);width:auto;display:block;}
 
   /* ---------- PLYTKA ZNAKU: rama wokol sygnetu, bez ani jednej nowej petli ----------
      Dwie warstwy, obie darmowe:
@@ -2257,12 +1895,15 @@
   .pas__znak{
     position:relative;
     display:inline-flex;
-    padding:clamp(13px,1.5vw,19px) clamp(17px,2vw,25px);
+    padding:clamp(20px,2.2vw,30px) clamp(24px,2.6vw,34px);
     overflow:hidden;
     /* wszystkie trzy znaki na ten sam krwisty: dwa maja go wpisane w plik
        (#e11d33), wiec SalonDesk (currentColor) dostaje ten sam, a nie --th-hot */
     color:var(--crimson);
-    background-color:transparent;
+    border-radius:14px;
+    border:1px solid color-mix(in srgb, var(--th-hot) 22%, transparent);
+    background-color:color-mix(in srgb, var(--th-hot) 6%, transparent);
+    box-shadow:0 10px 26px -10px color-mix(in srgb, var(--th-hot) 30%, transparent);
     transition:background-color .25s ease;
   }
   .pas__znak::before{
@@ -2303,7 +1944,7 @@
 
   @media (hover:hover){
     .pas:hover .pas__znak::before{opacity:1;}
-    .pas:hover .pas__znak{background-color:rgba(225,29,51,.06);}
+    .pas:hover .pas__znak{background-color:color-mix(in srgb, var(--th-hot) 11%, transparent);}
   }
 
   .pas__nazwa{
@@ -2335,18 +1976,20 @@
     line-height:var(--lh-text);
     color:rgba(255,255,255,.78);
   }
-  .pas__meta{display:flex;flex-wrap:wrap;margin:1.2rem 0 0;padding:0;}
+  .pas__meta{display:flex;flex-wrap:wrap;gap:.85rem;margin:1.4rem 0 0;padding:0;}
   .pas__meta > div{
-    margin-right:1.3rem;
-    padding-right:1.3rem;
-    border-right:1px solid rgba(255,255,255,.14);
+    margin:0;
+    padding:.65rem .9rem .7rem;
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:10px;
+    background:rgba(255,255,255,.03);
   }
-  .pas__meta > div:last-child{margin-right:0;padding-right:0;border-right:0;}
-  .pas__meta dt{font-size:var(--t-label);color:rgba(255,255,255,.55);}
+  .pas__meta dt{font-size:var(--t-label);color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:var(--ls-instrument);}
   .pas__meta dd{
-    margin:.16rem 0 0;
+    margin:.3rem 0 0;
     font-family:var(--mono,ui-monospace,'SFMono-Regular',Consolas,monospace);
-    font-size:var(--t-instrument);
+    font-size:var(--t-s);
+    font-weight:800;
     color:var(--th-hot);
   }
 
@@ -2550,32 +2193,15 @@
     .pas__znak::after{display:none;}
     .pas::before{clip-path:none;transition:none;}
     .steps__list::before{clip-path:none;transition:none;}
-    .somi__typing i{animation:none;}
-    .somi__chat{animation:somiFadeIn .25s ease both;}
-    .somi__row,.somi__chip{animation:somiFadeIn .2s ease both;}
-    .somi__chip:hover{transform:none;}
     .slogan{animation:none;}
     .slogan.slogan--glitch-once{animation:none;text-shadow:none;transform:none;}
-    /* mascot: a static friendly face — no blink, no zzz, no hop */
-    .nav__mascot{animation:none;}
-    .mascot__lid{animation:none;}
-    .mascot__pupil{transition:opacity .2s ease;}
-    .nav__mascot:hover .mascot,.nav__mascot.is-hop .mascot{transform:none;animation:none;}
-    .mascot__zzz{display:none;}
     .sztuka__item,.sztuka__item img{transition:none;}
     .sztuka__item:hover{transform:none;}
     .sztuka__item:hover img{transform:none;}
     .sztuka__lb-img{transition:none;opacity:1;transform:none;}
-    .hero__edge--l{animation:none;transform:translateX(0);}
-    .hero__edge--r{animation:none;transform:translateX(0);}
-    .hero__wordmark{animation:none;opacity:1;transform:translateY(-50%) rotate(-90deg);}
     ::view-transition-group(root),
     ::view-transition-old(root),
     ::view-transition-new(root){animation:none !important;}
-  }
-  @keyframes somiFadeIn{
-    from{opacity:0;}
-    to{opacity:1;}
   }
 </style>
 </head>
@@ -2642,58 +2268,24 @@
   </svg>
 </div>
 
-<!-- pasek na cala szerokosc: [kula SOMI + logo] [linki] [CTA] -->
+<!-- pasek na cala szerokosc: [logo] [linki] [CTA] — kula SOMI/maskotka i czat,
+     ktory otwierala, usuniete na prosbe maisy, 22.09. -->
 <nav class="nav" aria-label="Główna nawigacja">
   <div class="nav__bar">
     <div class="nav__left">
-    <button class="nav__mascot" type="button" aria-label="SOMI — otwórz czat" aria-controls="somichat" aria-expanded="false">
-      <!-- Kula SOMI (M2). Leży W TYM SAMYM przycisku co maskotka i tylko ją
-           zasłania (klasa has-orb), nie kasuje: bez WebGL-a, przy
-           prefers-reduced-motion i gdy three.js się nie ściągnie, w pasku
-           zostaje maskotka. Bufor 82x52 = ten sam kadr, co mała kula
-           w terminalu (322:205), ale w pikselach WYŚWIETLANIA — patrz M2.1
-           w PLAN_STRONY.md. Te atrybuty to tylko wartość startowa: przy
-           starcie kuli renderer ustawia bufor z wysokości slotu. -->
-      <span class="nav__orb" aria-hidden="true">
-        <i class="nav__orb-glow"></i>
-        <canvas id="navOrb" width="82" height="52" hidden></canvas>
-      </span>
-      <svg class="mascot" viewBox="0 0 24 30" aria-hidden="true">
-        <path class="mascot__body" d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"
-              fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-        <path class="mascot__legs" d="M9 20v3.2M13 20v5.2M17 20v3.2"
-              fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        <circle class="mascot__dot" cx="9"  cy="24.6" r="1.2" fill="currentColor"/>
-        <circle class="mascot__dot" cx="13" cy="26.6" r="1.2" fill="currentColor"/>
-        <circle class="mascot__dot" cx="17" cy="24.6" r="1.2" fill="currentColor"/>
-        <g class="mascot__face">
-          <g class="mascot__eye mascot__eye--l" transform="translate(9.4 13.6)">
-            <g class="mascot__lid">
-              <circle class="mascot__pupil" r="1.25" fill="currentColor"/>
-              <path class="mascot__happy" d="M-1.4 .3 Q0 -1.3 1.4 .3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </g>
-          </g>
-          <g class="mascot__eye mascot__eye--r" transform="translate(14.6 13.6)">
-            <g class="mascot__lid">
-              <circle class="mascot__pupil" r="1.25" fill="currentColor"/>
-              <path class="mascot__happy" d="M-1.4 .3 Q0 -1.3 1.4 .3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </g>
-          </g>
-          <path class="mascot__mouth" d="M10.6 16.6 Q12 17.8 13.4 16.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <circle class="mascot__wow" cx="12" cy="17" r="1" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        </g>
-      </svg>
-      <span class="mascot__zzz" aria-hidden="true">z</span>
-    </button>
-      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora — Start"><svg class="nav__mark" viewBox="0 0 134 100" width="27" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)" stroke="var(--th-accent)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)" stroke="#f6f2f3"/></g></svg>cyber<b>sora</b></a><button type="button" class="brand__second" data-nav="sztuka" aria-pressed="false" aria-label="deadsora — przełącz na Sztukę">/ deadsora</button>
+      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora — Start"><svg class="nav__mark" viewBox="0 0 134 100" width="27" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)" stroke="var(--th-accent)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)" stroke="#f6f2f3"/></g></svg>cyber<b>sora</b></a><!-- deadsora — przelacznik ukryty na prosbe maisy, 22.09, tymczasowo
+        ("poki co"): sekcja Sztuka i jej CSS/JS zostaja nietkniete, to tylko wejscie.
+        <button type="button" class="brand__second" data-nav="sztuka" aria-pressed="false" aria-label="deadsora — przełącz na Sztukę">/ deadsora</button>
+        -->
     </div>
 
     <div class="nav__links" id="navlinks">
       <a href="#start"     class="nav__link is-active" data-nav="start">Start</a>
       <a href="#products"  class="nav__link"           data-nav="products">Produkty</a>
       <a href="#somi"      class="nav__link"           data-nav="somi">SOMI</a>
-      <a href="#onas"      class="nav__link"           data-nav="onas">O mnie</a>
-      <a href="#sztuka"    class="nav__link"           data-nav="sztuka">Sztuka</a>
+      <a href="#onas"      class="nav__link"           data-nav="onas">O nas</a>
+      <!-- Sztuka ukryta z menu na prosbe maisy, 22.09, tymczasowo ("poki co") —
+           <a href="#sztuka" class="nav__link" data-nav="sztuka">Sztuka</a> -->
       <a href="#rnd"       class="nav__link"           data-nav="rnd">Sadzonki</a>
       <a href="#contact"   class="nav__link"           data-nav="contact">Kontakt</a>
       <span class="nav__magic" aria-hidden="true"></span>
@@ -2703,7 +2295,7 @@
       <!-- Przelacznik PL/ENG WYCIETY 18.09: ENG byl trwale wygaszony (brak wersji),
            co czytalo sie jako "niedokonczone" w pierwszym miejscu, na ktore patrzy oko.
            Miejsce na ikony socjali jest tutaj, czeka na adresy profili. -->
-      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do mnie</a>
+      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do nas</a>
       <button class="nav__burger" type="button" aria-expanded="false" aria-controls="navlinks" aria-label="Otwórz menu">
         <span></span><span></span><span></span>
       </button>
@@ -2723,15 +2315,12 @@
          i po prawej ma puste pole. MADE IN POLAND schodzi z roli naglowka
          (haslo-flaga nie mowila, co oferujemy) do roli stempla na krawedzi kadru. -->
     <div class="hero hero--start">
-      <div class="hero__edge hero__edge--l" aria-hidden="true"></div>
-      <div class="hero__edge hero__edge--r" aria-hidden="true"></div>
-      <span class="hero__wordmark" aria-hidden="true">cyber<b>sora</b></span>
       <span class="hero__stamp" aria-hidden="true">made in poland</span>
 
       <div class="hero__type">
-        <h1 class="slogan hero__slogan">Piszę software<span class="thin">na zamówienie</span></h1>
-        <p class="hero__lead">Aplikacje, boty i narzędzia — od pierwszej rozmowy do wdrożenia. Własne produkty piszę tym samym kodem, co zlecenia.</p>
-        <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do mnie</a>
+        <h1 class="slogan hero__slogan">Piszemy software<span class="thin">na zamówienie</span></h1>
+        <p class="hero__lead">Aplikacje, boty i narzędzia — od pierwszej rozmowy do wdrożenia. Własne produkty piszemy tym samym kodem, co zlecenia.</p>
+        <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do nas</a>
       </div>
 
       <!-- pas faktow: kazda pozycja ma pokrycie (PyPI 0.3.0, podpisana umowa,
@@ -2756,7 +2345,7 @@
         </div>
         <div class="manifest__item">
           <h2 class="manifest__head">Kod, który pracuje<span>kiedy śpisz</span></h2>
-          <p class="manifest__body">Moje radary przeglądają rynek 24 godziny na dobę i zwracają tylko to, co ma sens. To nie demo na pokaz — to chodzi u mnie codziennie.</p>
+          <p class="manifest__body">Nasze radary przeglądają rynek 24 godziny na dobę i zwracają tylko to, co ma sens. To nie demo na pokaz — to chodzi u nas codziennie.</p>
         </div>
       </div>
     </section>
@@ -2804,7 +2393,7 @@
           <article class="card">
             <span class="card__tag">Radar</span>
             <h3 class="card__title">Radary ofert</h3>
-            <p class="card__body">Moje własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia.</p>
+            <p class="card__body">Nasze własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia.</p>
             <a class="card__go" href="#contact" data-nav="contact">Zapytaj o dostęp &rarr;</a>
           </article>
         </div>
@@ -2950,8 +2539,9 @@
           <a href="#start" data-nav="start">Start</a>
           <a href="#products" data-nav="products">Produkty</a>
           <a href="#somi" data-nav="somi">SOMI</a>
-          <a href="#onas" data-nav="onas">O mnie</a>
-          <a href="#sztuka" data-nav="sztuka">Sztuka</a>
+          <a href="#onas" data-nav="onas">O nas</a>
+          <!-- Sztuka ukryta ze stopki na prosbe maisy, 22.09, tymczasowo ("poki co") —
+               <a href="#sztuka" data-nav="sztuka">Sztuka</a> -->
           <a href="#rnd" data-nav="rnd">Sadzonki</a>
           <a href="#contact" data-nav="contact">Kontakt</a>
           <a href="#polityka" data-nav="polityka">Polityka prywatności</a>
@@ -3356,7 +2946,7 @@
           <article class="card" data-category="marketplace">
             <span class="card__tag">Radar</span>
             <h3 class="card__title">Radary ofert</h3>
-            <p class="card__body">Moje własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia, z oceną i uzasadnieniem.</p>
+            <p class="card__body">Nasze własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia, z oceną i uzasadnieniem.</p>
             <a class="card__go" href="#contact" data-nav="contact">Zapytaj o dostęp &rarr;</a>
           </article>
           <article class="card" data-category="marketplace">
@@ -3622,8 +3212,8 @@
       <div class="overlay">
         <div class="eyebrow">somi &middot; asystentka cybersory</div>
         <h1 class="slogan">POZNAJ SOMI<span class="thin">asystentka od kodu, researchu i pomocy</span></h1>
-        <p class="stub">SOMI na co dzień pracuje w zapleczu studia — teraz uczymy ją rozmawiać też tutaj, z Tobą. Zagadaj już dziś w pasku na górze, pełne możliwości dochodzą.</p>
-        <a class="cta-big" href="#" id="somiHeroOpen">Pogadaj z SOMI teraz &rarr;</a>
+        <p class="stub">SOMI na co dzień pracuje w zapleczu studia — teraz uczymy ją rozmawiać też tutaj, z Tobą. Zobacz, jak dziś odpowiada, niżej na tej stronie — pełne możliwości dochodzą.</p>
+        <a class="cta-big" href="#contact" data-nav="contact">Napisz do nas &rarr;</a>
       </div>
     </div>
 
@@ -3648,9 +3238,9 @@
                 <div class="somi-demo__orb-glow" aria-hidden="true"></div>
               </div>
             </div>
-            <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówię wprost, co jest gotowe, a co nie. To mój pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
+            <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówimy wprost, co jest gotowe, a co nie. To nasz pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
             <ul class="somi-demo__parts">
-              <li><span class="somi-demo__tag is-live">już teraz</span> Rozmowa w pasku na górze — pyta, odpowiada, pokazuje, od czego zacząć.</li>
+              <li><span class="somi-demo__tag is-live">już teraz</span> Rozmowa tutaj, niżej na tej stronie — pyta, odpowiada, pokazuje, od czego zacząć.</li>
               <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text">Radar ofert (Useme, Upwork) — działa w tle od tygodni, 156 leadów z jednego skanu. Podłączenie do tego czatu jeszcze przed nami.</span>
                 <!-- "pająk" z banera FB — w źródle podpisany wprost jako "crawler przerysowany
                      kanciastym szkieletem marki". Tu = pieczątka przy radarze, bo radar TO crawler. -->
@@ -3712,7 +3302,7 @@
           </div>
 
           <div class="somi-demo__chat">
-            <p class="somi-demo__disclaimer">Przykładowa rozmowa — to zapis, nie czat na żywo. Prawdziwa SOMI odpowiada w pasku na górze, kliknij jej kulę.</p>
+            <p class="somi-demo__disclaimer">Przykładowa rozmowa — to zapis, nie czat na żywo. Prawdziwa SOMI dopiero uczy się rozmawiać tutaj, z Tobą.</p>
             <div class="somi-demo__questions" role="group" aria-label="Przykładowe pytania do SOMI">
               <button type="button" class="somi-demo__q" data-demo="robi">Co robisz?</button>
               <button type="button" class="somi-demo__q" data-demo="dziala">Jak działasz?</button>
@@ -3742,13 +3332,13 @@
         <div class="cards">
           <article class="card">
             <span class="card__tag">Już teraz</span>
-            <h3 class="card__title">Pogaduchy w rogu strony</h3>
-            <p class="card__body">Kliknij kulę w pasku na górze — SOMI odpowie na pytania o cybersorę i podpowie, z czym zacząć.</p>
+            <h3 class="card__title">Przykładowa rozmowa</h3>
+            <p class="card__body">Trzy gotowe pytania niżej na tej stronie — SOMI odpowiada, pokazuje, od czego zacząć.</p>
           </article>
           <article class="card">
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Deep research</h3>
-            <p class="card__body">Moje scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu.</p>
+            <p class="card__body">Nasze scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu.</p>
           </article>
           <article class="card">
             <span class="card__tag">W budowie</span>
@@ -3837,12 +3427,12 @@
   </section>
 
   <!-- O NAS -->
-  <section class="view" data-view="onas" aria-label="O mnie" hidden>
+  <section class="view" data-view="onas" aria-label="O nas" hidden>
     <div class="hero">
       <div class="overlay">
-        <div class="eyebrow">kim jestem</div>
-        <h1 class="slogan">O mnie</h1>
-        <p class="stub">Cybersora to marka, którą prowadzę sam — bez agencyjnego rozdęcia, podwykonawców i pośredników. Kod, design i wzrost robię sam, od pierwszej rozmowy do wdrożenia.</p>
+        <div class="eyebrow">kim jesteśmy</div>
+        <h1 class="slogan">O nas</h1>
+        <p class="stub">Cybersora to marka, którą prowadzimy we dwoje — bez agencyjnego rozdęcia, podwykonawców i pośredników. Kod, design i wzrost robimy sami, od pierwszej rozmowy do wdrożenia.</p>
         <!-- liczby z DANE.md (audyt 20.09, cztery-miesiace-linkedin), pod marka cybersora -->
         <dl class="hero__rail">
           <div class="hero__fact"><dt>Commity</dt><dd>764 / 84 dni</dd></div>
@@ -3860,19 +3450,19 @@
         </div>
         <div class="cards">
           <article class="card">
-            <span class="card__tag">Solo</span>
-            <h3 class="card__title">Jedna osoba, cała robota</h3>
-            <p class="card__body">Bez podwykonawców i pośredników — kod, design i kontakt z klientem prowadzę sam. Mniej warstw, szybsze decyzje, żadnych niespodzianek.</p>
+            <span class="card__tag">Duet</span>
+            <h3 class="card__title">Dwie osoby, cała robota</h3>
+            <p class="card__body">Bez podwykonawców i pośredników — kod, design i kontakt z klientem prowadzimy sami. Mniej warstw, szybsze decyzje, żadnych niespodzianek.</p>
           </article>
           <article class="card">
             <span class="card__tag">Produkt</span>
-            <h3 class="card__title">Buduję to, czego sam używam</h3>
-            <p class="card__body">Moje radary, boty i narzędzia AI pracują u mnie na co dzień, zanim trafią do oferty — nie sprzedaję niczego, czego sam nie przetestowałem.</p>
+            <h3 class="card__title">Budujemy to, czego sami używamy</h3>
+            <p class="card__body">Nasze radary, boty i narzędzia AI pracują u nas na co dzień, zanim trafią do oferty — nie sprzedajemy niczego, czego sami nie przetestowaliśmy.</p>
           </article>
           <article class="card">
             <span class="card__tag">Rynek</span>
             <h3 class="card__title">Bez odpowiednika</h3>
-            <p class="card__body">Nie znajdziesz drugiego freelancera, który łączy własne produkty AI, realny kod i marketing pod jedną marką — bez udawania agencji, którą nie jestem.</p>
+            <p class="card__body">Nie znajdziesz drugiego duetu, który łączy własne produkty AI, realny kod i marketing pod jedną marką — bez udawania agencji, którą nie jesteśmy.</p>
           </article>
         </div>
       </div>
@@ -3883,7 +3473,7 @@
          naglowka. -->
     <section class="proof reveal" aria-label="Znajdziesz nas też">
       <div class="proof__inner">
-        <span class="proof__item">znajdziesz mnie też na <b><a class="proof__link" href="https://useme.com/pl/roles/contractor/songbird,657683/" target="_blank" rel="noopener">Useme</a></b></span>
+        <span class="proof__item">znajdziesz nas też na <b><a class="proof__link" href="https://useme.com/pl/roles/contractor/songbird,657683/" target="_blank" rel="noopener">Useme</a></b></span>
         <span class="proof__item">pierwsze opinie — bez podkolorowanych cytatów — pojawią się, jak tylko powstaną</span>
         <span class="proof__item">kontakt: <b><a class="proof__link" href="mailto:cybersora@zohomail.eu,wojtekzieba.w@gmail.com">cybersora@zohomail.eu</a></b></span>
       </div>
@@ -4182,7 +3772,7 @@ fingerprint(maszyna)</div>
         <div class="policy">
           <article class="policy__item">
             <h3 class="policy__title">Kto administruje danymi</h3>
-            <p class="policy__body">Administratorem jest CyberSora, prowadzona przeze mnie. Kontakt w każdej sprawie związanej z danymi: <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.</p>
+            <p class="policy__body">Administratorem jest CyberSora, prowadzona przez nas. Kontakt w każdej sprawie związanej z danymi: <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.</p>
           </article>
 
           <article class="policy__item">
@@ -4232,23 +3822,7 @@ fingerprint(maszyna)</div>
   <button class="sztuka__lb-next" type="button" id="sztukaLbNext" aria-label="Następna grafika">&rarr;</button>
 </div>
 
-<!-- SOMI chat -->
-<div class="somi">
-  <div class="somi__chat" id="somichat" role="dialog" aria-label="SOMI — asystent cybersora" hidden>
-    <div class="somi__top">
-      <svg class="somi__logo somi__logo--head" viewBox="0 0 24 30" aria-hidden="true"><use href="#somi-logo"/></svg>
-      <span class="somi__name">SOMI</span>
-      <span class="somi__status"><span class="somi__dot" aria-hidden="true"></span>online</span>
-      <button class="somi__close" type="button" aria-label="Zamknij czat">&times;</button>
-    </div>
-    <div class="somi__log" role="log" aria-live="polite"></div>
-    <div class="somi__chips"></div>
-    <div class="somi__input" aria-hidden="true">wybierz odpowied&#378;&hellip;</div>
-  </div>
-  <!-- Guzik w rogu WYCIETY 18.09: byly dwa wejscia do tego samego czatu na jednym
-       ekranie (kula w pasku + ten guzik), oba animowane. Zostala kula/maskotka
-       w pasku (.nav__mascot); panel czatu dalej otwiera sie w tym rogu. -->
-</div>
+<!-- SOMI chat (kulka w pasku + panel czatu) USUNIETY na prosbe maisy, 22.09. -->
 
 <!-- GUMROAD WYLACZONY 11.09 (decyzja maisy: "gumroad odpada, trzeba to schowac").
      Byl tu `<script src="https://gumroad.com/js/gumroad.js">`, ktory obslugiwal
@@ -4867,258 +4441,15 @@ fingerprint(maszyna)</div>
     });
   }, { passive: true });
 
-  /* ===================== SOMI chat — a tiny two-level conversation graph ===================== */
-  const somi = document.querySelector('.somi');
-  const somiChat = document.getElementById('somichat');
-  const somiLog = somi.querySelector('.somi__log');
-  const somiChips = somi.querySelector('.somi__chips');
-  let somiTimer;
-  let somiStarted = false;
-
-  const SOMI_FINAL = [
-    { t: 'Napisz do nas →', go: 'contact' },
-    { t: '↺ od nowa', restart: true }
-  ];
-  const SOMI_FLOW = {
-    start: {
-      text: 'Hej, co tam? \u{1F44B} W czym możemy pomóc?',
-      chips: [
-        { t: 'Chcę stronę \u{1F310}', next: 'site' },
-        { t: 'Ile to kosztuje? \u{1F4B8}', next: 'price' },
-        { t: 'Tylko się rozglądam \u{1F440}', next: 'look' }
-      ]
-    },
-    site: {
-      text: 'Super! \u{1F525} Robimy szybkie strony bez gotowych szablonów — projekt, kod i wdrożenie w jednych rękach. Opisz pomysł w dwóch zdaniach, a wrócimy z konkretami w 24h.',
-      chips: SOMI_FINAL
-    },
-    price: {
-      text: 'Zależy od zakresu — wizytówka i sklep to dwie różne bajki. Napisz, czego potrzebujesz, a w 24h dostaniesz konkretną wycenę. Bez zobowiązań.',
-      chips: SOMI_FINAL
-    },
-    look: {
-      text: 'Jasne, rozgość się! Zobacz, co robimy — a jak coś Cię zaciekawi, jesteśmy tu, w rogu. \u{1F642}',
-      chips: SOMI_FINAL
-    }
-  };
-
-  const SOMI_MINI = '<svg class="somi__logo somi__logo--mini" viewBox="0 0 24 30" aria-hidden="true"><use href="#somi-logo"/></svg>';
-
-  function somiScroll() { somiLog.scrollTop = somiLog.scrollHeight; }
-
-  function addMsg(who, text) {
-    const row = document.createElement('div');
-    row.className = 'somi__row somi__row--' + who;
-    row.innerHTML = (who === 'somi' ? SOMI_MINI : '') +
-      '<div class="somi__msg somi__msg--' + who + '"></div>';
-    row.querySelector('.somi__msg').textContent = text;
-    somiLog.appendChild(row);
-    somiScroll();
-    return row;
-  }
-
-  function addTyping() {
-    const row = document.createElement('div');
-    row.className = 'somi__row somi__row--somi';
-    row.innerHTML = SOMI_MINI +
-      '<div class="somi__msg somi__msg--somi"><span class="somi__typing" aria-hidden="true"><i></i><i></i><i></i></span></div>';
-    somiLog.appendChild(row);
-    somiScroll();
-    return row;
-  }
-
-  function setChips(chips) {
-    somiChips.innerHTML = '';
-    chips.forEach((c, i) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'somi__chip';
-      b.textContent = c.t;
-      b.style.animationDelay = (i * 0.06) + 's';
-      b.addEventListener('click', () => {
-        if (c.go) { go(c.go); somiClose(); return; }
-        if (c.restart) {
-          clearTimeout(somiTimer);
-          somiLog.innerHTML = '';
-          somiChips.innerHTML = '';
-          somiSay('start');
-          return;
-        }
-        addMsg('user', c.t);
-        somiChips.innerHTML = '';
-        somiSay(c.next);
-      });
-      somiChips.appendChild(b);
-    });
-  }
-
-  function somiSay(key) {
-    const node = SOMI_FLOW[key];
-    if (reduce) {
-      addMsg('somi', node.text);
-      setChips(node.chips);
-      return;
-    }
-    const typing = addTyping();
-    somiTimer = setTimeout(() => {
-      typing.remove();
-      addMsg('somi', node.text);
-      setChips(node.chips);
-    }, 700);
-  }
-
-  // the conversation lives in the DOM: closing hides it, reopening picks it up mid-thread
-  function somiOpen() {
-    somiChat.hidden = false;
-    mascotOnChat(true);
-    if (!somiStarted) { somiStarted = true; somiSay('start'); }
-    somiScroll();
-  }
-  function somiClose() {
-    somiChat.hidden = true;
-    mascotOnChat(false);
-  }
-
-  somi.querySelector('.somi__close').addEventListener('click', somiClose);
-  // hero CTA on the SOMI page opens the same corner chat, no separate widget to maintain
-  const somiHeroOpen = document.getElementById('somiHeroOpen');
-  if (somiHeroOpen) somiHeroOpen.addEventListener('click', (e) => { e.preventDefault(); somiOpen(); });
-  document.addEventListener('pointerdown', (e) => {
-    if (!somiChat.hidden && !e.target.closest('.somi')) somiClose();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !somiChat.hidden) {
-      somiClose();
-      mascot.focus();
-    }
-  });
-
-  /* ===================== mini-SOMI mascot: face, eye-tracking, moods =====================
-     Rule: only sets CSS vars / toggles classes — no rAF, no filters. CSS does the motion. */
-  const mascot = document.querySelector('.nav__mascot');
-  let mascotCX = 0, mascotCY = 0, mascotFixed = false;
-
-  function mascotMeasure() {
-    const r = mascot.getBoundingClientRect();
-    mascotCX = r.left + r.width / 2;
-    mascotCY = r.top + r.height / 2;
-  }
-  function mascotLook(cx, cy) {
-    if (mascotFixed) return;
-    const dx = cx - mascotCX, dy = cy - mascotCY;
-    const d = Math.hypot(dx, dy) || 1;
-    const k = Math.min(1, d / 60);
-    mascot.style.setProperty('--ex', (dx / d * 1.4 * k).toFixed(2) + 'px');
-    mascot.style.setProperty('--ey', (dy / d * 1.4 * k).toFixed(2) + 'px');
-  }
-
-  // chat open/close hook (called from somiOpen/somiClose): glance to the corner, then hold
-  function mascotOnChat(open) {
-    mascot.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) {
-      mascotFixed = false;
-      mascot.classList.remove('is-sleep');
-      mascotLook(window.innerWidth, window.innerHeight);
-      mascotFixed = true;
-    } else {
-      mascotFixed = false;
-    }
-  }
-
-  mascotMeasure();
-
-  // click toggles the same chat as the launcher, with a little hop
-  mascot.addEventListener('click', () => {
-    somiChat.hidden ? somiOpen() : somiClose();
-    window.SOMI_PULSE();   // hop maskotki, a jeśli kula żyje — także jej rozbłysk
-  });
-
-  if (!reduce) {
-    // eyes follow the cursor (throttled; independent of the particle-map setMouse)
-    let mascotLast = 0;
-    window.addEventListener('mousemove', (e) => {
-      const now = performance.now();
-      if (now - mascotLast < 40) return;
-      mascotLast = now;
-      mascotLook(e.clientX, e.clientY);
-    });
-
-    // happy while hovering the links / CTA / mascot itself
-    let mascotHover = false;
-    const happyOn = () => { if (!mascot.classList.contains('is-sleep')) { mascotHover = true; mascot.classList.add('is-happy'); } };
-    const happyOff = () => { mascotHover = false; mascot.classList.remove('is-happy'); };
-    document.querySelectorAll('.nav__link, .nav__cta').forEach(el => {
-      el.addEventListener('mouseenter', happyOn);
-      el.addEventListener('mouseleave', happyOff);
-    });
-    mascot.addEventListener('mouseenter', happyOn);
-    mascot.addEventListener('mouseleave', happyOff);
-
-    // a random little expression every 12–20s
-    const MOODS = ['is-happy', 'is-wink', 'is-wow'];
-    (function mascotMood() {
-      if (!mascot.classList.contains('is-sleep') && !mascotHover) {
-        const cls = MOODS[(Math.random() * MOODS.length) | 0];
-        mascot.classList.add(cls);
-        setTimeout(() => { if (!mascotHover) mascot.classList.remove(cls); }, 1200);
-      }
-      setTimeout(mascotMood, 12000 + Math.random() * 8000);
-    })();
-
-    // fall asleep after 30s idle; any activity wakes it
-    let idleTimer;
-    function sleep() {
-      if (mascotFixed) return;
-      mascot.classList.remove('is-happy', 'is-wink', 'is-wow');
-      mascot.classList.add('is-sleep');
-      mascot.style.setProperty('--ex', '0px');
-      mascot.style.setProperty('--ey', '0px');
-    }
-    function wake() {
-      mascot.classList.remove('is-sleep');
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(sleep, 30000);
-    }
-    ['mousemove', 'mousedown', 'touchstart', 'scroll', 'keydown'].forEach(ev =>
-      window.addEventListener(ev, wake, { passive: true }));
-    wake();
-
-    // touch devices: look where you tap, wander between taps
-    if (matchMedia('(hover:none)').matches) {
-      window.addEventListener('touchstart', (e) => {
-        const t = e.touches[0];
-        if (t) mascotLook(t.clientX, t.clientY);
-      }, { passive: true });
-      (function wander() {
-        if (!mascotFixed && !mascot.classList.contains('is-sleep'))
-          mascotLook(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
-        setTimeout(wander, 3000 + Math.random() * 3000);
-      })();
-    }
-
-    window.addEventListener('resize', mascotMeasure);
-  }
-
   /* ===================== haki SOMI — jeden kontrakt, dwa ciała =====================
-     window.SOMI_MOOD('calm'|'wow') i window.SOMI_PULSE() sterują tym, co akurat
-     siedzi w pasku. Baza (tutaj) rusza maskotkę SVG. Moduł kuli na końcu pliku
-     OWIJA obie funkcje, zamiast je podmieniać — dzięki temu przy braku WebGL-a
-     albo nieudanym pobraniu three.js zostaje dokładnie to samo API, tylko
-     wykonuje je maskotka. Wołający nie musi wiedzieć, co jest w pasku. */
-  let somiMoodTimer;
-  window.SOMI_MOOD = function (m) {
-    clearTimeout(somiMoodTimer);
-    if (m === 'wow') {
-      mascot.classList.add('is-wow');
-      somiMoodTimer = setTimeout(() => mascot.classList.remove('is-wow'), 1200);
-    } else {
-      mascot.classList.remove('is-wow');
-    }
-  };
-  window.SOMI_PULSE = function () {
-    mascot.classList.add('is-hop');
-    setTimeout(() => mascot.classList.remove('is-hop'), 360);
-  };
+     window.SOMI_MOOD('calm'|'wow') i window.SOMI_PULSE() sterują kulą, ktora zyje
+     na stronie SOMI (somiDemoOrb). Kulka w pasku + czat, ktore te haki kiedys
+     obslugiwaly bezposrednio (maskotka SVG w .nav__mascot), USUNIETE na prosbe
+     maisy, 22.09 — baza zostaje jako pusty kontrakt, zeby modul kuli na koncu
+     pliku (ktory ja OWIJA, nie podmienia) mial co wolac. Wolajacy (np. router
+     przy zmianie trasy) nie musi wiedziec, ze w pasku juz nic nie siedzi. */
+  window.SOMI_MOOD = function () {};
+  window.SOMI_PULSE = function () {};
 
   /* ===================== minimal cart — remembers picks locally, no checkout/payment yet ===================== */
   const CART_KEY = 'cybersora_cart';
@@ -5356,7 +4687,7 @@ fingerprint(maszyna)</div>
       },
       zdolna: {
         q: 'Do czego jesteś zdolna?',
-        a: 'Już teraz: rozmowa tutaj, w pasku na górze. W budowie: deep research nad ofertami prosto z czatu i agent, który realnie wykona zadanie — zawsze z Twoją zgodą na końcu. Zapytaj o cybersorę, poprowadzę dalej.'
+        a: 'Już teraz: ta przykładowa rozmowa, tutaj na stronie. W budowie: deep research nad ofertami prosto z czatu i agent, który realnie wykona zadanie — zawsze z Twoją zgodą na końcu.'
       }
     };
 
@@ -5636,27 +4967,26 @@ fingerprint(maszyna)</div>
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
      322x205). Bez warstwy OSC/WebSocket: tamta jest wyłącznie terminalowa,
-     tutaj kulą steruje ten sam kontrakt, co maskotką — SOMI_MOOD / SOMI_PULSE.
+     tutaj kulą steruje ten sam kontrakt — SOMI_MOOD / SOMI_PULSE.
+
+     22.09: kulka w pasku (navOrb/.nav__mascot) USUNIETA na prosbe maisy —
+     zyje juz TYLKO duza kula na stronie SOMI (somiDemoOrb). Ladowacz nie
+     sprawdza wiec juz paska, tylko czy ta druga kula ma gdzie stanac
+     (#somiDemoOrb w DOM-ie); __somiOrbBoot i tak buduje obie instancje ze
+     wspolnego silnika (patrz komentarz przy makeOrb) — tu tylko decyzja,
+     czy w ogole warto sciagac three.js.
 
      three.js ściąga się DOPIERO po `load`, nie tagiem w <head>. Biblioteka waży
      590 KB, czyli trzy i pół raza więcej niż cała strona; wpięta normalnie
      opóźniałaby pierwsze malowanie o tyle, ile trwa jej pobranie — a to ozdoba
-     paska, nie treść. Ceną jest to, że przez pierwsze chwile w pasku widać
-     maskotkę i dopiero potem wchodzi kula. To ta sama maskotka, która zostaje
-     na stałe, gdy WebGL-a nie ma — więc podmiana jest jedynym, co widać.
+     strony SOMI, nie treść.
      ============================================================ -->
 <script>
 (function(){
   'use strict';
-  var btn    = document.querySelector('.nav__mascot');
-  var canvas = document.getElementById('navOrb');
-  var glow   = btn && btn.querySelector('.nav__orb-glow');
-  if(!btn || !canvas) return;
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // zapas: maskotka
-
-  /* SONDA FPS: przebieg porownawczy bez kuli (#sonda-fps-bezkuli) — patrz blok
-     "SONDA FPS" na koncu pliku. Poza sonda ten warunek nigdy nie jest prawdziwy. */
-  if(location.hash.indexOf('bezkuli') > -1) return;
+  var canvas = document.getElementById('somiDemoOrb');
+  if(!canvas) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   /* Sprawdzenie WebGL-a PRZED pobraniem: na sprzęcie bez sterownika kula i tak
      by nie ruszyła, więc ściąganie 590 KB byłoby czystą stratą transferu. */
@@ -5665,25 +4995,11 @@ fingerprint(maszyna)</div>
     if(!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) return;
   } catch(e){ return; }
 
-  /* Od tego miejsca kula PRAWIE na pewno wstanie (WebGL już potwierdzony) —
-     chowamy maskotkę od razu, zamiast dać jej mignąć, dopóki three.js się
-     ściągnie i uruchomi. Jeśli mimo to coś zawiedzie niżej (pobranie, błąd
-     w __somiOrbBoot, brak WebGL na TEJ konkretnej karcie), klasa schodzi
-     z powrotem i maskotka wraca — pasek nigdy nie zostaje pusty na stałe. */
-  btn.classList.add('is-loading');
-
   window.addEventListener('load', function(){
     var tag = document.createElement('script');
     tag.src = 'vendor/three.min.js';
-    tag.onerror = function(){ btn.classList.remove('is-loading'); };   /* zapas — maskotka wraca */
     tag.onload = function(){
-      try {
-        window.__somiOrbBoot(canvas, glow);
-        /* makeOrb odsłania płótno dopiero, gdy renderer wstał. Jeśli dalej jest
-           schowane, WebGL padł na TEJ karcie — maskotka zostaje na miejscu. */
-        if(!canvas.hidden){ btn.classList.add('has-orb'); btn.classList.remove('is-loading'); }
-        else btn.classList.remove('is-loading');
-      } catch(e){ btn.classList.remove('is-loading'); }
+      try { window.__somiOrbBoot(); } catch(e){}
     };
     document.head.appendChild(tag);
   });
@@ -5691,7 +5007,7 @@ fingerprint(maszyna)</div>
 </script>
 
 <script>
-window.__somiOrbBoot = function(navOrbCanvas, navOrbGlow){
+window.__somiOrbBoot = function(){
 'use strict';
 if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 if(typeof THREE === 'undefined') return;  // vendor/three.min.js nie wczytał się — cisza, nie błąd
@@ -6734,29 +6050,17 @@ var somiDemoCanvas = document.getElementById('somiDemoOrb');
 var somiDemoGlow = document.querySelector('.somi-demo__orb-glow');
 var somiDemoOrb;
 
-/* JEDNA instancja zamiast trzech z terminala (pasek boczny + twarz + czolo).
-   Wariant MALY: kadr 322:205 i kamera ORB_FRAME.pasek — ten sam ksztalt,
-   ktory w terminalu stoi w pasku bocznym, 460 punktow, slabsza poswiata
-   (0.35), bo na tak malym polu mocniejsza zalewa cala chmure.
-   Po M2.1 plotno ma tyle pikseli, ile zajmuje na ekranie (82x52, po
-   przewinieciu 69x44), a nie 322x205 skalowane w dol prawie czterokrotnie. */
-/* Sila poswiaty 0,16 — bylo 0,35 do 11.09 (maisa: "to swiatlo jest za duze"). */
-/* Profil 'static' (19.09) — ta kula ma tylko rotowac, patrz komentarz przy
-   MOOD_PARAMS.static i przy makeOrb. */
-var navOrb = makeOrb(navOrbCanvas, 0.0022, 460, navOrbGlow, 0.16, ORB_FRAME.pasek.kamera, 20260910, 'static');
-/* DRUGA INSTANCJA (18.09) — sekcja "SOMI z bliska". Kamera i N wziete
-   WPROST z ORB_FRAME.mala ("punkt odniesienia, na stronie nieuzywany" —
-   az do teraz), bo to DOKLADNIE ten wariant: kadr 322:205 przy wysokosci
-   bliskiej 205 px, dla ktorego 460 punktow i poswiata 0,35 byly juz
-   zmierzone w terminalu (mala/pasek boczny), zamiast zgadywac nowe liczby. */
+/* JEDYNA instancja od 22.09 (kulka w pasku/navOrb usunieta na prosbe maisy —
+   zostaje tylko ta, sekcja "SOMI z bliska"). Kamera i N wziete WPROST z
+   ORB_FRAME.mala ("punkt odniesienia, na stronie nieuzywany" — az do teraz),
+   bo to DOKLADNIE ten wariant: kadr 322:205 przy wysokosci bliskiej 205 px,
+   dla ktorego 460 punktow i poswiata 0,35 byly juz zmierzone w terminalu
+   (mala/pasek boczny), zamiast zgadywac nowe liczby. */
 somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, 460, somiDemoGlow, 0.35, ORB_FRAME.mala.kamera, 20260918);
-var orbs = [navOrb, somiDemoOrb].filter(Boolean);
-if(!orbs.length) return;  // brak WebGL na obu — znak tekstowy zostaje jedynym wskaźnikiem
+var orbs = [somiDemoOrb].filter(Boolean);
+if(!orbs.length) return;  // brak WebGL — znak tekstowy zostaje jedynym wskaźnikiem
 
-/* Tylko somiDemoOrb sluchacza globalnego nastroju/flary — navOrb zostaje
-   na wlasnym, martwym profilu 'static' na zawsze (patrz komentarz przy
-   makeOrb, 19.09). */
-var moodOrbs = orbs.filter(function(o){ return o !== navOrb; });
+var moodOrbs = orbs;
 
 /* Druga kula NIE moze chodzic caly czas — zasada 4 planu ("najwyzej dwie
    pracujace petle animacji") jest juz wyczerpana przez mape czastek + kule
