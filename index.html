@@ -381,6 +381,7 @@
   .nav__link:nth-of-type(4){animation-delay:.45s;}
   .nav__link:nth-of-type(5){animation-delay:.51s;}
   .nav__link:nth-of-type(6){animation-delay:.57s;}
+  .nav__link:nth-of-type(7){animation-delay:.63s;}
   @keyframes navItemIn{
     from{opacity:0;transform:translateY(-8px);}
   }
@@ -2281,6 +2282,7 @@
 
     <div class="nav__links" id="navlinks">
       <a href="#start"     class="nav__link is-active" data-nav="start">Start</a>
+      <a href="#oferta"    class="nav__link"           data-nav="oferta">Oferta</a>
       <a href="#products"  class="nav__link"           data-nav="products">Produkty</a>
       <a href="#somi"      class="nav__link"           data-nav="somi">SOMI</a>
       <a href="#onas"      class="nav__link"           data-nav="onas">O nas</a>
@@ -2500,6 +2502,18 @@
       </div>
     </section>
 
+    <section class="steps reveal" aria-label="CTA">
+      <div class="steps__inner">
+        <div class="overlay" style="align-items:flex-start;text-align:left;">
+          <p class="stub" style="margin:0;">Audyt widoczności — za darmo na start, a jak chcesz iść głębiej,
+          mamy też płatny Raport Strategiczny. Sprawdzamy realny skan Twojej strony (tytuł, meta opis,
+          dane strukturalne, PageSpeed) i mówimy wprost, co faktycznie widzi Google. Na dwóch
+          stronach salonów w Gorlicach znaleźliśmy 4 usterki w 3,5 sekundy.</p>
+          <a class="cta-big" href="#oferta" data-nav="oferta">Zobacz ofertę audytu &rarr;</a>
+        </div>
+      </div>
+    </section>
+
     <section class="steps reveal" aria-label="Jak pracujemy">
       <div class="steps__inner">
         <div class="services__head">
@@ -2537,6 +2551,7 @@
         <div class="footer__col">
         <nav class="footer__nav" aria-label="Stopka">
           <a href="#start" data-nav="start">Start</a>
+          <a href="#oferta" data-nav="oferta">Oferta</a>
           <a href="#products" data-nav="products">Produkty</a>
           <a href="#somi" data-nav="somi">SOMI</a>
           <a href="#onas" data-nav="onas">O nas</a>
@@ -2586,6 +2601,40 @@
         <div class="footer__brand"><svg class="footer__mark" viewBox="0 0 134 100" width="20" height="15" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17" stroke="#0a0a0d"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)"/></g></svg>cyber<b>sora</b></div>
       </div>
     </footer>
+  </section>
+
+  <!-- OFERTA -->
+  <section class="view" data-view="oferta" aria-label="Oferta" hidden>
+    <div class="hero">
+      <div class="overlay">
+        <div class="eyebrow">oferta</div>
+        <h1 class="slogan">Oferta</h1>
+        <p class="stub">Zanim zaproponujemy cokolwiek innego, sprawdzamy, co dziś realnie widzi Google na Twojej stronie — i mówimy to wprost, bez naciągania na moduły, których jeszcze nie ma.</p>
+      </div>
+    </div>
+
+    <section class="services">
+      <div class="services__inner">
+        <div class="services__head">
+          <div class="services__eyebrow" data-hex="0x0AE1">audyt widoczności</div>
+          <h2 class="services__title">Dwa poziomy audytu</h2>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <span class="card__tag">Za darmo</span>
+            <h3 class="card__title">Audyt widoczności (skan)</h3>
+            <p class="card__body">Realny skan Twojej strony: tytuł, meta opis, nagłówki H1, HTTPS, viewport, dane strukturalne, robots.txt, sitemap i wynik PageSpeed Insights. Na dwóch stronach salonów w Gorlicach znaleźliśmy 4 usterki w 3,5 sekundy. Bez zobowiązań.</p>
+            <a class="card__go" href="#contact" data-nav="contact">Zapytaj o darmowy audyt &rarr;</a>
+          </article>
+          <article class="card">
+            <span class="card__tag">Płatny &middot; od 500 zł</span>
+            <h3 class="card__title">Raport Strategiczny</h3>
+            <p class="card__body">Ręcznie robiona analiza: mapa konkurencji, czynniki rankingowe Google Business Profile, wolumeny fraz kluczowych i długiego ogona, sezonowość, GAP analysis oraz konkretny plan działania na 90 dni. Robimy to samodzielnie, na zamówienie — nie generujemy szablonu.</p>
+            <a class="card__go" href="#contact" data-nav="contact">Zapytaj o wycenę &rarr;</a>
+          </article>
+        </div>
+      </div>
+    </section>
   </section>
 
   <!-- PRODUKTY -->
@@ -3338,12 +3387,12 @@
           <article class="card">
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Deep research</h3>
-            <p class="card__body">Nasze scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu.</p>
+            <p class="card__body">Nasze scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu. Sam radar już przeanalizował 264 oferty i wysłał 14 zgłoszeń — to działa dziś, tylko jeszcze nie z poziomu czatu.</p>
           </article>
           <article class="card">
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Agent, który działa</h3>
-            <p class="card__body">Pętla narzędzi (function-calling): czyta pliki, pisze kod i uruchamia skrypty — z bramką akceptacji, więc nic nie dzieje się bez Twojej zgody.</p>
+            <p class="card__body">Pętla narzędzi (function-calling): czyta pliki, pisze kod i uruchamia skrypty — z bramką akceptacji, więc nic nie dzieje się bez Twojej zgody. Sprawdzony na 10-modułowej serii testów parity z Claude Code, zamkniętej 29.07.2026.</p>
           </article>
         </div>
       </div>
@@ -3369,6 +3418,7 @@
                 <option value="Bot">Bot</option>
                 <option value="Aplikacja">Aplikacja</option>
                 <option value="Strona internetowa">Strona internetowa</option>
+                <option value="Audyt widoczności">Audyt widoczności (za darmo)</option>
                 <option value="Coś innego">Coś innego</option>
               </select>
             </label>
@@ -3412,7 +3462,7 @@
       <div class="proof__inner">
         <span class="proof__item">radar ofert: <b>156 leadów</b> z jednego skanu</span>
         <span class="proof__item">agent z <b>bramką akceptacji</b> — zero samowoli</span>
-        <span class="proof__item"><b>131 testów</b> w silniku, na którym uczy się SOMI</span>
+        <span class="proof__item"><b>ponad 1400 testów</b> w silniku, na którym uczy się SOMI</span>
       </div>
     </section>
 
@@ -3705,6 +3755,7 @@ fingerprint(maszyna)</div>
                 <option value="Zamówienie strony / aplikacji">Chcę zamówić stronę / aplikację</option>
                 <option value="Zakup gotowego produktu">Interesuje mnie gotowy produkt (Rachmistrz, radar, bot…)</option>
                 <option value="Współpraca / partnerstwo">Współpraca / partnerstwo</option>
+                <option value="Audyt widoczności">Chcę darmowy audyt widoczności</option>
                 <option value="Coś innego">Coś innego</option>
               </select>
             </label>
@@ -4250,7 +4301,7 @@ fingerprint(maszyna)</div>
   const burger = document.querySelector('.nav__burger');
   const links = [...bar.querySelectorAll('.nav__link')];
   const views = [...document.querySelectorAll('.view')];
-  const NAMES = ['start', 'products', 'somi', 'onas', 'sztuka', 'rnd', 'contact', 'polityka'];
+  const NAMES = ['start', 'oferta', 'products', 'somi', 'onas', 'sztuka', 'rnd', 'contact', 'polityka'];
 
   /* PRODUKTY SCHOWANE (11.09, prosba maisy: "schowalbym te produkty poki co").
      Nic nie jest kasowane: sekcja, karty, trasa i przyciski zostaja w kodzie —
