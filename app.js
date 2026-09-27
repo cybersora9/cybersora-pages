@@ -553,6 +553,14 @@
     el.addEventListener('click', (e) => {
       e.preventDefault();
       go(el.dataset.nav);
+      /* TEMAT Z GORY (27.09): "Zapytaj o darmowy audyt / o wycene / o SOMI"
+         od razu wybiera temat w Kontakcie; change odswieza terminal podgladu. */
+      const topic = el.dataset.topic;
+      const sel = topic && document.querySelector('#contactForm [name="ctopic"]');
+      if (sel && [...sel.options].some(o => o.value === topic)) {
+        sel.value = topic;
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
     });
   });
 
@@ -840,7 +848,7 @@
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Trzymamy sie WYLACZNIE faktow juz publicznych na tej stronie (proof__item
-    // wyzej: 156 leadow, bramka akceptacji, 131 testow) — SOMI nie obiecuje tu
+    // wyzej: 156 leadow, bramka akceptacji, ponad 1400 testow) — SOMI nie obiecuje tu
     // nic ponad to, co strona juz mowi gdzie indziej.
     const SKRYPT_DEMO = {
       robi: {

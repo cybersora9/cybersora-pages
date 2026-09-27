@@ -1318,6 +1318,15 @@
     color:var(--muted-dark);
   }
 
+  /* link do polityki pod przyciskiem (27.09, DOPIESZCZENIE 2) — ta sama cicha
+     linijka co .orderform__eta, link w kolorze akcentu na tekst. */
+  .orderform__policy{
+    margin:.35rem 0 0;
+    font-size:var(--t-instrument);
+    color:var(--muted-dark);
+  }
+  .orderform__policy a{color:var(--crimson-hot);}
+
   /* ---- kontakt: form + live "terminal" preview of what's about to be sent ---- */
   .contact-wrap{
     display:grid;grid-template-columns:minmax(280px,640px) minmax(280px,1fr);
@@ -1565,6 +1574,11 @@
     .proof__inner{flex-direction:column;gap:.55rem;}
     .proof__item + .proof__item::before{display:none;}
   }
+
+  /* PAS CTA na koncu widoku (27.09, DOPIESZCZENIE 2): jedno zdanie + jeden
+     przycisk, do lewej. Bylo inline style= powtorzone w czterech pasach. */
+  .overlay--band{align-items:flex-start;text-align:left;}
+  .overlay--band .stub{margin:0;}
 
   /* ---- how we work: 01 / 02 / 03 ---- */
   .steps{
@@ -2360,7 +2374,7 @@
            radar chodzacy 24/7). Zadnej liczby bez pokrycia. -->
       <dl class="hero__rail">
         <div class="hero__fact"><dt>Pycodemath</dt><dd>PyPI 0.3.0</dd></div>
-        <div class="hero__fact"><dt>SalonDesk</dt><dd>umowa podpisana</dd></div>
+        <div class="hero__fact"><dt>SalonDesk</dt><dd>testy w salonie</dd></div>
         <div class="hero__fact"><dt>SOMI</dt><dd>chodzi 24/7</dd></div>
       </dl>
 
@@ -2449,7 +2463,7 @@
       <div class="projekty__inner">
         <div class="projekty__head">
           <h2 class="projekty__title">Trzy, które już chodzą</h2>
-          <p class="projekty__sub">Nie zrzuty z portfolio. Każdy z nich ma wersję, umowę albo adres, pod którym da się to sprawdzić.</p>
+          <p class="projekty__sub">Nie zrzuty z portfolio. Każdy z nich ma wersję, wdrożenie albo adres, pod którym da się to sprawdzić.</p>
         </div>
 
         <article class="pas reveal">
@@ -2503,7 +2517,7 @@
           <div class="pas__tresc">
             <p class="pas__co">Aplikacja na komputer w salonie beauty: kalendarz wizyt, klientki, karnety, cennik i statystyki w jednym oknie. Pisana pod jeden konkretny salon, a nie pod uniwersalny formularz.</p>
             <dl class="pas__meta">
-              <div><dt>stan</dt><dd>pierwsza umowa podpisana</dd></div>
+              <div><dt>stan</dt><dd>testy w pierwszym salonie</dd></div>
               <div><dt>dla kogo</dt><dd>salony beauty</dd></div>
             </dl>
           </div>
@@ -2535,8 +2549,8 @@
 
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
-        <div class="overlay" style="align-items:flex-start;text-align:left;">
-          <p class="stub" style="margin:0;">Audyt widoczności — za darmo na start, a jak chcesz iść głębiej,
+        <div class="overlay overlay--band">
+          <p class="stub">Audyt widoczności — za darmo na start, a jak chcesz iść głębiej,
           mamy też płatny Raport Strategiczny. Sprawdzamy realny skan Twojej strony (tytuł, meta opis,
           dane strukturalne, PageSpeed) i mówimy wprost, co faktycznie widzi Google. Na dwóch
           stronach salonów w Gorlicach znaleźliśmy 4 usterki w 3,5 sekundy.</p>
@@ -2570,7 +2584,7 @@
             <span class="step__num">03</span>
             <div class="step__body">
               <h3 class="step__title">Wdrożenie i wsparcie</h3>
-              <p class="step__text">Publikujemy, mierzymy i zostajemy w kontakcie. Strona ma działać, nie tylko wyglądać.</p>
+              <p class="step__text">Wdrażamy, mierzymy i zostajemy w kontakcie. Narzędzie ma działać u Ciebie, nie tylko na prezentacji.</p>
             </div>
           </li>
         </ol>
@@ -2599,14 +2613,23 @@
             <span class="card__tag">Za darmo</span>
             <h3 class="card__title">Audyt widoczności (skan)</h3>
             <p class="card__body">Realny skan Twojej strony: tytuł, meta opis, nagłówki H1, HTTPS, viewport, dane strukturalne, robots.txt, sitemap i wynik PageSpeed Insights. Na dwóch stronach salonów w Gorlicach znaleźliśmy 4 usterki w 3,5 sekundy. Bez zobowiązań.</p>
-            <a class="card__go" href="#contact" data-nav="contact">Zapytaj o darmowy audyt &rarr;</a>
+            <a class="card__go" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zapytaj o darmowy audyt &rarr;</a>
           </article>
           <article class="card">
             <span class="card__tag">Płatny &middot; od 500 zł</span>
             <h3 class="card__title">Raport Strategiczny</h3>
             <p class="card__body">Ręcznie robiona analiza: mapa konkurencji, czynniki rankingowe Google Business Profile, wolumeny fraz kluczowych i długiego ogona, sezonowość, GAP analysis oraz konkretny plan działania na 90 dni. Robimy to samodzielnie, na zamówienie — nie generujemy szablonu.</p>
-            <a class="card__go" href="#contact" data-nav="contact">Zapytaj o wycenę &rarr;</a>
+            <a class="card__go" href="#contact" data-nav="contact" data-topic="Raport Strategiczny">Zapytaj o wycenę &rarr;</a>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="steps reveal" aria-label="CTA">
+      <div class="steps__inner">
+        <div class="overlay overlay--band">
+          <p class="stub">Nie wiesz, od którego poziomu zacząć? Podeślij adres strony — odpiszemy w ciągu ~24h, co warto sprawdzić najpierw.</p>
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zapytaj o darmowy audyt &rarr;</a>
         </div>
       </div>
     </section>
@@ -3222,9 +3245,9 @@
 
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
-        <div class="overlay" style="align-items:flex-start;text-align:left;">
-          <p class="stub" style="margin:0;">Płatności online podłączamy niedługo — na razie napisz, czego potrzebujesz, i dogadamy warunki bezpośrednio.</p>
-          <a class="cta-big" href="#contact" data-nav="contact">Zapytaj o produkt &rarr;</a>
+        <div class="overlay overlay--band">
+          <p class="stub">Płatności online podłączamy niedługo — na razie napisz, czego potrzebujesz, i dogadamy warunki bezpośrednio.</p>
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Zakup gotowego produktu">Zapytaj o produkt &rarr;</a>
         </div>
       </div>
     </section>
@@ -3245,8 +3268,8 @@
          patrz __somiOrbBoot) + opis skladu + demo rozmowy BEZ backendu.
          Trzy pytania i odpowiedzi ida ze skryptu w JS (SKRYPT_DEMO), nie z API —
          zero tokenow, jak ustalone. Kazda odpowiedz trzyma sie WYLACZNIE faktow
-         juz publicznych na tej stronie (156 leadow, bramka akceptacji, 131
-         testow) — nic nowego nie jest tu obiecywane. -->
+         juz publicznych na tej stronie (156 leadow, bramka akceptacji, ponad
+         1400 testow) — nic nowego nie jest tu obiecywane. -->
     <section class="services somi-demo" aria-label="Poznaj SOMI z bliska">
       <div class="services__inner">
         <div class="services__head">
@@ -3357,12 +3380,12 @@
           <article class="card">
             <span class="card__tag">Już teraz</span>
             <h3 class="card__title">Przykładowa rozmowa</h3>
-            <p class="card__body">Trzy gotowe pytania niżej na tej stronie — SOMI odpowiada, pokazuje, od czego zacząć.</p>
+            <p class="card__body">Trzy gotowe pytania wyżej na tej stronie — SOMI odpowiada, pokazuje, od czego zacząć.</p>
           </article>
           <article class="card">
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Deep research</h3>
-            <p class="card__body">Nasze scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu. Sam radar już przeanalizował 264 oferty i wysłał 14 zgłoszeń — to działa dziś, tylko jeszcze nie z poziomu czatu.</p>
+            <p class="card__body">Nasze scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu. Od startu radar przeanalizował łącznie 264 oferty i wysłał 14 zgłoszeń (najlepszy pojedynczy skan: 156 leadów) — to działa dziś, tylko jeszcze nie z poziomu czatu.</p>
           </article>
           <article class="card">
             <span class="card__tag">W budowie</span>
@@ -3401,10 +3424,10 @@
               <span>Orientacyjny budżet</span>
               <select name="budget">
                 <option value="Nie wiem jeszcze">Nie wiem jeszcze</option>
-                <option value="do 500 zł">do 500 zł</option>
-                <option value="500–2000 zł">500–2000 zł</option>
-                <option value="2000–5000 zł">2000–5000 zł</option>
-                <option value="5000+ zł">5000+ zł</option>
+                <option value="do 1000 zł">do 1000 zł</option>
+                <option value="1000–5000 zł">1000–5000 zł</option>
+                <option value="5000–15000 zł">5000–15000 zł</option>
+                <option value="15000+ zł">15000+ zł</option>
               </select>
             </label>
           </div>
@@ -3443,9 +3466,9 @@
 
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
-        <div class="overlay" style="align-items:flex-start;text-align:left;">
-          <p class="stub" style="margin:0;">Chcesz być pierwszy, jak SOMI ruszy pełną parą? Napisz, damy znać.</p>
-          <a class="cta-big" href="#contact" data-nav="contact">Zapytaj o SOMI &rarr;</a>
+        <div class="overlay overlay--band">
+          <p class="stub">Chcesz być pierwszy, jak SOMI ruszy pełną parą? Napisz, damy znać.</p>
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="SOMI">Zapytaj o SOMI &rarr;</a>
         </div>
       </div>
     </section>
@@ -3503,6 +3526,15 @@
         <span class="proof__item">kontakt: <b><a class="proof__link" href="mailto:cybersora@zohomail.eu,wojtekzieba.w@gmail.com">cybersora@zohomail.eu</a></b></span>
       </div>
     </section>
+
+    <section class="steps reveal" aria-label="CTA">
+      <div class="steps__inner">
+        <div class="overlay overlay--band">
+          <p class="stub">Masz proces, który zjada Ci godziny? Opisz go — powiemy wprost, co da się z tego zrobić w kodzie, a czego nie warto.</p>
+          <a class="cta-big" href="#contact" data-nav="contact">Napisz do nas &rarr;</a>
+        </div>
+      </div>
+    </section>
   </section>
 
   <!-- SZTUKA (21.09) — portfolio artystyczne, deadsora/winterdropsdead.
@@ -3537,7 +3569,7 @@
       <div class="overlay">
         <div class="eyebrow">przyszłość &middot; R&amp;D</div>
         <h1 class="slogan">SADZONKI<span class="thin">to, co dopiero kiełkuje</span></h1>
-        <p class="stub">Rzeczy, które jeszcze nie są gotowe, ale już nad nimi siedzę — dorzucam je tu na bieżąco, żebyś widział/a, ile faktycznie dzieje się w tle, zanim coś trafi do oferty.</p>
+        <p class="stub">Rzeczy, które jeszcze nie są gotowe, ale już nad nimi siedzimy — dorzucamy je tu na bieżąco, żebyś widział/a, ile faktycznie dzieje się w tle, zanim coś trafi do oferty.</p>
       </div>
     </div>
 
@@ -3666,9 +3698,9 @@ fingerprint(maszyna)</div>
 
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
-        <div class="overlay" style="align-items:flex-start;text-align:left;">
-          <p class="stub" style="margin:0;">Chcesz taki eksperyment u siebie, zanim zrobi się mainstreamowy?</p>
-          <a class="cta-big" href="#contact" data-nav="contact">Zasiejmy coś razem &rarr;</a>
+        <div class="overlay overlay--band">
+          <p class="stub">Chcesz taki eksperyment u siebie, zanim zrobi się mainstreamowy?</p>
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Współpraca / partnerstwo">Zasiejmy coś razem &rarr;</a>
         </div>
       </div>
     </section>
@@ -3680,7 +3712,7 @@ fingerprint(maszyna)</div>
       <div class="overlay">
         <div class="eyebrow">kontakt &middot; współpraca</div>
         <h1 class="slogan">Pogadajmy<span class="thin">projekt, produkt czy współpraca — napisz</span></h1>
-        <p class="stub">Wypełnij zgłoszenie — po prawej zobaczysz na żywo, co dokładnie do nas trafi. Odpisujemy z konkretami, nie ogólnikami.</p>
+        <p class="stub">Wypełnij zgłoszenie — w podglądzie obok zobaczysz na żywo, co dokładnie do nas trafi. Odpisujemy z konkretami, nie ogólnikami.</p>
         <a class="cta-big" href="#" id="contactScrollCta">Wypełnij zgłoszenie &darr;</a>
       </div>
     </div>
@@ -3731,6 +3763,8 @@ fingerprint(maszyna)</div>
                 <option value="Zakup gotowego produktu">Interesuje mnie gotowy produkt (Rachmistrz, radar, bot…)</option>
                 <option value="Współpraca / partnerstwo">Współpraca / partnerstwo</option>
                 <option value="Audyt widoczności">Chcę darmowy audyt widoczności</option>
+                <option value="Raport Strategiczny">Interesuje mnie Raport Strategiczny (płatny audyt)</option>
+                <option value="SOMI">Chcę zapytać o SOMI</option>
                 <option value="Coś innego">Coś innego</option>
               </select>
             </label>
@@ -3762,6 +3796,7 @@ fingerprint(maszyna)</div>
             <div class="h-captcha" data-captcha="true"></div>
             <button class="cta-big" type="submit">Wyślij zgłoszenie &rarr;</button>
             <p class="orderform__eta">odpowiadamy w ciągu ~24h</p>
+            <p class="orderform__policy">Co robimy z tymi danymi: <a href="#polityka" data-nav="polityka">polityka prywatności</a></p>
           </form>
 
           <div class="terminal" aria-hidden="true">
@@ -3917,7 +3952,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20260927a"></script>
+<script src="app.js?v=20260927b"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -3936,7 +3971,7 @@ fingerprint(maszyna)</div>
      opóźniałaby pierwsze malowanie o tyle, ile trwa jej pobranie — a to ozdoba
      strony SOMI, nie treść.
      ============================================================ -->
-<script src="kula.js?v=20260927a"></script>
+<script src="kula.js?v=20260927b"></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.
@@ -3957,7 +3992,7 @@ fingerprint(maszyna)</div>
      w swoim ładowaczu, w pasku zostaje maskotka). Sam jeden FPS nic nie mówi;
      dopiero różnica między przebiegami mówi, ile kula naprawdę kosztuje.
      ============================================================ -->
-<script src="sonda.js?v=20260927a"></script>
+<script src="sonda.js?v=20260927b"></script>
 <!-- hCaptcha (Moduł 1, PROMPT_BEZPIECZENSTWO.md): renderuje widget .h-captcha
      i wypełnia ukryte textarea[name=h-captcha-response], które czytamy
      ręcznie w wyslijDoWeb3Forms zamiast używać ich natywnego <form>. -->
