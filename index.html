@@ -226,8 +226,15 @@
      budzetu "dwoch pracujacych petli" (mapa czastek + kula SOMI) — nic tu
      sie nie animuje, wiec prefers-reduced-motion nie ma nic do wylaczenia.
      z-index:150 — nad navem (40) i main (10), pod lightboxem Sztuki (200),
-     zeby ziarno nie brudzilo powiekszonej grafiki w podgladzie. */
+     zeby ziarno nie brudzilo powiekszonej grafiki w podgladzie.
+     WYLACZONE 26.09 (skarga: strona laguje przy przewijaniu): pelnoekranowa
+     warstwa fixed z mix-blend-mode zmusza przegladarke do przeliczenia
+     mieszania CALEGO ekranu w kazdej klatce scrolla. Zmierzone kolkiem myszy,
+     1920x1080: z ziarnem ~30 FPS i 21-44 zaciec, bez ~55 FPS i 0 zaciec.
+     Przy opacity .04 ziarna i tak prawie nie widac. Blur kart zmierzony
+     osobno — nic nie kosztuje, zostaje. */
   body::before{
+    display:none;
     content:"";
     position:fixed;
     inset:0;
@@ -258,15 +265,10 @@
     overflow:hidden;
     isolation:isolate;
   }
-  /* ambient glow behind the map */
-  .bg::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:radial-gradient(46% 44% at 50% 54%, color-mix(in srgb, var(--th-accent) 10%, transparent), transparent 62%);
-    z-index:0;
-    pointer-events:none;
-  }
+  /* POSWIATA za mapa (.bg::before, czerwona plama radial-gradient 10%)
+     USUNIETA 23.09 (DOPIESZCZENIE 1B, wariant 2 "powierzchnie + wlosowe linie"):
+     maisa — "tego blooma bym wyjebal, bo wkurwia... zeby wszystko bylo bardziej
+     czytelne". Glebie robi jasniejsza powierzchnia hero podstron, nie plama. */
   canvas#map{
     position:absolute;
     inset:0;
@@ -280,20 +282,9 @@
      jest jedna regula, bo chowanie Produktow dotyka .cta-big z display:inline-flex. */
   [hidden]{display:none !important;}
 
-  /* CRT scanlines + vignette — reads as "screen", sits only over the transparent hero areas */
-  .bg::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    z-index:2;
-    pointer-events:none;
-    /* SKANLINIE WYCIETE 11.09 na prosbe maisy ("ten efekt z tylu tez bym usunal").
-       Byly to poziome paski co 3 px na CALYM tle strony. Winieta zostaje: to nie
-       "efekt", tylko przyciemnienie krawedzi, ktore trzyma kadr.
-       Powrot = dopisac z powrotem pierwsza linie repeating-linear-gradient. */
-    background:
-      radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(0,0,0,.5) 100%);
-  }
+  /* WINIETA (.bg::after, przyciemnienie krawedzi do .5) USUNIETA 23.09
+     (DOPIESZCZENIE 1B) razem z poswiata — ta sama decyzja "swiecenie precz".
+     Skanlinie zniknely juz 11.09. */
 
   /* BLOOMY (3 rozmyte bloby w rogach) USUNIETE 21.09 na prosbe maisy
      ("chodzilo mi doslownie o tlo" — patrz PROPOZYCJA_TLO_BLACKWALL.md
@@ -430,11 +421,9 @@
   html[data-route="sztuka"] .brand__second{
     color:var(--th-hot);
     border-left-color:color-mix(in srgb, var(--th-hot) 55%, transparent);
-    text-shadow:0 0 8px color-mix(in srgb, var(--th-hot) 55%, transparent);
   }
   html[data-route="sztuka"] .brand__second::before{
     background:var(--th-hot);
-    box-shadow:0 0 6px color-mix(in srgb, var(--th-hot) 70%, transparent);
   }
   /* PROG ZMIERZONY (21.09, ta sama metoda co przy kanji: iframe o zadanej
      szerokosci + getBoundingClientRect, nie zmiana rozmiaru okna — patrz
@@ -461,16 +450,13 @@
     transition:text-shadow .25s ease;
   }
   .nav__brand b{color:var(--th-hot);font-weight:800;transition:color .9s var(--ease-soft);}
-  .nav__brand:hover b{text-shadow:0 0 16px color-mix(in srgb, var(--th-hot) 70%, transparent);}
   /* ---------- ZNAK BLACKWALL W NAVIE (PROPOZYCJA_WIZUAL.md krok 3, 21.09) ----------
      Ta sama geometria co favicon.svg (kanciasty nawias + literka S), tylko
      bez plytki tla — goly, transparentny znak przed tekstem. STATYCZNY: bez
      ciaglego .bwg jittera z archiwum marki, bo to byloby trzecia pracujaca
-     petla (budzet: max dwie — mapa czastek + kula SOMI). Zamiast tego
-     subtelny hover jak reszta linkow navu (text-shadow 14px w .nav__link:hover
-     wyzej) — tu drop-shadow, bo to SVG, nie tekst. */
+     petla (budzet: max dwie — mapa czastek + kula SOMI). Poswiata po
+     najechaniu (drop-shadow) wycieta 27.09 razem z reszta swiecenia. */
   .nav__mark{display:inline-block;vertical-align:-3px;margin-right:.42em;transition:filter .25s ease;}
-  .nav__brand:hover .nav__mark{filter:drop-shadow(0 0 6px color-mix(in srgb, var(--th-hot) 65%, transparent));}
   /* KROPKA PRZY LOGOTYPIE WYCIETA 11.09 na prosbe maisy. Byla krwistym kolkiem
      z poswiata zaraz za nazwa; po dodaniu kanji siedziala tuz za znakiem i
      robila z niego trzeci element zamiast podpisu. Powrot = przywrocic ten
@@ -495,8 +481,7 @@
   }
   .nav__link:hover,
   .nav__link.is-active{color:#fff;}
-  /* ember-glow on hover — halo in the current theme's colour */
-  .nav__link:hover{text-shadow:0 0 14px color-mix(in srgb, var(--th-hot) 65%, transparent);}
+  /* HALO PO NAJECHANIU WYCIETE 27.09 (swiecenie precz, aspekt 1) — hover = sam kolor #fff wyzej. */
 
   /* magic-line: red underline glides under the active/hovered link */
   .nav__magic{
@@ -507,7 +492,6 @@
     border-radius:2px;
     opacity:0;
     transform:translateX(0);
-    box-shadow:0 0 10px color-mix(in srgb, var(--th-accent) 75%, transparent);
     pointer-events:none;
     transition:transform .32s cubic-bezier(.6,.05,.2,1),
                width .32s cubic-bezier(.6,.05,.2,1),
@@ -525,14 +509,14 @@
     border-radius:999px;
     background:var(--th-solid);
     border:1px solid color-mix(in srgb, var(--th-hot) 50%, transparent);
-    box-shadow:0 6px 18px color-mix(in srgb, var(--th-accent) 40%, transparent);
+    /* bez czerwonego halo (23.09): jasna wlosowa krawedz u gory + ciemny cien 1 px */
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 1px 2px rgba(0,0,0,.6);
     transition:background .25s ease, color .45s ease, transform .2s ease, box-shadow .25s ease;
     animation:navItemIn .45s ease .63s backwards;
   }
   .nav__cta:hover{
     background:color-mix(in srgb, var(--th-solid) 78%, #fff);
     transform:translateY(-1px);
-    box-shadow:0 9px 26px color-mix(in srgb, var(--th-accent) 55%, transparent);
   }
   /* one-shot shine sweep on hover — gradient slides inside its own rounded box */
   .nav__cta::after{
@@ -700,10 +684,11 @@
     border-radius:999px;
     background:var(--th-solid);
     border:1px solid color-mix(in srgb, var(--th-hot) 50%, transparent);
-    box-shadow:0 8px 22px color-mix(in srgb, var(--th-accent) 40%, transparent);
+    /* bez czerwonego halo (23.09, wariant 2): plaski + jasna wlosowa krawedz u gory */
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 1px 2px rgba(0,0,0,.6);
     transition:background .25s ease, color .45s ease, transform .2s ease, box-shadow .25s ease;
   }
-  .cta-big:hover{background:color-mix(in srgb, var(--th-solid) 78%, #fff);transform:translateY(-2px);box-shadow:0 12px 30px color-mix(in srgb, var(--th-accent) 55%, transparent);}
+  .cta-big:hover{background:color-mix(in srgb, var(--th-solid) 78%, #fff);transform:translateY(-2px);}
   .cta-big:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
 
   .hint{
@@ -826,7 +811,31 @@
     }
     .hero__type{max-width:none;}
     .hero__stamp{display:none;}
-    .hero__fact{padding:.75rem 1rem .1rem;}
+    /* DOPIESZCZENIE 1B (23.09, wariant A): pas faktow = lista, fakt na wiersz.
+       flex-wrap lamal trzy fakty na 2+1, a kreska przy trzecim zostawala bez
+       sasiada po lewej (:first-child lapie tylko pierwszy element, nie pierwszy
+       w rzedzie). Nazwa z lewej, stan z prawej, wlosowa kreska pod kazdym. */
+    .hero__rail{display:block;width:100%;align-self:stretch;}
+    .hero__fact{
+      display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+      padding:.7rem 0;
+      border-left:0;
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+    .hero__rail dd{margin:0;text-align:right;}
+    /* narozniki HUD (.hero::after, inset 26px) w niskim hero podstrony wchodzily
+       na ostatni wiersz pasa faktow w O nas (zmierzone: dd do x=351, naroznik
+       od x=342, ta sama wysokosc) — schodza do dolnego oddechu (3rem) */
+    .hero:not(.hero--start)::after{inset:26px 12px 14px;}
+    /* DOPIESZCZENIE 1B (23.09, wariant A): hero PODSTRON skrojony na tresc.
+       Byl pelny ekran (100svh = 844 px) przy 232-418 px tresci — pierwszy ekran
+       to byl napis na pustym tle, nic z nastepnej sekcji nie wystawalo nad
+       krawedz ("false floor", NN/g). Gora = pasek (65 px) + oddech, dol = oddech.
+       Start zostaje pelnoekranowy (mapa), komputer bez zmian. */
+    .hero:not(.hero--start){
+      min-height:auto;
+      padding:calc(65px + 2.75rem) 24px 3rem;
+    }
   }
 
   /* ---- services section (solid over the fixed particle field) ---- */
@@ -964,7 +973,7 @@
     background:
       linear-gradient(155deg, color-mix(in srgb, var(--cat, var(--th-accent)) 12%, transparent), transparent 60%),
       color-mix(in srgb, var(--cat, var(--th-accent)) 5%, transparent);
-    box-shadow:0 16px 34px -12px color-mix(in srgb, var(--cat, var(--th-accent)) 45%, transparent);
+    box-shadow:0 16px 34px -12px rgba(0,0,0,.6);
   }
   .card:hover::before{opacity:1;}
   .card:hover::after{opacity:1;transform:scale(1);}
@@ -976,6 +985,13 @@
      .card, rozciagniete na caly szkielet strony"). Dlatego nizsza, stala
      opacity zamiast 0→1 przy hover. */
   .hero{position:relative;}
+  /* Hero podstron lezy na odrobine jasniejszej POWIERZCHNI z jedna crimson
+     kreska na dolnej krawedzi (23.09, wariant 2 zamiast poswiaty). Start NIE:
+     tam pod tekstem jest mapa — jedyny cover strony, nie zaslaniamy jej. */
+  .hero:not(.hero--start){
+    background:#131318;
+    border-bottom:1px solid rgba(225,29,51,.7);
+  }
   .hero::after{
     content:"";
     position:absolute;inset:26px;
@@ -1075,7 +1091,7 @@
   .seed:hover,.seed:focus-visible{
     transform:translateY(-5px);
     border-color:color-mix(in srgb, var(--th-hot) 45%, transparent);
-    box-shadow:0 16px 34px -12px color-mix(in srgb, var(--th-hot) 35%, transparent);
+    box-shadow:0 16px 34px -12px rgba(0,0,0,.6);
   }
   .seed:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
   /* rozmiar rosnie ze stopniem zaawansowania; suma szerokosci + odstepow
@@ -1136,13 +1152,12 @@
     border-radius:14px;
     background:color-mix(in srgb, var(--cat, var(--th-accent)) 16%, transparent);
     border:1px solid color-mix(in srgb, var(--cat, var(--th-accent)) 40%, transparent);
-    box-shadow:0 0 0 1px transparent, 0 8px 18px -8px color-mix(in srgb, var(--cat, var(--th-accent)) 65%, transparent);
+    box-shadow:0 8px 18px -8px rgba(0,0,0,.6);
   }
   .prod__price{
     margin-top:auto;padding-top:.3rem;
     font-family:var(--mono,ui-monospace,'SFMono-Regular',Consolas,monospace);
     font-size:var(--t-title);font-weight:800;letter-spacing:var(--ls-title);color:var(--cat, var(--th-hot));
-    text-shadow:0 0 18px color-mix(in srgb, var(--cat, var(--th-hot)) 45%, transparent);
   }
   .prod__addcart{
     font:inherit;font-size:var(--t-ui);font-weight:600;color:var(--th-cta-text);
@@ -1216,7 +1231,7 @@
     color:var(--cat, var(--th-hot));
     background:color-mix(in srgb, var(--cat, var(--th-accent)) 18%, transparent);
     border:1px solid color-mix(in srgb, var(--cat, var(--th-accent)) 45%, transparent);
-    box-shadow:0 10px 26px color-mix(in srgb, var(--cat, var(--th-accent)) 22%, transparent);
+    box-shadow:0 10px 26px -10px rgba(0,0,0,.6);
   }
   .spotlight__icon svg{width:38px;height:38px;}
   .spotlight__price{
@@ -1315,7 +1330,7 @@
     border:1px solid color-mix(in srgb, var(--th-accent) 40%, rgba(255,255,255,.12));
     border-radius:16px;
     overflow:hidden;
-    box-shadow:0 24px 60px -24px color-mix(in srgb, var(--th-accent) 55%, transparent), inset 0 0 40px rgba(0,0,0,.4);
+    box-shadow:0 24px 60px -24px rgba(0,0,0,.7), inset 0 0 40px rgba(0,0,0,.4);
   }
   @media (max-width:900px){ .terminal{position:static;} }
   .terminal__bar{
@@ -1373,7 +1388,24 @@
     aspect-ratio:322/205;   /* ten sam ksztalt co pasek — patrz ORB_FRAME w JS */
   }
   .somi-demo__orb-slot canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
-  .somi-demo__orb-glow{position:absolute;inset:-30%;z-index:-1;filter:blur(28px);opacity:.55;pointer-events:none;}
+  /* Aura kuli (blur 28px, kolor i krycie ustawia kula.js inline) WYLACZONA
+     23.09 — zamiast niej cienki, statyczny pierscien orbity z jednym lukiem
+     crimson (wariant 2). Element zostaje w DOM, bo kula.js go szuka. */
+  .somi-demo__orb-glow{display:none;}
+  .somi-demo__orb-slot::before,.somi-demo__orb-slot::after{
+    content:"";
+    position:absolute;
+    left:50%;top:50%;
+    height:86%;aspect-ratio:1;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .somi-demo__orb-slot::before{border:1px solid rgba(255,255,255,.14);transform:translate(-50%,-50%);}
+  .somi-demo__orb-slot::after{
+    border:1px solid transparent;
+    border-top-color:rgba(255,58,82,.8);
+    transform:translate(-50%,-50%) rotate(-30deg);
+  }
 
   .somi-demo__lead{
     font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);
@@ -1459,11 +1491,10 @@
   .catcard.is-active{
     border-color:color-mix(in srgb, var(--th-accent) 70%, transparent);
     background:color-mix(in srgb, var(--th-accent) 11%, transparent);
-    box-shadow:0 14px 30px color-mix(in srgb, var(--th-accent) 20%, transparent), inset 0 1px 0 rgba(255,255,255,.05);
+    box-shadow:0 14px 30px -12px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
   }
   .catcard.is-active .catcard__icon{
     background:var(--th-solid);color:var(--th-cta-text);
-    box-shadow:0 0 20px color-mix(in srgb, var(--th-accent) 60%, transparent);
   }
   .catcard:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
   .cards__empty{
@@ -1904,7 +1935,7 @@
     border-radius:14px;
     border:1px solid color-mix(in srgb, var(--th-hot) 22%, transparent);
     background-color:color-mix(in srgb, var(--th-hot) 6%, transparent);
-    box-shadow:0 10px 26px -10px color-mix(in srgb, var(--th-hot) 30%, transparent);
+    box-shadow:0 10px 26px -10px rgba(0,0,0,.6);
     transition:background-color .25s ease;
   }
   .pas__znak::before{
@@ -2083,7 +2114,7 @@
   .sztuka__item:hover{
     transform:translateY(-5px);
     border-color:color-mix(in srgb, var(--th-hot) 55%, transparent);
-    box-shadow:0 16px 34px -12px color-mix(in srgb, var(--th-hot) 45%, transparent);
+    box-shadow:0 16px 34px -12px rgba(0,0,0,.6);
   }
   .sztuka__item:hover img{transform:scale(1.05);}
   .sztuka__item:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
@@ -2545,62 +2576,6 @@
         </ol>
       </div>
     </section>
-
-    <footer class="footer reveal">
-      <div class="footer__inner">
-        <div class="footer__col">
-        <nav class="footer__nav" aria-label="Stopka">
-          <a href="#start" data-nav="start">Start</a>
-          <a href="#oferta" data-nav="oferta">Oferta</a>
-          <a href="#products" data-nav="products">Produkty</a>
-          <a href="#somi" data-nav="somi">SOMI</a>
-          <a href="#onas" data-nav="onas">O nas</a>
-          <!-- Sztuka ukryta ze stopki na prosbe maisy, 22.09, tymczasowo ("poki co") —
-               <a href="#sztuka" data-nav="sztuka">Sztuka</a> -->
-          <a href="#rnd" data-nav="rnd">Sadzonki</a>
-          <a href="#contact" data-nav="contact">Kontakt</a>
-          <a href="#polityka" data-nav="polityka">Polityka prywatności</a>
-        </nav>
-        <a class="footer__mail" href="mailto:cybersora@zohomail.eu,wojtekzieba.w@gmail.com">cybersora@zohomail.eu</a>
-
-        <!-- SOCJALE. Adresy wstawia sie w JEDNYM miejscu — stala SOCJALE w skrypcie
-             nizej. Dopoki adres jest pusty, ikona jest wygaszona i nieklikalna:
-             lepsze to niz link prowadzacy donikad. -->
-        <div class="footer__soc">
-          <a class="soc" data-soc="facebook" aria-label="Facebook" aria-disabled="true" title="Adres profilu jeszcze nie podany">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <circle cx="12" cy="12" r="12" fill="currentColor"/>
-              <path class="znak" d="M13.36 20.5v-6.72h2.26l.34-2.62h-2.6V9.49c0-.76.21-1.28 1.3-1.28h1.39V5.86c-.24-.03-1.07-.1-2.03-.1-2.01 0-3.39 1.23-3.39 3.48v1.92H8.36v2.62h2.27v6.72h2.73z"/>
-            </svg>
-          </a>
-          <a class="soc" data-soc="instagram" aria-label="Instagram" aria-disabled="true" title="Adres profilu jeszcze nie podany">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <circle cx="12" cy="12" r="12" fill="currentColor"/>
-              <rect class="obrys" x="6.6" y="6.6" width="10.8" height="10.8" rx="3.4"/>
-              <circle class="obrys" cx="12" cy="12" r="2.9"/>
-              <circle class="znak" cx="15.75" cy="8.3" r="1.05"/>
-            </svg>
-          </a>
-          <a class="soc" data-soc="github" aria-label="GitHub" aria-disabled="true" title="Adres profilu jeszcze nie podany">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-            </svg>
-          </a>
-          <a class="soc" data-soc="linkedin" aria-label="LinkedIn" aria-disabled="true" title="Adres profilu jeszcze nie podany">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <circle cx="12" cy="12" r="12" fill="currentColor"/>
-              <rect class="znak" x="6.3" y="10" width="2.5" height="8"/>
-              <circle class="znak" cx="7.55" cy="7.4" r="1.5"/>
-              <path class="znak" d="M10.7 10h2.4v1.1h.03c.34-.62 1.16-1.28 2.38-1.28 2.54 0 3.01 1.63 3.01 3.8V18h-2.5v-3.88c0-.92-.02-2.11-1.29-2.11-1.29 0-1.49 1-1.49 2.04V18h-2.54V10z"/>
-            </svg>
-          </a>
-        </div>
-
-        <div class="footer__line" data-hex="0x1A0A">Made in Poland &middot; &copy; 2026 cybersora</div>
-        </div>
-        <div class="footer__brand"><svg class="footer__mark" viewBox="0 0 134 100" width="20" height="15" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17" stroke="#0a0a0d"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)"/></g></svg>cyber<b>sora</b></div>
-      </div>
-    </footer>
   </section>
 
   <!-- OFERTA -->
@@ -3863,6 +3838,63 @@ fingerprint(maszyna)</div>
       </div>
     </section>
   </section>
+  <!-- STOPKA: wspolna dla calej strony (poza .view), wiec widac ja pod kazda
+       podstrona - link do polityki prywatnosci dostepny wszedzie (23.09). -->
+  <footer class="footer reveal">
+    <div class="footer__inner">
+      <div class="footer__col">
+      <nav class="footer__nav" aria-label="Stopka">
+        <a href="#start" data-nav="start">Start</a>
+        <a href="#oferta" data-nav="oferta">Oferta</a>
+        <a href="#products" data-nav="products">Produkty</a>
+        <a href="#somi" data-nav="somi">SOMI</a>
+        <a href="#onas" data-nav="onas">O nas</a>
+        <!-- Sztuka ukryta ze stopki na prosbe maisy, 22.09, tymczasowo ("poki co") —
+             <a href="#sztuka" data-nav="sztuka">Sztuka</a> -->
+        <a href="#rnd" data-nav="rnd">Sadzonki</a>
+        <a href="#contact" data-nav="contact">Kontakt</a>
+        <a href="#polityka" data-nav="polityka">Polityka prywatności</a>
+      </nav>
+      <a class="footer__mail" href="mailto:cybersora@zohomail.eu,wojtekzieba.w@gmail.com">cybersora@zohomail.eu</a>
+
+      <!-- SOCJALE. Adresy wstawia sie w JEDNYM miejscu — stala SOCJALE w skrypcie
+           nizej. Dopoki adres jest pusty, ikona jest wygaszona i nieklikalna:
+           lepsze to niz link prowadzacy donikad. -->
+      <div class="footer__soc">
+        <a class="soc" data-soc="facebook" aria-label="Facebook" aria-disabled="true" title="Adres profilu jeszcze nie podany">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="12" fill="currentColor"/>
+            <path class="znak" d="M13.36 20.5v-6.72h2.26l.34-2.62h-2.6V9.49c0-.76.21-1.28 1.3-1.28h1.39V5.86c-.24-.03-1.07-.1-2.03-.1-2.01 0-3.39 1.23-3.39 3.48v1.92H8.36v2.62h2.27v6.72h2.73z"/>
+          </svg>
+        </a>
+        <a class="soc" data-soc="instagram" aria-label="Instagram" aria-disabled="true" title="Adres profilu jeszcze nie podany">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="12" fill="currentColor"/>
+            <rect class="obrys" x="6.6" y="6.6" width="10.8" height="10.8" rx="3.4"/>
+            <circle class="obrys" cx="12" cy="12" r="2.9"/>
+            <circle class="znak" cx="15.75" cy="8.3" r="1.05"/>
+          </svg>
+        </a>
+        <a class="soc" data-soc="github" aria-label="GitHub" aria-disabled="true" title="Adres profilu jeszcze nie podany">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+        </a>
+        <a class="soc" data-soc="linkedin" aria-label="LinkedIn" aria-disabled="true" title="Adres profilu jeszcze nie podany">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="12" fill="currentColor"/>
+            <rect class="znak" x="6.3" y="10" width="2.5" height="8"/>
+            <circle class="znak" cx="7.55" cy="7.4" r="1.5"/>
+            <path class="znak" d="M10.7 10h2.4v1.1h.03c.34-.62 1.16-1.28 2.38-1.28 2.54 0 3.01 1.63 3.01 3.8V18h-2.5v-3.88c0-.92-.02-2.11-1.29-2.11-1.29 0-1.49 1-1.49 2.04V18h-2.54V10z"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="footer__line" data-hex="0x1A0A">Made in Poland &middot; &copy; 2026 cybersora</div>
+      </div>
+      <div class="footer__brand"><svg class="footer__mark" viewBox="0 0 134 100" width="20" height="15" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17" stroke="#0a0a0d"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)"/></g></svg>cyber<b>sora</b></div>
+    </div>
+  </footer>
 </main>
 
 <!-- lightbox galerii Sztuka (21.09) -->
@@ -3885,7 +3917,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20260923"></script>
+<script src="app.js?v=20260927a"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -3904,7 +3936,7 @@ fingerprint(maszyna)</div>
      opóźniałaby pierwsze malowanie o tyle, ile trwa jej pobranie — a to ozdoba
      strony SOMI, nie treść.
      ============================================================ -->
-<script src="kula.js?v=20260923"></script>
+<script src="kula.js?v=20260927a"></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.
@@ -3925,7 +3957,7 @@ fingerprint(maszyna)</div>
      w swoim ładowaczu, w pasku zostaje maskotka). Sam jeden FPS nic nie mówi;
      dopiero różnica między przebiegami mówi, ile kula naprawdę kosztuje.
      ============================================================ -->
-<script src="sonda.js?v=20260923"></script>
+<script src="sonda.js?v=20260927a"></script>
 <!-- hCaptcha (Moduł 1, PROMPT_BEZPIECZENSTWO.md): renderuje widget .h-captcha
      i wypełnia ukryte textarea[name=h-captcha-response], które czytamy
      ręcznie w wyslijDoWeb3Forms zamiast używać ich natywnego <form>. -->
