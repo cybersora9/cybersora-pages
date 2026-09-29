@@ -48,23 +48,27 @@
   /* ===================== route themes — JEDEN KOLOR (krwisty) na wszystkich trasach =====================
      Kolory a/hot sa juz identyczne na kazdej trasie (decyzja 10.09, patrz komentarz w CSS).
      Rozni sie tylko `layers` — czyli KTORY efekt tla chodzi na danej podstronie
-     (iskry / siec / siatka / plyn / skan). To nie kolor, tylko ruch, wiec zostaje.
-     Wygaszenie takze tej roznicy = wpisac wszedzie te sama mape `layers`. */
+     i z jaka waga. To nie kolor, tylko ruch, wiec zostaje.
+     M8 Sesja 1 (29.09): spark = iskry, chips = kontury produktow (dawny mylacy `scan`),
+     net = waga M1 Blackwall, bg = waga tla z rejestru BG; pole `bg` wskazuje malarza z BG.
+     Martwe `grid`/`fluid` usuniete. Iskry swiecily dotad na KAZDEJ trasie (warstwy nikt
+     nie czytal), wiec spark: 1 wszedzie = wyglad bez zmian; tla M8 zdejma je trasa po trasie. */
   const THEMES = {
-    start:     { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, grid: 0, fluid: 0, scan: 0 } },
-    products:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 0, fluid: 0, scan: 1 } },
-    somi:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 1, grid: 0, fluid: 0, scan: 0 } },
-    onas:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 1, fluid: 0, scan: 0 } },
-    sztuka:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 1, fluid: 0, scan: 0 } },
-    rnd:       { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, grid: 0, fluid: 1, scan: 0 } },
-    contact:   { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, grid: 0, fluid: 0, scan: 0 } },
-    polityka:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, grid: 0, fluid: 0, scan: 0 } }
+    start:     { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    oferta:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'oferta' },
+    products:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 1, bg: 0 } },
+    somi:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 1, chips: 0, bg: 0 }, bg: 'm1' },
+    onas:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    sztuka:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    rnd:       { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    contact:   { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    polityka:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } }
   };
   let themeTarget = THEMES.start;
   // blended state eases toward the target — particles are recoloured, never rebuilt
   const themeState = {
     a: [225, 29, 51], hot: [255, 58, 82],
-    layers: { spark: 1, net: 0, grid: 0, fluid: 0, scan: 0 }
+    layers: { spark: 1, net: 0, chips: 0, bg: 0 }
   };
   const lerp = (x, y, t) => x + (y - x) * t;
   function themeApproach(dt) {
@@ -113,6 +117,8 @@
     pulse.cy = offY + mapH / 2;
     pulse.maxR = Math.hypot(mapW, mapH) / 2 + 60;
 
+    if (fontsReady) glyphAtlas();   // atlas znakow niezalezny od trasy
+    bgBuild();                      // tlo trasy z rejestru BG (na somi: M1)
     if (!uzyjMapy) { particles = []; return; }
 
     const rw = Math.max(1, Math.ceil(mapW));
@@ -163,7 +169,8 @@
              y > mapBox.y - 20 && y < mapBox.y + mapBox.h + 20);
   }
 
-  function newSpark(seed) {
+  // przypisuje pola w miejscu: odrodzenie iskry w petli bez alokacji obiektu
+  function newSpark(s, seed) {
     let x = 0, y = 0;
     // spawn along the bottom edge and the sides; a few tries to stay clear of the map box
     for (let i = 0; i < 8; i++) {
@@ -177,21 +184,20 @@
       }
       if (offMap(x, y)) break;
     }
-    return {
-      x, y,
-      r: 0.6 + Math.random() * 0.8,
-      a: 0.15 + Math.random() * 0.25,
-      vy: 0.1 + Math.random() * 0.25,
-      amp: 6 + Math.random() * 14,
-      ph: Math.random() * Math.PI * 2,
-      sp: 0.3 + Math.random() * 0.5
-    };
+    s.x = x; s.y = y;
+    s.r = 0.6 + Math.random() * 0.8;
+    s.a = 0.15 + Math.random() * 0.25;
+    s.vy = 0.1 + Math.random() * 0.25;
+    s.amp = 6 + Math.random() * 14;
+    s.ph = Math.random() * Math.PI * 2;
+    s.sp = 0.3 + Math.random() * 0.5;
+    return s;
   }
 
   function buildSparks() {
     sparks = [];
     if (reduce) return;
-    for (let i = 0; i < SPARK_N; i++) sparks.push(newSpark(true));
+    for (let i = 0; i < SPARK_N; i++) sparks.push(newSpark({}, true));
   }
 
   /* ===================== chips — drifting product-glyph outlines, hero-level Produkty accent ===================== */
@@ -217,6 +223,593 @@
     if (reduce) return;
     for (let i = 0; i < CHIP_N; i++) chips.push(newChip());
   }
+
+  /* ===================== wspolne narzedzia tel (M8 Sesja 1, 29.09, wydzielone z M1) =====================
+     Kubelki alfy, atlas znakow i datamosh sluza kazdemu tlu z rejestru BG, nie tylko M1.
+     Plasko: fillRect/stroke/drawImage, zero shadowBlur i blur, zero alokacji przy malowaniu. */
+
+  /* Kubelki alfy: prostokaty i odcinki zbierane do Float32Array z numerem kubelka, potem
+     jeden fillStyle na kubelek, nie na prostokat. Odcinki bez Path2D (nowa sciezka co
+     przerysowanie to smieci dla GC): beginPath + moveTo/lineTo + jeden stroke na kubelek. */
+  const BK_N = 10;
+  let bkR = new Float32Array(5000), bkRn = 0;             // x, y, w, h, kubelek
+  let bkS = new Float32Array(5000), bkSn = 0;             // x1, y1, x2, y2, kubelek
+  const bkStyle = new Array(BK_N), bkLast = new Int16Array(6).fill(-1);
+  let bkHot = '';
+  const bkOf = al => Math.min(BK_N - 1, (al * BK_N) | 0);
+  function bkPush(x, y, w, h, al) {
+    if (al <= 0.004 || h <= 0) return;
+    if ((bkRn + 1) * 5 > bkR.length) { const nr = new Float32Array(bkR.length * 2); nr.set(bkR); bkR = nr; }
+    const o = bkRn * 5;
+    bkR[o] = x; bkR[o + 1] = y; bkR[o + 2] = w; bkR[o + 3] = h; bkR[o + 4] = bkOf(al);
+    bkRn++;
+  }
+  function bkSeg(x1, y1, x2, y2, al) {
+    if (al <= 0.004) return;
+    if ((bkSn + 1) * 5 > bkS.length) { const ns = new Float32Array(bkS.length * 2); ns.set(bkS); bkS = ns; }
+    const o = bkSn * 5;
+    bkS[o] = x1; bkS[o + 1] = y1; bkS[o + 2] = x2; bkS[o + 3] = y2; bkS[o + 4] = bkOf(al);
+    bkSn++;
+  }
+  // stringi kolorow kubelkow liczone tylko przy zmianie koloru motywu, nie przy kazdym malowaniu
+  function bkColors() {
+    const a = themeState.a, hot = themeState.hot;
+    let same = true;
+    for (let i = 0; i < 3; i++) if (bkLast[i] !== (a[i] | 0) || bkLast[i + 3] !== (hot[i] | 0)) same = false;
+    if (same) return;
+    for (let i = 0; i < 3; i++) { bkLast[i] = a[i] | 0; bkLast[i + 3] = hot[i] | 0; }
+    for (let b = 0; b < BK_N; b++) bkStyle[b] = rgba(b > 7 ? hot : a, (b + 0.5) / BK_N);
+    bkHot = rgba(hot, 1);
+  }
+  function bkFlush(c) {
+    bkColors();
+    c.lineWidth = 1;
+    for (let b = 0; b < BK_N; b++) {
+      c.fillStyle = c.strokeStyle = bkStyle[b];
+      for (let r = 0; r < bkRn; r++) {
+        const o = r * 5;
+        if (bkR[o + 4] === b) c.fillRect(bkR[o], bkR[o + 1], bkR[o + 2], bkR[o + 3]);
+      }
+      let any = false;
+      for (let s = 0; s < bkSn; s++) {
+        const o = s * 5;
+        if (bkS[o + 4] !== b) continue;
+        if (!any) { c.beginPath(); any = true; }
+        c.moveTo(bkS[o], bkS[o + 1]); c.lineTo(bkS[o + 2], bkS[o + 3]);
+      }
+      if (any) c.stroke();
+    }
+    bkRn = bkSn = 0;
+  }
+
+  /* atlas znakow (wzor: baner FB cybersory): budowany raz, potem tylko drawImage. Niezalezny od
+     trasy: powstaje po document.fonts.load, inaczej znaki zapieklyby sie w foncie zastepczym.
+     Geist Mono strony nie ma katakany — ta spada na font systemowy (Yu Gothic / Hiragino), zero CDN. */
+  const GLYPHS = [...'0123456789ABCDEFSZXŻÓŁŚĆĄĘŃŹ$@&{}[]<>/\\|+=*#%アイウエオカキクケコサシスセソタチツテトナニハヒフヘホマミムメモヤユヨラリルレロワヲン'];
+  const atlas = document.createElement('canvas'), actx = atlas.getContext('2d');
+  let fontsReady = false, atlasKey = '', FS = 18, cell = 23;
+  function glyphAtlas() {
+    FS = W < 600 ? 14 : 18; cell = Math.ceil(FS * 1.25);
+    const key = FS + ':' + dpr;
+    if (key === atlasKey) return;
+    atlasKey = key;
+    const c = Math.ceil(cell * dpr);
+    atlas.width = c * GLYPHS.length; atlas.height = c * 3;
+    actx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    actx.font = '500 ' + FS + 'px "Geist Mono", "Yu Gothic", "Hiragino Sans", "MS Gothic", monospace';
+    actx.textAlign = 'center'; actx.textBaseline = 'middle';
+    const tones = [rgba(THEMES.start.a, 1), rgba(THEMES.start.hot, 1), '#f6f2f3'];   // ogon / czolo / bialy znak na czele
+    for (let k = 0; k < 3; k++) {
+      actx.fillStyle = tones[k];
+      for (let i = 0; i < GLYPHS.length; i++) actx.fillText(GLYPHS[i], i * cell + cell / 2, k * cell + cell / 2);
+    }
+  }
+  const fontsDone = () => { fontsReady = true; atlasKey = ''; if (W) { glyphAtlas(); bgBuild(); } };
+  if (document.fonts && document.fonts.load) document.fonts.load('500 18px "Geist Mono"').then(fontsDone, fontsDone);
+  else fontsReady = true;
+
+  // datamosh: co ~3 s na 140 ms pozioma wstega gotowej klatki przesuwa sie w bok (twarde ciecie, zero blur)
+  const MOSH = { t: 0, y: 0, h: 0, x: 0 };
+  const moshOff = document.createElement('canvas'), moshCtx = moshOff.getContext('2d');
+  function mosh(dt) {
+    MOSH.t -= dt;
+    if (MOSH.t < -0.14) {
+      MOSH.t = 2 + Math.random() * 2.5;
+      MOSH.h = 10 + Math.random() * 40; MOSH.y = Math.random() * (H - MOSH.h);
+      MOSH.x = (Math.random() < 0.5 ? -1 : 1) * (6 + Math.random() * 18);
+    }
+    if (MOSH.t >= 0) return;
+    if (moshOff.width !== canvas.width || moshOff.height < Math.ceil(52 * dpr)) { moshOff.width = canvas.width; moshOff.height = Math.ceil(52 * dpr); }
+    const sy = Math.floor(MOSH.y * dpr), sh = Math.max(1, Math.floor(MOSH.h * dpr));
+    moshCtx.clearRect(0, 0, moshOff.width, sh);
+    moshCtx.drawImage(canvas, 0, sy, canvas.width, sh, 0, 0, canvas.width, sh);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, MOSH.y, W, MOSH.h);
+    ctx.drawImage(moshOff, 0, 0, canvas.width, sh, MOSH.x, MOSH.y, W, MOSH.h);
+  }
+
+  /* Maska tekstu (M8 Sesja 2B). Linie tekstu naglowka widoku mierzone raz na build przez
+     Range.getClientRects (prostokat kazdej linii, nie calego bloku). Elipsa z Sesji 1 zostawiala
+     rogi opisu bez sufitu: na zrzucie 390 px kontrast spadal do 4,48:1. (a) bgInText: odrzucanie
+     spawnu na tekscie, koszt 0. (c) bgMaskOut: destination-out gotowej maski po paint, jeden
+     drawImage; jedyna metoda, ktora trzyma sufit krycia pod tekstem takze po sumowaniu w 'lighter'.
+     Maska ma wymiar bloku tekstu z marginesem, nie ekranu. Miekka krawedz = zagniezdzone prostokaty
+     (raz, przy budowie), bez blur. */
+  const TXT_PAD = 6, TXT_F = 22, TXT_FN = 8;
+  const TXT = { x: 0, y: 0, w: 0, h: 0, n: 0, r: new Float32Array(160), ok: false };
+  const bgMask = document.createElement('canvas'), mctx = bgMask.getContext('2d');
+  function bgTextMeasure(sel) {
+    const el = document.querySelector(sel);
+    TXT.ok = false; TXT.n = 0;
+    if (!el) return false;
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    const rs = rg.getClientRects(), st = stage.getBoundingClientRect();
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (let i = 0; i < rs.length && TXT.n < 40; i++) {
+      const q = rs[i];
+      if (q.width < 1 || q.height < 1) continue;
+      const o = TXT.n * 4, x = q.left - st.left, y = q.top - st.top;
+      TXT.r[o] = x; TXT.r[o + 1] = y; TXT.r[o + 2] = q.width; TXT.r[o + 3] = q.height; TXT.n++;
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + q.width); y1 = Math.max(y1, y + q.height);
+    }
+    if (!TXT.n) return false;
+    const m = TXT_PAD + TXT_F;
+    TXT.x = x0 - m; TXT.y = y0 - m; TXT.w = x1 - x0 + 2 * m; TXT.h = y1 - y0 + 2 * m;
+    TXT.ok = true;
+    return true;
+  }
+  function bgInText(x, y) {
+    for (let i = 0; i < TXT.n; i++) {
+      const o = i * 4;
+      if (x > TXT.r[o] - TXT_PAD && x < TXT.r[o] + TXT.r[o + 2] + TXT_PAD &&
+          y > TXT.r[o + 1] - TXT_PAD && y < TXT.r[o + 1] + TXT.r[o + 3] + TXT_PAD) return true;
+    }
+    return false;
+  }
+  function bgMaskBuild() {   // raz na build, po bgTextMeasure
+    if (!TXT.ok) return;
+    const w = Math.ceil(TXT.w * dpr), h = Math.ceil(TXT.h * dpr);
+    if (bgMask.width !== w || bgMask.height !== h) { bgMask.width = w; bgMask.height = h; }
+    mctx.setTransform(dpr, 0, 0, dpr, -TXT.x * dpr, -TXT.y * dpr);
+    mctx.clearRect(TXT.x, TXT.y, TXT.w, TXT.h);
+    mctx.fillStyle = '#000';
+    // warstwy od najszerszej: kazda doklada krycie, rdzen (linia + TXT_PAD) konczy na pelnym
+    for (let s = TXT_FN; s >= 0; s--) {
+      const e = TXT_PAD + TXT_F * s / TXT_FN;
+      mctx.globalAlpha = s ? 1 / (TXT_FN + 1) : 1;
+      for (let i = 0; i < TXT.n; i++) {
+        const o = i * 4;
+        mctx.fillRect(TXT.r[o] - e, TXT.r[o + 1] - e, TXT.r[o + 2] + 2 * e, TXT.r[o + 3] + 2 * e);
+      }
+    }
+    mctx.globalAlpha = 1;
+  }
+  function bgMaskOut(c, k) {   // k: jaka czesc krycia zdjac pod tekstem (0..1)
+    if (!TXT.ok) return;
+    c.globalCompositeOperation = 'destination-out'; c.globalAlpha = k;
+    c.drawImage(bgMask, TXT.x, TXT.y, TXT.w, TXT.h);
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  }
+
+  /* ===================== silnik tel podstron (M8 Sesja 1, 29.09) =====================
+     Rejestr BG = { id: { build(W,H), paint(c,time,age,op), live?(ctx,dt,time,op), fps, comp, layer? } }.
+     Trasa wskazuje malarza polem THEMES[trasa].bg; waga = themeState.layers[layer || 'bg'].
+     Bufor offscreen przerysowywany max fps razy/s (logika `due`), na klatke jeden drawImage.
+     fps: 0 = malowane raz z op=1, waga warstwy idzie przez globalAlpha.
+     DWA SLOTY: przy zmianie trasy biezacy bufor przechodzi do bgPrev i ZAMARZA (zadnego paint,
+     tylko globalAlpha + drawImage we wlasnym wymiarze, wygaszanie k=8/s). Dotad M1 malowala dalej
+     do bufora starego wymiaru przez ~0,9 s wygaszania warstwy i drawImage rozciagal ja do nowego
+     hero (390 px: 96 klatek). Pula dwoch canvasow, realokacja tylko przy innym wymiarze. */
+  const BG = {};
+  const bgSlot = () => { const cv = document.createElement('canvas'); return { cv, cx: cv.getContext('2d'), w: 0, h: 0 }; };
+  let bgCur = bgSlot(), bgPrev = bgSlot();
+  let bgId = '', bgOn = false, bgT0 = 0, bgT = -1, bgPrevA = 0, bgPrevComp = 'source-over';
+  function bgFit(s) {
+    const pw = Math.floor(W * dpr), ph = Math.floor(H * dpr);
+    if (s.cv.width !== pw || s.cv.height !== ph) { s.cv.width = pw; s.cv.height = ph; }
+    else s.cx.clearRect(0, 0, pw, ph);
+    s.w = W; s.h = H;
+    s.cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  // z buildParticles: resize, wejscie na trase, po klatce ukladu
+  function bgBuild() {
+    bgId = themeTarget.bg || '';
+    const p = BG[bgId];
+    if (!p) return;
+    bgFit(bgCur); p.build(W, H); bgT = -1;
+  }
+  // z go(), zanim nowe hero zmieni wymiar sceny
+  function bgLeave() {
+    const p = BG[bgId];
+    if (p && bgOn) {
+      const s = bgCur; bgCur = bgPrev; bgPrev = s;
+      bgPrevA = reduce ? 0 : 1; bgPrevComp = p.comp;
+    }
+    bgId = ''; bgOn = false;
+  }
+  function bgDraw(dt, time) {
+    if (bgPrevA > 0.02) {
+      ctx.globalCompositeOperation = bgPrevComp; ctx.globalAlpha = bgPrevA;
+      ctx.drawImage(bgPrev.cv, 0, 0, bgPrev.w, bgPrev.h);   // wlasny wymiar: przyciete, nigdy rozciagniete
+      ctx.globalAlpha = 1;
+      bgPrevA *= Math.exp(-8 * dt);
+    } else bgPrevA = 0;
+    const p = BG[bgId];
+    if (!p) return;
+    const w = themeState.layers[p.layer || 'bg'];
+    if (w <= 0.02) { bgOn = false; return; }
+    if (!bgOn) { bgOn = true; bgT0 = time; bgT = -1; }   // wejscie na widok: tlo sklada sie od nowa
+    const age = reduce ? 99 : time - bgT0;
+    // przy reduced motion przerysowanie tylko gdy zmienia sie krycie warstwy
+    const due = bgT < 0 || time < bgT || (reduce ? w < 0.999 : p.fps > 0 && time - bgT >= 1 / p.fps);
+    if (due) { bgT = time; p.paint(bgCur.cx, time, age, p.fps ? w : 1); }
+    ctx.globalCompositeOperation = p.comp;
+    if (!p.fps) ctx.globalAlpha = w;
+    ctx.drawImage(bgCur.cv, 0, 0, W, H);
+    ctx.globalAlpha = 1;
+    if (p.live && !reduce) p.live(ctx, dt, time, w);
+  }
+
+  /* ===================== M1 Blackwall — sciana za SOMI (aspekt 11, Sesja 2, 29.09) =====================
+     Malarz BG.m1 na warstwie `net` widoku somi. Wzor: makieta_m1_sciana.html.
+     Ustawienia maisy (29.09): wariant C (luk + smear + chmura punktow + datamosh), krycie 0,45,
+     odstep 6 px, wybrzuszenie za naglowkiem, prazki splywaja; deszcz kodu sredni (55% kolumn),
+     cala szerokosc, krycie 0,7. */
+  const M1_OP = 0.45, M1_STEP = 6, M1_CODE = 0.55, M1_CODE_OP = 0.7;
+  const M1 = { n: 0, bx: 0, by: 0, R: 1, bulgeOk: false, pc: [] };
+
+  // odchylenie poziome w wybrzuszeniu: prazki rozchodza sie od srodka, jakby cos napieralo zza sciany
+  function m1Bend(x, y, amp) {
+    const u = (x - M1.bx) / M1.R, t = (y - M1.by) / (M1.R * 1.4);
+    const e = t * t >= 1 ? 0 : (1 - t * t) * (1 - t * t);   // okno zerowe na brzegu strefy: bez skoku
+    return Math.sign(u) * amp * Math.abs(u) * Math.exp(-u * u) * 2.33 * e;
+  }
+  /* Tablice wybrzuszenia liczone raz na pomiar (m1Measure), nie w petli: m1Bend rozpada sie na
+     czynnik kolumny (fx) i czynnik wiersza (ey), a rozjasnienie na gy. W strefie jest ~18 tys.
+     odcinkow na przerysowanie; trzy Math.exp na odcinek kosztowaly 7 ms przy 4x CPU. */
+  function m1Luts() {
+    const n = Math.max(2, Math.ceil(H) + 2);
+    M1.ey = new Float32Array(n); M1.gy = new Float32Array(n);
+    for (let y = 0; y < n; y++) {
+      const t = (y - M1.by) / (M1.R * 1.4), dy = (y - M1.by) / M1.R;
+      M1.ey[y] = t * t >= 1 ? 0 : (1 - t * t) * (1 - t * t);
+      M1.gy[y] = Math.exp(-dy * dy);
+    }
+    M1.fx = new Float32Array(M1.n);
+    for (let i = 0; i < M1.n; i++) {
+      const u = (M1.x[i] - M1.bx) / M1.R;
+      M1.fx[i] = Math.sign(u) * Math.abs(u) * Math.exp(-u * u) * 2.33;
+    }
+  }
+  // kawalek prazka [a0,a1]: prosto = prostokat; w strefie wybrzuszenia = odcinki po 24 px w kubelkach
+  function m1Piece(x, fa, a0, a1, cw, al, bend, boost) {
+    if (a1 <= a0) return;
+    if (!bend) { bkPush(x, a0, cw, a1 - a0, al); return; }
+    const zr = M1.R * 1.4, z0 = Math.max(a0, M1.by - zr), z1 = Math.min(a1, M1.by + zr);
+    if (z1 <= z0) { bkPush(x, a0, cw, a1 - a0, al); return; }
+    if (z0 > a0) bkPush(x, a0, cw, z0 - a0, al);
+    if (a1 > z1) bkPush(x, z1, cw, a1 - z1, al);
+    const ey = M1.ey, gy = M1.gy, x5 = x + 0.5;
+    for (let y = z0; y < z1; y += 24) {
+      const y2 = Math.min(z1, y + 24);
+      const a = Math.min(0.99, al * (1 + (boost - 1) * gy[(y + y2) * 0.5 | 0]));
+      bkSeg(x5 + fa * ey[y | 0], y, x5 + fa * ey[y2 | 0], y2, a);
+    }
+  }
+
+  // deszcz kodu na atlasie znakow
+  const CODE = { cols: 0, rows: 0, colW: 26, grid: null, head: null, speed: null, len: null, white: null, on: null, last: -1 };
+  function m1Spawn(c, seed) {
+    CODE.len[c] = 6 + Math.random() * 18;
+    CODE.speed[c] = 4 + Math.random() * 11;               // komorek na sekunde
+    CODE.head[c] = seed ? Math.random() * (CODE.rows + CODE.len[c]) : -Math.random() * CODE.rows * 0.6;
+    CODE.white[c] = Math.random() < 0.3 ? 1 : 0;
+  }
+  function m1BuildCode() {
+    CODE.colW = Math.round(cell * 1.15);
+    CODE.cols = Math.ceil(W / CODE.colW); CODE.rows = Math.ceil(H / cell) + 1;
+    CODE.grid = new Uint8Array(CODE.cols * CODE.rows);
+    for (let i = 0; i < CODE.grid.length; i++) CODE.grid[i] = Math.random() * GLYPHS.length | 0;
+    const n = CODE.cols;
+    CODE.head = new Float32Array(n); CODE.speed = new Float32Array(n); CODE.len = new Float32Array(n);
+    CODE.white = new Uint8Array(n); CODE.on = new Uint8Array(n);
+    for (let c = 0; c < n; c++) { CODE.on[c] = Math.random() < M1_CODE ? 1 : 0; m1Spawn(c, true); }
+    CODE.last = -1;
+  }
+  function m1PaintCode(wc, time, age, op, amp) {
+    if (!CODE.grid) return;
+    const dt = CODE.last < 0 ? 0 : Math.min(0.2, time - CODE.last);
+    CODE.last = time;
+    const c3 = Math.ceil(cell * dpr), gain = M1_CODE_OP * op * Math.min(1, age / 0.9);
+    for (let c = 0; c < CODE.cols; c++) {
+      if (!CODE.on[c]) continue;
+      if (!reduce) {
+        CODE.head[c] += CODE.speed[c] * dt;
+        if (CODE.head[c] - CODE.len[c] > CODE.rows) m1Spawn(c, false);
+      }
+      const x0 = c * CODE.colW + CODE.colW / 2, h = Math.floor(CODE.head[c]), L = CODE.len[c];
+      for (let k = 0; k < L; k++) {
+        const r = h - k;
+        if (r < 0 || r >= CODE.rows) continue;
+        const al = Math.pow(1 - k / L, 1.3) * gain;
+        if (al <= 0.02) continue;
+        const gi = r * CODE.cols + c, y = r * cell + cell / 2;
+        if (!reduce && Math.random() < 0.03) CODE.grid[gi] = Math.random() * GLYPHS.length | 0;   // migotanie znakow
+        const tone = k === 0 ? (CODE.white[c] ? 2 : 1) : (k < 3 ? 1 : 0);
+        wc.globalAlpha = Math.min(1, al);
+        wc.drawImage(atlas, CODE.grid[gi] * c3, tone * c3, c3, c3, x0 + m1Bend(x0, y, amp) - cell / 2, y - cell / 2, cell, cell);
+      }
+    }
+    wc.globalAlpha = 1;
+  }
+
+  // srodek wybrzuszenia = naglowek widoku somi; mierzony przy budowie, nie co klatke
+  function m1Measure() {
+    const ov = document.querySelector('[data-view="somi"] .overlay');
+    const r = ov && ov.getBoundingClientRect();
+    M1.bulgeOk = !!(r && r.width);
+    if (!M1.bulgeOk) { M1.bx = W / 2; M1.by = H * 0.5; }
+    else {
+      const st = stage.getBoundingClientRect();
+      M1.bx = r.left - st.left + r.width / 2; M1.by = r.top - st.top + r.height * 0.28;
+    }
+    m1Luts();
+  }
+  function m1Build() {
+    const n = Math.ceil(W / M1_STEP) + 2;
+    M1.n = n;
+    M1.x = new Float32Array(n); M1.a = new Float32Array(n); M1.sp = new Float32Array(n);
+    M1.dl = new Float32Array(n); M1.w = new Float32Array(n);
+    M1.sS = new Float32Array(n * 3); M1.sL = new Float32Array(n * 3); M1.sB = new Float32Array(n * 3);
+    let run = 0, runA = 0.5;
+    for (let i = 0; i < n; i++) {
+      M1.x[i] = i * M1_STEP + (Math.random() - 0.5) * M1_STEP * 0.5;
+      // pixel sort: sasiednie kolumny dziela jasnosc pasmami, stad posortowany wyglad
+      if (--run <= 0) { run = 2 + (Math.random() * 10 | 0); runA = 0.2 + Math.random() * 0.8; }
+      M1.a[i] = runA * (0.75 + Math.random() * 0.25);
+      M1.sp[i] = 5 + Math.random() * 20;
+      M1.dl[i] = Math.random();
+      M1.w[i] = Math.random() < 0.12 ? 2 : 1;
+      for (let k = 0; k < 3; k++) {
+        M1.sS[i * 3 + k] = Math.random();
+        M1.sL[i * 3 + k] = 0.08 + Math.random() * 0.5;
+        M1.sB[i * 3 + k] = 0.35 + Math.random() * 0.65;
+      }
+    }
+    M1.R = Math.min(W * 0.5, H) * 0.34;
+    m1Measure();
+    const pc = M1.pc = [];
+    for (let i = 0, pn = Math.round(W / 7); i < pn; i++) {
+      const q = Math.random();
+      pc.push({ x: Math.random() * W, y: H - q * q * H * 0.2 - 2, s: Math.random() < 0.3 ? 2 : 1,
+        a: 0.25 + (1 - q) * 0.6, ph: Math.random() * 6.28, sp: 0.2 + Math.random() * 0.6 });
+    }
+    if (fontsReady) { glyphAtlas(); m1BuildCode(); } else CODE.grid = null;
+  }
+
+  function m1Paint(wc, time, age, net) {
+    if (!M1.bulgeOk) m1Measure();   // naglowek mogl nie miec jeszcze ukladu przy budowie
+    const op = M1_OP * net;
+    const amp = M1.R * 0.2 * (reduce ? 1 : 1 + 0.12 * Math.sin(time * 9) * Math.sin(time * 2.3));
+    // luk: kurtyna zamknieta w elipsie wokol naglowka
+    const acx = M1.bx, arx = W * 0.44, ary = H * 0.62, acy = M1.by + H * 0.08;
+    for (let i = 0; i < M1.n; i++) {
+      const x = M1.x[i], u = (x - acx) / arx;
+      if (u <= -1 || u >= 1) continue;
+      const half = ary * Math.sqrt(1 - u * u);
+      const top = Math.max(0, acy - half), bot = Math.min(H, acy + half), span = bot - top;
+      if (span <= 2) continue;
+      // jednorazowe zlozenie sciany po wejsciu na widok: kolumny spadaja z gory, ~0.9 s
+      const asm = Math.min(1, Math.max(0, (age - M1.dl[i] * 0.55) / 0.35));
+      if (asm <= 0) continue;
+      const visBot = top + span * asm;
+      const dx = (x - M1.bx) / M1.R, boost = 1 + 0.9 * Math.exp(-dx * dx * 1.4);
+      const base = M1.a[i] * Math.pow(1 - u * u, 0.6) * op, cw = M1.w[i];
+      const bend = Math.abs(x - M1.bx) < M1.R * 2, fa = M1.fx[i] * amp;
+      // odcinki: tlo kolumny + 3 posortowane pasy, splywajace w dol
+      for (let k = -1; k < 3; k++) {
+        let y0, len, al;
+        if (k < 0) { y0 = top; len = span; al = base * 0.22; }
+        else {
+          y0 = top + ((M1.sS[i * 3 + k] * span + (reduce ? 0 : time * M1.sp[i])) % span);
+          len = M1.sL[i * 3 + k] * span; al = base * M1.sB[i * 3 + k];
+        }
+        // pas moze przejsc przez dol luku: wtedy dwa kawalki (bez alokacji tablic)
+        const wrap = y0 + len > bot;
+        m1Piece(x, fa, y0, Math.min(wrap ? bot : y0 + len, visBot), cw, al, bend, boost);
+        if (wrap) m1Piece(x, fa, top, Math.min(top + (y0 + len - bot), visBot), cw, al, bend, boost);
+      }
+    }
+    wc.clearRect(0, 0, W, H);
+    wc.globalCompositeOperation = 'lighter';
+    bkFlush(wc);
+    m1PaintCode(wc, time, age, net, amp);
+    // chmura punktow u dolu (grunt przed sciana): kwadraty 1-2 px, bez arc; w buforze, nie co klatke
+    const fade = op * Math.min(1, age / 0.9);
+    wc.fillStyle = bkHot;
+    for (let i = 0; i < M1.pc.length; i++) {
+      const p = M1.pc[i];
+      wc.globalAlpha = Math.min(1, p.a * fade);
+      wc.fillRect(p.x + (reduce ? 0 : Math.sin(time * p.sp + p.ph) * 3), p.y, p.s, p.s);
+    }
+    wc.globalAlpha = 1;
+  }
+  BG.m1 = { layer: 'net', fps: 24, comp: 'lighter', build: m1Build, paint: m1Paint, live: (c, dt) => mosh(dt) };
+
+  /* ===================== A1 boczna soczewka — tlo Oferty (aspekt 11, M8 Sesja 2B, 29.09) =====================
+     Malarz BG.oferta na warstwie `bg`. Wzor 1:1: makieta_m8_oferta.html, wariant A (buildWF / lensState /
+     drawLens). Siatka kropek w soczewce czyta wireframe strony klienta; cykl x1 -> x4 -> x12 twardymi
+     skokami, na x12 czytelny element audytu z ocena, co trzeci cykl znak C·S w stopce (podpis jak numer
+     seryjny w BR2049). Ustawienia maisy (2A): krycie 0,32, skok co 1,8 s, kropki co 4 px (telefon x0,85),
+     sufit pod tekstem 0,18. Kropki zmieniaja sie tylko przy skoku, wiec soczewka rysuje sie raz na stan
+     do wlasnego bufora OF.cv; paint to drawImage + duch pierscienia + maska tekstu. Wireframe i jego alfa
+     (jedyne getImageData) powstaja raz na zycie strony, po zaladowaniu fontow. */
+  const OF_OP = 0.32, OF_T = 1.8, OF_G = 4, OF_CAP = 0.18, OF_WW = 1200, OF_WH = 900;
+  const OF_SEL = '[data-view="oferta"] .overlay';
+  const OF_TG = [
+    { x: 150, y: 128, label: '<title>', note: 'tytuł strony', ok: true },
+    { x: 1010, y: 168, label: 'meta', note: 'brak meta opisu', ok: false },
+    { x: 250, y: 650, label: 'H1', note: 'jeden nagłówek H1', ok: true },
+    { x: 985, y: 705, label: 'https://', note: 'certyfikat HTTPS', ok: true },
+    { x: 600, y: 838, label: 'sitemap', note: 'brak sitemap.xml', ok: false },
+    { x: 1062, y: 836, note: 'podpis: cybersora', ok: true, mark: true }   // [5] = znak C·S
+  ];
+  OF_TG.forEach(t => { t.line = (t.mark ? '[cs] ' : t.ok ? '[ok] ' : '[!!] ') + t.note; });
+  const OF_Z = [1, 4, 12], OF_ZS = ['×1', '×4', '×12'];
+  // co trzeci cykl znak, poza tym elementy audytu po kolei (tryb c3 z makiety)
+  const ofPick = w => w % 3 === 2 ? 5 : (w - Math.floor(w / 3)) % 5;
+  const OF = { wa: null, fonts: false, cv: document.createElement('canvas'), key: -1, st: [], hot: '',
+    cx: 0, cy: 0, vx: 0, vy: 0, r: 1, ruler: 1, fs: 11, n: 0, d: null, hit: null };
+  OF.c = OF.cv.getContext('2d');
+
+  function ofWire() {
+    const wf = document.createElement('canvas'); wf.width = OF_WW; wf.height = OF_WH;
+    const c = wf.getContext('2d');
+    c.fillStyle = '#000'; c.strokeStyle = '#000'; c.lineWidth = 3;
+    c.strokeRect(20, 20, OF_WW - 40, OF_WH - 40);                 // okno przegladarki
+    c.fillRect(20, 20, OF_WW - 40, 60);                           // pasek adresu
+    c.clearRect(60, 38, 640, 26); c.strokeRect(60, 38, 640, 26);
+    for (let i = 0; i < 5; i++) c.fillRect(760 + i * 80, 46, 56, 10);   // linki
+    c.strokeRect(80, 140, 520, 250);                              // zdjecie salonu
+    c.beginPath(); c.moveTo(80, 390); c.lineTo(240, 250); c.lineTo(340, 330); c.lineTo(440, 220); c.lineTo(600, 390); c.stroke();
+    c.fillRect(650, 204, 400, 46);                               // naglowek strony: sam pasek, bez nazwy (maisa 29.09)
+    for (let i = 0; i < 6; i++) c.fillRect(650, 290 + i * 26, 430 - (i * 53) % 150, 11);
+    for (let k = 0; k < 3; k++) {                                  // trzy karty uslug
+      const x = 80 + k * 360; c.strokeRect(x, 440, 320, 160);
+      c.fillRect(x + 20, 462, 150, 16);
+      for (let i = 0; i < 4; i++) c.fillRect(x + 20, 496 + i * 22, 270 - (i * 41) % 90, 9);
+    }
+    for (let i = 0; i < 4; i++) c.fillRect(420, 640 + i * 30, 460 - (i * 67) % 160, 12);
+    c.fillRect(80, 760, 1040, 3);
+    // elementy audytu: drobny tekst, czytelny dopiero przy duzym powiekszeniu
+    c.font = '600 22px "Geist Mono", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (let i = 0; i < 5; i++) {
+      const t = OF_TG[i];
+      c.clearRect(t.x - 70, t.y - 18, 140, 36); c.strokeRect(t.x - 70, t.y - 18, 140, 36); c.fillText(t.label, t.x, t.y + 1);
+    }
+    // znak Blackwall: geometria kanoniczna (viewBox 134x100, kreska 17), trzy pasma przesuniete w bok o -5/+4 j.
+    const mk = document.createElement('canvas'); mk.width = 134; mk.height = 100;
+    const m = mk.getContext('2d'); m.lineWidth = 17; m.lineCap = 'butt'; m.lineJoin = 'miter'; m.strokeStyle = '#000';
+    m.setTransform(1.05, 0, 0, 1.05, 4, 10); m.stroke(new Path2D('M52 10 H24 L10 24 V56 L24 70 H52'));
+    m.setTransform(1.05, 0, 0, 1.05, 66, 10); m.stroke(new Path2D('M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10'));
+    const ms = 0.36, mx = OF_TG[5].x - 67 * ms, my = OF_TG[5].y - 50 * ms;
+    [[0, 31, 0], [35, 28, -5], [67, 33, 4]].forEach(([y, h, dx]) => c.drawImage(mk, 0, y, 134, h, mx + dx * ms, my + y * ms, 134 * ms, h * ms));
+    const d = c.getImageData(0, 0, OF_WW, OF_WH).data;
+    const wa = new Uint8Array(OF_WW * OF_WH);
+    for (let i = 0; i < wa.length; i++) wa[i] = d[i * 4 + 3];
+    OF.wa = wa;
+  }
+  const ofFontsDone = () => { OF.fonts = true; if (W && bgId === 'oferta') bgBuild(); };
+  if (document.fonts && document.fonts.load)
+    document.fonts.load('600 22px "Geist Mono"').then(ofFontsDone, ofFontsDone);
+  else OF.fonts = true;
+
+  function ofBuild() {
+    if (!OF.wa && OF.fonts) ofWire();
+    // geometria z makiety (1440: (1150, 470) r 205, linijka z prawej; 390: (360, 108) r 92, z lewej), skalowana od szerokosci
+    const mob = W < 760, s = mob ? W / 390 : W / 1440;
+    OF.r = (mob ? 92 : 205) * s; OF.ruler = mob ? -1 : 1; OF.fs = mob ? 11 : 13;
+    OF.cx = mob ? W - 30 * s : W - 290 * s; OF.cy = mob ? 108 * s : H * (470 / 900);
+    // soczewka w rogu telefonu wystaje poza ekran: kadr celu przesuwa sie na jej widoczna czesc
+    const r = OF.r;
+    OF.vx = Math.max(r * 0.55, Math.min(W - r * 0.55, OF.cx));
+    OF.vy = Math.max(65 + r * 0.55, Math.min(H - r * 0.55, OF.cy));
+    // przesuniecia kropek w kole 0,9 r: liczone raz tutaj, w malowaniu tylko odczyt alfy wireframe'u
+    const g = OF_G * (mob ? 0.85 : 1), rr = (r * 0.9) * (r * 0.9);
+    let n = 0;
+    for (let y = -r; y <= r; y += g) for (let x = -r; x <= r; x += g) if (x * x + y * y <= rr) n++;
+    OF.d = new Float32Array(n * 2); OF.hit = new Uint8Array(n); OF.n = n;
+    n = 0;
+    for (let y = -r; y <= r; y += g) for (let x = -r; x <= r; x += g) if (x * x + y * y <= rr) { OF.d[n * 2] = x; OF.d[n * 2 + 1] = y; n++; }
+    for (let i = 0; i <= 20; i++) OF.st[i] = rgba(themeState.a, (i / 20).toFixed(3));
+    OF.hot = rgba(themeState.hot, 1);
+    const pw = Math.floor(W * dpr), ph = Math.floor(H * dpr);
+    if (OF.cv.width !== pw || OF.cv.height !== ph) { OF.cv.width = pw; OF.cv.height = ph; }
+    OF.c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    OF.key = -1;
+    if (bgTextMeasure(OF_SEL)) bgMaskBuild();
+  }
+  const ofA = a => OF.st[Math.max(0, Math.min(20, Math.round(a * 20)))];
+
+  // jeden stan soczewki (poziom lv, cel ti) do bufora OF.cv; wolane tylko przy skoku
+  function ofLens(lv, ti) {
+    const c = OF.c, t = OF_TG[ti], z = OF_Z[lv], depth = lv / 2, a = OF_OP;
+    const r = OF.r, cx = OF.cx, cy = OF.cy, L = OF.ruler, wa = OF.wa, d = OF.d, hit = OF.hit;
+    c.clearRect(0, 0, W, H);
+    // widok: przy x1 cala strona w soczewce, dalej kadry wokol celu
+    const k = (OF_WW * 0.55) / z / r;
+    const fx = z === 1 ? OF_WW / 2 : t.x + (cx - OF.vx) * k, fy = z === 1 ? OF_WH / 2 : t.y + (cy - OF.vy) * k;
+    for (let i = 0; i < OF.n; i++) {
+      const wx = (fx + d[i * 2] * k) | 0, wy = (fy + d[i * 2 + 1] * k) | 0;
+      hit[i] = wx >= 0 && wy >= 0 && wx < OF_WW && wy < OF_WH && wa[wy * OF_WW + wx] > 110 ? 1 : 0;
+    }
+    c.fillStyle = ofA(a * 0.16);
+    for (let i = 0; i < OF.n; i++) if (!hit[i]) c.fillRect(cx + d[i * 2], cy + d[i * 2 + 1], 1, 1);
+    const mark = t.mark && depth === 1;   // znalezienie znaku: kropki mocniej i grubiej
+    const s = mark ? 2.5 : z >= 10 ? 2 : 1.5;
+    c.fillStyle = ofA(mark ? Math.min(1, a * 1.5) : a);
+    for (let i = 0; i < OF.n; i++) if (hit[i]) c.fillRect(cx + d[i * 2], cy + d[i * 2 + 1], s, s);
+    // pierscienie, krzyz z przerwa, podzialka na obwodzie
+    c.lineWidth = 1; c.strokeStyle = ofA(a * 0.9);
+    c.beginPath(); c.arc(cx, cy, r, 0, 6.2832); c.stroke();
+    c.strokeStyle = ofA(a * 0.5); c.beginPath(); c.arc(cx, cy, r * 0.62, 0, 6.2832); c.stroke();
+    c.beginPath();
+    c.moveTo(cx - r - 14, cy + 0.5); c.lineTo(cx - 10, cy + 0.5); c.moveTo(cx + 10, cy + 0.5); c.lineTo(cx + r + 14, cy + 0.5);
+    c.moveTo(cx + 0.5, cy - r - 14); c.lineTo(cx + 0.5, cy - 10); c.moveTo(cx + 0.5, cy + 10); c.lineTo(cx + 0.5, cy + r + 14);
+    for (let i = 0; i < 72; i++) {
+      const an = i * Math.PI / 36, l = i % 6 ? 4 : 9, ca = Math.cos(an), sa = Math.sin(an);
+      c.moveTo(cx + ca * r, cy + sa * r); c.lineTo(cx + ca * (r + l), cy + sa * (r + l));
+    }
+    c.stroke();
+    // linijka z boku soczewki + znacznik poziomu (jak podzialka w BR2049)
+    const rx = cx + L * (r + 26), y0 = cy - r * 0.8, y1 = cy + r * 0.8;
+    c.strokeStyle = ofA(a * 0.7); c.beginPath(); c.moveTo(rx + 0.5, y0); c.lineTo(rx + 0.5, y1);
+    for (let y = y0, i = 0; y <= y1; y += 8, i++) { const l = i % 5 ? 4 : 8; c.moveTo(rx, y + 0.5); c.lineTo(rx + L * l, y + 0.5); }
+    c.stroke();
+    const my = y1 - depth * (y1 - y0);
+    c.fillStyle = ofA(Math.min(1, a * 1.4)); c.beginPath();
+    c.moveTo(rx - L * 4, my); c.lineTo(rx - L * 9, my - 5); c.lineTo(rx - L * 14, my); c.lineTo(rx - L * 9, my + 5); c.closePath(); c.fill();
+    /* odczyt: powiekszenie i na najglebszym poziomie wynik elementu audytu. Po krytyce 29.09
+       czytelny: 13/11 px, [!!] pelnym goracym karmazynem (~5,7:1), [ok]/[cs] przygaszone (~3,4:1).
+       Komputer: pod soczewka, jak w makiecie. Telefon: pod paskiem nawigacji przy prawym brzegu
+       (pod soczewka wpadal pod maske opisu i znikal), na wyczyszczonym pasku, bez kropek pod literami. */
+    c.font = '600 ' + OF.fs + 'px "Geist Mono", monospace'; c.textAlign = 'right'; c.textBaseline = 'alphabetic';
+    const lh = OF.fs * 1.5, tx = L > 0 ? cx + r * 0.72 : W - 8, ty = L > 0 ? cy + r + OF.fs * 2.2 : 65 + OF.fs * 1.6;
+    if (L < 0) {
+      const tw = Math.max(c.measureText(OF_ZS[lv]).width, depth === 1 ? c.measureText(t.line).width : 0);
+      c.clearRect(tx - tw - 6, ty - OF.fs - 3, tw + 12, OF.fs + 8 + (depth === 1 ? lh : 0));
+    }
+    c.fillStyle = ofA(0.7);
+    c.fillText(OF_ZS[lv], tx, ty);
+    if (depth === 1) {
+      c.fillStyle = t.ok ? ofA(0.8) : OF.hot;
+      c.fillText(t.line, tx, ty + lh);
+    }
+  }
+
+  function ofPaint(wc, time, age, op) {
+    wc.clearRect(0, 0, W, H);
+    if (!OF.wa) return;
+    if (!TXT.ok && bgTextMeasure(OF_SEL)) bgMaskBuild();   // naglowek mogl nie miec jeszcze ukladu przy budowie
+    // czas od wejscia na widok dzielony na kroki; ostatni poziom trzyma 2 kroki; reduced motion stoi na x4
+    let lv = 1, which = 0, since = 1;
+    if (!reduce) {
+      const step = Math.floor(age / OF_T);
+      which = Math.floor(step / 4); lv = Math.min(2, step % 4); since = age - step * OF_T;
+    }
+    const ti = ofPick(which), key = lv ? lv * 10 + ti : 0;
+    if (key !== OF.key) { OF.key = key; ofLens(lv, ti); }
+    wc.globalAlpha = op;
+    wc.drawImage(OF.cv, 0, 0, W, H);
+    // mechaniczny skok: przez ~2 klatki bufora duch pierscienia o stopien obok
+    if (since < 0.085) {
+      wc.lineWidth = 1; wc.strokeStyle = ofA(OF_OP * 0.6);
+      wc.beginPath(); wc.arc(OF.cx, OF.cy, OF.r * (lv % 2 ? 1.08 : 0.9), 0, 6.2832); wc.stroke();
+    }
+    wc.globalAlpha = 1;
+    bgMaskOut(wc, 1 - OF_CAP / (OF_OP * 1.9));   // sufit pod tekstem
+  }
+  BG.oferta = { layer: 'bg', fps: 24, comp: 'lighter', build: ofBuild, paint: ofPaint };
 
   /* Bufory pod linie laczace. Alokowane RAZ, nie co klatke: pętla mapy jest
      goraca, a tablica tworzona 60 razy na sekunde to smieci dla GC. */
@@ -333,20 +926,23 @@
       }
     }
 
-    // second, feather-light pass: the embers
-    for (let i = 0; i < sparks.length; i++) {
-      const s = sparks[i];
-      s.y -= s.vy;
-      if (s.y < -10) Object.assign(s, newSpark(false));
-      const sx = s.x + Math.sin(time * s.sp + s.ph) * s.amp;
-      ctx.fillStyle = rgba(themeState.hot, s.a);
-      ctx.beginPath();
-      ctx.arc(sx, s.y, s.r, 0, 6.2832);
-      ctx.fill();
+    // second, feather-light pass: the embers (waga warstwy spark: tla M8 moga je zdjac)
+    const sparkW = themeState.layers.spark;
+    if (sparkW > 0.02) {
+      for (let i = 0; i < sparks.length; i++) {
+        const s = sparks[i];
+        s.y -= s.vy;
+        if (s.y < -10) newSpark(s, false);
+        const sx = s.x + Math.sin(time * s.sp + s.ph) * s.amp;
+        ctx.fillStyle = rgba(themeState.hot, s.a * sparkW);
+        ctx.beginPath();
+        ctx.arc(sx, s.y, s.r, 0, 6.2832);
+        ctx.fill();
+      }
     }
 
     // third pass: drifting product-chip outlines, only visible while the Produkty theme is active/blending in
-    const chipW = themeState.layers.scan;
+    const chipW = themeState.layers.chips;
     if (chipW > 0.02) {
       for (let i = 0; i < chips.length; i++) {
         const c = chips[i];
@@ -361,6 +957,9 @@
         ctx.restore();
       }
     }
+
+    // fourth pass: tlo trasy z rejestru BG (na somi M1 Blackwall) + zamrozony bufor poprzedniej trasy
+    bgDraw(dt, time);
 
     ctx.globalCompositeOperation = 'source-over';
     if (rafOn) requestAnimationFrame(frame);
@@ -496,6 +1095,8 @@
     const apply = () => {
       if (!NAMES.includes(view)) view = 'start';
       if (view === 'products' && !PRODUKTY_WIDOCZNE) view = 'start';   // patrz PRODUKTY_WIDOCZNE
+      // tlo starej trasy zamarza w drugim slocie, zanim nowe hero zmieni wymiar sceny
+      if (document.documentElement.dataset.route !== view) bgLeave();
       // route theme: CSS switches via data-route, both canvases via themeTarget
       document.documentElement.dataset.route = view;
       themeTarget = THEMES[view] || THEMES.start;
@@ -1054,6 +1655,8 @@
 
   /* ===================== reveal on scroll (once per section) ===================== */
   const revealEls = [...document.querySelectorAll('.reveal')];
+  /* html.js stawia js-flag.js w <head>; tu tylko asekuracja, gdyby go zabraklo */
+  document.documentElement.classList.add('js');
   if (!reduce && 'IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
       entries.forEach(en => {
@@ -1062,7 +1665,9 @@
           io.unobserve(en.target);
         }
       });
-    }, { threshold: 0.15 });
+      /* threshold 0.15 na wysokich sekcjach dawal puste klatki przy szybkim
+         przewijaniu — odslaniamy, gdy gorna krawedz minie 90% wysokosci ekranu */
+    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
     revealEls.forEach(el => io.observe(el));
   } else {
     revealEls.forEach(el => el.classList.add('in'));
