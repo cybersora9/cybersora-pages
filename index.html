@@ -496,6 +496,10 @@
     transition:color .25s ease, text-shadow .25s ease,
                transform .45s var(--ease-soft); /* smooth magnetic return, no spring */
   }
+  /* Pole trafienia: prostokat bez zaokraglenia. Pigulka (border-radius 999px) wycinala rogi
+     z hit-testu — klik w rog krotkiego "SOMI" trafial w tlo paska i trzeba bylo klikac
+     drugi raz (zgloszenie maisy 29.09, na zywo 7/15 klikow przy krawedziach). Przy okazji 44 px wys. */
+  .nav__link::after{content:"";position:absolute;inset:-5px -2px;}
   .nav__link:hover,
   .nav__link.is-active{color:#fff;}
   /* HALO PO NAJECHANIU WYCIETE 27.09 (swiecenie precz, aspekt 1) — hover = sam kolor #fff wyzej. */
@@ -2105,6 +2109,7 @@
     .nav__links.open{display:flex;}
     .nav__magic{display:none;}
     .nav__link{padding:.75rem .9rem;text-align:center;}
+    .nav__link::after{inset:0;}
     /* dropdown items would replay the entrance stagger on every open — keep them steady */
     .nav__link{animation:none;}
   }
