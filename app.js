@@ -58,9 +58,9 @@
     oferta:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'oferta' },
     products:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 1, bg: 0 } },
     somi:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 1, chips: 0, bg: 0 }, bg: 'm1' },
-    onas:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    onas:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'onas' },
     sztuka:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
-    rnd:       { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    rnd:       { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'rnd' },
     contact:   { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
     polityka:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } }
   };
@@ -338,17 +338,26 @@
   const TXT_PAD = 6, TXT_F = 22, TXT_FN = 8;
   const TXT = { x: 0, y: 0, w: 0, h: 0, n: 0, r: new Float32Array(160), ok: false };
   const bgMask = document.createElement('canvas'), mctx = bgMask.getContext('2d');
+  /* Widok wjezdza animacja viewIn (translateY 10px -> 0, 0,45 s), a build leci w pierwszej klatce trasy:
+     pomiar bez poprawki wychodzil do 10 px za nisko (tlo O nas siadalo na kresce faktow). Odejmujemy
+     biezace przesuniecie widoku, zeby mierzyc uklad docelowy. */
+  function bgViewDy(el) {
+    const v = el && el.closest('.view');
+    if (!v) return 0;
+    const t = getComputedStyle(v).transform;
+    return t && t !== 'none' ? new DOMMatrixReadOnly(t).m42 : 0;
+  }
   function bgTextMeasure(sel) {
     const el = document.querySelector(sel);
     TXT.ok = false; TXT.n = 0;
     if (!el) return false;
     const rg = document.createRange(); rg.selectNodeContents(el);
-    const rs = rg.getClientRects(), st = stage.getBoundingClientRect();
+    const rs = rg.getClientRects(), st = stage.getBoundingClientRect(), dy = bgViewDy(el);
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
     for (let i = 0; i < rs.length && TXT.n < 40; i++) {
       const q = rs[i];
       if (q.width < 1 || q.height < 1) continue;
-      const o = TXT.n * 4, x = q.left - st.left, y = q.top - st.top;
+      const o = TXT.n * 4, x = q.left - st.left, y = q.top - st.top - dy;
       TXT.r[o] = x; TXT.r[o + 1] = y; TXT.r[o + 2] = q.width; TXT.r[o + 3] = q.height; TXT.n++;
       x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + q.width); y1 = Math.max(y1, y + q.height);
     }
@@ -810,6 +819,566 @@
     bgMaskOut(wc, 1 - OF_CAP / (OF_OP * 1.9));   // sufit pod tekstem
   }
   BG.oferta = { layer: 'bg', fps: 24, comp: 'lighter', build: ofBuild, paint: ofPaint };
+
+  /* ===================== M8 Sesja 3B — tlo O nas: B1 dwie fale synchronizacji (29.09) =====================
+     Malarz BG.onas na warstwie `bg`. Wzor 1:1: makieta_m8_onas.html, wariant A (oscyloskop). Wybor
+     (maisa zdal sie na nas, 29.09): A, bez iskier, krycie 0,34, zatrzask co 6 s, zgoda 1,2 s, sufit 0,18.
+     Pelna i przerywana fala w jednym ekranie z siatka 1 px; faza przerywanej wolno dryfuje, a pod koniec
+     kazdego cyklu twardo wskakuje na pelna (duch starej fazy ~80 ms, blysk klamer 0,25 s). Pasmo liczone
+     z ukladu tekstu, nie na sztywno: komputer = dolna tercja pod pasem faktow, telefon = pusty pas miedzy
+     opisem a faktami (341-402 px przy 390). Siatka raz do wlasnego bufora; paint = drawImage siatki,
+     dwie polilinie (x i obwiednia z Float32Array liczone przy budowie), klamry, licznik, maska tekstu. */
+  const ON_OP = 0.34, ON_P = 6, ON_H = 1.2, ON_CAP = 0.18;
+  const ON_SEL = '[data-view="onas"] .overlay';
+  const ON = { cv: document.createElement('canvas'), st: [], x0: 0, x1: 0, y: 0, a: 0, k: 0, fs: 11, mob: false,
+    xs: null, en: null, n: 0, dash: [7, 6], lw: 1.25, pad: 12, txt: '', txtS: '', txtD: '' };
+  ON.c = ON.cv.getContext('2d');
+  const onA = a => ON.st[Math.max(0, Math.min(40, Math.round(a * 40)))];
+  const onRnd = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+  // fala harmoniczna: dwie skladowe; przy d = 0 ksztalty identyczne z pelna
+  const onWave = (x, th, d) => 0.72 * Math.sin(ON.k * x * (1 + 0.05 * d) - th) + 0.28 * Math.sin(2.1 * ON.k * x - 1.6 * th + d * 1.1);
+  // faza przerywanej w chwili t od wejscia: dryf przez P - H s, potem zgoda przez H s
+  const onPhi = (cyc, u) => (onRnd(cyc) < 0.5 ? -1 : 1) * (0.7 + onRnd(cyc + 9) * 1.1) * (0.55 + 0.45 * Math.sin(6.2832 * u * 1.3));
+
+  function onBuild() {
+    const v = document.querySelector('[data-view="onas"]'), st = stage.getBoundingClientRect(), dy = bgViewDy(v);
+    const stub = v && v.querySelector('.stub'), rail = v && v.querySelector('.hero__rail');
+    ON.mob = W < 760;
+    const s = ON.mob ? W / 390 : W / 1440;
+    if (stub && rail) {
+      const sb = stub.getBoundingClientRect().bottom - st.top - dy, rr = rail.getBoundingClientRect();
+      const rt = rr.top - st.top - dy, rb = rr.bottom - st.top - dy;
+      if (ON.mob) { ON.y = (sb + rt) / 2; ON.a = Math.max(6, Math.min(12 * s, (rt - sb) / 2 - 18)); }
+      else { ON.y = rb + (H - rb) * 0.49; ON.a = Math.max(10, Math.min(42 * s, (H - rb) * 0.15)); }
+    } else { ON.y = H * 0.84; ON.a = 12; }
+    ON.x0 = ON.mob ? 24 : 96 * s; ON.x1 = W - ON.x0;
+    ON.k = 6.2832 / (ON.mob ? 150 * s : 360 * s);
+    // telefon: ramka ekranu ciasniej (pad 6), bo pas miedzy opisem a faktami ma ~60 px i klamra siadala na kresce faktow
+    ON.fs = ON.mob ? 9 : 11; ON.dash = ON.mob ? [5, 4] : [7, 6]; ON.lw = ON.mob ? 1 : 1.25; ON.pad = ON.mob ? 6 : 12;
+    const step = ON.mob ? 1 : 2, e = ON.mob ? 30 : 90;
+    ON.n = Math.floor((ON.x1 - ON.x0) / step) + 1;
+    ON.xs = new Float32Array(ON.n); ON.en = new Float32Array(ON.n);
+    for (let i = 0; i < ON.n; i++) {
+      const x = ON.x0 + i * step; ON.xs[i] = x;
+      ON.en[i] = Math.max(0, Math.min(1, (x - ON.x0) / e, (ON.x1 - x) / e)) * ON.a;
+    }
+    for (let i = 0; i <= 40; i++) ON.st[i] = rgba(themeState.a, (i / 40).toFixed(3));
+    // siatka oscyloskopu: raz do wlasnego bufora
+    const pw = Math.floor(W * dpr), ph = Math.floor(H * dpr);
+    if (ON.cv.width !== pw || ON.cv.height !== ph) { ON.cv.width = pw; ON.cv.height = ph; }
+    const c = ON.c; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+    const g = ON.mob ? 12 : 24, top = ON.y - ON.a - ON.pad, bot = ON.y + ON.a + ON.pad;
+    c.lineWidth = 1; c.strokeStyle = onA(ON_OP * 0.24); c.beginPath();
+    for (let x = ON.x0; x <= ON.x1 + 0.1; x += g) { c.moveTo(Math.round(x) + 0.5, top); c.lineTo(Math.round(x) + 0.5, bot); }
+    for (let y = top; y <= bot + 0.1; y += g / 2) { c.moveTo(ON.x0, Math.round(y) + 0.5); c.lineTo(ON.x1, Math.round(y) + 0.5); }
+    c.stroke();
+    c.strokeStyle = onA(ON_OP * 0.45); c.beginPath(); c.moveTo(ON.x0, Math.round(ON.y) + 0.5); c.lineTo(ON.x1, Math.round(ON.y) + 0.5); c.stroke();
+    ON.txt = '';
+    if (bgTextMeasure(ON_SEL)) bgMaskBuild();
+  }
+
+  function onStroke(c, th, phi, d) {
+    const xs = ON.xs, en = ON.en, y = ON.y;
+    c.beginPath(); c.moveTo(xs[0], y - en[0] * onWave(xs[0], th + phi, d));
+    for (let i = 1; i < ON.n; i++) c.lineTo(xs[i], y - en[i] * onWave(xs[i], th + phi, d));
+    c.stroke();
+  }
+
+  function onPaint(wc, time, age, op) {
+    wc.clearRect(0, 0, W, H);
+    if (!ON.xs) return;
+    if (!TXT.ok && bgTextMeasure(ON_SEL)) bgMaskBuild();
+    // reduced motion: stoi w zgodzie (jedna linia, 100 %)
+    let lock = true, phi = 0, pre = 0, since = 9, th = 1.1;
+    if (!reduce) {
+      const cyc = Math.floor(age / ON_P), u = age - cyc * ON_P, drift = ON_P - ON_H;
+      th = age * 6.2832 * 0.22;
+      if (u >= drift) { since = u - drift; pre = onPhi(cyc, 0.999); }
+      else { lock = false; phi = onPhi(cyc, u / drift); }
+    }
+    wc.globalAlpha = op;
+    wc.drawImage(ON.cv, 0, 0, W, H);
+    const a = ON_OP, top = ON.y - ON.a - ON.pad, bot = ON.y + ON.a + ON.pad;
+    // klamry ekranu: przy zatrzasku blysk
+    const L = ON.mob ? 7 : 12, x0 = ON.x0 - 4.5, x1 = ON.x1 + 4.5;
+    wc.lineWidth = 1; wc.strokeStyle = onA(a * (lock && since < 0.25 ? 1.6 : 0.7)); wc.beginPath();
+    wc.moveTo(ON.x0 + L, top - 4.5); wc.lineTo(x0, top - 4.5); wc.lineTo(x0, bot + 4.5); wc.lineTo(ON.x0 + L, bot + 4.5);
+    wc.moveTo(ON.x1 - L, top - 4.5); wc.lineTo(x1, top - 4.5); wc.lineTo(x1, bot + 4.5); wc.lineTo(ON.x1 - L, bot + 4.5);
+    wc.stroke();
+    wc.lineWidth = ON.lw; wc.strokeStyle = onA(a);
+    onStroke(wc, th, 0, 0);
+    wc.setLineDash(ON.dash); wc.strokeStyle = onA(a * (lock ? 1.2 : 1));
+    onStroke(wc, th, phi, lock ? 0 : 1);
+    if (lock && since < 0.085) { wc.strokeStyle = onA(a * 0.45); onStroke(wc, th, pre, 1); }
+    wc.setLineDash([]);
+    // licznik mono przy krawedzi; string budowany tylko przy zmianie odczytu
+    const p = lock ? 1000 : Math.max(0, Math.round((100 - Math.abs(phi) / Math.PI * 90 - 3.1) * 10));
+    const key = p + (lock ? 'z' : '') + Math.round(Math.abs(phi) * 100);
+    if (key !== ON.txt) {
+      ON.txt = key;
+      ON.txtS = 'SYNC ' + (p / 10).toFixed(1).replace('.', ',') + ' %' + (lock ? '  · zgoda' : '');
+      ON.txtD = 'Δφ ' + (lock ? '0,00' : Math.abs(phi).toFixed(2).replace('.', ',')) + ' rad';
+    }
+    // telefon: licznik pod faktami, prawy odczyt odsuniety od naroznika HUD (.hero::after, prawy dol)
+    const ly = ON.mob ? H - 26 : top - 10;
+    wc.font = '600 ' + ON.fs + 'px "Geist Mono", monospace'; wc.textBaseline = 'alphabetic';
+    wc.textAlign = 'left'; wc.fillStyle = onA(a * (lock ? 2.2 : 1.4)); wc.fillText(ON.txtS, x0, ly);
+    wc.textAlign = 'right'; wc.fillStyle = onA(a * 1.1); wc.fillText(ON.txtD, ON.mob ? x1 - 18 : x1, ly);
+    wc.globalAlpha = 1;
+    bgMaskOut(wc, Math.max(0, 1 - ON_CAP / Math.min(1, ON_OP * 2.2)));   // sufit pod tekstem
+  }
+  BG.onas = { layer: 'bg', fps: 24, comp: 'lighter', build: onBuild, paint: onPaint };
+
+  /* ===================== M8 Sesja 5B — tlo Sadzonek: C drzewo z kodu (29.09) =====================
+     Malarz BG.rnd na warstwie `bg`. Wzor 1:1: makieta_m8_sadzonki.html, wariant C (genC / bake / paint).
+     Wybor maisy (5A, „PERFECTO”): wspolne drzewo (dwa duze pnie rosna w jednej kolonizacji, korony lacza
+     sie lukiem nad naglowkiem), sadzonki obok, spadajace liscie, bez iskier; krycie 0,40, rosnie 4,5 s,
+     stoi 9 s, skaner przycina 1,2 s, sufit pod tekstem 0,14, pod nadtytulem czysto (karmazyn na karmazynie).
+     Drzewo = kolonizacja przestrzeni (Runions 2007), grubosc z modelu rurek, znaki = prawdziwe linijki kodu.
+     Generacja jest generatorem (function*) krokowanym w paint z budzetem RN_BUDGET ms: pierwsze drzewo
+     zaraz po wejsciu, kazde nastepne liczy sie w czasie stania poprzedniego. Znaki z wlasnego atlasu
+     (kod ma male litery i interpunkcje, ktorych glyphAtlas nie ma), pieczone do RN.cv tylko w chwili
+     narodzin; paint = drawImage bufora (przyciety skanerem) + kursory, migajace znaki, liscie z puli,
+     ziemia, odczyt, maski. Strefy z ukladu (nawigacja, tekst naglowka, wymiar hero), nie na sztywno.
+     Komputer: drzewa omijaja tekst; telefon: rosna pod tekstem, przygaszone maska. */
+  const RN_OP = 0.40, RN_G = 4.5, RN_HOLD = 9, RN_PRUNE = 1.2, RN_CAP = 0.14, RN_BUDGET = 3;
+  const RN_SEL = '[data-view="rnd"] .overlay';
+  const RN_CODE = [
+    'zapis.klient="Anna K.";zapis.status="OPLACONE";kasa.dodaj(zapis,kwota);magazyn.sprawdz(zapasy);',
+    'd/dx sin(x)=cos(x);solve(x**2-4,x);det(M);grad(f,[x,y]);cse(expr);',
+    'somi.slucha();somi.mysli(kontekst);somi.odpowiada(glos);pamiec.zapisz(fakt);',
+    'if(sadzonka.gotowa){oferta.dodaj(sadzonka)}else{szklarnia.podlej(sadzonka)};',
+    'for(const k of kod){drzewo.rosnij(k)};git commit -m "kolejny pęd";'
+  ];
+  const RN_HEX = '0123456789abcdef';
+  const RN_CH = [...new Set([...RN_CODE.join('').replace(/ /g, '·'), ...RN_HEX, '█'])];
+  const RN_IX = new Map(RN_CH.map((ch, i) => [ch, i]));
+  const RN_HX = [...RN_HEX].map(ch => RN_IX.get(ch)), RN_CUR = RN_IX.get('█');
+  const RN = { cv: document.createElement('canvas'), at: document.createElement('canvas'), eb: document.createElement('canvas'),
+    eo: { x: 0, y: 0, w: 0, h: 0, ok: false }, atKey: '', cell: 0, cp: 0, fonts: false, mob: false, fs: 12, hf: '',
+    top: 0, ground: 0, trees: [], zones: [], items: null, leaf: null, ptr: 0, gen: 0, u: 0, lt: -1,
+    job: null, pend: null, pendGen: 0, st: [], sh: [], hud: '', hudR: '', hudK: -1, pruneS: '', fall: [], fallAcc: 0 };
+  RN.c = RN.cv.getContext('2d'); RN.ac = RN.at.getContext('2d'); RN.ec = RN.eb.getContext('2d');
+  for (let i = 0; i < 40; i++) RN.fall.push({ on: false, x0: 0, y: 0, xl: 0, g0: 0, g1: -1, al: 1, vy: 0, amp: 0, sp: 0, ph: 0, dr: 0, t: 0, land: 0 });
+  const rnA = a => RN.st[Math.max(0, Math.min(40, Math.round(a * 40)))];
+  const rnRng = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const rnFontsDone = () => { RN.fonts = true; RN.atKey = ''; if (W && bgId === 'rnd') bgBuild(); };
+  if (document.fonts && document.fonts.load) document.fonts.load('600 12px "Geist Mono"').then(rnFontsDone, rnFontsDone);
+  else RN.fonts = true;
+
+  // atlas: wiersz 0 karmazyn (kora, galezie), wiersz 1 goracy (liscie, kursor); komorki w pikselach urzadzenia
+  function rnAtlas() {
+    const key = RN.fs + ':' + dpr + ':' + RN.fonts;
+    if (key === RN.atKey) return;
+    RN.atKey = key;
+    RN.cell = Math.ceil(RN.fs * 1.4); RN.cp = Math.ceil(RN.cell * dpr);
+    RN.at.width = RN.cp * RN_CH.length; RN.at.height = RN.cp * 2;
+    const c = RN.ac, cp = RN.cp;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.font = '600 ' + (RN.fs * dpr).toFixed(1) + 'px "Geist Mono", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    [THEMES.start.a, THEMES.start.hot].forEach((col, k) => {
+      c.fillStyle = rgba(col, 1);
+      for (let i = 0; i < RN_CH.length; i++) c.fillText(RN_CH[i], i * cp + cp / 2, k * cp + cp / 2);
+    });
+  }
+  // znak z atlasu: srodek (x, y), rozmiar z px, obrot an; c ma transform dpr
+  function rnGlyph(c, gi, row, x, y, z, an) {
+    const cp = RN.cp, s = RN.cell * z / RN.fs;
+    if (an) {
+      const co = Math.cos(an) * dpr, si = Math.sin(an) * dpr;
+      c.setTransform(co, si, -si, co, x * dpr, y * dpr);
+      c.drawImage(RN.at, gi * cp, row * cp, cp, cp, -s / 2, -s / 2, s, s);
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    } else c.drawImage(RN.at, gi * cp, row * cp, cp, cp, x - s / 2, y - s / 2, s, s);
+  }
+  // komputer: drzewa omijaja linie tekstu z zapasem 26 px; telefon: rosna pod tekstem (maska je przygasza)
+  function rnBlocked(x, y) {
+    if (RN.mob) return false;
+    for (let i = 0; i < TXT.n; i++) {
+      const o = i * 4;
+      if (x > TXT.r[o] - 26 && x < TXT.r[o] + TXT.r[o + 2] + 26 && y > TXT.r[o + 1] - 26 && y < TXT.r[o + 1] + TXT.r[o + 3] + 26) return true;
+    }
+    return false;
+  }
+  // nadtytul to karmazyn na karmazynie: sufit 0,14 go nie ratuje (makieta: 390 px 4,18:1), wiec pod nim czysto
+  function rnEbMask() {
+    const E = RN.eo, el = document.querySelector('[data-view="rnd"] .eyebrow');
+    E.ok = false;
+    if (!el) return;
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    const rs = rg.getClientRects(), st = stage.getBoundingClientRect(), dy = bgViewDy(el);
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (let i = 0; i < rs.length; i++) {
+      const q = rs[i]; if (q.width < 1) continue;
+      x0 = Math.min(x0, q.left - st.left); x1 = Math.max(x1, q.right - st.left);
+      y0 = Math.min(y0, q.top - st.top - dy); y1 = Math.max(y1, q.bottom - st.top - dy);
+    }
+    if (x1 < x0) return;
+    const m = 16, rx = x0 - 40, ry = y0 - 4, rw = x1 - x0 + 80, rh = y1 - y0 + 8;   // kreski ::before/::after w srodku
+    E.x = rx - m; E.y = ry - m; E.w = rw + 2 * m; E.h = rh + 2 * m;
+    const pw = Math.ceil(E.w * dpr), ph = Math.ceil(E.h * dpr);
+    if (RN.eb.width !== pw || RN.eb.height !== ph) { RN.eb.width = pw; RN.eb.height = ph; }
+    const c = RN.ec;
+    c.setTransform(dpr, 0, 0, dpr, -E.x * dpr, -E.y * dpr); c.clearRect(E.x, E.y, E.w, E.h); c.fillStyle = '#000';
+    for (let s = 8; s >= 0; s--) {
+      const e = m * s / 8;
+      c.globalAlpha = s ? 1 / 9 : 1; c.fillRect(rx - e, ry - e, rw + 2 * e, rh + 2 * e);
+    }
+    c.globalAlpha = 1; E.ok = true;
+  }
+
+  function rnBuild() {
+    const st = stage.getBoundingClientRect(), nav = document.querySelector('.nav');
+    RN.mob = W < 760; RN.fs = RN.mob ? 9 : 12;
+    const D = !RN.mob, s = D ? W / 1440 : W / 390;
+    RN.hf = '600 ' + (D ? 10.5 : 8) + 'px "Geist Mono", monospace';
+    // pod nawigacja (makieta: 65 px + 39 / + 19), ziemia nad dolna krawedzia hero
+    const nb = nav ? Math.max(0, Math.min(140, nav.getBoundingClientRect().bottom - st.top)) : 65;
+    RN.top = nb + (D ? 39 : 19); RN.ground = H - (D ? 34 : 14);
+    if (bgTextMeasure(RN_SEL)) bgMaskBuild();
+    rnEbMask();
+    if (D) {   // boki wolne od tekstu (1440: x < 440 i > 1000), sadzonka przy zewnetrznej krawedzi
+      const a0 = 26 * s, a1 = W / 2 - 280 * s, b0 = W / 2 + 280 * s, b1 = W - 26 * s;   // blisko krawedzi: korona ma wypelniac rogi
+      RN.zones = [a0, a1, b0, b1];
+      RN.trees = [{ x: a0 + (a1 - a0) * 0.505, x0: a0, x1: a1, big: 1 }, { x: a0 + (a1 - a0) * 0.16, x0: a0, x1: a1, big: 0 },
+        { x: b0 + (b1 - b0) * 0.495, x0: b0, x1: b1, big: 1 }, { x: b0 + (b1 - b0) * 0.84, x0: b0, x1: b1, big: 0 }];
+    } else {
+      RN.zones = [8 * s, W - 8 * s];
+      RN.trees = [{ x: 70 * s, x0: 8 * s, x1: 190 * s, big: 1 }, { x: 326 * s, x0: 200 * s, x1: 382 * s, big: 1 },
+        { x: 196 * s, x0: 150 * s, x1: 240 * s, big: 0 }];
+    }
+    for (let i = 0; i <= 40; i++) { RN.st[i] = rgba(themeState.a, (i / 40).toFixed(3)); RN.sh[i] = rgba(themeState.hot, (i / 40).toFixed(3)); }
+    rnAtlas();
+    /* przebudowa na tym samym widoku bez zmiany ukladu (font doladowany, pasek adresu telefonu) nie sadzi
+       drzewa od nowa; wejscie na widok (bgOn jeszcze false) zawsze zaczyna od ziarna */
+    const key = [W, H, dpr, RN.top, TXT.x | 0, TXT.y | 0, TXT.w | 0].join('|');
+    if (bgOn && RN.items && key === RN.key) return;
+    RN.key = key;
+    const pw = Math.floor(W * dpr), ph = Math.floor(H * dpr);
+    if (RN.cv.width !== pw || RN.cv.height !== ph) { RN.cv.width = pw; RN.cv.height = ph; }
+    RN.c.setTransform(dpr, 0, 0, dpr, 0, 0); RN.c.clearRect(0, 0, W, H);
+    // nowy uklad = nowe drzewo od ziarna biezacej generacji; job startuje w paint, gdy tekst ma uklad
+    RN.items = RN.pend = RN.job = null; RN.ptr = 0; RN.u = 0; RN.lt = -1; RN.fallAcc = 0; RN.hudK = -1;
+    for (const q of RN.fall) q.on = false;
+  }
+
+  /* Jedno drzewo (albo kilka pni we wspolnej kolonizacji) do listy items; yield miedzy etapami i co iteracje
+     kolonizacji. Elementy: k 0 = znak kory (obrocony wzdluz galezi), k 1 = lisc hex (1-2 znaki, goracy). */
+  function* rnTree(rng, T, arch, code, items) {
+    const D = !RN.mob, fs = RN.fs, top = RN.top, ground = RN.ground, big = T[0].big;
+    let ci = Math.floor(rng() * code.length);
+    const next = () => { const ch = code[ci++ % code.length]; return RN_IX.get(ch === ' ' ? '·' : ch); };
+    const step = fs * 0.8, di = D ? 74 : 44, dk = step * 1.7, laneGap = fs * 0.62, maxLanes = big ? (D ? 7 : 4) : 3;
+    let X0 = 1e9, X1 = -1e9;
+    for (const t of T) { X0 = Math.min(X0, t.x0); X1 = Math.max(X1, t.x1); }
+    const ax = [], ay = [], Hz = ground - top;
+    const addAtt = (x, y) => {
+      if (x < X0 || x > X1 || y < top + 4 || y > ground - 24 || rnBlocked(x, y)) return false;
+      ax.push(x); ay.push(y); return true;
+    };
+    for (const t of T) {
+      const h = big ? Hz * (0.93 + rng() * 0.05) : Hz * (0.42 + rng() * 0.1);
+      const cTop = ground - h, cBot = ground - h * (big ? 0.47 + rng() * 0.08 : 0.4);
+      const rx = Math.min((t.x1 - t.x0) / 2 - 6, h * (big ? 0.34 : 0.42));
+      const cx = Math.max(t.x0 + rx, Math.min(t.x1 - rx, t.x + (rng() - 0.5) * rx * 0.35));
+      t.cTop = cTop; t.cBot = cBot; t.cx = cx;
+      // korona = kilka nachodzacych elips, zeby sylwetka nie byla idealnym jajkiem
+      const blobs = [{ x: cx, y: (cTop + cBot) / 2, rx, ry: (cBot - cTop) / 2 }];
+      for (let i = 0, nb = 3 + Math.floor(rng() * 3); i < nb; i++)
+        blobs.push({ x: cx + (rng() - 0.5) * rx * 1.1, y: cTop + (cBot - cTop) * (0.25 + rng() * 0.55), rx: rx * (0.45 + rng() * 0.35), ry: (cBot - cTop) * (0.3 + rng() * 0.25) });
+      const N = big ? (D ? 440 : 200) : (D ? 120 : 60);
+      for (let tries = 0, n = 0; n < N && tries < N * 8; tries++) {
+        const bl = blobs[Math.floor(rng() * blobs.length)], u = rng() * Math.PI * 2, r = Math.sqrt(rng());
+        if (addAtt(bl.x + Math.cos(u) * bl.rx * r, bl.y + Math.sin(u) * bl.ry * r)) n++;
+      }
+      /* wspolna korona: gorny zewnetrzny rog strefy tez ma swiatlo (maisa 29.09: „zeby wypelnialo strone
+         faktycznie”), inaczej elipsy zwezaja sie ku gorze i przy krawedzi ekranu zostaje pusty rog */
+      if (arch && T.length > 1) {
+        const outer = t === T.reduce((a, b) => a.cx < b.cx ? a : b) ? t.x0 : t.x1, dir = outer < cx ? 1 : -1;
+        const ox = outer + dir * rx * 0.3, oy = cTop + (cBot - cTop) * 0.2, orx = rx * 0.6, ory = (cBot - cTop) * 0.28;
+        const NC = D ? 130 : 40;
+        for (let tries = 0, n = 0; n < NC && tries < NC * 8; tries++) {
+          const u = rng() * Math.PI * 2, r = Math.sqrt(rng());
+          if (addAtt(ox + Math.cos(u) * orx * r, oy + Math.sin(u) * ory * r)) n++;
+        }
+      }
+      yield;
+    }
+    if (arch && T.length > 1) {
+      // luk wspolnej korony: od gornej czesci lewej korony do prawej, najwyzej na srodku, nad nadtytulem
+      const L = T.reduce((a, b) => a.cx < b.cx ? a : b), R = T.reduce((a, b) => a.cx > b.cx ? a : b);
+      const xa = L.cx, xb = R.cx, yEnd = L.cTop + (L.cBot - L.cTop) * 0.3, yMid = top + (D ? 30 : 8), th = D ? 36 : 12;
+      const N = D ? 360 : 90;
+      for (let tries = 0, n = 0; n < N && tries < N * 10; tries++) {
+        const x = xa + (xb - xa) * rng(), u = (x - (xa + xb) / 2) / ((xb - xa) / 2), yc = yEnd - (yEnd - yMid) * (1 - u * u);
+        if (addAtt(x + (rng() - 0.5) * 8, yc + (rng() - 0.5) * 2 * th)) n++;
+      }
+    }
+    yield;
+    // siatki (klucz liczbowy): swiatlo i wezly; komorka di, wiec sasiedzi 3x3 pokrywaja promien di
+    const key = (x, y) => (Math.floor(x / di) + 8) * 4096 + Math.floor(y / di) + 8;
+    const na = ax.length, aon = new Uint8Array(na).fill(1), ag = new Map();
+    for (let a = 0; a < na; a++) { const k = key(ax[a], ay[a]); let l = ag.get(k); if (!l) ag.set(k, l = []); l.push(a); }
+    yield;
+    const nx = [], ny = [], np = [], nk = [], nr = [], nd = [], ng = new Map();
+    const addNode = (x, y, p, root) => {
+      const i = nx.length;
+      nx.push(x); ny.push(y); np.push(p); nk.push(0);
+      nr.push(p < 0 ? root : nr[p]); nd.push(p < 0 ? 0 : nd[p] + Math.hypot(x - nx[p], y - ny[p]));
+      if (p >= 0) nk[p]++;
+      const k = key(x, y); let l = ng.get(k); if (!l) ng.set(k, l = []); l.push(i);
+      return i;
+    };
+    const near = (x, y, rad) => {
+      let best = -1, bd = rad * rad;
+      const gx = Math.floor(x / di) + 8, gy = Math.floor(y / di) + 8;
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) {
+        const l = ng.get((gx + a) * 4096 + gy + b); if (!l) continue;
+        for (let j = 0; j < l.length; j++) { const i = l[j], dx = nx[i] - x, dy = ny[i] - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+      }
+      return best;
+    };
+    const seesLight = (x, y) => {
+      const gx = Math.floor(x / di) + 8, gy = Math.floor(y / di) + 8;
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) {
+        const l = ag.get((gx + a) * 4096 + gy + b); if (!l) continue;
+        for (let j = 0; j < l.length; j++) if (Math.hypot(ax[l[j]] - x, ay[l[j]] - y) < di) return true;
+      }
+      return false;
+    };
+    // pnie: od ziemi ku srodkowi dolu korony z lekkim falowaniem, az korona je „zobaczy”
+    const roots = [];
+    T.forEach((t, ri) => {
+      roots.push(addNode(t.x, ground, -1, ri));
+      for (let i = 0; i < 400; i++) {
+        const n = nx.length - 1;
+        if (ny[n] < t.cBot || seesLight(nx[n], ny[n])) break;
+        let dx = t.cx - nx[n], dy = t.cBot - ny[n];
+        const l = Math.hypot(dx, dy) || 1; dx = dx / l + Math.sin(i * 0.35 + t.x) * 0.12; dy /= l;
+        const m = Math.hypot(dx, dy); addNode(nx[n] + dx / m * step, ny[n] + dy / m * step, n);
+      }
+    });
+    // kolonizacja: kazde swiatlo ciagnie najblizszy wezel, wezel rosnie krokiem ku sumie kierunkow
+    const accX = [], accY = [], accS = [], touched = [], fresh = [];
+    for (let it = 0; it < 320; it++) {
+      touched.length = 0;
+      for (let a = 0; a < na; a++) {
+        if (!aon[a]) continue;
+        const i = near(ax[a], ay[a], di); if (i < 0) continue;
+        const dx = ax[a] - nx[i], dy = ay[a] - ny[i], l = Math.hypot(dx, dy) || 1;
+        if (accS[i] !== it) { accS[i] = it; accX[i] = 0; accY[i] = 0; touched.push(i); }
+        accX[i] += dx / l; accY[i] += dy / l;
+      }
+      if (!touched.length) break;
+      fresh.length = 0;
+      for (let q = 0; q < touched.length; q++) {
+        const i = touched[q];
+        let dx = accX[i], dy = accY[i] - 0.35;                        // fototropizm: lekko w gore
+        const l = Math.hypot(dx, dy); if (l < 1e-3) continue; dx /= l; dy /= l;
+        const x = nx[i] + dx * step, y = ny[i] + dy * step;
+        if (y < top || y > ground - 6 || x < X0 || x > X1) continue;
+        if (near(x, y, step * 0.5) >= 0) continue;
+        fresh.push(addNode(x, y, i));
+      }
+      if (!fresh.length) break;
+      // zjedzone swiatlo gasnie (dk < di, wiec wystarcza komorki 3x3 wokol nowego wezla)
+      for (let q = 0; q < fresh.length; q++) {
+        const j = fresh[q], gx = Math.floor(nx[j] / di) + 8, gy = Math.floor(ny[j] / di) + 8;
+        for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) {
+          const l = ag.get((gx + a) * 4096 + gy + b); if (!l) continue;
+          for (let z = 0; z < l.length; z++) { const k = l[z]; if (aon[k] && Math.hypot(ax[k] - nx[j], ay[k] - ny[j]) < dk) aon[k] = 0; }
+        }
+      }
+      yield;
+    }
+    // grubosc: model rurek od czubkow do korzenia, skala osobno dla kazdego pnia
+    const nn = nx.length, r2 = new Float32Array(nn);
+    for (let i = nn - 1; i >= 0; i--) { if (!nk[i]) r2[i] += 1; if (np[i] >= 0) r2[np[i]] += r2[i]; }
+    const kk = roots.map(r => maxLanes / Math.sqrt(r2[r] || 1));
+    // znaki wzdluz galezi, pas po pasie
+    for (let i = 0; i < nn; i++) {
+      if (i % 120 === 119) yield;
+      const p = np[i]; if (p < 0) continue;
+      const ang = Math.atan2(ny[i] - ny[p], nx[i] - nx[p]), vx = -Math.sin(ang), vy = Math.cos(ang);
+      // nasada przy ziemi rozszerza sie (ostatnie ~4 kroki pnia), jak u prawdziwego drzewa
+      const flare = 1 + Math.max(0, 1 - (ground - ny[i]) / (step * 4)) * 0.5;
+      const w = Math.sqrt(r2[i]) * kk[nr[i]] * flare, L = Math.max(1, Math.min(maxLanes + 2, Math.round(w))), thin = L === 1;
+      const fz = fs * (thin ? (w < 0.55 ? 0.72 : 0.84) : 1);
+      for (let l = 0; l < L; l++) {
+        const off = (l - (L - 1) / 2) * laneGap, edge = L > 1 && (l === 0 || l === L - 1);
+        items.push({ k: 0, x: nx[i] + vx * off, y: ny[i] + vy * off, a: ang + Math.PI / 2, g0: next(), g1: -1, b: nd[i],
+          sh: edge ? 1 : thin ? 0.9 : 0.4, fz, al: 0 });
+      }
+      // liscie: kepy hex przy czubkach i najcienszych galazkach
+      if ((!nk[i] || r2[i] <= 2) && rng() < (nk[i] ? 0.35 : 1)) {
+        const k = 3 + Math.floor(rng() * 3), R = D ? 10 : 6;
+        for (let j = 0; j < k; j++) {
+          const u = rng() * Math.PI * 2, r = R * Math.sqrt(rng()), x = nx[i] + Math.cos(u) * r, y = ny[i] + Math.sin(u) * r - R * 0.3;
+          if (y < top || rnBlocked(x, y)) continue;
+          const two = rng() < 0.35, g0 = RN_HX[Math.floor(rng() * 16)], g1 = two ? RN_HX[Math.floor(rng() * 16)] : -1;
+          items.push({ k: 1, x, y, a: 0, g0, g1, b: nd[i] + step * (1 + j), sh: 0, fz: fs, al: 0.55 + rng() * 0.8 });
+        }
+      }
+    }
+    // korzenie: kilka pedow przy ziemi, w bok i lekko w dol
+    for (const t of T) {
+      const nrt = big ? 4 + Math.floor(rng() * 2) : 2;
+      for (let j = 0; j < nrt; j++) {
+        const side = j % 2 ? 1 : -1, len = (big ? (D ? 46 : 22) : (D ? 20 : 10)) * (0.6 + rng() * 0.6);
+        let ang = (side > 0 ? 0 : Math.PI) + side * (0.12 + rng() * 0.35), x = t.x + side * laneGap * 0.8, y = ground - 2;
+        for (let s = 0; s < len / step; s++) {
+          x += Math.cos(ang) * step; y = Math.min(ground + 10, y + Math.sin(ang) * step); ang += side * (rng() - 0.3) * 0.15;
+          items.push({ k: 0, x, y, a: ang + Math.PI / 2, g0: next(), g1: -1, b: s * step * 0.6, sh: Math.max(0.2, 0.6 - s * 0.04), fz: fs * (0.9 - s * 0.03), al: 0 });
+        }
+      }
+    }
+  }
+  // cala generacja: wspolne drzewo z duzych pni + sadzonki osobno; b (droga od korzenia) skalowane do RN_G sekund
+  function* rnGen(gen) {
+    const rng = rnRng(0x3f2a + gen * 7919 + (67 << 8)), items = [];
+    yield* rnTree(rng, RN.trees.filter(t => t.big), true, RN_CODE[gen % RN_CODE.length], items);
+    for (let i = 0; i < RN.trees.length; i++)
+      if (!RN.trees[i].big) yield* rnTree(rng, [RN.trees[i]], false, RN_CODE[(gen + i) % RN_CODE.length], items);
+    let mx = 0;
+    for (const o of items) if (o.b > mx) mx = o.b;
+    for (const o of items) o.b = o.b / (mx || 1) * RN_G;
+    yield;
+    items.sort((a, b) => a.b - b.b);
+    yield;
+    const leaf = [];
+    for (let i = 0; i < items.length; i++) if (items[i].k) leaf.push(i);
+    return { items, leaf: Int32Array.from(leaf), gen };
+  }
+  function rnStep(budget) {
+    const t0 = performance.now();
+    let r;
+    do r = RN.job.next(); while (!r.done && performance.now() - t0 < budget);
+    if (r.done) { RN.job = null; RN.pend = r.value; }
+  }
+  function rnSwap() {
+    const p = RN.pend; RN.pend = null;
+    RN.items = p.items; RN.leaf = p.leaf; RN.gen = p.gen; RN.ptr = 0; RN.u = 0; RN.hudK = -1; RN.fallAcc = 0;
+    RN.pruneS = '// prune gen ' + p.gen;
+    for (const q of RN.fall) q.on = false;
+    RN.c.clearRect(0, 0, W, H);
+  }
+  // znak do bufora drzewa: raz, w chwili narodzin
+  function rnBake(o) {
+    const c = RN.c;
+    if (o.k) {
+      c.globalAlpha = Math.min(1, RN_OP * o.al);
+      if (o.g1 < 0) rnGlyph(c, o.g0, 1, o.x, o.y, RN.fs, 0);
+      else { const h = RN.fs * 0.3; rnGlyph(c, o.g0, 1, o.x - h, o.y, RN.fs, 0); rnGlyph(c, o.g1, 1, o.x + h, o.y, RN.fs, 0); }
+    } else {
+      c.globalAlpha = Math.min(1, RN_OP * o.sh);
+      rnGlyph(c, o.g0, 0, o.x, o.y, o.fz, o.a);
+    }
+  }
+
+  function rnPaint(wc, time, age, op) {
+    wc.clearRect(0, 0, W, H);
+    if (!TXT.ok && bgTextMeasure(RN_SEL)) { bgMaskBuild(); rnEbMask(); }
+    if (!TXT.ok && !RN.mob) return;   // bez ukladu tekstu drzewo wroslo by w naglowek
+    const dt = RN.lt < 0 ? 0 : Math.max(0, Math.min(0.1, time - RN.lt)); RN.lt = time;
+    const T = RN_G + RN_HOLD + RN_PRUNE, D = !RN.mob;
+    RN.u = reduce ? RN_G + 1 : RN.u + dt;
+    // nastepne drzewo liczy sie w czasie stania biezacego; reduced motion: od razu cale, bez podzialu
+    if (!RN.job && !RN.pend && (!RN.items || (!reduce && RN.u >= RN_G))) {
+      RN.pendGen = RN.items ? RN.gen + 1 : RN.gen; RN.job = rnGen(RN.pendGen);
+    }
+    if (RN.job) rnStep(reduce ? 1e9 : RN_BUDGET);
+    if (RN.pend && (!RN.items || RN.u >= T)) { rnSwap(); if (reduce) RN.u = RN_G + 1; }
+    const it = RN.items;
+    wc.globalAlpha = op;
+    if (it) {
+      while (RN.ptr < it.length && it[RN.ptr].b <= RN.u) rnBake(it[RN.ptr++]);
+      RN.c.globalAlpha = 1;
+      // przycinanie: skaner od gory schodkami, nad nim pusto
+      const pr = RN.u > RN_G + RN_HOLD ? Math.min(1, (RN.u - RN_G - RN_HOLD) / RN_PRUNE) : 0;
+      const scanY = RN.top - 20 + (RN.ground + 30 - RN.top) * Math.floor(pr * 14) / 14;
+      if (pr > 0) {
+        const sy = Math.round(scanY * dpr), ch = RN.cv.height - sy;
+        if (ch > 0) wc.drawImage(RN.cv, 0, sy, RN.cv.width, ch, 0, sy / dpr, W, ch / dpr);
+      } else wc.drawImage(RN.cv, 0, 0, W, H);
+      if (!reduce && RN.u < RN_G) {
+        // kursory na czubkach rosnacych pedow: ostatnio urodzone znaki
+        wc.globalAlpha = op * Math.min(1, RN_OP * 2.4);
+        for (let i = Math.max(0, RN.ptr - 40); i < RN.ptr; i++) if (RN.u - it[i].b <= 0.12) rnGlyph(wc, RN_CUR, 1, it[i].x, it[i].y, RN.fs, 0);
+      }
+      if (!reduce && RN.u < RN_G + RN_HOLD && RN.ptr) {
+        // kod zyje: kilka znakow na chwile podmienia sie (rozblysk), bez przerysowania bufora
+        const tick = Math.floor(time * 6);
+        wc.globalAlpha = op * RN_OP * 1.6;
+        for (let j = 0; j < 5; j++) {
+          const r = Math.sin((tick * 13 + j * 71 + RN.gen * 7) * 12.9898) * 43758.5453, o = it[Math.floor((r - Math.floor(r)) * RN.ptr)];
+          rnGlyph(wc, RN_HX[(tick + j) & 15], 1, o.x, o.y, RN.fs, 0);
+        }
+      }
+      if (!reduce && RN.leaf.length) {
+        // spadajace liscie: odrywaja sie od urodzonych, kolysza, laduja na ziemi i gasna (pula, zero alokacji)
+        const cap = D ? 40 : 16;
+        if (RN.u < RN_G + RN_HOLD) {
+          RN.fallAcc += dt * (D ? 5 : 2) * (RN.u < RN_G ? RN.u / RN_G : 1);
+          while (RN.fallAcc >= 1) {
+            RN.fallAcc -= 1;
+            const i = RN.leaf[Math.floor(Math.random() * RN.leaf.length)];
+            if (i >= RN.ptr) continue;
+            let q = null;
+            for (let k = 0; k < cap; k++) if (!RN.fall[k].on) { q = RN.fall[k]; break; }
+            if (!q) continue;
+            const o = it[i];
+            q.on = true; q.x0 = o.x; q.y = o.y; q.g0 = o.g0; q.g1 = o.g1 >= 0 && Math.random() < 0.5 ? o.g1 : -1; q.al = o.al;
+            q.vy = D ? 20 + Math.random() * 22 : 11 + Math.random() * 12; q.amp = D ? 10 + Math.random() * 14 : 5 + Math.random() * 7;
+            q.sp = 1.1 + Math.random() * 1.6; q.ph = Math.random() * 6.28; q.dr = (Math.random() - 0.3) * (D ? 10 : 5); q.t = 0; q.land = 0;
+          }
+        }
+        const z = RN.fs * 0.9, h = z * 0.3;
+        for (let k = 0; k < cap; k++) {
+          const q = RN.fall[k]; if (!q.on) continue;
+          q.t += dt;
+          if (!q.land) {
+            q.y += q.vy * dt;
+            if (q.y >= RN.ground - 3) { q.y = RN.ground - 3; q.land = dt || 1e-3; q.xl = q.x0 + Math.sin(q.t * q.sp + q.ph) * q.amp + q.t * q.dr; }
+          } else q.land += dt;
+          if (q.land > 1.6) { q.on = false; continue; }
+          const sw = Math.sin(q.t * q.sp + q.ph), x = q.land ? q.xl : q.x0 + sw * q.amp + q.t * q.dr, an = q.land ? 1.57 : sw * 0.7;
+          wc.globalAlpha = op * Math.min(1, RN_OP * q.al * (q.land ? 1 - q.land / 1.6 : 1));
+          if (q.g1 < 0) rnGlyph(wc, q.g0, 1, x, q.y, z, an);
+          else {
+            const ca = Math.cos(an) * h, sa = Math.sin(an) * h;
+            rnGlyph(wc, q.g0, 1, x - ca, q.y - sa, z, an); rnGlyph(wc, q.g1, 1, x + ca, q.y + sa, z, an);
+          }
+        }
+      }
+      if (pr > 0 && pr < 1) {
+        wc.globalAlpha = op;
+        wc.fillStyle = RN.sh[32]; wc.fillRect(RN.zones[0], Math.round(scanY), W - 2 * RN.zones[0], 1);   // 0,80 = RN_OP * 2
+        if (D) { wc.font = RN.hf; wc.textAlign = 'left'; wc.textBaseline = 'alphabetic'; wc.fillStyle = RN.sh[29]; wc.fillText(RN.pruneS, RN.zones[0], Math.round(scanY) - 6); }
+      }
+    }
+    // ziemia i odczyt (string tylko przy zmianie licznika)
+    wc.globalAlpha = op;
+    wc.fillStyle = rnA(RN_OP * 0.5);
+    for (let z = 0; z < RN.zones.length; z += 2) wc.fillRect(RN.zones[z], RN.ground + 1, RN.zones[z + 1] - RN.zones[z], 1);
+    const grow = RN.u < RN_G || !it, hk = RN.ptr * 2 + (grow ? 1 : 0);
+    if (hk !== RN.hudK) {
+      RN.hudK = hk;
+      RN.hud = 'SEED 0x' + ((0x3f2a + RN.gen * 7919) & 0xffff).toString(16).toUpperCase().padStart(4, '0') + ' · GEN ' + RN.gen + ' · ' + RN.ptr + ' znaków';
+      RN.hudR = grow ? 'kiełkuje…' : 'rośnie w tle';
+    }
+    wc.font = RN.hf; wc.textBaseline = 'alphabetic'; wc.textAlign = 'left';
+    wc.fillStyle = rnA(RN_OP * (D ? 1.3 : 1.2)); wc.fillText(RN.hud, RN.zones[0], RN.ground + (D ? 18 : 11));
+    if (D) { wc.textAlign = 'right'; wc.fillStyle = rnA(RN_OP * 1.1); wc.fillText(RN.hudR, RN.zones[3], RN.ground + 18); }
+    wc.globalAlpha = 1;
+    // sufit pod tekstem liczony od pelnego krycia (nakladki w lighter go nie przebijaja), pod nadtytulem czysto
+    bgMaskOut(wc, 1 - RN_CAP);
+    if (RN.eo.ok) {
+      wc.globalCompositeOperation = 'destination-out';
+      wc.drawImage(RN.eb, RN.eo.x, RN.eo.y, RN.eo.w, RN.eo.h);
+      wc.globalCompositeOperation = 'source-over';
+    }
+  }
+  BG.rnd = { layer: 'bg', fps: 24, comp: 'lighter', build: rnBuild, paint: rnPaint };
 
   /* Bufory pod linie laczace. Alokowane RAZ, nie co klatke: pętla mapy jest
      goraca, a tablica tworzona 60 razy na sekunde to smieci dla GC. */
