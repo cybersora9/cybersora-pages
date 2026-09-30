@@ -450,7 +450,7 @@
     if (!bgOn) { bgOn = true; bgT0 = time; bgT = -1; }   // wejscie na widok: tlo sklada sie od nowa
     const age = reduce ? 99 : time - bgT0;
     // przy reduced motion przerysowanie tylko gdy zmienia sie krycie warstwy
-    const due = bgT < 0 || time < bgT || (reduce ? w < 0.999 : p.fps > 0 && time - bgT >= 1 / p.fps);
+    const due = bgT < 0 || time < bgT || (reduce ? w < 0.999 : p.fps > 0 && time - bgT >= 1 / p.fps - 0.004);   // P1: tolerancja jak w tempoPetli, inaczej co druga klatka petli 24/s gubila przerysowanie
     if (due) { bgT = time; p.paint(bgCur.cx, time, age, p.fps ? w : 1); }
     ctx.globalCompositeOperation = p.comp;
     if (!p.fps) ctx.globalAlpha = w;
@@ -933,15 +933,15 @@
      Malarz BG.rnd na warstwie `bg`. Wzor 1:1: makieta_m8_sadzonki.html, wariant C (genC / bake / paint).
      Wybor maisy (5A, „PERFECTO”): wspolne drzewo (dwa duze pnie rosna w jednej kolonizacji, korony lacza
      sie lukiem nad naglowkiem), sadzonki obok, spadajace liscie, bez iskier; krycie 0,40, rosnie 4,5 s,
-     stoi 9 s, skaner przycina 1,2 s, sufit pod tekstem 0,14, pod nadtytulem czysto (karmazyn na karmazynie).
+     sufit pod tekstem 0,14, pod nadtytulem czysto (karmazyn na karmazynie). Poprawka maisy 29.09: drzewo rosnie
+     RAZ na wejscie i zostaje (bez przycinania i nowych pokolen), bez odczytu SEED/GEN, liscie sypia sie jak jesienia.
      Drzewo = kolonizacja przestrzeni (Runions 2007), grubosc z modelu rurek, znaki = prawdziwe linijki kodu.
-     Generacja jest generatorem (function*) krokowanym w paint z budzetem RN_BUDGET ms: pierwsze drzewo
-     zaraz po wejsciu, kazde nastepne liczy sie w czasie stania poprzedniego. Znaki z wlasnego atlasu
+     Generacja jest generatorem (function*) krokowanym w paint z budzetem RN_BUDGET ms, zaraz po wejsciu. Znaki z wlasnego atlasu
      (kod ma male litery i interpunkcje, ktorych glyphAtlas nie ma), pieczone do RN.cv tylko w chwili
      narodzin; paint = drawImage bufora (przyciety skanerem) + kursory, migajace znaki, liscie z puli,
      ziemia, odczyt, maski. Strefy z ukladu (nawigacja, tekst naglowka, wymiar hero), nie na sztywno.
      Komputer: drzewa omijaja tekst; telefon: rosna pod tekstem, przygaszone maska. */
-  const RN_OP = 0.40, RN_G = 4.5, RN_HOLD = 9, RN_PRUNE = 1.2, RN_CAP = 0.14, RN_BUDGET = 3;
+  const RN_OP = 0.40, RN_G = 4.5, RN_CAP = 0.14, RN_BUDGET = 3, RN_FALL = 160, RN_LIE = 3.5;
   const RN_SEL = '[data-view="rnd"] .overlay';
   const RN_CODE = [
     'zapis.klient="Anna K.";zapis.status="OPLACONE";kasa.dodaj(zapis,kwota);magazyn.sprawdz(zapasy);',
@@ -955,11 +955,11 @@
   const RN_IX = new Map(RN_CH.map((ch, i) => [ch, i]));
   const RN_HX = [...RN_HEX].map(ch => RN_IX.get(ch)), RN_CUR = RN_IX.get('█');
   const RN = { cv: document.createElement('canvas'), at: document.createElement('canvas'), eb: document.createElement('canvas'),
-    eo: { x: 0, y: 0, w: 0, h: 0, ok: false }, atKey: '', cell: 0, cp: 0, fonts: false, mob: false, fs: 12, hf: '',
+    eo: { x: 0, y: 0, w: 0, h: 0, ok: false }, atKey: '', cell: 0, cp: 0, fonts: false, mob: false, fs: 12,
     top: 0, ground: 0, trees: [], zones: [], items: null, leaf: null, ptr: 0, gen: 0, u: 0, lt: -1,
-    job: null, pend: null, pendGen: 0, st: [], sh: [], hud: '', hudR: '', hudK: -1, pruneS: '', fall: [], fallAcc: 0 };
+    job: null, pend: null, pendGen: 0, st: [], sh: [], fall: [], fallAcc: 0 };
   RN.c = RN.cv.getContext('2d'); RN.ac = RN.at.getContext('2d'); RN.ec = RN.eb.getContext('2d');
-  for (let i = 0; i < 40; i++) RN.fall.push({ on: false, x0: 0, y: 0, xl: 0, g0: 0, g1: -1, al: 1, vy: 0, amp: 0, sp: 0, ph: 0, dr: 0, t: 0, land: 0 });
+  for (let i = 0; i < RN_FALL; i++) RN.fall.push({ on: false, x0: 0, y: 0, xl: 0, g0: 0, g1: -1, al: 1, vy: 0, amp: 0, sp: 0, ph: 0, dr: 0, t: 0, land: 0 });
   const rnA = a => RN.st[Math.max(0, Math.min(40, Math.round(a * 40)))];
   const rnRng = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   const rnFontsDone = () => { RN.fonts = true; RN.atKey = ''; if (W && bgId === 'rnd') bgBuild(); };
@@ -1031,7 +1031,6 @@
     const st = stage.getBoundingClientRect(), nav = document.querySelector('.nav');
     RN.mob = W < 760; RN.fs = RN.mob ? 9 : 12;
     const D = !RN.mob, s = D ? W / 1440 : W / 390;
-    RN.hf = '600 ' + (D ? 10.5 : 8) + 'px "Geist Mono", monospace';
     // pod nawigacja (makieta: 65 px + 39 / + 19), ziemia nad dolna krawedzia hero
     const nb = nav ? Math.max(0, Math.min(140, nav.getBoundingClientRect().bottom - st.top)) : 65;
     RN.top = nb + (D ? 39 : 19); RN.ground = H - (D ? 34 : 14);
@@ -1058,7 +1057,7 @@
     if (RN.cv.width !== pw || RN.cv.height !== ph) { RN.cv.width = pw; RN.cv.height = ph; }
     RN.c.setTransform(dpr, 0, 0, dpr, 0, 0); RN.c.clearRect(0, 0, W, H);
     // nowy uklad = nowe drzewo od ziarna biezacej generacji; job startuje w paint, gdy tekst ma uklad
-    RN.items = RN.pend = RN.job = null; RN.ptr = 0; RN.u = 0; RN.lt = -1; RN.fallAcc = 0; RN.hudK = -1;
+    RN.items = RN.pend = RN.job = null; RN.ptr = 0; RN.u = 0; RN.lt = -1; RN.fallAcc = 0;
     for (const q of RN.fall) q.on = false;
   }
 
@@ -1191,6 +1190,29 @@
       }
       yield;
     }
+    /* most miedzy koronami (maisa 29.09: „tu brakuje mi polaczenia z tymi drzewami”): obie strony luku zjadaja
+       swiatlo, zanim sie spotkaja, i na srodku zostaje przerwa. Szukamy najblizszej pary wezlow z dwoch pni
+       w gornym pasie miedzy pniami i dociagamy od jednej galazke krokiem step, z lekkim wygieciem w gore. */
+    if (arch && T.length > 1) {
+      const lo = Math.min(T[0].cx, T[1].cx), hi = Math.max(T[0].cx, T[1].cx), yb = top + (ground - top) * 0.4;
+      const c0 = [], c1 = [];
+      for (let i = 0; i < nx.length; i++) if (ny[i] < yb && nx[i] > lo && nx[i] < hi) (nr[i] === 0 ? c0 : c1).push(i);
+      let best = 1e18, A = -1, B = -1;
+      for (let q = 0; q < c0.length; q++) {
+        if (q % 200 === 199) yield;
+        const i = c0[q];
+        for (let z = 0; z < c1.length; z++) { const j = c1[z], dx = nx[i] - nx[j], dy = ny[i] - ny[j], d = dx * dx + dy * dy; if (d < best) { best = d; A = i; B = j; } }
+      }
+      if (A >= 0 && best > step * step * 2.5) {
+        const d = Math.sqrt(best), n = Math.ceil(d / step);
+        let p = A;
+        for (let k = 1; k < n; k++) {
+          const t = k / n;
+          p = addNode(nx[A] + (nx[B] - nx[A]) * t, ny[A] + (ny[B] - ny[A]) * t - Math.sin(t * Math.PI) * d * 0.08, p);
+        }
+      }
+      yield;
+    }
     // grubosc: model rurek od czubkow do korzenia, skala osobno dla kazdego pnia
     const nn = nx.length, r2 = new Float32Array(nn);
     for (let i = nn - 1; i >= 0; i--) { if (!nk[i]) r2[i] += 1; if (np[i] >= 0) r2[np[i]] += r2[i]; }
@@ -1257,8 +1279,7 @@
   }
   function rnSwap() {
     const p = RN.pend; RN.pend = null;
-    RN.items = p.items; RN.leaf = p.leaf; RN.gen = p.gen; RN.ptr = 0; RN.u = 0; RN.hudK = -1; RN.fallAcc = 0;
-    RN.pruneS = '// prune gen ' + p.gen;
+    RN.items = p.items; RN.leaf = p.leaf; RN.gen = p.gen; RN.ptr = 0; RN.u = 0; RN.fallAcc = 0;
     for (const q of RN.fall) q.on = false;
     RN.c.clearRect(0, 0, W, H);
   }
@@ -1280,32 +1301,24 @@
     if (!TXT.ok && bgTextMeasure(RN_SEL)) { bgMaskBuild(); rnEbMask(); }
     if (!TXT.ok && !RN.mob) return;   // bez ukladu tekstu drzewo wroslo by w naglowek
     const dt = RN.lt < 0 ? 0 : Math.max(0, Math.min(0.1, time - RN.lt)); RN.lt = time;
-    const T = RN_G + RN_HOLD + RN_PRUNE, D = !RN.mob;
+    const D = !RN.mob;
     RN.u = reduce ? RN_G + 1 : RN.u + dt;
-    // nastepne drzewo liczy sie w czasie stania biezacego; reduced motion: od razu cale, bez podzialu
-    if (!RN.job && !RN.pend && (!RN.items || (!reduce && RN.u >= RN_G))) {
-      RN.pendGen = RN.items ? RN.gen + 1 : RN.gen; RN.job = rnGen(RN.pendGen);
-    }
+    // jedno drzewo na wejscie (maisa: „raz sie wygeneruja i bedzie git”); reduced motion: od razu cale
+    if (!RN.items && !RN.job && !RN.pend) RN.job = rnGen(RN.gen);
     if (RN.job) rnStep(reduce ? 1e9 : RN_BUDGET);
-    if (RN.pend && (!RN.items || RN.u >= T)) { rnSwap(); if (reduce) RN.u = RN_G + 1; }
+    if (RN.pend) { rnSwap(); if (reduce) RN.u = RN_G + 1; }
     const it = RN.items;
     wc.globalAlpha = op;
     if (it) {
       while (RN.ptr < it.length && it[RN.ptr].b <= RN.u) rnBake(it[RN.ptr++]);
       RN.c.globalAlpha = 1;
-      // przycinanie: skaner od gory schodkami, nad nim pusto
-      const pr = RN.u > RN_G + RN_HOLD ? Math.min(1, (RN.u - RN_G - RN_HOLD) / RN_PRUNE) : 0;
-      const scanY = RN.top - 20 + (RN.ground + 30 - RN.top) * Math.floor(pr * 14) / 14;
-      if (pr > 0) {
-        const sy = Math.round(scanY * dpr), ch = RN.cv.height - sy;
-        if (ch > 0) wc.drawImage(RN.cv, 0, sy, RN.cv.width, ch, 0, sy / dpr, W, ch / dpr);
-      } else wc.drawImage(RN.cv, 0, 0, W, H);
+      wc.drawImage(RN.cv, 0, 0, W, H);
       if (!reduce && RN.u < RN_G) {
         // kursory na czubkach rosnacych pedow: ostatnio urodzone znaki
         wc.globalAlpha = op * Math.min(1, RN_OP * 2.4);
         for (let i = Math.max(0, RN.ptr - 40); i < RN.ptr; i++) if (RN.u - it[i].b <= 0.12) rnGlyph(wc, RN_CUR, 1, it[i].x, it[i].y, RN.fs, 0);
       }
-      if (!reduce && RN.u < RN_G + RN_HOLD && RN.ptr) {
+      if (!reduce && RN.ptr) {
         // kod zyje: kilka znakow na chwile podmienia sie (rozblysk), bez przerysowania bufora
         const tick = Math.floor(time * 6);
         wc.globalAlpha = op * RN_OP * 1.6;
@@ -1315,22 +1328,22 @@
         }
       }
       if (!reduce && RN.leaf.length) {
-        // spadajace liscie: odrywaja sie od urodzonych, kolysza, laduja na ziemi i gasna (pula, zero alokacji)
-        const cap = D ? 40 : 16;
-        if (RN.u < RN_G + RN_HOLD) {
-          RN.fallAcc += dt * (D ? 5 : 2) * (RN.u < RN_G ? RN.u / RN_G : 1);
-          while (RN.fallAcc >= 1) {
-            RN.fallAcc -= 1;
-            const i = RN.leaf[Math.floor(Math.random() * RN.leaf.length)];
-            if (i >= RN.ptr) continue;
-            let q = null;
-            for (let k = 0; k < cap; k++) if (!RN.fall[k].on) { q = RN.fall[k]; break; }
-            if (!q) continue;
-            const o = it[i];
-            q.on = true; q.x0 = o.x; q.y = o.y; q.g0 = o.g0; q.g1 = o.g1 >= 0 && Math.random() < 0.5 ? o.g1 : -1; q.al = o.al;
-            q.vy = D ? 20 + Math.random() * 22 : 11 + Math.random() * 12; q.amp = D ? 10 + Math.random() * 14 : 5 + Math.random() * 7;
-            q.sp = 1.1 + Math.random() * 1.6; q.ph = Math.random() * 6.28; q.dr = (Math.random() - 0.3) * (D ? 10 : 5); q.t = 0; q.land = 0;
-          }
+        /* jesien (maisa 29.09: „zeby ten kod intensywniej sypal liscmi”): liscie odrywaja sie od urodzonych,
+           kolysza szeroko, laduja na ziemi i gasna. Gestosc trzyma pula (komputer 160, telefon 60 naraz),
+           tempo odrywania wyzsze niz pula, wiec w powietrzu jest zawsze tyle, ile miesci pula; zero alokacji. */
+        const cap = D ? RN_FALL : 60;
+        RN.fallAcc += dt * (D ? 26 : 10) * (RN.u < RN_G ? RN.u / RN_G : 1);
+        while (RN.fallAcc >= 1) {
+          RN.fallAcc -= 1;
+          const i = RN.leaf[Math.floor(Math.random() * RN.leaf.length)];
+          if (i >= RN.ptr) continue;
+          let q = null;
+          for (let k = 0; k < cap; k++) if (!RN.fall[k].on) { q = RN.fall[k]; break; }
+          if (!q) { RN.fallAcc = 0; break; }
+          const o = it[i];
+          q.on = true; q.x0 = o.x; q.y = o.y; q.g0 = o.g0; q.g1 = o.g1 >= 0 && Math.random() < 0.5 ? o.g1 : -1; q.al = o.al;
+          q.vy = D ? 28 + Math.random() * 32 : 15 + Math.random() * 17; q.amp = D ? 12 + Math.random() * 20 : 6 + Math.random() * 9;
+          q.sp = 0.9 + Math.random() * 1.6; q.ph = Math.random() * 6.28; q.dr = (Math.random() - 0.3) * (D ? 16 : 7); q.t = 0; q.land = 0;
         }
         const z = RN.fs * 0.9, h = z * 0.3;
         for (let k = 0; k < cap; k++) {
@@ -1340,9 +1353,9 @@
             q.y += q.vy * dt;
             if (q.y >= RN.ground - 3) { q.y = RN.ground - 3; q.land = dt || 1e-3; q.xl = q.x0 + Math.sin(q.t * q.sp + q.ph) * q.amp + q.t * q.dr; }
           } else q.land += dt;
-          if (q.land > 1.6) { q.on = false; continue; }
+          if (q.land > RN_LIE) { q.on = false; continue; }   // leza na ziemi jak dywan jesienia
           const sw = Math.sin(q.t * q.sp + q.ph), x = q.land ? q.xl : q.x0 + sw * q.amp + q.t * q.dr, an = q.land ? 1.57 : sw * 0.7;
-          wc.globalAlpha = op * Math.min(1, RN_OP * q.al * (q.land ? 1 - q.land / 1.6 : 1));
+          wc.globalAlpha = op * Math.min(1, RN_OP * q.al * 1.15 * (q.land ? 1 - q.land / RN_LIE : 1));
           if (q.g1 < 0) rnGlyph(wc, q.g0, 1, x, q.y, z, an);
           else {
             const ca = Math.cos(an) * h, sa = Math.sin(an) * h;
@@ -1350,25 +1363,11 @@
           }
         }
       }
-      if (pr > 0 && pr < 1) {
-        wc.globalAlpha = op;
-        wc.fillStyle = RN.sh[32]; wc.fillRect(RN.zones[0], Math.round(scanY), W - 2 * RN.zones[0], 1);   // 0,80 = RN_OP * 2
-        if (D) { wc.font = RN.hf; wc.textAlign = 'left'; wc.textBaseline = 'alphabetic'; wc.fillStyle = RN.sh[29]; wc.fillText(RN.pruneS, RN.zones[0], Math.round(scanY) - 6); }
-      }
     }
-    // ziemia i odczyt (string tylko przy zmianie licznika)
+    // linia ziemi (odczyt SEED/GEN zdjety na prosbe maisy)
     wc.globalAlpha = op;
     wc.fillStyle = rnA(RN_OP * 0.5);
     for (let z = 0; z < RN.zones.length; z += 2) wc.fillRect(RN.zones[z], RN.ground + 1, RN.zones[z + 1] - RN.zones[z], 1);
-    const grow = RN.u < RN_G || !it, hk = RN.ptr * 2 + (grow ? 1 : 0);
-    if (hk !== RN.hudK) {
-      RN.hudK = hk;
-      RN.hud = 'SEED 0x' + ((0x3f2a + RN.gen * 7919) & 0xffff).toString(16).toUpperCase().padStart(4, '0') + ' · GEN ' + RN.gen + ' · ' + RN.ptr + ' znaków';
-      RN.hudR = grow ? 'kiełkuje…' : 'rośnie w tle';
-    }
-    wc.font = RN.hf; wc.textBaseline = 'alphabetic'; wc.textAlign = 'left';
-    wc.fillStyle = rnA(RN_OP * (D ? 1.3 : 1.2)); wc.fillText(RN.hud, RN.zones[0], RN.ground + (D ? 18 : 11));
-    if (D) { wc.textAlign = 'right'; wc.fillStyle = rnA(RN_OP * 1.1); wc.fillText(RN.hudR, RN.zones[3], RN.ground + 18); }
     wc.globalAlpha = 1;
     // sufit pod tekstem liczony od pelnego krycia (nakladki w lighter go nie przebijaja), pod nadtytulem czysto
     bgMaskOut(wc, 1 - RN_CAP);
@@ -1387,9 +1386,57 @@
   const nearD2 = new Float64Array(LINK_CAP);
   let nearCount = 0;
 
+  /* P1 (30.09): bufory rysowania hurtem (kropki mapy i linie sieci), alokowane przy zmianie
+     liczby kropek, nie co klatke. Stringi kolorow tylko przy zmianie koloru/jasnosci. */
+  const PW = 6, LB = 5;
+  const pbCnt = new Int32Array(PW + 1), pbOff = new Int32Array(PW + 1), pbStyle = new Array(PW + 1);
+  let pbB = new Uint8Array(0), pbR = new Float32Array(0), pbIdx = new Int32Array(0);
+  const lbSeg = new Float32Array(LINK_CAP * (LINK_CAP - 1) / 2 * 5), lbStyle = new Array(LB);
+  let pbKey = '';
+  function pbFit() {
+    const n = particles.length;
+    if (pbB.length !== n) { pbB = new Uint8Array(n); pbR = new Float32Array(n); pbIdx = new Int32Array(n); }
+  }
+  function pbColors(boost) {
+    const a = themeState.a, key = (a[0] | 0) + ',' + (a[1] | 0) + ',' + (a[2] | 0) + ',' + boost;
+    if (key === pbKey) return;
+    pbKey = key;
+    for (let k = 0; k <= PW; k++) pbStyle[k] = rgba(a, 0.45 * boost + 0.3 * k / PW);
+    for (let k = 0; k < LB; k++) lbStyle[k] = rgba(a, 0.5 * (k + 0.5) / LB);
+  }
+
+  /* P1 (30.09): tempo petli wedlug tego, co jest na ekranie. Bylo: kazda trasa 120 kl./s na
+     monitorze 120 Hz, takze gdy tlo przerysowuje sie 24x/s, a trasa ma tylko 14 iskier —
+     czyszczenie i skladanie kanwy na caly ekran co klatke = ~50% rdzenia na stojacej stronie.
+     Klatka pominieta nie dotyka kanwy, wiec przegladarka nie ma czego skladac.
+       0  = kazda klatka ekranu: przejscie miedzy trasami albo kursor przed chwila ruszal sie nad mapa
+       60 = sama mapa (dryf i fala sa wolne)
+       fps tla = tlo podstrony (i tak przerysowuje sie tyle razy)
+       30 = same iskry */
+  let mouseT = -1e9, drawT = 0;
+  /* Samoregulacja: sredni czas rysowania klatki (EMA). Powyzej 6 ms (slaby procesor: przy 4x CPU
+     Start z kursorem ~7 ms) kursor nad mapa nie podbija petli ponad 60 kl./s. Na 60 Hz bez zmian,
+     na 120 Hz slabszy laptop dostaje polowe pracy zamiast pelnego rdzenia. */
+  let pracaMs = 0, slabyCpu = false;   // histereza: wlacza sie > 6 ms, puszcza < 3 ms
+  function tempoPetli(t) {
+    if (bgPrevA > 0.02) return 0;
+    for (const k in themeState.layers) if (Math.abs(themeState.layers[k] - themeTarget.layers[k]) > 0.01) return 0;
+    if (particles.length) return t - mouseT < 1500 && !slabyCpu ? 0 : 60;
+    const p = BG[bgId];
+    if (p && themeState.layers[p.layer || 'bg'] > 0.02) return p.fps || 30;
+    return 30;
+  }
+
   let lastT = performance.now();
   let rafOn = true;
   function frame(t) {
+    const fps = reduce ? 0 : tempoPetli(t);
+    if (fps) {
+      const iv = 1000 / fps, el = t - drawT;
+      if (el < iv - 2) { if (rafOn) requestAnimationFrame(frame); return; }
+      drawT = el > 2 * iv ? t : drawT + iv;
+    } else drawT = t;
+    const t0p = performance.now();
     const dt = Math.max(0, Math.min((t - lastT) / 1000, 0.05)) || 0;
     lastT = t;
     themeApproach(dt);
@@ -1413,6 +1460,7 @@
        czastek osiadly tuz za "fosa", a nie sama wyczyszczona dziure. */
     const LINK_RAD = 140, LINK_RAD2 = LINK_RAD * LINK_RAD;
     nearCount = 0;
+    pbFit(); pbCnt.fill(0);
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
 
@@ -1460,38 +1508,68 @@
       p.vx *= 0.86; p.vy *= 0.86;
       p.x += p.vx; p.y += p.vy;
 
-      const boost = mouse.active ? 1 : 0.82;
-      let alpha = 0.45 * boost, rad = p.r;
+      let b = 0, rad = p.r;
       if (waveR >= 0) {
         const dd = Math.abs(p.cd - waveR);
         if (dd < 70) {
           const f = (1 - dd / 70) * waveGain;
-          alpha += f * 0.3;
+          b = Math.min(PW, Math.round(f * PW));
           rad += f * 0.9;
         }
       }
-      ctx.fillStyle = rgba(themeState.a, alpha);
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, rad, 0, 6.2832);
-      ctx.fill();
+      pbB[i] = b; pbR[i] = rad; pbCnt[b]++;
+    }
+    /* P1 (30.09): kropki mapy hurtem. Bylo: fillStyle (nowy string rgba) + beginPath + arc + fill
+       NA KAZDA kropke, ~2000 fill na klatke = polowa czasu Startu. Teraz alfa fali skwantowana do
+       PW+1 kubelkow (roznica 0,05 krycia, nie do zobaczenia), jedna sciezka i jeden fill na kubelek,
+       sortowanie przez zliczanie bez alokacji. Promien zostaje dokladny, per kropka. */
+    if (particles.length) {
+      pbColors(mouse.active ? 1 : 0.82);
+      for (let k = 0, o = 0; k <= PW; k++) { pbOff[k] = o; o += pbCnt[k]; }
+      for (let i = 0; i < particles.length; i++) pbIdx[pbOff[pbB[i]]++] = i;
+      for (let k = 0, o = 0; k <= PW; k++) {
+        const n = pbCnt[k]; if (!n) continue;
+        ctx.fillStyle = pbStyle[k];
+        ctx.beginPath();
+        for (let e = o + n; o < e; o++) {
+          const i = pbIdx[o], p = particles[i], r = pbR[i];
+          // P1: kropka do 1,5 px promienia jako kwadrat (po wygladzeniu nie do odroznienia od kola, a rect
+          // jest kilka razy tanszy od arc); wieksze kropki i fala zostaja kolami
+          if (r <= 1.5) { const q = r * 0.886; ctx.rect(p.x - q, p.y - q, 2 * q, 2 * q); }
+          else { ctx.moveTo(p.x + r, p.y); ctx.arc(p.x, p.y, r, 0, 6.2832); }
+        }
+        ctx.fill();
+      }
     }
 
     // circuit-link lines: cursor wakes the map into a live neural net, not just glowing dots
+    // P1: odcinki w LB kubelkach alfy, jeden stroke na kubelek (bylo: stroke + string na odcinek)
     if (nearCount > 1) {
-      ctx.lineWidth = 1;
+      let n = 0;
       for (let i = 0; i < nearCount; i++) {
+        const a = nearMouse[i];
         for (let j = i + 1; j < nearCount; j++) {
-          const dx = nearMouse[i].x - nearMouse[j].x, dy = nearMouse[i].y - nearMouse[j].y;
+          const q = nearMouse[j];
+          const dx = a.x - q.x, dy = a.y - q.y;
           const d2 = dx * dx + dy * dy;
-          if (d2 < 40 * 40) {
-            const al = (1 - Math.sqrt(d2) / 40) * 0.5;
-            ctx.strokeStyle = rgba(themeState.a, al);
-            ctx.beginPath();
-            ctx.moveTo(nearMouse[i].x, nearMouse[i].y);
-            ctx.lineTo(nearMouse[j].x, nearMouse[j].y);
-            ctx.stroke();
-          }
+          if (d2 >= 1600) continue;
+          const o = n * 5;
+          lbSeg[o] = a.x; lbSeg[o + 1] = a.y; lbSeg[o + 2] = q.x; lbSeg[o + 3] = q.y;
+          lbSeg[o + 4] = Math.min(LB - 1, ((1 - Math.sqrt(d2) / 40) * LB) | 0);
+          n++;
         }
+      }
+      ctx.lineWidth = 1;
+      for (let k = 0; k < LB; k++) {
+        let any = false;
+        for (let s = 0; s < n; s++) {
+          const o = s * 5;
+          if (lbSeg[o + 4] !== k) continue;
+          if (!any) { any = true; ctx.beginPath(); }
+          ctx.moveTo(lbSeg[o], lbSeg[o + 1]);
+          ctx.lineTo(lbSeg[o + 2], lbSeg[o + 3]);
+        }
+        if (any) { ctx.strokeStyle = lbStyle[k]; ctx.stroke(); }
       }
     }
 
@@ -1500,7 +1578,7 @@
     if (sparkW > 0.02) {
       for (let i = 0; i < sparks.length; i++) {
         const s = sparks[i];
-        s.y -= s.vy;
+        s.y -= s.vy * dt * 120;   // P1: predkosc w czasie (strojona na 120 Hz), nie na klatke - petla bywa 30 kl./s
         if (s.y < -10) newSpark(s, false);
         const sx = s.x + Math.sin(time * s.sp + s.ph) * s.amp;
         ctx.fillStyle = rgba(themeState.hot, s.a * sparkW);
@@ -1531,6 +1609,8 @@
     bgDraw(dt, time);
 
     ctx.globalCompositeOperation = 'source-over';
+    pracaMs += (performance.now() - t0p - pracaMs) * 0.05;
+    if (pracaMs > 6) slabyCpu = true; else if (pracaMs < 3) slabyCpu = false;
     if (rafOn) requestAnimationFrame(frame);
   }
   /* Petla mapy chodzi tylko wtedy, gdy mape widac.
@@ -1538,8 +1618,11 @@
      zjechanie z hero, bo mapa nie siega juz dalej niz hero. Odzyskane klatki
      to nie teoria: pod hero nie ma juz nic do liczenia. */
   let tloWidoczne = true;
+  /* popup Sadzonek zakrywa cale tlo — wtedy petla stoi, a jedyna pracujaca
+     petla jest pisanie w terminalu popupu (zasada: max dwie naraz) */
+  let popupZakrywa = false;
   function ustawPetleMapy() {
-    const maBiec = tloWidoczne && !document.hidden;
+    const maBiec = tloWidoczne && !document.hidden && !popupZakrywa;
     if (maBiec && !rafOn) { rafOn = true; lastT = performance.now(); requestAnimationFrame(frame); }
     else if (!maBiec) { rafOn = false; }
   }
@@ -1569,6 +1652,7 @@
     mouse.x = src.clientX - r.left;
     mouse.y = src.clientY - r.top;
     mouse.active = true;
+    mouseT = performance.now();   // P1: pelne tempo petli tylko chwile po ruchu kursora
   }
   window.addEventListener('mousemove', setMouse);
   window.addEventListener('touchmove', setMouse, { passive: true });
@@ -1660,10 +1744,37 @@
     burger.setAttribute('aria-expanded', 'false');
   }
 
+  /* P1 (30.09): hCaptcha dopiero przy formularzu. Bylo: <script web3forms> w stopce ladowal
+     api.js hCaptchy na KAZDEJ trasie od pierwszej sekundy, a ona slucha kazdego ruchu myszy
+     i przewijania (profil: L.scrollX / _VRiksp... w kazdej klatce przewijania Startu). Polityka
+     prywatnosci obiecuje, ze skrypt laduje sie przy wysylce — teraz: wejscie w Kontakt albo
+     pierwszy fokus/dotyk w formularzu (zamowienie na SOMI). Widzety .h-captcha sa w DOM od
+     poczatku, wiec skrypt znajduje je tak samo jak przy ladowaniu z HTML. */
+  let captchaJest = false;
+  function ladujCaptche() {
+    if (captchaJest) return;
+    captchaJest = true;
+    const sc = document.createElement('script');
+    sc.src = 'https://web3forms.com/client/script.js';
+    sc.async = true;
+    document.body.appendChild(sc);
+  }
+  document.querySelectorAll('.orderform').forEach(f => {
+    f.addEventListener('focusin', ladujCaptche, { once: true });
+    f.addEventListener('pointerdown', ladujCaptche, { once: true });
+  });
+
   function go(view, push) {
     const apply = () => {
       if (!NAMES.includes(view)) view = 'start';
       if (view === 'products' && !PRODUKTY_WIDOCZNE) view = 'start';   // patrz PRODUKTY_WIDOCZNE
+      /* w Kontakcie hCaptcha startuje w wolnej chwili (jej inicjacja to jeden ~400 ms task,
+         nie moze trafic w wjazd widoku); fokus w formularzu laduje ja od razu */
+      if (view === 'contact' && !captchaJest) {
+        const tuJeszcze = () => { if (document.documentElement.dataset.route === 'contact') ladujCaptche(); };
+        // wyjscie z Kontaktu przed czasem = czekamy na fokus, zeby ~400 ms nie trafilo w inna trase
+        setTimeout(() => (window.requestIdleCallback || setTimeout)(tuJeszcze, { timeout: 4000 }), 1500);
+      }
       // tlo starej trasy zamarza w drugim slocie, zanim nowe hero zmieni wymiar sceny
       if (document.documentElement.dataset.route !== view) bgLeave();
       // route theme: CSS switches via data-route, both canvases via themeTarget
@@ -1893,7 +2004,7 @@
         'Od: ' + (fd.get('cname') || '') + '\n' +
         'Email: ' + (fd.get('cemail') || '') + '\n' +
         'Telefon: ' + (fd.get('cphone') || '—') + '\n' +
-        'Skąd o nas wie: ' + (fd.get('csource') || '—') + '\n' +
+        'Skąd o mnie wie: ' + (fd.get('csource') || '—') + '\n' +
         'Temat: ' + topicText + '\n' +
         'Budżet: ' + (fd.get('cbudget') || '') + '\n' +
         'Termin: ' + (fd.get('ctimeline') || '') + '\n\n' +
@@ -1911,7 +2022,7 @@
         });
         if (data.success) {
           body.innerHTML = '<span class="t-label">✔ WYSŁANO</span>\n\n' +
-            'Dziękujemy' + (fd.get('cname') ? ', ' + escapeHtml(fd.get('cname')) : '') + '. Odezwiemy się na ' +
+            'Dziękuję' + (fd.get('cname') ? ', ' + escapeHtml(fd.get('cname')) : '') + '. Odezwę się na ' +
             escapeHtml(fd.get('cemail') || '') + '.';
           Array.from(form.elements).forEach(el => el.disabled = true);
           submitBtn.textContent = 'Wysłano ✓';
@@ -1984,7 +2095,7 @@
         if (data.success) {
           if (orderTerminalBody) {
             orderTerminalBody.innerHTML = '<span class="t-label">✔ WYSŁANO</span>\n\n' +
-              'Zapytanie poszło do SOMI. Odezwiemy się na ' + email.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) + '.';
+              'Zapytanie poszło do SOMI. Odezwę się na ' + email.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) + '.';
           }
           Array.from(orderForm.elements).forEach(el => el.disabled = true);
           orderSubmitBtn.textContent = 'Wysłano ✓';
@@ -2023,7 +2134,7 @@
     const SKRYPT_DEMO = {
       robi: {
         q: 'Co robisz?',
-        a: 'Na co dzień pracuję w zapleczu cybersory: pilnuję radaru ofert i pomagam zespołowi ogarniać robotę. Tu, na stronie, dopiero się tego uczę — na razie umiem porozmawiać i pokazać, od czego zacząć.'
+        a: 'Na co dzień pracuję w zapleczu cybersory: pilnuję radaru ofert i pomagam Patrykowi ogarniać robotę. Tu, na stronie, dopiero się tego uczę — na razie umiem porozmawiać i pokazać, od czego zacząć.'
       },
       dziala: {
         q: 'Jak działasz?',
@@ -2285,6 +2396,247 @@
       else if (e.key === 'ArrowLeft') show(idx - 1);
       else if (e.key === 'ArrowRight') show(idx + 1);
     });
+  })();
+
+  /* ===================== Sadzonki: popup karty projektu (sesja 2, 30.09) =====================
+     Klik w .seed otwiera #sproutPop na projekcie z karty; strzalki (w oknie i klawiatura
+     ←/→) chodza po wszystkich czterech w kolejnosci kart, bez zamykania. Stan = jeden
+     indeks `idx`. Tresc z tablicy SADZONKI nizej — fakty sprawdzone w repo projektow
+     30.09, zero liczb spoza nich (zasada strony: nie zmyslac). Znak i "kod" w tle
+     bierzemy z samej karty (cloneNode), zeby nie trzymac dwoch kopii rysunku.
+     Pisanie po literce = pracujaca petla, wiec chodzi tylko przy otwartym oknie,
+     a petla tla (mapa/BG) w tym czasie stoi (popupZakrywa). */
+  (() => {
+    const seeds = [...document.querySelectorAll('.seed[data-project]')];
+    const pop = document.getElementById('sproutPop');
+    if (!seeds.length || !pop) return;
+    const $ = (id) => document.getElementById(id);
+    const win = pop.querySelector('.sprout__win');
+    const mainEl = document.querySelector('main');
+    const body = $('sproutBody'), term = $('sproutTerm'), qs = $('sproutQs'), srlive = $('sproutSrLive');
+    const btnPrev = $('sproutPrev'), btnNext = $('sproutNext'), btnClose = $('sproutClose');
+    const shot = $('sproutShot'), shotImg = $('sproutShotImg');
+
+    /* Zrodla (30.09): SalonDesk — app\salondesk\app\kasa.py, domain\reguly.py, wersja.py,
+       DLA_TESTERA.md, app\README.md; Pycodemath — README, CHANGELOG, pyproject, PyPI JSON na zywo;
+       Rachmistrz — rachmistrz\rrso.py, ARCHITEKTURA.md, NASTEPNY_MODUL.md; Frostwall — verify.py,
+       fingerprint.py, seal.py, README. Nazwy klienta SalonDeska celowo NIE podajemy. */
+    const SADZONKI = {
+      salondesk: {
+        nazwa: 'SalonDesk',
+        lead: 'Program do prowadzenia salonu beauty na jednym komputerze: kalendarz wizyt, grafik zespołu, kartoteka klientek, kasa, magazyn i bony. Działa bez internetu i bez chmury.',
+        fakty: [
+          ['status', 'Prawdziwy klient i podpisana umowa'],
+          ['wersja', '1.4.2 · Windows · instalator'],
+          ['silnik', 'Python · pywebview · SQLite'],
+          ['dane', 'Na komputerze salonu, bez serwera'],
+        ],
+        zrzut: {
+          src: 'sadzonki/salondesk-pulpit.webp', w: 1890, h: 342,
+          alt: 'Pulpit SalonDeska w ciemnym motywie: powitanie, baner o danych pokazowych i kafle z wpływem do kasy, wizytami, obłożeniem i zobowiązaniami.',
+          podpis: 'Prawdziwy zrzut aplikacji na danych pokazowych. Nazwiska w panelu po prawej rozmyte.',
+        },
+        pytania: [
+          { q: 'Jak działa kasa?', a: 'Paragon składa się z usług, produktów, bonów i pakietów, a wizytę z kalendarza rozlicza się jednym ruchem, po cenie z dnia rezerwacji. Płacić można gotówką, kartą, bonem albo pakietem, także kilkoma formami naraz. Sprzedany produkt sam schodzi ze stanu magazynu. Kwoty liczymy w groszach, nigdy na liczbach z przecinkiem, więc suma dnia zgadza się co do grosza.' },
+          { q: 'To już żywy produkt?', a: 'Ma prawdziwego klienta, salon beauty, i podpisaną umowę. Obecna wersja to 1.4.2, z instalatorem na Windows. Mówię wprost: salon jeszcze nie pracuje na nim na co dzień. To następny krok, a nie coś, co już się stało.' },
+        ],
+      },
+      pycodemath: {
+        nazwa: 'Pycodemath',
+        lead: 'Silnik dokładnej matematyki dla agentów AI. Zamiast zgadywać wynik, agent zleca obliczenie i dostaje odpowiedź policzoną symbolicznie, w kilku znakach.',
+        fakty: [
+          ['status', 'Publiczny na PyPI · wersja 0.4.0'],
+          ['licencja', 'MIT · Python 3.11+'],
+          ['dostęp', 'Serwer MCP · REPL · wiersz poleceń'],
+          ['nowość', '0.4.0 sprawdza wyniki'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Co potrafi policzyć?', a: 'Pochodne, całki, granice, szeregi i sumy, także nieskończone. Rozwiązuje równania i układy, liczy wartości własne macierzy, szuka minimów funkcji i rozwiązuje równania różniczkowe, symbolicznie i numerycznie. Ze wzoru potrafi wygenerować gotowy kod NumPy.' },
+          { q: 'Gdzie go wziąć?', a: 'Z PyPI: pip install pycodemath (wersja 0.4.0, Python 3.11 lub nowszy). Kod jest otwarty, na licencji MIT: github.com/cybersora9/pycodemath. Od wersji 0.4.0 umie sprawdzić wynik i odpowiedzieć: potwierdzony, obalony z kontrprzykładem albo nierozstrzygnięty.' },
+        ],
+      },
+      rachmistrz: {
+        nazwa: 'Rachmistrz',
+        lead: 'Biblioteka do liczenia kredytu i pożyczki konsumenckiej: RRSO, rata i harmonogram spłat. Liczy według metody z ustawy, nie na oko.',
+        fakty: [
+          ['status', 'Działa · wersja 0.1.0'],
+          ['zakres', 'RRSO · rata annuitetowa · harmonogramy'],
+          ['silnik', 'Python 3.11+ · NumPy · bez interfejsu'],
+          ['ochrona', 'Licencja przez Frostwall'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Jak liczy RRSO?', a: 'Tak, jak każe załącznik nr 4 do ustawy o kredycie konsumenckim. Szuka takiej rocznej stopy, przy której zdyskontowane wypłaty równają się zdyskontowanym spłatom. Równanie rozwiązuje metodą Newtona zabezpieczoną bisekcją. Wzór i jego pochodną wyprowadził Pycodemath, moja druga sadzonka.' },
+          { q: 'Da się go kupić?', a: 'Jeszcze nie. Program działa, a decyzja o sprzedaży wciąż przede mną. Plan jest taki: 7 dni próby przypiętej do komputera, potem licencja bez terminu, w dwóch pakietach, sam RRSO albo pełny.' },
+        ],
+      },
+      frostwall: {
+        nazwa: 'Frostwall',
+        lead: 'Moja biblioteka licencyjna. Sprawdza licencję i odblokowuje chroniony kod bez łączenia się z żadnym serwerem.',
+        fakty: [
+          ['status', 'Wersja 0.1.0 · biblioteka wewnętrzna'],
+          ['kryptografia', 'Ed25519 · AES-GCM · SHA-256'],
+          ['silnik', 'Python 3.11+ · cryptography'],
+          ['pierwszy', 'Chroni Rachmistrza'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Jak działa bez internetu?', a: 'Licencja to token podpisany kluczem Ed25519, a podpis da się sprawdzić na miejscu, bez serwera. Po kolei sprawdzane są: podpis, cofnięty zegar, data ważności i odcisk komputera. Chroniony kod jest zaszyfrowany AES-GCM, a klucz do niego jest zapieczętowany odciskiem tej jednej maszyny. Nie udaję, że to pancerz: to podniesiona poprzeczka, nie zamek nie do ruszenia.' },
+          { q: 'Po co to komu?', a: 'Przede wszystkim mnie. To firmowa biblioteka, która pilnuje licencji moich programów, a pierwszym z nich jest Rachmistrz. Każdy odmowny wynik ma swój konkretny powód, więc program może powiedzieć klientowi wprost, co jest nie tak.' },
+        ],
+      },
+    };
+
+    const lista = seeds.map((s) => s.dataset.project).filter((id) => SADZONKI[id]);
+    if (!lista.length) return;
+    let idx = 0, lastFocus = null, pisanie = null, zamykanie = null;
+
+    const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    function zatrzymajPisanie() { if (pisanie) { clearTimeout(pisanie); pisanie = null; } }
+    function terminalPusty(id) {
+      term.innerHTML = '$ ' + esc(id) + ' --pytaj <span class="t-muted">— wybierz pytanie powyżej</span>';
+    }
+    function pisz(tekst, i) {
+      if (i === 0) term.innerHTML += '<span class="sprout__ans"></span><span class="t-cursor"></span>';
+      const ans = term.querySelector('.sprout__ans');
+      if (!ans) return;
+      ans.textContent = tekst.slice(0, i);
+      if (i < tekst.length) pisanie = setTimeout(() => pisz(tekst, i + 1), 14 + Math.random() * 20);
+      else {
+        pisanie = null;
+        const cur = term.querySelector('.t-cursor');
+        if (cur) cur.remove();
+      }
+    }
+
+    function render(i) {
+      idx = (i + lista.length) % lista.length;
+      const id = lista[idx], p = SADZONKI[id];
+      const karta = seeds.find((s) => s.dataset.project === id);
+      zatrzymajPisanie();
+
+      $('sproutPath').textContent = id;
+      $('sproutCount').textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(lista.length).padStart(2, '0');
+      $('sproutTag').textContent = karta.querySelector('.seed__tag').textContent;
+      $('sproutTitle').textContent = p.nazwa;
+      $('sproutLead').textContent = p.lead;
+      $('sproutLog').textContent = id + '_zapis.log';
+      $('sproutCode').textContent = karta.querySelector('.seed__code').textContent;
+
+      // znak z karty; <mask id> SalonDeska dostaje wlasne id, zeby nie dublowac id w dokumencie
+      const znak = karta.querySelector('.seed__mark svg').cloneNode(true);
+      znak.querySelectorAll('[id]').forEach((el) => {
+        const stare = el.id, nowe = stare + '-pop';
+        el.id = nowe;
+        znak.querySelectorAll('[mask="url(#' + stare + ')"]').forEach((m) => m.setAttribute('mask', 'url(#' + nowe + ')'));
+      });
+      znak.removeAttribute('role');
+      znak.removeAttribute('aria-label');
+      $('sproutMark').replaceChildren(znak);
+
+      const dl = $('sproutFacts');
+      dl.replaceChildren();
+      p.fakty.forEach(([k, v]) => {
+        const dt = document.createElement('dt'); dt.textContent = k;
+        const dd = document.createElement('dd'); dd.textContent = v;
+        dl.append(dt, dd);
+      });
+
+      if (p.zrzut) {
+        shotImg.src = p.zrzut.src;
+        shotImg.width = p.zrzut.w;
+        shotImg.height = p.zrzut.h;
+        shotImg.alt = p.zrzut.alt;
+        $('sproutShotCap').textContent = p.zrzut.podpis;
+        shot.hidden = false;
+      } else {
+        shot.hidden = true;
+        shotImg.removeAttribute('src');
+        shotImg.alt = '';
+      }
+
+      qs.replaceChildren();
+      p.pytania.forEach((pyt) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'somi-demo__q';
+        b.textContent = pyt.q;
+        b.addEventListener('click', () => zapytaj(pyt, b, id));
+        qs.append(b);
+      });
+      terminalPusty(id);
+      if (srlive) srlive.textContent = '';
+
+      const nazwa = (k) => SADZONKI[lista[(k + lista.length) % lista.length]].nazwa;
+      btnPrev.textContent = '← ' + nazwa(idx - 1);
+      btnNext.textContent = nazwa(idx + 1) + ' →';
+      btnPrev.setAttribute('aria-label', 'Poprzedni projekt: ' + nazwa(idx - 1));
+      btnNext.setAttribute('aria-label', 'Następny projekt: ' + nazwa(idx + 1));
+      body.scrollTop = 0;
+    }
+
+    function zapytaj(pyt, btn, id) {
+      zatrzymajPisanie();
+      qs.querySelectorAll('.somi-demo__q').forEach((b) => b.classList.toggle('is-active', b === btn));
+      term.innerHTML = '<span class="t-muted">$ ' + esc(id) + ' --pytaj "' + esc(pyt.q) + '"</span>\n\n';
+      if (srlive) srlive.textContent = pyt.q + ' — ' + pyt.a;
+      if (reduce) { term.innerHTML += esc(pyt.a); return; }
+      pisanie = setTimeout(() => pisz(pyt.a, 0), 350);
+    }
+
+    function openAt(i) {
+      clearTimeout(zamykanie);
+      lastFocus = document.activeElement;
+      render(i);
+      pop.hidden = false;
+      document.documentElement.classList.add('is-sprout-open');
+      if (mainEl) mainEl.inert = true;
+      popupZakrywa = true;
+      ustawPetleMapy();
+      void win.offsetWidth; // wymuszony uklad: przejscie startuje od stanu zamknietego (rAF stal w tle karty)
+      pop.classList.add('is-open');
+      btnClose.focus();
+    }
+    function close() {
+      if (pop.hidden) return;
+      zatrzymajPisanie();
+      pop.classList.remove('is-open');
+      document.documentElement.classList.remove('is-sprout-open');
+      if (mainEl) mainEl.inert = false;
+      zamykanie = setTimeout(() => { pop.hidden = true; }, reduce ? 0 : 340);
+      popupZakrywa = false;
+      ustawPetleMapy();
+      if (lastFocus) lastFocus.focus();
+    }
+
+    seeds.forEach((s) => s.addEventListener('click', () => openAt(lista.indexOf(s.dataset.project))));
+    btnClose.addEventListener('click', close);
+    $('sproutBackdrop').addEventListener('click', close);
+    btnPrev.addEventListener('click', () => render(idx - 1));
+    btnNext.addEventListener('click', () => render(idx + 1));
+
+    // focus trap: Tab krazy tylko po elementach okna (reszta strony i tak jest inert)
+    const FOKUS = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+    window.addEventListener('keydown', (e) => {
+      if (pop.hidden || !pop.classList.contains('is-open') && e.key !== 'Escape') return;
+      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); render(idx - 1); return; }
+      if (e.key === 'ArrowRight') { e.preventDefault(); render(idx + 1); return; }
+      if (e.key !== 'Tab') return;
+      const f = [...win.querySelectorAll(FOKUS)].filter((el) => !el.closest('[hidden]'));
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !win.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+
+    // arkusz na telefonie: przeciagniecie paska w dol o > 70 px zamyka (bez podazania za palcem)
+    let startY = null;
+    const bar = $('sproutBar');
+    bar.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !e.target.closest('button')) startY = e.clientY; });
+    bar.addEventListener('pointerup', (e) => { if (startY !== null && e.clientY - startY > 70) close(); startY = null; });
+    bar.addEventListener('pointercancel', () => { startY = null; });
   })();
 
   /* ===================== boot ===================== */
