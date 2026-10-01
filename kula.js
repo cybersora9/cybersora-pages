@@ -101,6 +101,10 @@ function kadrSkala(bok, kamera){ return bok / kamera; }
    buforze rownym wyswietlaniu `bok/kamera` czyta sie wprost jako piksele ekranu
    na jednostke sceny: 52/4.2 = 12,4, czyli kula o promieniu 1 ma 24,8 px srednicy. */
 var ORB_FRAME = {
+  /* SCENA (30.09): kula na srodku sekcji "SOMI z bliska", kadr kwadratowy do 420 px. Przy kamerze
+     5.85 kula zajmuje 34% kadru; 4.2 daje ~47%, a wlokna (1,42 promienia) koncza sie na ~34% od
+     srodka, czyli dalej wewnatrz kadru, z miejscem na poswiate. */
+  scena: {bok: 420, kamera: 4.2, prop: 1},
   mala:  {bok: 205, kamera: 5.85},  /* kadr 1:1 z terminala — punkt odniesienia, na stronie nieuzywany */
   /* PASEK — jedyna liczba, ktora rozni sie od terminala, i z policzonego powodu.
      Terminal pokazuje ten kadr na 103 px wysokosci, wiec kula (34% wysokosci
@@ -440,7 +444,7 @@ var FS_SKLAD = [
    niżej). Kula w pasku (navOrb) jest z tego celowo WYŁĄCZONA (19.09, maisa:
    "niech ona jest statyczna, obraca sie spokojnie, nic wiecej") — dostaje
    własny, martwy profil `static` i nigdy nie zmienia nastroju. */
-function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe, initMood){
+function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe, initMood, prop){
   glowStrength = glowStrength == null ? 0.8 : glowStrength;
   kamera = kamera == null ? ORB_FRAME.mala.kamera : kamera;
   /* Kula w pasku (initMood='static') ma TYLKO rotowac — patrz MOOD_PARAMS.static.
@@ -460,7 +464,9 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
      dostaje tyle pikseli, ile plotno zajmuje na ekranie (razy devicePixelRatio).
      `updateStyle=false` zostaje, bo szerokosc w CSS jest `auto` i sama idzie za
      proporcja bufora — nie ma czego nadpisywac. */
-  var PROP = ORB_FRAME.pasek.prop;
+  /* 30.09: proporcja kadru z wywolania (scena = kwadrat 1:1). Bez niej plotno 322:205
+     rozciagniete CSS-em na kwadratowy slot sciskalo kule w poziomie ("zwezona"). */
+  var PROP = prop || ORB_FRAME.pasek.prop;
   var Hc = wysokoscSlotu(canvas), Wc = Math.round(Hc * PROP);
   var doSceny = kamera / (Hc * 0.5);   /* 1 px ekranu = tyle jednostek sceny */
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
@@ -1073,7 +1079,7 @@ var somiDemoOrb;
    bo to DOKLADNIE ten wariant: kadr 322:205 przy wysokosci bliskiej 205 px,
    dla ktorego 460 punktow i poswiata 0,35 byly juz zmierzone w terminalu
    (mala/pasek boczny), zamiast zgadywac nowe liczby. */
-somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, 460, somiDemoGlow, 0.35, ORB_FRAME.mala.kamera, 20260918);
+somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, 460, somiDemoGlow, 0.35, ORB_FRAME.scena.kamera, 20260918, undefined, ORB_FRAME.scena.prop);
 var orbs = [somiDemoOrb].filter(Boolean);
 if(!orbs.length) return;  // brak WebGL — znak tekstowy zostaje jedynym wskaźnikiem
 
@@ -1100,11 +1106,43 @@ if(somiDemoOrb){
   }
 }
 
+/* Scena kuli (30.09): przyciski stanow po bokach, status pod kula. Kazda zmiana stanu,
+   takze ta z czatu demo (mysli -> mowi -> spokoj), podswietla wlasciwy przycisk. */
+var STAN_OPIS = {
+  calm:     ['spokój', 'czeka, oddycha powoli'],
+  thinking: ['myśli', 'układa odpowiedź'],
+  speaking: ['mówi', 'fala idzie w rytm głosu'],
+  tool:     ['narzędzie', 'czyta pliki, uruchamia kod'],
+  wow:      ['zaskoczenie', 'coś ją poruszyło'],
+  error:    ['błąd', 'zamiera i drży']
+};
+var stanBtns = [].slice.call(document.querySelectorAll('.somi-stage__btn'));
+var stanStatus = document.querySelector('.somi-stage__status');
+function pokazStan(m){
+  if(!STAN_OPIS[m]) return;
+  stanBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-mood') === m ? 'true' : 'false'); });
+  if(stanStatus){
+    stanStatus.querySelector('b').textContent = STAN_OPIS[m][0];
+    stanStatus.querySelector('.somi-stage__opis').textContent = STAN_OPIS[m][1];
+  }
+}
+
 var realMood = window.SOMI_MOOD;
 window.SOMI_MOOD = function(m){
   realMood(m);
   moodOrbs.forEach(function(o){ o.setMood(m); });
+  pokazStan(m);
 };
+stanBtns.forEach(function(b){
+  b.addEventListener('click', function(){
+    var m = b.getAttribute('data-mood');
+    window.SOMI_MOOD(m);
+    if(m === 'wow') window.SOMI_PULSE();
+  });
+});
+if(somiDemoCanvas && somiDemoCanvas.parentNode){
+  somiDemoCanvas.parentNode.addEventListener('click', function(){ window.SOMI_PULSE(); });
+}
 
 var realPulse = window.SOMI_PULSE;
 window.SOMI_PULSE = function(){

@@ -119,6 +119,9 @@
     --ease-soft:cubic-bezier(.22,1,.36,1); /* fast start, long gentle brake — no overshoot */
     --th-accent:#e11d33;
     --th-hot:#ff3a52;
+    /* tekst etykiet: akcent rozjasniony o 1/4 (#ff3a52 -> ~#ff6b7d, 7:1 na --ink).
+       Czysty karmazyn przy 13 px „drga” na ciemnym tle. */
+    --th-label:color-mix(in srgb, var(--th-hot) 75%, #fff);
     --th-solid:#d4132b;
     --th-cta-text:#fff;
     /* DeadSora (21.09): NIE nowy kolor UI calej trasy — to naruszaloby
@@ -163,7 +166,14 @@
     --t-ui:.88rem;                       /* nawigacja, przyciski, chipy         */
     --t-instrument:.78rem;               /* mono: metryki, komendy, terminal    */
     --t-label:.74rem;                    /* dt, tagi, podpisy                   */
-    --t-eyebrow:.68rem;                  /* mono: nadtytuly                     */
+    --t-eyebrow:.68rem;                  /* mono: ozdobniki (kody hex, pasek terminala) */
+    /* ETYKIETY (01.10, uwaga maisy „strasznie ciezko mi to przeczytac”):
+       nadtytuly sekcji i tagi kart — wersaliki mono — mialy 10,9 i 11,8 px
+       z odstepem .2em i rozsypywaly sie. To tekst do przeczytania, nie
+       ozdobnik, wiec dostaja wlasny stopien 13,6 px i jasniejszy odcien
+       akcentu (--th-label, 7:1 na --ink zamiast 5,5:1). Kreski i nawiasy
+       zostaja w pelnym karmazynie. Wariant B z artefaktu GJ4gr5Kxt2UB5MPQAi4NGc. */
+    --t-tag:.85rem;                      /* mono WERSALIKI: nadtytuly, tagi     */
 
     /* ---------- DLUGOSC WIERSZA (T4, 14.09) ----------
        Jedno zrodlo szerokosci dla KAZDEGO bloku tekstu do czytania.
@@ -187,7 +197,8 @@
     --ls-title:-.015em;      /* tytuly kart, ceny, manifest (WERSALIKI)     */
     --ls-label:.02em;        /* dt, marka w navbarze                        */
     --ls-instrument:.05em;   /* mono: metryki, komendy, stopka              */
-    --ls-eyebrow:.2em;       /* nadtytuly i tagi — wersaliki                */
+    --ls-eyebrow:.08em;      /* nadtytuly i tagi — wersaliki (.2em rozsypywalo
+                                litery przy 11 px, 01.10)                   */
     --ls-brand:.34em;        /* logotyp stopki, pas z nazwa                 */
     /* osmy stopien to BRAK deklaracji (normal = 0): tekst ciagly, lead, UI */
 
@@ -629,12 +640,12 @@
 
   .eyebrow{
     font-family:var(--mono);
-    font-size:var(--t-eyebrow);
+    font-size:var(--t-tag);
     letter-spacing:var(--ls-eyebrow);
     text-transform:uppercase;
     font-weight:600;
-    padding-left:.42em;
-    color:var(--th-hot);
+    padding-left:var(--ls-eyebrow); /* rownowazy tracking za ostatnia litera */
+    color:var(--th-label);
     display:flex;
     align-items:center;
     gap:.85em;
@@ -642,7 +653,7 @@
   .eyebrow::before,.eyebrow::after{
     content:"";
     width:34px;height:1px;
-    background:currentColor;
+    background:var(--th-hot);
     opacity:.55;
   }
 
@@ -751,19 +762,9 @@
     padding:0 var(--hero-pad) clamp(3.2rem,9vh,6rem);
     text-align:left;
   }
-  /* kurtyna od lewej: tyle kontrastu, zeby tekst czytal sie nad czastkami, i ani
-     odrobiny wiecej — po prawej schodzi do zera, wiec mapa zostaje widoczna */
-  .hero--start::before{
-    content:"";
-    position:absolute;inset:0;
-    background:linear-gradient(100deg,
-      rgba(6,6,9,.94) 0%,
-      rgba(6,6,9,.80) 28%,
-      rgba(6,6,9,.38) 50%,
-      transparent 72%);
-    pointer-events:none;
-    z-index:0;
-  }
+  /* kurtyna od lewej zdjeta na komputerze 30.09 (maisa: „usun te cienie, niech to bedzie normalne tlo”);
+     bez niej tekst ma min. 5,48:1 przy 1440 i 1920, bo mapa stoi obok, nie za nim. Zostaje tylko
+     kurtyna z gory na waskim ekranie (@media 900px nizej), gdzie mapa jest za tekstem (bez niej 4,21:1). */
   /* UWAGA: nie `.hero--start > *`, bo taka regula nadpisuje `position:absolute`
      u `.hint` i u stempla (ta sama waga, a stoi nizej w arkuszu) — podpowiedz
      wtedy wraca do ukladu i wchodzi na pas faktow. Pozycjonowanie tylko tam,
@@ -836,6 +837,10 @@
   @media (max-width:900px){
     /* na waskim ekranie mapa jest za tekstem, nie obok — kurtyna idzie z gory */
     .hero--start::before{
+      content:"";
+      position:absolute;inset:0;
+      pointer-events:none;
+      z-index:0;
       background:linear-gradient(180deg,
         rgba(6,6,9,.50) 0%,
         rgba(6,6,9,.86) 46%,
@@ -894,14 +899,14 @@
   }
   .services__eyebrow{
     font-family:var(--mono);
-    font-size:var(--t-eyebrow);
+    font-size:var(--t-tag);
     letter-spacing:var(--ls-eyebrow);
     text-transform:uppercase;
     font-weight:600;
-    color:var(--th-hot);
+    color:var(--th-label);
     display:flex;align-items:center;gap:.8em;
   }
-  .services__eyebrow::before{content:"";width:30px;height:1px;background:currentColor;opacity:.6;}
+  .services__eyebrow::before{content:"";width:30px;height:1px;background:var(--th-hot);opacity:.6;}
   /* M4.5 (18.09) — jezyk banera FB, ulepszony: pasek hex-kodow z baneru
      ("0x2C4F CRAWL_INIT · ...") staje sie cichym detalem PRZY NAGLOWKU
      kazdej sekcji, zamiast martwym ornamentem powtorzonym bez zmian.
@@ -914,13 +919,17 @@
      Zero nowych elementow w HTML, zero nowej pracujacej petli — statyczny
      tekst z attr(), tak jak istniejaca kreska w ::before. */
   .services__eyebrow::after{
+    /* ozdobnik: '/ ""' = pusty tekst alternatywny, czytnik ekranu go pomija;
+       zostaje na malym stopniu, zeby nie udawal etykiety (01.10) */
     content:attr(data-hex);
+    content:attr(data-hex) / "";
     margin-left:auto;
     font-family:var(--mono);
+    font-size:var(--t-eyebrow);
     letter-spacing:.08em;
-    font-weight:700;
+    font-weight:500;
     color:var(--muted-dark);
-    opacity:.55;
+    opacity:.45;
   }
   /* Na waskim ekranie kolumna naglowka (34ch) jest za ciasna na etykiete
      ("somi krok po kroku") RAZEM z kodem bez zawijania — zmierzone w oknie
@@ -1071,11 +1080,11 @@
   .card__tag{
     display:inline-flex;align-items:center;gap:.5em;
     font-family:var(--mono,ui-monospace,'SFMono-Regular',Consolas,monospace);
-    font-size:var(--t-label);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
-    font-weight:600;color:var(--cat, var(--th-hot));
+    font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
+    font-weight:600;color:color-mix(in srgb, var(--cat, var(--th-hot)) 75%, #fff);
   }
-  .card__tag::before{content:"[";opacity:.55;}
-  .card__tag::after{content:"]";opacity:.55;}
+  .card__tag::before{content:"[";color:var(--cat, var(--th-hot));opacity:.8;}
+  .card__tag::after{content:"]";color:var(--cat, var(--th-hot));opacity:.8;}
   /* whole-card link (portfolio pages) */
   a.card{ text-decoration:none;color:inherit;cursor:pointer; }
   a.card:focus-visible{ outline:2px solid var(--th-hot);outline-offset:3px; }
@@ -1094,7 +1103,7 @@
      kontraktu wizualnego. Tu chodzi o dosłowne rozwinięcie metafory
      "sadzonek": rozmiar i wysokość każdej karty rosną z zaawansowaniem
      projektu, karty stoją po przekątnej zamiast w rzędzie. Kolejność
-     potwierdzona z maisą 20.09: SalonDesk (żywy klient, podpisana umowa)
+     potwierdzona z maisą 20.09: SalonDesk (najdalej rozwinięty; UMOWY NIE MA — maisa 30.09: nie pisać o umowie ani kliencie, tylko o programie)
      → Pycodemath (publiczny na PyPI) → Rachmistrz (działa, czeka na
      decyzję o sprzedaży) → Frostwall (sama biblioteka, bez frontu).
      Popup po kliknięciu to SESJA 2 (patrz PROMPT_KARTY_SADZONKI.md) —
@@ -1164,9 +1173,10 @@
   }
   .seed__tag{
     display:block;
-    font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-eyebrow);
-    text-transform:uppercase;font-weight:600;color:var(--th-hot);
+    font-family:var(--mono);font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:var(--th-label);
   }
+  .seed__br{color:var(--th-hot);opacity:.8;}
   .seed__title{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);color:#f6f2f3;}
   .seed__body{margin:0;font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
   .seed__hint{
@@ -1271,8 +1281,8 @@
   }
   .sprout__tag{
     display:block;margin-bottom:.7rem;
-    font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-eyebrow);
-    text-transform:uppercase;font-weight:600;color:var(--th-hot);
+    font-family:var(--mono);font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:var(--th-label);
   }
   .sprout__title{margin:0 0 .8rem;font-size:clamp(1.9rem,4vw,2.6rem);line-height:1.05;font-weight:700;letter-spacing:var(--ls-title);color:#f6f2f3;}
   .sprout__lead{margin:0;max-width:46ch;font-size:var(--t-body);line-height:var(--lh-text);color:rgba(246,242,243,.82);}
@@ -1436,7 +1446,7 @@
     border:1px solid rgba(255,255,255,.10);
     background:rgba(255,255,255,.02);
   }
-  .demo__eyebrow{font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:var(--cat, var(--th-hot));}
+  .demo__eyebrow{font-family:var(--mono);font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:color-mix(in srgb, var(--cat, var(--th-hot)) 75%, #fff);}
   .demo__title{margin:.35rem 0 0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);}
   .demo__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.9rem;}
   .demo__field{display:flex;flex-direction:column;gap:.4rem;font-size:var(--t-label);color:var(--muted-dark);}
@@ -2447,6 +2457,121 @@
     ::view-transition-old(root),
     ::view-transition-new(root){animation:none !important;}
   }
+  /* ---------- O MNIE jako esej (30.09) ----------
+     Rozdzialy na klockach .services; wlasne tylko plansze z dowodami. Kolory z tokenow strony.
+     Zero JS: sciana commitow i doba to statyczny HTML/SVG, wiec nic nie dociaza petli tla. */
+  .om .services__inner{gap:clamp(1.6rem,3vw,2.4rem);}
+
+  .om-nums,.om-cut{display:grid;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);}
+  .om-nums{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .om-cut{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .om-nums div,.om-cut div{padding:1.3rem 1.2rem 1.2rem 0;display:flex;flex-direction:column;gap:.4rem;min-width:0;}
+  .om-nums div+div,.om-cut div+div{padding-left:1.2rem;border-left:1px solid rgba(255,255,255,.08);}
+  .om-nums b,.om-cut b{font-weight:800;font-size:clamp(2rem,3.7vw,3.3rem);line-height:var(--lh-display);letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .om-nums span,.om-cut span{font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .om-cut__raw b{color:var(--th-hot);text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:rgba(255,58,82,.55);}
+
+  .om-board{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:1.3rem 1.3rem 1.1rem;display:flex;flex-direction:column;gap:.9rem;min-width:0;}
+  .om-board__h{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);}
+  .om-board__h b{color:#f6f2f3;font-weight:600;letter-spacing:var(--ls-eyebrow);text-transform:uppercase;}
+  .om-board p{margin:0;font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);max-width:var(--measure);}
+  .om-board p b{color:#f6f2f3;font-weight:600;}
+  .om-wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(9px,1fr));gap:3px;}
+  .om-wall i{display:block;aspect-ratio:1;border-radius:1.5px;background:#3a3640;}
+  .om-wall i.n{background:var(--th-hot);}
+  .om-legend{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-family:var(--mono);font-size:var(--t-label);color:var(--muted-dark);}
+  .om-legend span{display:inline-flex;align-items:center;gap:.45rem;}
+  .om-legend span::before{content:"";width:9px;height:9px;border-radius:1.5px;background:#3a3640;}
+  .om-legend .om-legend__n::before{background:var(--th-hot);}
+  .om-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:1.2rem;align-items:start;}
+  .om-bars{display:flex;flex-direction:column;gap:.7rem;font-family:var(--mono);font-size:var(--t-label);}
+  .om-bar{display:grid;grid-template-columns:5.6rem minmax(0,1fr) 2.6rem;gap:.7rem;align-items:center;}
+  .om-bar__l{color:var(--muted-dark);letter-spacing:var(--ls-instrument);text-transform:uppercase;}
+  .om-bar__t{height:12px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+  .om-bar__f{display:block;height:100%;background:#6a3440;}
+  /* szerokosci = commity / 864 (wrzesien), z pomiaru 30.09 */
+  .om-bar__f--0{width:1.6%;} .om-bar__f--1{width:19.6%;} .om-bar__f--2{width:5%;} .om-bar__f--3{width:100%;background:var(--th-hot);}
+  .om-bar__v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:#f6f2f3;}
+  .om-doba{display:block;width:100%;height:auto;}
+  .om-doba line{stroke:rgba(255,255,255,.08);stroke-width:1;}
+  .om-doba rect{fill:#6a3440;}
+  .om-doba rect.n{fill:var(--th-hot);}
+  .om-doba .om-os{fill:var(--muted-dark);font-family:var(--mono);font-size:11px;}
+
+  .om-proj{border-top:1px solid rgba(255,255,255,.08);}
+  .om-row{display:grid;grid-template-columns:minmax(0,1fr) auto 6.5rem;gap:1.4rem;align-items:baseline;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,.08);}
+  .om-row__n{font-weight:600;font-size:var(--t-title);line-height:var(--lh-title);min-width:0;}
+  .om-row__n small{display:block;font-weight:400;font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);margin-top:.15rem;}
+  .om-row__c,.om-row__ln{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;}
+  .om-row__c{font-size:var(--t-title);font-weight:600;}
+  .om-row__ln{font-size:var(--t-ui);color:var(--muted-dark);}
+  .om-row--head{font-family:var(--mono);font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--muted-dark);padding:.6rem 0;}
+  .om-row--head .om-row__c,.om-row--head .om-row__ln{font-size:var(--t-label);font-weight:400;color:var(--muted-dark);}
+
+  .om-board__h--solo{margin-top:.6rem;}
+  .om-cutlist{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.45rem;max-width:var(--measure);font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .om-cutlist li{display:grid;grid-template-columns:1.2rem minmax(0,1fr);}
+  .om-cutlist li::before{content:"−";color:var(--th-hot);font-family:var(--mono);}
+
+
+
+
+  @media (max-width:820px){
+    .om-nums{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .om-nums div:nth-child(3){padding-left:0;border-left:0;}
+    .om-nums div:nth-child(n+3){border-top:1px solid rgba(255,255,255,.08);}
+    .om-two{grid-template-columns:minmax(0,1fr);}
+  }
+  @media (max-width:520px){
+    .om-cut{grid-template-columns:minmax(0,1fr);}
+    .om-cut div+div{padding-left:0;border-left:0;border-top:1px solid rgba(255,255,255,.08);}
+    .om-row{grid-template-columns:minmax(0,1fr) auto;gap:.2rem 1rem;}
+    .om-row__ln{grid-column:2;}
+    .om-row--head .om-row__ln{display:none;}
+    .om-wall{grid-template-columns:repeat(auto-fill,minmax(7px,1fr));gap:2px;}
+    .om-doba .om-os{font-size:18px;}   /* SVG skaluje sie do ~290 px: 18 jednostek = ok. 11 px */
+  }
+  /* ---------- SCENA KULI SOMI (30.09) ----------
+     Kula na srodku, stany po bokach (desktop) albo w dwoch rzedach pod nia (telefon).
+     Kolory kropek = MOOD_COLOR z kula.js (krew / bursztyn / zielen). */
+  .somi-stage{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:clamp(1rem,3vw,2.6rem);margin:0 0 clamp(1.6rem,4vw,3rem);}
+  .somi-stage__kula{display:flex;flex-direction:column;align-items:center;gap:.9rem;min-width:0;}
+  .somi-stage .somi-demo__orb-wrap{margin:0;}
+  .somi-stage .somi-demo__orb-slot{height:clamp(240px,34vw,420px);aspect-ratio:1;cursor:pointer;}
+  .somi-stage .somi-demo__orb-slot::before,.somi-stage .somi-demo__orb-slot::after{height:92%;}
+  .somi-stage__stany{display:flex;flex-direction:column;gap:.7rem;align-items:flex-end;}
+  .somi-stage__stany + .somi-stage__kula + .somi-stage__stany{align-items:flex-start;}
+  .somi-stage__btn{
+    font:inherit;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);
+    color:rgba(246,242,243,.82);background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.12);border-radius:999px;
+    padding:.55rem 1rem;display:inline-flex;align-items:center;gap:.55rem;cursor:pointer;
+    transition:border-color .2s var(--ease-soft),background .2s var(--ease-soft),color .2s var(--ease-soft);
+  }
+  .somi-stage__btn:hover{border-color:rgba(255,58,82,.55);color:#fff;}
+  .somi-stage__btn:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .somi-stage__btn[aria-pressed="true"]{border-color:var(--th-hot);background:rgba(255,58,82,.1);color:#fff;}
+  .somi-stage__dot{width:8px;height:8px;border-radius:50%;background:var(--th-accent);flex:none;}
+  .somi-stage__btn[data-mood="thinking"] .somi-stage__dot{background:#d9a441;}
+  .somi-stage__btn[data-mood="speaking"] .somi-stage__dot{background:#6fbf95;}
+  .somi-stage__btn[data-mood="wow"] .somi-stage__dot,.somi-stage__btn[data-mood="tool"] .somi-stage__dot{background:var(--th-hot);}
+  .somi-stage__btn[data-mood="error"] .somi-stage__dot{background:transparent;border:1.5px solid var(--th-hot);}
+  .somi-stage__status{margin:0;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);text-align:center;min-height:1.5em;}
+  .somi-stage__prompt{color:#6fbf95;}
+  .somi-stage__status b{color:#f6f2f3;font-weight:600;}
+  @media (max-width:760px){
+    .somi-stage{grid-template-columns:minmax(0,1fr);}
+    .somi-stage__kula{order:-1;}
+    .somi-stage__stany,.somi-stage__stany + .somi-stage__kula + .somi-stage__stany{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;}
+  }
+  @media (prefers-reduced-motion:reduce){ .somi-stage__btn{transition:none;} }
+  /* brak WebGL albo reduced-motion = brak kuli: przyciski nie mialyby czym sterowac */
+  .somi-stage:not(:has(.has-orb)) .somi-stage__stany,.somi-stage:not(:has(.has-orb)) .somi-stage__status{display:none;}
+  /* karty SOMI "Co juz umie" jako przyciski otwierajace okno (30.09) */
+  button.card{font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer;}
+  button.card:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .card--open .seed__hint{margin-top:auto;}
+  .card--open:hover .seed__hint,.card--open:focus-visible .seed__hint{color:var(--th-hot);transform:translateX(4px);}
 </style>
 </head>
 <body>
@@ -2569,7 +2694,7 @@
         <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do mnie</a>
       </div>
 
-      <!-- pas faktow: kazda pozycja ma pokrycie (PyPI 0.3.0, podpisana umowa,
+      <!-- pas faktow: kazda pozycja ma pokrycie (PyPI, testy w salonie, BEZ umowy — nie podpisana, 30.09,
            radar chodzacy 24/7). Zadnej liczby bez pokrycia. -->
       <dl class="hero__rail">
         <div class="hero__fact"><dt>Pycodemath</dt><dd>PyPI 0.4.0</dd></div>
@@ -2657,7 +2782,7 @@
          Co jest teraz: trzy PASY na pelna szerokosc, na przemian lewo/prawo, na
          JASNYM tle — jedyny jasny ekran na stronie, wiec dziala jak wybicie rytmu,
          a nie jak drugi motyw. Zamiast obietnic ("layout, ktory sprzedaje") ida
-         fakty do sprawdzenia: wersja na PyPI, podpisana umowa, chodzacy radar. -->
+         fakty do sprawdzenia: wersja na PyPI, stan programu (umowy NIE ma, 30.09), chodzacy radar. -->
     <section class="projekty reveal" id="projekty" aria-label="Moje projekty">
       <div class="projekty__inner">
         <div class="projekty__head">
@@ -3477,14 +3602,34 @@
           <h2 class="services__title">Z czego się składa</h2>
         </div>
 
-        <div class="somi-demo__layout">
-          <div class="somi-demo__about">
+        <!-- SCENA KULI (30.09, prosba maisy: "kulka wieksza, na srodku, zeby sie krecila i reagowala,
+             obok przyciski, mozesz sprawdzic np. jak mysli — jak w SOMI terminal"). Stany to te same
+             profile MOOD_PARAMS co w terminalu; czat demo nizej steruje ta sama kula (mysli -> mowi).
+             Kula dalej rysuje sie tylko w kadrze (IntersectionObserver w kula.js). -->
+        <div class="somi-stage">
+          <div class="somi-stage__stany" role="group" aria-label="Stany SOMI, lewa strona">
+            <button type="button" class="somi-stage__btn" data-mood="calm" aria-pressed="true"><span class="somi-stage__dot"></span>spokój</button>
+            <button type="button" class="somi-stage__btn" data-mood="thinking" aria-pressed="false"><span class="somi-stage__dot"></span>myśli</button>
+            <button type="button" class="somi-stage__btn" data-mood="speaking" aria-pressed="false"><span class="somi-stage__dot"></span>mówi</button>
+          </div>
+          <div class="somi-stage__kula">
             <div class="somi-demo__orb-wrap">
-              <div class="somi-demo__orb-slot">
+              <div class="somi-demo__orb-slot" title="Kliknij, żeby SOMI zareagowała">
                 <canvas id="somiDemoOrb" hidden aria-hidden="true"></canvas>
                 <div class="somi-demo__orb-glow" aria-hidden="true"></div>
               </div>
             </div>
+            <p class="somi-stage__status" aria-live="polite"><span class="somi-stage__prompt">somi@kula</span> <b>spokój</b> <span class="somi-stage__opis">czeka, oddycha powoli</span></p>
+          </div>
+          <div class="somi-stage__stany" role="group" aria-label="Stany SOMI, prawa strona">
+            <button type="button" class="somi-stage__btn" data-mood="tool" aria-pressed="false"><span class="somi-stage__dot"></span>narzędzie</button>
+            <button type="button" class="somi-stage__btn" data-mood="wow" aria-pressed="false"><span class="somi-stage__dot"></span>zaskoczenie</button>
+            <button type="button" class="somi-stage__btn" data-mood="error" aria-pressed="false"><span class="somi-stage__dot"></span>błąd</button>
+          </div>
+        </div>
+
+        <div class="somi-demo__layout">
+          <div class="somi-demo__about">
             <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówię wprost, co jest gotowe, a co nie. To mój pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
             <ul class="somi-demo__parts">
               <li><span class="somi-demo__tag is-live">już teraz</span> Rozmowa tutaj, niżej na tej stronie — pyta, odpowiada, pokazuje, od czego zacząć.</li>
@@ -3577,21 +3722,24 @@
           <h2 class="services__title">Co już umie, co dochodzi</h2>
         </div>
         <div class="cards">
-          <article class="card">
+          <button type="button" class="card card--open" data-somi="rozmowa" aria-label="Przykładowa rozmowa — zobacz więcej">
             <span class="card__tag">Już teraz</span>
             <h3 class="card__title">Przykładowa rozmowa</h3>
             <p class="card__body">Trzy gotowe pytania wyżej na tej stronie — SOMI odpowiada, pokazuje, od czego zacząć.</p>
-          </article>
-          <article class="card">
+            <span class="seed__hint">▸ otwórz</span>
+          </button>
+          <button type="button" class="card card--open" data-somi="research" aria-label="Deep research — zobacz więcej">
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Deep research</h3>
             <p class="card__body">Moje scrapery i radary przeglądają setki ofert i zwracają tylko te, które mają sens — SOMI niedługo poprowadzi to za Ciebie z poziomu czatu. Od startu radar przeanalizował łącznie 264 oferty i wysłał 14 zgłoszeń (najlepszy pojedynczy skan: 156 leadów) — to działa dziś, tylko jeszcze nie z poziomu czatu.</p>
-          </article>
-          <article class="card">
+            <span class="seed__hint">▸ otwórz</span>
+          </button>
+          <button type="button" class="card card--open" data-somi="agent" aria-label="Agent, który działa — zobacz więcej">
             <span class="card__tag">W budowie</span>
             <h3 class="card__title">Agent, który działa</h3>
             <p class="card__body">Pętla narzędzi (function-calling): czyta pliki, pisze kod i uruchamia skrypty — z bramką akceptacji, więc nic nie dzieje się bez Twojej zgody. Sprawdzony na 10-modułowej serii testów parity z Claude Code, zamkniętej 29.07.2026.</p>
-          </article>
+            <span class="seed__hint">▸ otwórz</span>
+          </button>
         </div>
       </div>
     </section>
@@ -3681,14 +3829,67 @@
         <div class="eyebrow">kim jestem</div>
         <h1 class="slogan">O mnie</h1>
         <p class="stub">Cybersora to marka, którą prowadzę sam — Patryk Gwóźdź. Bez agencyjnego rozdęcia, podwykonawców i pośredników. Kod, design i wzrost robię własnymi rękami, od pierwszej rozmowy do wdrożenia.</p>
-        <!-- liczby z DANE.md (audyt 20.09, cztery-miesiace-linkedin), pod marka cybersora -->
+        <!-- liczby z mierz_dorobek.py (30.09): tylko moje commity, kazda praca liczona raz -->
         <dl class="hero__rail">
-          <div class="hero__fact"><dt>Commity</dt><dd>764 / 84 dni</dd></div>
-          <div class="hero__fact"><dt>Rytm</dt><dd>47 dni z commitem</dd></div>
-          <div class="hero__fact"><dt>Kod i dokumentacja</dt><dd>413 515 linii</dd></div>
+          <div class="hero__fact"><dt>Commity</dt><dd>1 090 / 94 dni</dd></div>
+          <div class="hero__fact"><dt>Rytm</dt><dd>57 dni z commitem</dd></div>
+          <div class="hero__fact"><dt>Kod i dokumentacja</dt><dd>382 385 linii</dd></div>
         </dl>
       </div>
     </div>
+
+        <!-- O MNIE: statystyki (30.09; tekst o sobie pisze maisa sam, tu tylko liczby). Liczby: mierz_dorobek.py z 30.09 (tylko moje commity, kazda praca raz).
+         Sciana commitow i doba to statyczny HTML/SVG z pomiaru: zero JS, zero animacji w petli.
+         Po nowym pomiarze przegenerowac ten blok, nie poprawiac liczb recznie. -->
+    <section class="services om reveal" aria-labelledby="omLiczby">
+      <div class="services__inner">
+        <div class="services__head">
+          <div class="services__eyebrow" data-hex="git log --all">liczby</div>
+          <h2 class="services__title" id="omLiczby">94 dni w liczbach</h2>
+        </div>
+        <div class="om-nums">
+          <div><b>1 090</b><span>commitów, czyli zapisanych i datowanych porcji pracy</span></div>
+          <div><b>382 385</b><span>linii: 293 331 kodu i 89 054 dokumentacji</span></div>
+          <div><b>57 / 94</b><span>dni, w których poszedł commit</span></div>
+          <div><b>33</b><span>dni z rzędu, najdłuższa seria</span></div>
+        </div>
+        <div class="om-board">
+          <div class="om-board__h"><b>ściana commitów</b><span>29.06 → 30.09.2026</span></div>
+          <div class="om-wall" role="img" aria-label="1090 kwadratów, jeden na commit, 260 nocnych zaznaczonych na czerwono"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i class="n"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="om-legend"><span class="om-legend__d">dzień: 830</span><span class="om-legend__n">23:00–6:00: 260</span></div>
+          <p>Jeden kwadrat = jeden commit, w kolejności powstania.</p>
+        </div>
+        <div class="om-two">
+          <div class="om-board">
+            <div class="om-board__h"><b>miesiące</b><span>commity</span></div>
+            <div class="om-bars"><div class="om-bar"><span class="om-bar__l">czerwiec</span><span class="om-bar__t"><span class="om-bar__f om-bar__f--0"></span></span><span class="om-bar__v">14</span></div><div class="om-bar"><span class="om-bar__l">lipiec</span><span class="om-bar__t"><span class="om-bar__f om-bar__f--1"></span></span><span class="om-bar__v">169</span></div><div class="om-bar"><span class="om-bar__l">sierpień</span><span class="om-bar__t"><span class="om-bar__f om-bar__f--2"></span></span><span class="om-bar__v">43</span></div><div class="om-bar"><span class="om-bar__l">wrzesień</span><span class="om-bar__t"><span class="om-bar__f om-bar__f--3"></span></span><span class="om-bar__v">864</span></div></div>
+            <p>Najgęstszy dzień: <b>29 września, 112 commitów</b>.</p>
+          </div>
+          <div class="om-board">
+            <div class="om-board__h"><b>doba</b><span>commity według godziny</span></div>
+            <svg class="om-doba" viewBox="-22 0 502 172" role="img" aria-label="Commity według godziny: najwięcej między 13 a 16, druga fala od 21 do 2 w nocy"><line x1="30" x2="462" y1="150" y2="150"/><text class="om-os" x="24" y="154" text-anchor="end">0</text><line x1="30" x2="462" y1="85" y2="85"/><text class="om-os" x="24" y="89" text-anchor="end">50</text><line x1="30" x2="462" y1="20" y2="20"/><text class="om-os" x="24" y="24" text-anchor="end">100</text><rect class="n" x="32" y="99.3" width="14" height="50.7"/><text class="om-os" x="39" y="166" text-anchor="middle">00</text><rect class="n" x="50" y="68.1" width="14" height="81.9"/><rect class="n" x="68" y="99.3" width="14" height="50.7"/><rect class="n" x="86" y="133.1" width="14" height="16.9"/><text class="om-os" x="93" y="166" text-anchor="middle">03</text><rect class="n" x="104" y="138.3" width="14" height="11.7"/><rect class="n" x="122" y="142.2" width="14" height="7.8"/><rect x="140" y="140.9" width="14" height="9.1"/><text class="om-os" x="147" y="166" text-anchor="middle">06</text><rect x="158" y="140.9" width="14" height="9.1"/><rect x="176" y="148.7" width="14" height="1.3"/><rect x="194" y="140.9" width="14" height="9.1"/><text class="om-os" x="201" y="166" text-anchor="middle">09</text><rect x="212" y="129.2" width="14" height="20.8"/><rect x="230" y="112.3" width="14" height="37.7"/><rect x="248" y="82.4" width="14" height="67.6"/><text class="om-os" x="255" y="166" text-anchor="middle">12</text><rect x="266" y="53.8" width="14" height="96.2"/><rect x="284" y="22.6" width="14" height="127.4"/><rect x="302" y="22.6" width="14" height="127.4"/><text class="om-os" x="309" y="166" text-anchor="middle">15</text><rect x="320" y="36.9" width="14" height="113.1"/><rect x="338" y="98.0" width="14" height="52.0"/><rect x="356" y="82.4" width="14" height="67.6"/><text class="om-os" x="363" y="166" text-anchor="middle">18</text><rect x="374" y="70.7" width="14" height="79.3"/><rect x="392" y="70.7" width="14" height="79.3"/><rect x="410" y="55.1" width="14" height="94.9"/><text class="om-os" x="417" y="166" text-anchor="middle">21</text><rect x="428" y="62.9" width="14" height="87.1"/><rect class="n" x="446" y="31.7" width="14" height="118.3"/></svg>
+          </div>
+        </div>
+        <div class="om-board__h om-board__h--solo"><b>metoda</b><span>każda praca liczona raz</span></div>
+        <div class="om-cut">
+          <div class="om-cut__raw"><b>1 257 458</b><span>tyle wyszłoby, gdybym policzył każdy plik z kodem, który leży w moich repozytoriach</span></div>
+          <div><b>382 385</b><span>tyle zostaje, kiedy każdą pracę liczę raz</span></div>
+        </div>
+        <ul class="om-cutlist">
+          <li>kopie zapasowe tego samego pliku: SalonDesk trzyma dziesiątki zapisów prototypu interfejsu</li>
+          <li>pliki wygenerowane, szkice i podglądy, których nie ma w historii gita</li>
+          <li>kopia wdrożeniowa tej strony i lustro Pycodemath na GitHubie</li>
+          <li>biblioteki innych ludzi: zależności nie liczyłem w ogóle</li>
+        </ul>
+        <div class="om-proj">
+          <div class="om-row om-row--head"><span>projekt</span><span class="om-row__c">commity</span><span class="om-row__ln">linie</span></div>
+          <div class="om-row"><span class="om-row__n">SalonDesk<small>aplikacja desktop dla salonów beauty</small></span><span class="om-row__c">304</span><span class="om-row__ln">160 557</span></div>
+          <div class="om-row"><span class="om-row__n">SOMI<small>asystentka: agent, terminal, bot, głos</small></span><span class="om-row__c">323</span><span class="om-row__ln">144 653</span></div>
+          <div class="om-row"><span class="om-row__n">Pycodemath<small>silnik matematyczny, publicznie na PyPI</small></span><span class="om-row__c">164</span><span class="om-row__ln">33 192</span></div>
+          <div class="om-row"><span class="om-row__n">Reszta<small>ta strona, bot społeczności, audyt widoczności, licencje, rachunki, MoonSora</small></span><span class="om-row__c">299</span><span class="om-row__ln">43 983</span></div>
+        </div>
+      </div>
+    </section>
 
     <section class="services">
       <div class="services__inner">
@@ -3807,7 +4008,7 @@ magazyn.sprawdz(zapasy)</div>
             </svg></span>
             <div class="seed__scrim" aria-hidden="true"></div>
             <div class="seed__content">
-              <span class="seed__tag">[ W budowie ]</span>
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> W budowie <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">SalonDesk</h3>
               <p class="seed__body">Kasa i magazyn dla salonu beauty.</p>
               <span class="seed__hint">▸ otwórz</span>
@@ -3829,7 +4030,7 @@ generuj_kod(wzor)</div>
             </svg></span>
             <div class="seed__scrim" aria-hidden="true"></div>
             <div class="seed__content">
-              <span class="seed__tag">[ W budowie ]</span>
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> W budowie <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">Pycodemath</h3>
               <p class="seed__body">Silnik matematyki symbolicznej dla agentów AI.</p>
               <span class="seed__hint">▸ otwórz</span>
@@ -3854,7 +4055,7 @@ raport.rrso(rrso)</div>
             </svg></span>
             <div class="seed__scrim" aria-hidden="true"></div>
             <div class="seed__content">
-              <span class="seed__tag">[ W budowie ]</span>
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> W budowie <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">Rachmistrz</h3>
               <p class="seed__body">Kalkulator RRSO i rat kredytowych.</p>
               <span class="seed__hint">▸ otwórz</span>
@@ -3886,7 +4087,7 @@ fingerprint(maszyna)</div>
             </svg></span>
             <div class="seed__scrim" aria-hidden="true"></div>
             <div class="seed__content">
-              <span class="seed__tag">[ W budowie ]</span>
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> W budowie <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">Frostwall</h3>
               <p class="seed__body">Biblioteka licencjonowania offline.</p>
               <span class="seed__hint">▸ otwórz</span>
@@ -4146,7 +4347,7 @@ fingerprint(maszyna)</div>
   <div class="sprout__win">
     <div class="sprout__bar" id="sproutBar">
       <span class="sprout__grip" aria-hidden="true"></span>
-      <span class="sprout__path" aria-hidden="true">sadzonki://<b id="sproutPath"></b></span>
+      <span class="sprout__path" aria-hidden="true"><span id="sproutScheme">sadzonki://</span><b id="sproutPath"></b></span>
       <span class="sprout__count" id="sproutCount"></span>
       <button class="sprout__x" type="button" id="sproutClose" aria-label="Zamknij">&times;</button>
     </div>
@@ -4199,7 +4400,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20260930i"></script>
+<script src="app.js?v=20261001b"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -4218,7 +4419,7 @@ fingerprint(maszyna)</div>
      opóźniałaby pierwsze malowanie o tyle, ile trwa jej pobranie — a to ozdoba
      strony SOMI, nie treść.
      ============================================================ -->
-<script src="kula.js?v=20260927b"></script>
+<script src="kula.js?v=20260930b"></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.

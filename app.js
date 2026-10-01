@@ -951,12 +951,13 @@
     'for(const k of kod){drzewo.rosnij(k)};git commit -m "kolejny pęd";'
   ];
   const RN_HEX = '0123456789abcdef';
-  const RN_CH = [...new Set([...RN_CODE.join('').replace(/ /g, '·'), ...RN_HEX, '█'])];
+  const RN_GRASS = '|/\\!', RN_GTIP = "'`,.:";   // trawa z kodu (z headera Pycodemath, maisa 30.09: „dojebana”)
+  const RN_CH = [...new Set([...RN_CODE.join('').replace(/ /g, '·'), ...RN_HEX, '█', ...RN_GRASS, ...RN_GTIP])];
   const RN_IX = new Map(RN_CH.map((ch, i) => [ch, i]));
   const RN_HX = [...RN_HEX].map(ch => RN_IX.get(ch)), RN_CUR = RN_IX.get('█');
   const RN = { cv: document.createElement('canvas'), at: document.createElement('canvas'), eb: document.createElement('canvas'),
     eo: { x: 0, y: 0, w: 0, h: 0, ok: false }, atKey: '', cell: 0, cp: 0, fonts: false, mob: false, fs: 12,
-    top: 0, ground: 0, trees: [], zones: [], items: null, leaf: null, ptr: 0, gen: 0, u: 0, lt: -1,
+    top: 0, ground: 0, trees: [], items: null, leaf: null, ptr: 0, gen: 0, u: 0, lt: -1,
     job: null, pend: null, pendGen: 0, st: [], sh: [], fall: [], fallAcc: 0 };
   RN.c = RN.cv.getContext('2d'); RN.ac = RN.at.getContext('2d'); RN.ec = RN.eb.getContext('2d');
   for (let i = 0; i < RN_FALL; i++) RN.fall.push({ on: false, x0: 0, y: 0, xl: 0, g0: 0, g1: -1, al: 1, vy: 0, amp: 0, sp: 0, ph: 0, dr: 0, t: 0, land: 0 });
@@ -1034,17 +1035,19 @@
     // pod nawigacja (makieta: 65 px + 39 / + 19), ziemia nad dolna krawedzia hero
     const nb = nav ? Math.max(0, Math.min(140, nav.getBoundingClientRect().bottom - st.top)) : 65;
     RN.top = nb + (D ? 39 : 19); RN.ground = H - (D ? 34 : 14);
+    /* sufit galezi (maisa 30.09, kolka w gornych rogach): korony licza sie od RN.top jak dotad, ale swiatlo i pedy
+       moga dojsc do RN.roof tuz pod nawigacja. Nawigacja ma pelne tlo, wiec logo i przycisk zostaja czyste. */
+    RN.roof = nb + (D ? 12 : 8);
     if (bgTextMeasure(RN_SEL)) bgMaskBuild();
     rnEbMask();
+    /* x0/x1 = strefa korony (ksztalt jak dotad), e0/e1 = dokad pedy moga dorosnac (do krawedzi ekranu) */
     if (D) {   // boki wolne od tekstu (1440: x < 440 i > 1000), sadzonka przy zewnetrznej krawedzi
-      const a0 = 26 * s, a1 = W / 2 - 280 * s, b0 = W / 2 + 280 * s, b1 = W - 26 * s;   // blisko krawedzi: korona ma wypelniac rogi
-      RN.zones = [a0, a1, b0, b1];
-      RN.trees = [{ x: a0 + (a1 - a0) * 0.505, x0: a0, x1: a1, big: 1 }, { x: a0 + (a1 - a0) * 0.16, x0: a0, x1: a1, big: 0 },
-        { x: b0 + (b1 - b0) * 0.495, x0: b0, x1: b1, big: 1 }, { x: b0 + (b1 - b0) * 0.84, x0: b0, x1: b1, big: 0 }];
+      const a0 = 26 * s, a1 = W / 2 - 280 * s, b0 = W / 2 + 280 * s, b1 = W - 26 * s, e0 = 6 * s, e1 = W - 6 * s;
+      RN.trees = [{ x: a0 + (a1 - a0) * 0.505, x0: a0, x1: a1, e0, e1: a1, big: 1 }, { x: a0 + (a1 - a0) * 0.16, x0: a0, x1: a1, e0, e1: a1, big: 0 },
+        { x: b0 + (b1 - b0) * 0.495, x0: b0, x1: b1, e0: b0, e1, big: 1 }, { x: b0 + (b1 - b0) * 0.84, x0: b0, x1: b1, e0: b0, e1, big: 0 }];
     } else {
-      RN.zones = [8 * s, W - 8 * s];
-      RN.trees = [{ x: 70 * s, x0: 8 * s, x1: 190 * s, big: 1 }, { x: 326 * s, x0: 200 * s, x1: 382 * s, big: 1 },
-        { x: 196 * s, x0: 150 * s, x1: 240 * s, big: 0 }];
+      RN.trees = [{ x: 70 * s, x0: 8 * s, x1: 190 * s, e0: 2, e1: 190 * s, big: 1 }, { x: 326 * s, x0: 200 * s, x1: 382 * s, e0: 200 * s, e1: W - 2, big: 1 },
+        { x: 196 * s, x0: 150 * s, x1: 240 * s, e0: 150 * s, e1: 240 * s, big: 0 }];
     }
     for (let i = 0; i <= 40; i++) { RN.st[i] = rgba(themeState.a, (i / 40).toFixed(3)); RN.sh[i] = rgba(themeState.hot, (i / 40).toFixed(3)); }
     rnAtlas();
@@ -1064,15 +1067,17 @@
   /* Jedno drzewo (albo kilka pni we wspolnej kolonizacji) do listy items; yield miedzy etapami i co iteracje
      kolonizacji. Elementy: k 0 = znak kory (obrocony wzdluz galezi), k 1 = lisc hex (1-2 znaki, goracy). */
   function* rnTree(rng, T, arch, code, items) {
-    const D = !RN.mob, fs = RN.fs, top = RN.top, ground = RN.ground, big = T[0].big;
+    const D = !RN.mob, fs = RN.fs, top = RN.top, roof = RN.roof, ground = RN.ground, big = T[0].big;
     let ci = Math.floor(rng() * code.length);
     const next = () => { const ch = code[ci++ % code.length]; return RN_IX.get(ch === ' ' ? '·' : ch); };
     const step = fs * 0.8, di = D ? 74 : 44, dk = step * 1.7, laneGap = fs * 0.62, maxLanes = big ? (D ? 7 : 4) : 3;
     let X0 = 1e9, X1 = -1e9;
-    for (const t of T) { X0 = Math.min(X0, t.x0); X1 = Math.max(X1, t.x1); }
+    for (const t of T) { X0 = Math.min(X0, t.e0); X1 = Math.max(X1, t.e1); }
+    // dopelnienia rogow i pasa pod nawigacja ciagna z osobnego ziarna, zeby korony z rng zostaly jak byly
+    const rng2 = rnRng(0x51ab + RN.gen * 131 + T.length);
     const ax = [], ay = [], Hz = ground - top;
     const addAtt = (x, y) => {
-      if (x < X0 || x > X1 || y < top + 4 || y > ground - 24 || rnBlocked(x, y)) return false;
+      if (x < X0 || x > X1 || y < roof + 4 || y > ground - 24 || rnBlocked(x, y)) return false;
       ax.push(x); ay.push(y); return true;
     };
     for (const t of T) {
@@ -1090,6 +1095,7 @@
         const bl = blobs[Math.floor(rng() * blobs.length)], u = rng() * Math.PI * 2, r = Math.sqrt(rng());
         if (addAtt(bl.x + Math.cos(u) * bl.rx * r, bl.y + Math.sin(u) * bl.ry * r)) n++;
       }
+      yield;
       /* wspolna korona: gorny zewnetrzny rog strefy tez ma swiatlo (maisa 29.09: „zeby wypelnialo strone
          faktycznie”), inaczej elipsy zwezaja sie ku gorze i przy krawedzi ekranu zostaje pusty rog */
       if (arch && T.length > 1) {
@@ -1099,6 +1105,51 @@
         for (let tries = 0, n = 0; n < NC && tries < NC * 8; tries++) {
           const u = rng() * Math.PI * 2, r = Math.sqrt(rng());
           if (addAtt(ox + Math.cos(u) * orx * r, oy + Math.sin(u) * ory * r)) n++;
+        }
+        /* maisa 30.09 (kolka 1 i 4): rog nadal pusty pod logo i przy prawej krawedzi, wiec druga plama swiatla
+           wyzej i w samym rogu ekranu, od sufitu galezi do ok. jednej trzeciej korony */
+        if (!D) {
+          const ex = dir > 0 ? t.e0 : t.e1;
+          const qx = ex + dir * rx * 0.35, qy = roof + (cBot - roof) * 0.2, qrx = rx * 0.55, qry = (cBot - roof) * 0.22;
+          for (let tries = 0, n = 0; n < 30 && tries < 240; tries++) {
+            const u = rng2() * Math.PI * 2, r = Math.sqrt(rng2());
+            if (addAtt(qx + Math.cos(u) * qrx * r, qy + Math.sin(u) * qry * r)) n++;
+          }
+        } else {
+          /* maisa 30.09 poznym wieczorem (hak w lewym rogu): jedna plama w samym rogu ciagnela jedna dluga galaz,
+             ktora obrysowywala pusta kieszen. Swiatlo idzie teraz w rog pasem od lewego brzegu korony: kilka
+             malych elips, kazda w zasiegu di od poprzedniej, wiec do rogu rosnie kilka galezi obok siebie.
+             Kierunek z polozenia pnia: `outer` wyzej porownuje cx, a prawa korona nie ma go jeszcze, gdy liczy sie
+             lewa, wiec dla lewego drzewa plamy „w rog” szly do srodka (zostaja, bo trzymaja luk; strumien rng bez zmian) */
+          const dO = t.x < W / 2 ? 1 : -1, ex = dO > 0 ? t.e0 : t.e1;
+          if (dO !== dir) {   // lewe drzewo nie mialo gornej plamy przy krawedzi, dostaje ja z rng2
+            const ox = (dO > 0 ? t.x0 : t.x1) + dO * rx * 0.3;
+            for (let tries = 0, n = 0; n < NC && tries < NC * 8; tries++) {
+              const u = rng2() * Math.PI * 2, r = Math.sqrt(rng2());
+              if (addAtt(ox + Math.cos(u) * orx * r, oy + Math.sin(u) * ory * r)) n++;
+            }
+          }
+          const fx = cx - dO * rx * 0.7, fy = (cTop + cBot) / 2, tx = ex + dO * 40, ty = roof + 40;
+          const K = Math.max(3, Math.ceil(Math.hypot(tx - fx, ty - fy) / (di * 0.6)));
+          for (let k = 0; k <= K; k++) {
+            const f = k / K, px = fx + (tx - fx) * f, py = fy + (ty - fy) * f, pr = di * (0.75 - f * 0.15);
+            for (let tries = 0, n = 0; n < 22 && tries < 180; tries++) {
+              const u = rng2() * Math.PI * 2, r = Math.sqrt(rng2());
+              if (addAtt(px + Math.cos(u) * pr, py + Math.sin(u) * pr * 0.8)) n++;
+            }
+          }
+          yield;
+          /* szersze ekrany: ta sama liczba punktow na wieksza korone dawala rzadszy zewnetrzny brzeg (1920 ~0,56x
+             gestosci z 1440), wiec dopelnienie w zewnetrznej polowie glownej elipsy rosnie z szerokoscia */
+          const s = W / 1440, NE = Math.round(440 * Math.max(0, s - 1) + 60), ry = (cBot - cTop) / 2;
+          for (let tries = 0, n = 0; n < NE && tries < NE * 8; tries++) {
+            const u = rng2() * Math.PI - Math.PI / 2, r = Math.sqrt(rng2());
+            if (addAtt(cx - dO * Math.abs(Math.cos(u)) * rx * r, fy + Math.sin(u) * ry * r)) n++;
+          }
+          // kieszen nad sadzonka przy krawedzi: duza korona schodzi tu nizej i laczy sie z sadzonka
+          const kx0 = ex, kx1 = cx - dO * rx * 0.6, ky0 = cTop + (cBot - cTop) * 0.3, ky1 = ground - Hz * 0.5;
+          for (let tries = 0, n = 0; n < 70 && tries < 560; tries++)
+            if (addAtt(kx0 + (kx1 - kx0) * rng2(), ky0 + (ky1 - ky0) * rng2())) n++;
         }
       }
       yield;
@@ -1111,6 +1162,21 @@
       for (let tries = 0, n = 0; n < N && tries < N * 10; tries++) {
         const x = xa + (xb - xa) * rng(), u = (x - (xa + xb) / 2) / ((xb - xa) / 2), yc = yEnd - (yEnd - yMid) * (1 - u * u);
         if (addAtt(x + (rng() - 0.5) * 8, yc + (rng() - 0.5) * 2 * th)) n++;
+      }
+      // pas pod nawigacja przez cala szerokosc (maisa 30.09, kolka 2 i 3): luk bez dziury, galezie do gory strony
+      const NB = D ? 240 : 50, hb = D ? 110 : 40;
+      for (let tries = 0, n = 0; n < NB && tries < NB * 10; tries++)
+        if (addAtt(X0 + (X1 - X0) * rng2(), roof + 4 + rng2() * hb)) n++;
+      /* maisa 01.10 (kolko na srodku luku): waski pas swiatla dawal na srodku jedna nitke z pusta kieszenia pod nia,
+         jak drut miedzy drzewami. Na komputerze srodek luku dostaje z rng2 szerszy pas i polksiezyc swiatla w dol,
+         do polowy drogi do nadtytulu (rnBlocked i tak trzyma 26 px od tekstu), wiec korony sie zrastaja */
+      if (D) {
+        const E = RN.eo, yEb = E.ok ? E.y : yMid + 200, xm = (xa + xb) / 2, hw = (xb - xa) / 2;
+        for (let tries = 0, n = 0; n < 200 && tries < 2000; tries++) {
+          const u = (rng2() * 2 - 1) * 0.5, yc = yEnd - (yEnd - yMid) * (1 - u * u), f = 1 - (u / 0.5) ** 2;
+          const dep = Math.max(0, (yEb - yc) * 0.6 - th) * f;
+          if (addAtt(xm + u * hw + (rng2() - 0.5) * 8, yc - th * (1 + 0.8 * f) + rng2() * (th * (2 + 1.6 * f) + dep))) n++;
+        }
       }
     }
     yield;
@@ -1162,6 +1228,7 @@
     for (let it = 0; it < 320; it++) {
       touched.length = 0;
       for (let a = 0; a < na; a++) {
+        if (a % 1200 === 1199) yield;   // wiecej swiatla w rogach: pierwsze iteracje dzielone, krok przy 4x CPU krotki
         if (!aon[a]) continue;
         const i = near(ax[a], ay[a], di); if (i < 0) continue;
         const dx = ax[a] - nx[i], dy = ay[a] - ny[i], l = Math.hypot(dx, dy) || 1;
@@ -1175,7 +1242,7 @@
         let dx = accX[i], dy = accY[i] - 0.35;                        // fototropizm: lekko w gore
         const l = Math.hypot(dx, dy); if (l < 1e-3) continue; dx /= l; dy /= l;
         const x = nx[i] + dx * step, y = ny[i] + dy * step;
-        if (y < top || y > ground - 6 || x < X0 || x > X1) continue;
+        if (y < roof || y > ground - 6 || x < X0 || x > X1) continue;
         if (near(x, y, step * 0.5) >= 0) continue;
         fresh.push(addNode(x, y, i));
       }
@@ -1197,9 +1264,10 @@
       const lo = Math.min(T[0].cx, T[1].cx), hi = Math.max(T[0].cx, T[1].cx), yb = top + (ground - top) * 0.4;
       const c0 = [], c1 = [];
       for (let i = 0; i < nx.length; i++) if (ny[i] < yb && nx[i] > lo && nx[i] < hi) (nr[i] === 0 ? c0 : c1).push(i);
-      let best = 1e18, A = -1, B = -1;
+      let best = 1e18, A = -1, B = -1, pary = 0;
       for (let q = 0; q < c0.length; q++) {
-        if (q % 200 === 199) yield;
+        // yield po liczbie sprawdzonych par, nie wezlow: pas pod nawigacja zageszcza oba koniuszki luku
+        if ((pary += c1.length) > 30000) { pary = 0; yield; }
         const i = c0[q];
         for (let z = 0; z < c1.length; z++) { const j = c1[z], dx = nx[i] - nx[j], dy = ny[i] - ny[j], d = dx * dx + dy * dy; if (d < best) { best = d; A = i; B = j; } }
       }
@@ -1236,20 +1304,21 @@
         const k = 3 + Math.floor(rng() * 3), R = D ? 10 : 6;
         for (let j = 0; j < k; j++) {
           const u = rng() * Math.PI * 2, r = R * Math.sqrt(rng()), x = nx[i] + Math.cos(u) * r, y = ny[i] + Math.sin(u) * r - R * 0.3;
-          if (y < top || rnBlocked(x, y)) continue;
+          if (y < roof || rnBlocked(x, y)) continue;
           const two = rng() < 0.35, g0 = RN_HX[Math.floor(rng() * 16)], g1 = two ? RN_HX[Math.floor(rng() * 16)] : -1;
           items.push({ k: 1, x, y, a: 0, g0, g1, b: nd[i] + step * (1 + j), sh: 0, fz: fs, al: 0.55 + rng() * 0.8 });
         }
       }
     }
-    // korzenie: kilka pedow przy ziemi, w bok i lekko w dol
+    // korzenie: kilka pedow przy ziemi, w bok; nad linia ziemi (maisa 30.09: „drzewa wychodza poza linie na dole”)
+    const yR = ground - fs * 0.4;
     for (const t of T) {
       const nrt = big ? 4 + Math.floor(rng() * 2) : 2;
       for (let j = 0; j < nrt; j++) {
         const side = j % 2 ? 1 : -1, len = (big ? (D ? 46 : 22) : (D ? 20 : 10)) * (0.6 + rng() * 0.6);
-        let ang = (side > 0 ? 0 : Math.PI) + side * (0.12 + rng() * 0.35), x = t.x + side * laneGap * 0.8, y = ground - 2;
+        let ang = (side > 0 ? 0 : Math.PI) + side * (0.12 + rng() * 0.35), x = t.x + side * laneGap * 0.8, y = yR - 2;
         for (let s = 0; s < len / step; s++) {
-          x += Math.cos(ang) * step; y = Math.min(ground + 10, y + Math.sin(ang) * step); ang += side * (rng() - 0.3) * 0.15;
+          x += Math.cos(ang) * step; y = Math.min(yR, y + Math.sin(ang) * step); ang += side * (rng() - 0.3) * 0.15;
           items.push({ k: 0, x, y, a: ang + Math.PI / 2, g0: next(), g1: -1, b: s * step * 0.6, sh: Math.max(0.2, 0.6 - s * 0.04), fz: fs * (0.9 - s * 0.03), al: 0 });
         }
       }
@@ -1264,11 +1333,36 @@
     let mx = 0;
     for (const o of items) if (o.b > mx) mx = o.b;
     for (const o of items) o.b = o.b / (mx || 1) * RN_G;
+    /* trawa z kodu (port z headera Pycodemath, maisa 30.09: „dodaj tę trawę do strony”): od lewej do prawej krawędzi
+       ekranu (maisa 30.09: „żeby trawa rosła dalej, tak do końca strony”), łączy linie ziemi pod drzewami; rośnie od pni
+       w boki. Między pniami spotyka się pośrodku, za skrajnymi pniami dochodzi do krawędzi w tej samej chwili.
+       Źdźbło 1–5 znaków, kępy z dwóch sinusów, czubek czasem gorący; pieczone do bufora jak kora (bez kołysania,
+       zero kosztu na klatkę). */
+    const D = !RN.mob, fs = RN.fs, g = RN.ground;
+    const pnie = RN.trees.map(t => t.x).sort((a, b) => a - b), p0 = pnie[0], p1 = pnie[pnie.length - 1];
+    let midD = 1;
+    for (let i = 1; i < pnie.length; i++) midD = Math.max(midD, (pnie[i] - pnie[i - 1]) / 2);
+    const reach = x => x < p0 ? (p0 - x) / Math.max(1, p0) : x > p1 ? (x - p1) / Math.max(1, W - p1)
+      : Math.min(...pnie.map(p => Math.abs(x - p))) / midD;
+    const krok = fs * 0.7;
+    for (let x = rng() * 4, q = 0; x < W; x += (D ? 3 : 2.5) + rng() * (D ? 4 : 3)) {
+      if (++q % 120 === 0) yield;
+      if (rnBlocked(x, g - 20)) continue;
+      const kepa = 0.5 + 0.5 * Math.sin(x * 0.019 + 1.3) * Math.sin(x * 0.0071 + 0.4);
+      const n = 1 + Math.floor(Math.pow(rng(), 1.3) * (D ? 2 + kepa * 4 : 1 + kepa * 3)), lean = (rng() - 0.5) * 0.5;
+      const b0 = 0.1 + Math.min(1, reach(x)) * RN_G * 0.8, sh = 0.5 + rng() * 0.4, hot = rng() < 0.2;
+      for (let j = 0; j < n; j++) {
+        const d = j * krok + fs * 0.45, tip = j === n - 1;
+        const s = tip ? RN_GTIP : RN_GRASS, gi = RN_IX.get(s[Math.floor(rng() * s.length)]);
+        items.push({ k: 2, x: x + Math.sin(lean) * d, y: g - Math.cos(lean) * d, a: lean, g0: gi, g1: -1,
+          b: b0 + j * 0.06, sh, fz: fs, al: tip && hot ? 1 : 0 });
+      }
+    }
     yield;
     items.sort((a, b) => a.b - b.b);
     yield;
     const leaf = [];
-    for (let i = 0; i < items.length; i++) if (items[i].k) leaf.push(i);
+    for (let i = 0; i < items.length; i++) if (items[i].k === 1) leaf.push(i);
     return { items, leaf: Int32Array.from(leaf), gen };
   }
   function rnStep(budget) {
@@ -1286,7 +1380,10 @@
   // znak do bufora drzewa: raz, w chwili narodzin
   function rnBake(o) {
     const c = RN.c;
-    if (o.k) {
+    if (o.k === 2) {   // trawa: karmazyn, czubek czasem goracy (al 1)
+      c.globalAlpha = Math.min(1, RN_OP * o.sh);
+      rnGlyph(c, o.g0, o.al ? 1 : 0, o.x, o.y, o.fz, o.a);
+    } else if (o.k) {
       c.globalAlpha = Math.min(1, RN_OP * o.al);
       if (o.g1 < 0) rnGlyph(c, o.g0, 1, o.x, o.y, RN.fs, 0);
       else { const h = RN.fs * 0.3; rnGlyph(c, o.g0, 1, o.x - h, o.y, RN.fs, 0); rnGlyph(c, o.g1, 1, o.x + h, o.y, RN.fs, 0); }
@@ -1312,7 +1409,9 @@
     if (it) {
       while (RN.ptr < it.length && it[RN.ptr].b <= RN.u) rnBake(it[RN.ptr++]);
       RN.c.globalAlpha = 1;
-      wc.drawImage(RN.cv, 0, 0, W, H);
+      // bufor tylko do linii ziemi: nasada pni i korzenie nie wystaja pod nia
+      const gp = Math.min(RN.cv.height, Math.round((RN.ground + 1) * dpr));
+      wc.drawImage(RN.cv, 0, 0, RN.cv.width, gp, 0, 0, W, gp / dpr);
       if (!reduce && RN.u < RN_G) {
         // kursory na czubkach rosnacych pedow: ostatnio urodzone znaki
         wc.globalAlpha = op * Math.min(1, RN_OP * 2.4);
@@ -1367,7 +1466,8 @@
     // linia ziemi (odczyt SEED/GEN zdjety na prosbe maisy)
     wc.globalAlpha = op;
     wc.fillStyle = rnA(RN_OP * 0.5);
-    for (let z = 0; z < RN.zones.length; z += 2) wc.fillRect(RN.zones[z], RN.ground + 1, RN.zones[z + 1] - RN.zones[z], 1);
+    // jedna linia od krawedzi do krawedzi (maisa 30.09: „polacz te linie pod drzewami”), trawa na niej laczy drzewa
+    wc.fillRect(0, RN.ground + 1, W, 1);
     wc.globalAlpha = 1;
     // sufit pod tekstem liczony od pelnego krycia (nakladki w lighter go nie przebijaja), pod nadtytulem czysto
     bgMaskOut(wc, 1 - RN_CAP);
@@ -2408,8 +2508,9 @@
      a petla tla (mapa/BG) w tym czasie stoi (popupZakrywa). */
   (() => {
     const seeds = [...document.querySelectorAll('.seed[data-project]')];
+    const somiKarty = [...document.querySelectorAll('.card[data-somi]')];   // 30.09: karty "Co juz umie" na SOMI
     const pop = document.getElementById('sproutPop');
-    if (!seeds.length || !pop) return;
+    if ((!seeds.length && !somiKarty.length) || !pop) return;
     const $ = (id) => document.getElementById(id);
     const win = pop.querySelector('.sprout__win');
     const mainEl = document.querySelector('main');
@@ -2426,7 +2527,7 @@
         nazwa: 'SalonDesk',
         lead: 'Program do prowadzenia salonu beauty na jednym komputerze: kalendarz wizyt, grafik zespołu, kartoteka klientek, kasa, magazyn i bony. Działa bez internetu i bez chmury.',
         fakty: [
-          ['status', 'Prawdziwy klient i podpisana umowa'],
+          ['zakres', 'Wizyty · grafik · kartoteka · kasa · magazyn'],
           ['wersja', '1.4.2 · Windows · instalator'],
           ['silnik', 'Python · pywebview · SQLite'],
           ['dane', 'Na komputerze salonu, bez serwera'],
@@ -2438,7 +2539,7 @@
         },
         pytania: [
           { q: 'Jak działa kasa?', a: 'Paragon składa się z usług, produktów, bonów i pakietów, a wizytę z kalendarza rozlicza się jednym ruchem, po cenie z dnia rezerwacji. Płacić można gotówką, kartą, bonem albo pakietem, także kilkoma formami naraz. Sprzedany produkt sam schodzi ze stanu magazynu. Kwoty liczymy w groszach, nigdy na liczbach z przecinkiem, więc suma dnia zgadza się co do grosza.' },
-          { q: 'To już żywy produkt?', a: 'Ma prawdziwego klienta, salon beauty, i podpisaną umowę. Obecna wersja to 1.4.2, z instalatorem na Windows. Mówię wprost: salon jeszcze nie pracuje na nim na co dzień. To następny krok, a nie coś, co już się stało.' },
+          { q: 'Gdzie są dane?', a: 'Wszystko zapisuje się w jednej bazie SQLite na komputerze salonu. Program działa bez internetu i bez chmury, więc dane nie wychodzą poza ten komputer. Obecna wersja to 1.4.2, z instalatorem na Windows.' },
         ],
       },
       pycodemath: {
@@ -2488,8 +2589,70 @@
       },
     };
 
-    const lista = seeds.map((s) => s.dataset.project).filter((id) => SADZONKI[id]);
-    if (!lista.length) return;
+    /* Karty "Co juz umie, co dochodzi" na SOMI (30.09). Zrodla w repo SOMI: modules/providers.py,
+       api_gateway.py, modules/pamiec.py (rozmowa); radar.py, generated/outreach_proposal.py,
+       memory/offer_history.jsonl (281 ofert), memory/applications.jsonl (12 ghosted + 2 drafted),
+       upwork_discord.py (research); modules/agent.py _HANDLERS (12 narzedzi), docs/PLAN_PARITY.md
+       (tryby, P1-P10), git log P10 = 2026-07-29, NASTEPNY_MODUL_AGENT.md (569 po P10),
+       commit N6 29.09 (bramka 1509/0) (agent). "264 / 14 / 156" z karty NIE potwierdzone. */
+    const SOMI_KROKI = {
+      rozmowa: {
+        nazwa: 'Przykładowa rozmowa',
+        lead: 'Na tej stronie SOMI odpowiada na trzy gotowe pytania. To zapis, nie czat na żywo. Prawdziwa SOMI rozmawia ze mną w terminalu i na Discordzie.',
+        kod: 'somi> router.wybierz(zadanie)\n  rutyna   -> deepseek-v4-flash\n  trudne   -> claude-sonnet-5\n  synteza  -> claude-opus-5-5\npamiec.szukaj("radar")',
+        fakty: [
+          ['tutaj', '3 pytania, odpowiedzi spisane'],
+          ['u mnie', 'Terminal · bot na Discordzie'],
+          ['modele', 'DeepSeek do rutyny · Claude do trudnych'],
+          ['pamięć', 'Indeks z dziennika i dokumentacji'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Na jakim modelu działa?', a: 'Router dobiera model do zadania: DeepSeek V4 Flash do rutyny, Claude Sonnet 5 do trudnych pytań, Claude Opus 5.5 do syntezy. Na Discordzie model da się wybrać ręcznie.' },
+          { q: 'Czy pamięta rozmowy?', a: 'Ma indeks pamięci w SQLite, zbudowany z jej dziennika i z dokumentacji projektów. Wyszukiwanie po znaczeniu, na embeddingach, jest dopiero w planie.' },
+        ],
+      },
+      research: {
+        nazwa: 'Deep research',
+        lead: 'Radar przegląda zlecenia z Useme i Upwork, odrzuca stare i ocenia resztę pod moje umiejętności. Działa dziś, tylko jeszcze nie z poziomu czatu SOMI.',
+        znak: '.somi-demo__parts li:nth-child(2) .somi-demo__glyph',
+        fakty: [
+          ['źródła', 'Useme · Upwork'],
+          ['w historii', '281 ofert, bez powtórek'],
+          ['zgłoszenia', '12 wysłanych · 2 szkice'],
+          ['wyniki', 'Raport w plikach · Upwork na Discordzie'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Jak ocenia oferty?', a: 'Każda oferta dostaje wynik od 0 do 100 za dopasowanie tytułu, tagów i opisu do moich umiejętności. Radar dolicza stawkę i wiek. Oferty starsze niż 21 dni odpadają, a 12 najlepszych dostaje pełny opis. Ostatnie słowo, czyli świeżość, dopasowanie, wykonalność i stawka, zapada w sesji z Claude.' },
+          { q: 'Skąd wie, co już widział?', a: 'Każda oferta trafia do historii. Przy następnym skanie radar pomija te, które już zna, a nowe stawia na górze. W historii jest dziś 281 ofert, od 21 lipca do 30 września.' },
+        ],
+      },
+      agent: {
+        nazwa: 'Agent, który działa',
+        lead: 'W terminalu SOMI ma pętlę narzędzi: czyta i przeszukuje pliki, pisze i edytuje kod, uruchamia komendy. Nic ryzykownego bez mojej zgody.',
+        znak: '.somi-demo__parts li:nth-child(3) .somi-demo__glyph',
+        fakty: [
+          ['narzędzia', '12: pliki, kod, komendy, zadania'],
+          ['tryby', 'normal · auto · plan · bypass'],
+          ['parity', '10 modułów, zamknięte 29.07.2026'],
+          ['bramka', '1509 testów, 0 błędów (29.09)'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Kiedy pyta o zgodę?', a: 'Zależy od trybu, przełączanego Shift+Tab: normal, auto, plan albo bypass. Zapis w katalogu projektu nie pyta, komendy w terminalu pytają. Odpowiedź „tak i nie pytaj więcej” działa tylko dla tej jednej komendy, ścieżki albo narzędzia. Plik reguł z listami allow, ask i deny wygrywa nad trybem, a blokady niebezpiecznych komend nie wyłącza żaden tryb.' },
+          { q: 'Co znaczy parity z Claude Code?', a: 'To seria 10 modułów, od P1 do P10, w której terminal SOMI dostał to, co ma Claude Code: narzędzia, tryby zgody i reguły dostępu. Ostatni moduł zamknąłem 29 lipca 2026. Po nim bramka miała 569 testów bez błędu, a dziś cała bramka SOMI to 1509 testów.' },
+        ],
+      },
+    };
+
+    /* 30.09: to samo okno obsluguje dwie grupy kart. Strzalki chodza tylko po kartach
+       grupy, z ktorej je otwarto; pasek okna pokazuje jej schemat (sadzonki:// / somi://). */
+    const GRUPY = {
+      sadzonki: { karty: seeds, dane: SADZONKI, klucz: 'project', schemat: 'sadzonki://' },
+      somi: { karty: somiKarty, dane: SOMI_KROKI, klucz: 'somi', schemat: 'somi://' },
+    };
+    let g = GRUPY.sadzonki, lista = [];
     let idx = 0, lastFocus = null, pisanie = null, zamykanie = null;
 
     const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -2512,28 +2675,35 @@
 
     function render(i) {
       idx = (i + lista.length) % lista.length;
-      const id = lista[idx], p = SADZONKI[id];
-      const karta = seeds.find((s) => s.dataset.project === id);
+      const id = lista[idx], p = g.dane[id];
+      const karta = g.karty.find((s) => s.dataset[g.klucz] === id);
       zatrzymajPisanie();
 
+      $('sproutScheme').textContent = g.schemat;
       $('sproutPath').textContent = id;
       $('sproutCount').textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(lista.length).padStart(2, '0');
-      $('sproutTag').textContent = karta.querySelector('.seed__tag').textContent;
+      $('sproutTag').textContent = karta.querySelector('.seed__tag, .card__tag').textContent;
       $('sproutTitle').textContent = p.nazwa;
       $('sproutLead').textContent = p.lead;
       $('sproutLog').textContent = id + '_zapis.log';
-      $('sproutCode').textContent = karta.querySelector('.seed__code').textContent;
+      const kod = karta.querySelector('.seed__code');
+      $('sproutCode').textContent = kod ? kod.textContent : (p.kod || '');
 
-      // znak z karty; <mask id> SalonDeska dostaje wlasne id, zeby nie dublowac id w dokumencie
-      const znak = karta.querySelector('.seed__mark svg').cloneNode(true);
-      znak.querySelectorAll('[id]').forEach((el) => {
-        const stare = el.id, nowe = stare + '-pop';
-        el.id = nowe;
-        znak.querySelectorAll('[mask="url(#' + stare + ')"]').forEach((m) => m.setAttribute('mask', 'url(#' + nowe + ')'));
-      });
-      znak.removeAttribute('role');
-      znak.removeAttribute('aria-label');
-      $('sproutMark').replaceChildren(znak);
+      // znak z karty (Sadzonki) albo ze wskazanego miejsca strony (SOMI: pajak radaru, mina agenta);
+      // <mask id> SalonDeska dostaje wlasne id, zeby nie dublowac id w dokumencie
+      const zrodloZnaku = karta.querySelector('.seed__mark svg') || (p.znak ? document.querySelector(p.znak) : null);
+      if (zrodloZnaku) {
+        const znak = zrodloZnaku.cloneNode(true);
+        znak.querySelectorAll('[id]').forEach((el) => {
+          const stare = el.id, nowe = stare + '-pop';
+          el.id = nowe;
+          znak.querySelectorAll('[mask="url(#' + stare + ')"]').forEach((m) => m.setAttribute('mask', 'url(#' + nowe + ')'));
+        });
+        znak.removeAttribute('role');
+        znak.removeAttribute('aria-label');
+        znak.removeAttribute('class');
+        $('sproutMark').replaceChildren(znak);
+      } else $('sproutMark').replaceChildren();
 
       const dl = $('sproutFacts');
       dl.replaceChildren();
@@ -2568,7 +2738,9 @@
       terminalPusty(id);
       if (srlive) srlive.textContent = '';
 
-      const nazwa = (k) => SADZONKI[lista[(k + lista.length) % lista.length]].nazwa;
+      const nazwa = (k) => g.dane[lista[(k + lista.length) % lista.length]].nazwa;
+      const jedna = lista.length < 2;
+      btnPrev.hidden = btnNext.hidden = jedna;
       btnPrev.textContent = '← ' + nazwa(idx - 1);
       btnNext.textContent = nazwa(idx + 1) + ' →';
       btnPrev.setAttribute('aria-label', 'Poprzedni projekt: ' + nazwa(idx - 1));
@@ -2585,7 +2757,11 @@
       pisanie = setTimeout(() => pisz(pyt.a, 0), 350);
     }
 
-    function openAt(i) {
+    function openAt(grupa, id) {
+      g = GRUPY[grupa];
+      lista = g.karty.map((s) => s.dataset[g.klucz]).filter((k) => g.dane[k]);
+      const i = lista.indexOf(id);
+      if (i < 0) return;
       clearTimeout(zamykanie);
       lastFocus = document.activeElement;
       render(i);
@@ -2610,7 +2786,10 @@
       if (lastFocus) lastFocus.focus();
     }
 
-    seeds.forEach((s) => s.addEventListener('click', () => openAt(lista.indexOf(s.dataset.project))));
+    Object.keys(GRUPY).forEach((nazwaGrupy) => {
+      const gr = GRUPY[nazwaGrupy];
+      gr.karty.forEach((s) => s.addEventListener('click', () => openAt(nazwaGrupy, s.dataset[gr.klucz])));
+    });
     btnClose.addEventListener('click', close);
     $('sproutBackdrop').addEventListener('click', close);
     btnPrev.addEventListener('click', () => render(idx - 1));
