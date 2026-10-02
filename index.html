@@ -363,9 +363,23 @@
     position:fixed;
     top:0;left:0;right:0;
     z-index:30;
-    background:var(--ink);
+    /* PASEK 03.10 (PROMPT_PASEK_WDROZENIE.md W1): lekkie szklo jak w macOS — rozmycie 20 px + nasycenie,
+       ziarno 7 % i wlosowa kreska. Bez szkla w szkle: panel przewodnika i menu na telefonie sa pelne. */
+    background:rgba(14,14,18,.62);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    backdrop-filter:blur(20px) saturate(160%);
     border-bottom:1px solid rgba(255,255,255,.09);
   }
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.nav{background:rgba(14,14,18,.96);}}
+  .nav::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.035;   /* bez mix-blend-mode: tryb mieszania czytalby co klatke mape pod paskiem */
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .nav.is-guide{background:rgba(16,15,20,.97);}
+  /* nad pracujaca mapa hero (app.js ustawPetleMapy) bez rozmycia: mapa przerysowuje sie co klatke,
+     wiec szklo liczyloby blur w kazdej klatce. Na ciemnej mapie roznicy prawie nie widac;
+     prawdziwe szklo wlacza sie, gdy pod pasek wjezdza tresc. */
+  html.mapa-biegnie .nav{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(14,14,18,.9);}
   .nav__bar{
     --nav-pad:clamp(16px,3vw,40px);
     position:relative;
@@ -383,6 +397,7 @@
 
   /* lewa strona: slot na kule SOMI (M2 wchodzi dokladnie tu) + logotyp */
   .nav__left{
+    position:relative;z-index:1;
     display:flex;
     align-items:center;
     gap:.6rem;
@@ -391,6 +406,7 @@
 
   /* prawa strona: CTA; ikony socjali dochodza tu, gdy beda adresy profili */
   .nav__side{
+    position:relative;z-index:1;
     display:flex;
     align-items:center;
     gap:1rem;
@@ -497,7 +513,7 @@
      blok (content:"" + kolko .36em z box-shadow). */
 
   .nav__links{
-    position:relative;
+    position:relative;z-index:1;
     display:flex;
     align-items:center;
     gap:.35rem;
@@ -521,19 +537,26 @@
   .nav__link.is-active{color:#fff;}
   /* HALO PO NAJECHANIU WYCIETE 27.09 (swiecenie precz, aspekt 1) — hover = sam kolor #fff wyzej. */
 
-  /* magic-line: red underline glides under the active/hovered link */
+  /* PIGULKA (03.10): karmazynowe szklo TYLKO pod kursorem. Po zjechaniu gasnie w miejscu (nie wraca
+     przez caly pasek na aktywna — maisa: "swiruje"), nastepne najechanie staje od razu pod kursorem.
+     Aktywna zakladka ma wlasna, stala kreske (::before nizej). 34 px wys., ~13 px luzu po bokach slowa. */
   .nav__magic{
-    position:absolute;
-    left:0;bottom:.3rem;
-    height:2px;width:0;
-    background:linear-gradient(90deg,var(--th-accent),var(--th-hot));
-    border-radius:2px;
+    position:absolute;z-index:-1;
+    left:0;top:50%;
+    height:34px;width:0;
+    border-radius:999px;
+    background:linear-gradient(180deg,rgba(255,58,82,.16),rgba(225,29,51,.08));
+    border:1px solid rgba(255,58,82,.28);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 18px -6px rgba(225,29,51,.55);
     opacity:0;
-    transform:translateX(0);
+    transform:translate(0,-50%);
     pointer-events:none;
-    transition:transform .32s cubic-bezier(.6,.05,.2,1),
-               width .32s cubic-bezier(.6,.05,.2,1),
-               opacity .25s ease;
+    will-change:transform,width;
+    transition:transform .24s var(--ease-soft),width .24s var(--ease-soft),opacity .16s ease;
+  }
+  .nav__link.is-active::before{
+    content:"";position:absolute;left:50%;bottom:2px;width:18px;height:2px;margin-left:-9px;
+    border-radius:2px;background:var(--th-accent);pointer-events:none;
   }
 
   .nav__cta{
@@ -594,6 +617,72 @@
   .nav__burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg);}
   .nav__burger[aria-expanded="true"] span:nth-child(2){opacity:0;}
   .nav__burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+  /* ---------- PRZEWODNIK (03.10, wariant B z artefaktu 6u5mKBpKKsVxv9mvGz1JbD) ----------
+     Przycisk obok CTA rozwija PELNY panel (bez przezroczystosci — maisa: "miesza sie z reszta"),
+     strona pod spodem przyciemnia sie, klik w tlo i Esc zamykaja. Otwierany klikiem, nie najechaniem. */
+  .nav__guide{
+    display:inline-flex;align-items:center;gap:.45rem;
+    font:inherit;font-size:var(--t-ui);font-weight:600;color:#fff;white-space:nowrap;cursor:pointer;
+    padding:.55rem .95rem;border-radius:999px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);
+    transition:background .2s ease,border-color .2s ease;
+    animation:navItemIn .45s ease .6s backwards;
+  }
+  .nav__guide:hover{background:rgba(255,255,255,.07);}
+  .nav__guide[aria-expanded="true"]{border-color:rgba(255,58,82,.55);background:rgba(225,29,51,.12);}
+  .nav__guideQ{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--th-accent);color:#fff;font-size:.75rem;font-weight:700;}
+  .nav__guide:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  /* ZMIERZONE 03.10: przy 920-1000 px pelny przycisk wpychal menu na logo (zapas -64 px).
+     Ponizej 1200 px zostaje samo kolko "?" (nazwa w aria-label), zapas wraca na plus. */
+  @media (max-width:1200px){.nav__guideT{display:none;}.nav__guide{padding:.45rem;}}
+  .nav__panel{
+    position:absolute;left:0;right:0;top:100%;
+    display:grid;grid-template-rows:0fr;
+    background:linear-gradient(180deg,rgba(20,18,24,.985),rgba(14,13,18,.985));
+    transition:grid-template-rows .34s cubic-bezier(.32,.72,0,1),box-shadow .34s ease;
+  }
+  .nav__panel.open{grid-template-rows:1fr;border-bottom:1px solid rgba(255,58,82,.22);box-shadow:0 24px 60px -18px rgba(0,0,0,.85);}
+  .nav__panelClip{overflow:hidden;min-height:0;}
+  .nav__panelIn{
+    display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;
+    padding:18px clamp(16px,3vw,40px) 22px;
+    opacity:0;transform:translateY(-6px);
+    transition:opacity .28s ease,transform .34s cubic-bezier(.32,.72,0,1);
+  }
+  .nav__panel.open .nav__panelIn{opacity:1;transform:none;transition-delay:60ms;}
+  .nav__panelH{margin:0 0 10px;font-family:var(--mono);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--th-label);}
+  .nav__tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(13rem,1fr));gap:8px;}
+  .nav__tile{display:grid;gap:4px;padding:12px 14px;border-radius:12px;border:1px solid transparent;color:#fff;text-decoration:none;transition:background .18s ease,border-color .18s ease;}
+  .nav__tile:hover,.nav__tile:focus-visible{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);}
+  .nav__tile:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .nav__tile b{font-size:1rem;}
+  .nav__tile span{font-size:.9rem;line-height:1.45;color:var(--muted-dark);}
+  .nav__gloss{display:grid;gap:10px;margin:0;}
+  .nav__gloss div{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.035);}
+  .nav__gloss dt{font-weight:600;font-size:.95rem;color:#fff;}
+  .nav__gloss dd{margin:3px 0 0;font-size:.9rem;line-height:1.45;color:var(--muted-dark);}
+  .nav__scrim{position:fixed;inset:0;z-index:29;background:rgba(6,5,8,.62);opacity:0;pointer-events:none;transition:opacity .34s cubic-bezier(.32,.72,0,1);}
+  .nav__scrim.on{opacity:1;pointer-events:auto;}
+
+  /* ---------- LAWA: wosk jak w lampie (03.10) ----------
+     Kule SVG (sam transform, 3 zegary na kule: bok / gora-dol / oddech) + filtr metaball (rozmycie ->
+     ostry prog alfy): kule zlewaja sie, ciagna szyje i odrywaja. Zyje TYLKO w dwoch lukach paska
+     (logo|menu, menu|przyciski), 18 px od napisow, brzegi wygaszone; kolonia ma pol rozdzielczosci
+     i scale(3) na kompozytorze (1/3 rozdzielczosci, filtr liczy 9x mniej pikseli; jedno rozmycie, bez poswiaty). Bez kodu w wosku (maisa 03.10).
+     Stoi: przy przewijaniu, otwartym przewodniku/menu, karcie w tle, na telefonie i przy "ogranicz ruch".
+     Zero rAF — budowa i pozycje raz w app.js (lawaBuduj/lawaPozycje). */
+  .nav__lava{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:.43;}
+  .nav__kolonia{position:absolute;top:0;overflow:hidden;transform:scale(3);transform-origin:0 0;will-change:transform;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);}
+  .nav__lava .wx,.nav__lava .wy{will-change:transform;}
+  .nav__lava .wx{animation:woskX calc(var(--dx) * 1s) cubic-bezier(.45,.05,.55,.95) calc(var(--del) * 1s) infinite alternate;}
+  .nav__lava .wy{animation:woskY calc(var(--dy) * 1s) cubic-bezier(.45,.05,.55,.95) calc(var(--del) * .6s) infinite alternate;}
+  .nav__lava .wz{transform-box:fill-box;transform-origin:center;animation:woskZ calc(var(--ds) * 1s) cubic-bezier(.45,.05,.55,.95) calc(var(--del) * 1.4s) infinite alternate;}
+  @keyframes woskX{from{transform:translate(var(--x0),0);}to{transform:translate(var(--x1),0);}}
+  @keyframes woskY{from{transform:translate(0,var(--y0));}to{transform:translate(0,var(--y1));}}
+  @keyframes woskZ{0%{transform:scale(.88,1.1);}50%{transform:scale(1.26,.86);}100%{transform:scale(.95,1.12);}}
+  .nav[data-lava="stop"] .nav__lava *{animation-play-state:paused !important;}
 
   /* mini-SOMI mascot + kula SOMI (nav__mascot/nav__orb) USUNIETE na prosbe
      maisy, 22.09 — kulka w pasku i czat, ktory otwierala, znikaja calkowicie
@@ -2275,6 +2364,7 @@
     }
     .nav__links.open{display:flex;}
     .nav__magic{display:none;}
+    .nav__lava,.nav__guide,.nav__panel{display:none;}
     .nav__link{padding:.75rem .9rem;text-align:center;}
     .nav__link::after{inset:0;}
     /* dropdown items would replay the entrance stagger on every open — keep them steady */
@@ -2438,7 +2528,9 @@
     .card{transition:border-color .25s ease,background .25s ease;}
     .card:hover{transform:none;}
     .cta-big:hover,.nav__cta:hover{transform:none;}
-    .nav__brand,.nav__burger,.nav__link,.nav__cta{animation:none;}
+    .nav__brand,.nav__burger,.nav__link,.nav__cta,.nav__guide{animation:none;}
+    .nav__lava{display:none;}
+    .nav__magic,.nav__panel,.nav__panelIn,.nav__scrim{transition:opacity .2s ease;}
     .nav__cta::after{display:none;}
     .nav__bar,.nav__bar.is-condensed{transition:none;}
     .nav__link{transition:color .25s ease, text-shadow .25s ease;}
@@ -2640,8 +2732,18 @@
 
 <!-- pasek na cala szerokosc: [logo] [linki] [CTA] — kula SOMI/maskotka i czat,
      ktory otwierala, usuniete na prosbe maisy, 22.09. -->
+<div class="nav__scrim" id="navScrim" aria-hidden="true"></div>
 <nav class="nav" aria-label="Główna nawigacja">
   <div class="nav__bar">
+    <div class="nav__lava" id="navLava" aria-hidden="true"><svg width="0" height="0" style="position:absolute" focusable="false">
+      <defs>
+        <radialGradient id="woskGrad" cx=".44" cy=".38" r=".62"><stop offset="0" stop-color="#ff7a6b"/><stop offset=".45" stop-color="#ff3a52"/><stop offset="1" stop-color="#b30f27"/></radialGradient>
+        <filter id="woskF" x="-10%" y="-60%" width="120%" height="220%" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/>
+          <feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -12"/>
+        </filter>
+      </defs>
+    </svg></div>
     <div class="nav__left">
       <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora — Start"><svg class="nav__mark" viewBox="0 0 134 100" width="27" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)" stroke="var(--th-accent)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)" stroke="#f6f2f3"/></g></svg>cyber<b>sora</b></a><!-- deadsora — przelacznik ukryty na prosbe maisy, 22.09, tymczasowo
         ("poki co"): sekcja Sztuka i jej CSS/JS zostaja nietkniete, to tylko wejscie.
@@ -2654,7 +2756,7 @@
       <a href="#oferta"    class="nav__link"           data-nav="oferta">Oferta</a>
       <a href="#products"  class="nav__link"           data-nav="products">Produkty</a>
       <a href="#somi"      class="nav__link"           data-nav="somi">SOMI</a>
-      <a href="#onas"      class="nav__link"           data-nav="onas">O mnie</a>
+      <a href="#onas"      class="nav__link"           data-nav="onas">O nas</a>
       <!-- Sztuka ukryta z menu na prosbe maisy, 22.09, tymczasowo ("poki co") —
            <a href="#sztuka" class="nav__link" data-nav="sztuka">Sztuka</a> -->
       <a href="#rnd"       class="nav__link"           data-nav="rnd">Sadzonki</a>
@@ -2666,11 +2768,36 @@
       <!-- Przelacznik PL/ENG WYCIETY 18.09: ENG byl trwale wygaszony (brak wersji),
            co czytalo sie jako "niedokonczone" w pierwszym miejscu, na ktore patrzy oko.
            Miejsce na ikony socjali jest tutaj, czeka na adresy profili. -->
-      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do mnie</a>
+      <button class="nav__guide" type="button" id="navGuide" aria-expanded="false" aria-controls="navPanel" aria-label="Przewodnik"><span class="nav__guideQ" aria-hidden="true">?</span><span class="nav__guideT">Przewodnik</span></button>
+      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do nas</a>
       <button class="nav__burger" type="button" aria-expanded="false" aria-controls="navlinks" aria-label="Otwórz menu">
         <span></span><span></span><span></span>
       </button>
     </div>
+  </div>
+  <!-- PRZEWODNIK (03.10): teksty to propozycje, przepisuje je maisa. "My" = Patryk Gwozdz i Wojtek Zieba (maisa 02.10). -->
+  <div class="nav__panel" id="navPanel" role="region" aria-label="Przewodnik po stronie" inert>
+    <div class="nav__panelClip"><div class="nav__panelIn">
+      <div>
+        <h2 class="nav__panelH">Co jest gdzie</h2>
+        <div class="nav__tiles">
+          <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jesteśmy i co robimy, w skrócie.</span></a>
+          <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Darmowy audyt Twojej strony i co możemy potem naprawić.</span></a>
+          <a class="nav__tile" href="#somi" data-nav="somi"><b>SOMI</b><span>Nasza asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
+          <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź i Wojtek Zięba. Dwóch ludzi, z którymi rozmawiasz bezpośrednio.</span></a>
+          <a class="nav__tile" href="#rnd" data-nav="rnd"><b>Sadzonki</b><span>Projekty, nad którymi teraz pracujemy, zanim trafią do oferty.</span></a>
+          <a class="nav__tile" href="#contact" data-nav="contact"><b>Kontakt</b><span>Napisz, czego potrzebujesz. Na żywo widzisz, co do nas trafi.</span></a>
+        </div>
+      </div>
+      <div>
+        <h2 class="nav__panelH">Słowa, które tu padają</h2>
+        <dl class="nav__gloss">
+          <div><dt>Sadzonka</dt><dd>Projekt, który jeszcze rośnie: działa, ale nie trafił do oferty.</dd></div>
+          <div><dt>Commit</dt><dd>Jeden zapisany krok pracy nad kodem. 1 090 commitów to tyle razy, ile zapisaliśmy postęp w 12 projektach.</dd></div>
+          <div><dt>Audyt widoczności</dt><dd>Sprawdzamy, co Google widzi na Twojej stronie i co warto poprawić. Pierwszy jest za darmo.</dd></div>
+        </dl>
+      </div>
+    </div></div>
   </div>
 </nav>
 
@@ -4400,7 +4527,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261001b"></script>
+<script src="app.js?v=20261003b"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly

@@ -1725,6 +1725,9 @@
     const maBiec = tloWidoczne && !document.hidden && !popupZakrywa;
     if (maBiec && !rafOn) { rafOn = true; lastT = performance.now(); requestAnimationFrame(frame); }
     else if (!maBiec) { rafOn = false; }
+    /* PASEK 03.10: nad pracujaca mapa szklo paska przeliczaloby rozmycie w kazdej klatce
+       (zmierzone 4x CPU: 6-7 przycietych klatek na Starcie, bez tego 0) — wtedy pasek jest pelny */
+    document.documentElement.classList.toggle('mapa-biegnie', maBiec);
   }
   document.addEventListener('visibilitychange', ustawPetleMapy);
   if ('IntersectionObserver' in window) {
@@ -1830,18 +1833,31 @@
 
   function activeLink() { return links.find(l => l.classList.contains('is-active')); }
 
+  /* PIGULKA (03.10): pokazuje TYLKO najechanie. Aktywna zakladka ma stala kreske w CSS, wiec po zjechaniu
+     pigulka gasnie w miejscu zamiast leciec przez caly pasek na aktywna (maisa: "swiruje" przy szybkiej myszce).
+     Zgaszona staje przy nastepnym najechaniu od razu pod kursorem, bez przejazdu. */
+  let magicWidac = false, magicGas = 0;
   function moveMagic(el) {
-    if (!el) { magic.style.opacity = '0'; return; }
+    clearTimeout(magicGas);
+    if (!el) { magic.style.opacity = '0'; magicWidac = false; return; }
     const cr = linksWrap.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    magic.style.width = r.width + 'px';
-    magic.style.transform = 'translateX(' + (r.left - cr.left) + 'px)';
+    if (!magicWidac) magic.style.transition = 'opacity .16s ease';
+    magic.style.width = (r.width - 2) + 'px';
+    magic.style.transform = 'translate(' + (r.left - cr.left + 1) + 'px,-50%)';
+    if (!magicWidac) { void magic.offsetWidth; magic.style.transition = ''; }
     magic.style.opacity = '1';
+    magicWidac = true;
+  }
+  function zgasMagic() {
+    clearTimeout(magicGas);
+    magicGas = setTimeout(() => { magic.style.opacity = '0'; magicWidac = false; }, 90);
   }
 
   function closeMenu() {
     linksWrap.classList.remove('open');
     burger.setAttribute('aria-expanded', 'false');
+    ustawLawe();
   }
 
   /* P1 (30.09): hCaptcha dopiero przy formularzu. Bylo: <script web3forms> w stopce ladowal
@@ -1893,8 +1909,10 @@
          być chwilowy — stan 'wow' sam z siebie trwa, dopóki ktoś go nie zdejmie. */
       window.SOMI_MOOD('wow');
       setTimeout(() => window.SOMI_MOOD('calm'), 1200);
-      requestAnimationFrame(() => moveMagic(activeLink()));
+      moveMagic(null);
       closeMenu();
+      zamknijPrzewodnik();
+      lawaChwila(1200);   // wjazd nowej trasy dostaje caly czas klatki
       window.scrollTo(0, 0);
       /* M4.1: kazdy widok ma wlasne hero i wlasna jego wysokosc — tlo i mapa
          musza sie do niego przemierzyc po podmianie widoku, nie przed.
@@ -1945,28 +1963,133 @@
     });
   });
 
-  // magic-line follows hover, snaps back to the active link on leave
-  links.forEach(l => l.addEventListener('mouseenter', () => moveMagic(l)));
-  linksWrap.addEventListener('mouseleave', () => moveMagic(activeLink()));
+  // pigulka idzie za kursorem po zakladkach, po zjechaniu gasnie w miejscu
+  links.forEach(l => {
+    l.addEventListener('mouseenter', () => moveMagic(l));
+    l.addEventListener('focus', () => moveMagic(l));
+    l.addEventListener('blur', zgasMagic);
+  });
+  linksWrap.addEventListener('mouseleave', zgasMagic);
 
   burger.addEventListener('click', () => {
     const open = linksWrap.classList.toggle('open');
     burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    ustawLawe();
   });
+
+  /* ===================== PRZEWODNIK (03.10, wariant B) =====================
+     Klik w "Przewodnik" rozwija pelny panel pod paskiem, strona przyciemnia sie (#navScrim).
+     Zamykaja: ten sam przycisk, klik w tlo, Esc (fokus wraca na przycisk), wejscie w dowolna trase.
+     Zamkniety panel ma inert, wiec Tab nie wpada w niewidoczne kafle. */
+  const navEl = document.querySelector('.nav');
+  const guideBtn = document.getElementById('navGuide');
+  const guidePanel = document.getElementById('navPanel');
+  const scrim = document.getElementById('navScrim');
+  function otworzPrzewodnik() {
+    guidePanel.inert = false; guidePanel.classList.add('open'); scrim.classList.add('on');
+    navEl.classList.add('is-guide'); guideBtn.setAttribute('aria-expanded', 'true'); ustawLawe();
+  }
+  function zamknijPrzewodnik() {
+    if (!guidePanel.classList.contains('open')) return;
+    // fokus w panelu (Enter na kaflu) wraca na przycisk, zanim inert wyrzuci go na <body>
+    if (guidePanel.contains(document.activeElement)) guideBtn.focus();
+    guidePanel.classList.remove('open'); guidePanel.inert = true; scrim.classList.remove('on');
+    navEl.classList.remove('is-guide'); guideBtn.setAttribute('aria-expanded', 'false'); ustawLawe();
+  }
+  guideBtn.addEventListener('click', () => guidePanel.classList.contains('open') ? zamknijPrzewodnik() : otworzPrzewodnik());
+  scrim.addEventListener('click', zamknijPrzewodnik);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && guidePanel.classList.contains('open')) { zamknijPrzewodnik(); guideBtn.focus(); }
+  });
+
+  /* ===================== LAWA: wosk w lukach paska (03.10) =====================
+     Dwie kolonie po 3 kule: luka logo|menu i luka menu|przyciski, nigdy pod napisami. Kula:
+     [x0, x1 jako ulamek szerokosci luki, srodek y (pasek 64 px), wychyl y, promien, czas boku, gora-dol, oddechu, przesuniecie].
+     Tory zachodza, czasy wzglednie pierwsze: kule schodza sie (zlewaja), rozchodza (szyja, oderwanie).
+     Ruch to sam CSS (transform); JS buduje kule raz i liczy luki po fontach i przy resize — zero rAF. */
+  const navLava = document.getElementById('navLava');
+  const KOLONIE = [
+    [[.12, .55, 34, 12, 23, 17, 8.3, 10.1, -3], [.32, .80, 28, 14, 17, 13, 6.7, 9.3, -11], [.20, .66, 42, 10, 25, 23, 9.7, 12.7, -17]],
+    [[.10, .58, 32, 12, 22, 16, 7.9, 11.3, -23], [.36, .88, 24, 14, 16, 12, 6.3, 9.7, -13], [.24, .66, 42, 10, 25, 25, 9.1, 12.1, -29]]
+  ];
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const LAWA_SKALA = 3;   // kolonia liczona w 1/3 rozdzielczosci i rozciagana scale(3) w CSS
+  const kolonie = KOLONIE.map(kule => {
+    const svg = document.createElementNS(SVG_NS, 'svg'), g = document.createElementNS(SVG_NS, 'g');
+    svg.setAttribute('class', 'nav__kolonia'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+    g.setAttribute('filter', 'url(#woskF)');
+    kule.forEach(([, , , , pr, dx, dy, ds, del]) => {
+      const gx = document.createElementNS(SVG_NS, 'g'), gy = document.createElementNS(SVG_NS, 'g'), c = document.createElementNS(SVG_NS, 'circle');
+      gx.setAttribute('class', 'wx'); gy.setAttribute('class', 'wy'); c.setAttribute('class', 'wz');
+      c.setAttribute('r', pr / LAWA_SKALA); c.setAttribute('fill', 'url(#woskGrad)');
+      gx.style.setProperty('--dx', dx); gx.style.setProperty('--dy', dy); gx.style.setProperty('--ds', ds); gx.style.setProperty('--del', del);
+      gy.appendChild(c); gx.appendChild(gy); g.appendChild(gx);
+    });
+    svg.appendChild(g); navLava.appendChild(svg);
+    return { svg, kule, g };
+  });
+  function lawaPozycje() {
+    const bi = bar.getBoundingClientRect();
+    const tresc = el => {
+      // mierzymy tresc, nie pudelko: logo i przyciski siedza w kolumnach 1fr rozciagnietych na pol paska
+      const rg = document.createRange(); rg.selectNodeContents(el);
+      const rr = rg.getBoundingClientRect(); return rr.width ? [rr.left - bi.left, rr.right - bi.left] : null;
+    };
+    const b = tresc(document.querySelector('.nav__brand')), n = tresc(linksWrap), sd = tresc(document.querySelector('.nav__side'));
+    const odstep = 18, H = 64;   // wosk nie podchodzi blizej niz 18 px do napisow; wysokosc paska bez splaszczenia
+    const luki = [b && n ? [b[1] + odstep, n[0] - odstep] : null, n && sd ? [n[1] + odstep, sd[0] - odstep] : null];
+    kolonie.forEach(({ svg, kule, g }, k) => {
+      const l = luki[k], w = l ? l[1] - l[0] : 0;
+      if (w < 90) { svg.style.display = 'none'; return; }
+      svg.style.display = ''; svg.style.left = Math.round(l[0]) + 'px';
+      svg.setAttribute('width', Math.round(w / LAWA_SKALA)); svg.setAttribute('height', Math.round(H / LAWA_SKALA));
+      [...g.children].forEach((gx, i) => {
+        const [a, bb, yc, amp] = kule[i];
+        gx.style.setProperty('--x0', (a * w / LAWA_SKALA).toFixed(1) + 'px'); gx.style.setProperty('--x1', (bb * w / LAWA_SKALA).toFixed(1) + 'px');
+        gx.style.setProperty('--y0', ((yc - amp) / LAWA_SKALA).toFixed(1) + 'px'); gx.style.setProperty('--y1', ((yc + amp) / LAWA_SKALA).toFixed(1) + 'px');
+      });
+    });
+  }
+  /* regula pauzy: jeden atrybut na pasku, CSS zatrzymuje wszystkie animacje wosku */
+  const lawaTelefon = matchMedia('(max-width: 900px)');
+  const lawaMaloRuchu = matchMedia('(prefers-reduced-motion: reduce)');
+  let lawaPrzewija = false, lawaPrzewT = 0, lawaCzeka = false, lawaCzekaT = 0;
+  function ustawLawe() {
+    const stoi = document.hidden || lawaTelefon.matches || lawaMaloRuchu.matches || lawaPrzewija || lawaCzeka
+      || guidePanel.classList.contains('open') || linksWrap.classList.contains('open');
+    navEl.dataset.lava = stoi ? 'stop' : 'run';
+  }
+  /* chwilowa pauza: przejscie miedzy trasami i ruch kursora nad mapa hero (mapa leci wtedy pelnym
+     tempem). ZMIERZONE 03.10 przy 4x CPU: mapa pod kursorem + wosk naraz = przyciete klatki, osobno 0.
+     Kursor nad paskiem nie zatrzymuje wosku — tam sie na niego patrzy. */
+  function lawaChwila(ms) {
+    if (!lawaCzeka) { lawaCzeka = true; ustawLawe(); }
+    clearTimeout(lawaCzekaT);
+    lawaCzekaT = setTimeout(() => { lawaCzeka = false; ustawLawe(); }, ms);
+  }
+  window.addEventListener('mousemove', (e) => {
+    if (rafOn && tloWidoczne && !navEl.contains(e.target)) lawaChwila(900);
+  }, { passive: true });
+  window.addEventListener('scroll', () => {
+    // przy przewijaniu wosk stoi (strona dostaje caly czas klatki), rusza 250 ms po zatrzymaniu
+    if (!lawaPrzewija) { lawaPrzewija = true; ustawLawe(); }
+    clearTimeout(lawaPrzewT);
+    lawaPrzewT = setTimeout(() => { lawaPrzewija = false; ustawLawe(); }, 250);
+  }, { passive: true });
+  document.addEventListener('visibilitychange', ustawLawe);
+  lawaTelefon.addEventListener('change', () => { if (!lawaTelefon.matches) closeMenu(); ustawLawe(); lawaPozycje(); });
+  lawaMaloRuchu.addEventListener('change', ustawLawe);
+  let lawaResizeT = 0;
+  window.addEventListener('resize', () => { clearTimeout(lawaResizeT); lawaResizeT = setTimeout(lawaPozycje, 150); });
+  if (document.fonts) document.fonts.ready.then(lawaPozycje);
+  lawaPozycje();
+  ustawLawe();
 
   window.addEventListener('hashchange', () => go(location.hash.slice(1), false));
 
   /* ===================== magnetic links (small reach, soft return) ===================== */
   if (!reduce) {
-    links.forEach(l => {
-      l.addEventListener('mousemove', (e) => {
-        const r = l.getBoundingClientRect();
-        const mx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
-        const my = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-        l.style.transform = 'translate(' + (mx * 3).toFixed(1) + 'px,' + (my * 2).toFixed(1) + 'px)';
-      });
-      l.addEventListener('mouseleave', () => { l.style.transform = ''; });
-    });
+    /* Magnes na zakladkach paska WYCIETY 03.10: slowo drgalo o 2-3 px pod nieruchoma pigulka. */
 
     /* 3D tilt on service/product cards — small perspective rotation that follows the cursor */
     document.querySelectorAll('.card').forEach(card => {
