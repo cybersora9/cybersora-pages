@@ -1854,12 +1854,6 @@
     magicGas = setTimeout(() => { magic.style.opacity = '0'; magicWidac = false; }, 90);
   }
 
-  function closeMenu() {
-    linksWrap.classList.remove('open');
-    burger.setAttribute('aria-expanded', 'false');
-    ustawLawe();
-  }
-
   /* P1 (30.09): hCaptcha dopiero przy formularzu. Bylo: <script web3forms> w stopce ladowal
      api.js hCaptchy na KAZDEJ trasie od pierwszej sekundy, a ona slucha kazdego ruchu myszy
      i przewijania (profil: L.scrollX / _VRiksp... w kazdej klatce przewijania Startu). Polityka
@@ -1909,10 +1903,9 @@
          być chwilowy — stan 'wow' sam z siebie trwa, dopóki ktoś go nie zdejmie. */
       window.SOMI_MOOD('wow');
       setTimeout(() => window.SOMI_MOOD('calm'), 1200);
+      kafle.forEach(t => { if (t.dataset.nav === view) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
       moveMagic(null);
-      closeMenu();
       zamknijPrzewodnik();
-      lawaChwila(1200);   // wjazd nowej trasy dostaje caly czas klatki
       window.scrollTo(0, 0);
       /* M4.1: kazdy widok ma wlasne hero i wlasna jego wysokosc — tlo i mapa
          musza sie do niego przemierzyc po podmianie widoku, nie przed.
@@ -1971,35 +1964,40 @@
   });
   linksWrap.addEventListener('mouseleave', zgasMagic);
 
-  burger.addEventListener('click', () => {
-    const open = linksWrap.classList.toggle('open');
-    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
-    ustawLawe();
-  });
-
   /* ===================== PRZEWODNIK (03.10, wariant B) =====================
      Klik w "Przewodnik" rozwija pelny panel pod paskiem, strona przyciemnia sie (#navScrim).
      Zamykaja: ten sam przycisk, klik w tlo, Esc (fokus wraca na przycisk), wejscie w dowolna trase.
-     Zamkniety panel ma inert, wiec Tab nie wpada w niewidoczne kafle. */
+     Zamkniety panel ma inert, wiec Tab nie wpada w niewidoczne kafle.
+     W4 (03.10): na telefonie (< 900 px) ten sam panel otwiera burger: kafle z opisem sa menu,
+     pod nimi slowniczek. Stara lista samych linkow z burgera wycieta. */
   const navEl = document.querySelector('.nav');
   const guideBtn = document.getElementById('navGuide');
   const guidePanel = document.getElementById('navPanel');
   const scrim = document.getElementById('navScrim');
-  function otworzPrzewodnik() {
+  const kafle = [...guidePanel.querySelectorAll('.nav__tile')];
+  let guideOd = guideBtn;   // przycisk, ktory otworzyl panel: tam wraca fokus
+  function otworzPrzewodnik(od) {
+    guideOd = od;
     guidePanel.inert = false; guidePanel.classList.add('open'); scrim.classList.add('on');
-    navEl.classList.add('is-guide'); guideBtn.setAttribute('aria-expanded', 'true'); ustawLawe();
+    navEl.classList.add('is-guide'); od.setAttribute('aria-expanded', 'true');
+    if (od === burger) burger.setAttribute('aria-label', 'Zamknij menu');
+    ustawLawe();
   }
   function zamknijPrzewodnik() {
     if (!guidePanel.classList.contains('open')) return;
     // fokus w panelu (Enter na kaflu) wraca na przycisk, zanim inert wyrzuci go na <body>
-    if (guidePanel.contains(document.activeElement)) guideBtn.focus();
+    if (guidePanel.contains(document.activeElement)) guideOd.focus();
     guidePanel.classList.remove('open'); guidePanel.inert = true; scrim.classList.remove('on');
-    navEl.classList.remove('is-guide'); guideBtn.setAttribute('aria-expanded', 'false'); ustawLawe();
+    navEl.classList.remove('is-guide');
+    guideBtn.setAttribute('aria-expanded', 'false'); burger.setAttribute('aria-expanded', 'false'); burger.setAttribute('aria-label', 'Otwórz menu');
+    ustawLawe();
   }
-  guideBtn.addEventListener('click', () => guidePanel.classList.contains('open') ? zamknijPrzewodnik() : otworzPrzewodnik());
+  const przelacz = od => () => guidePanel.classList.contains('open') ? zamknijPrzewodnik() : otworzPrzewodnik(od);
+  guideBtn.addEventListener('click', przelacz(guideBtn));
+  burger.addEventListener('click', przelacz(burger));
   scrim.addEventListener('click', zamknijPrzewodnik);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && guidePanel.classList.contains('open')) { zamknijPrzewodnik(); guideBtn.focus(); }
+    if (e.key === 'Escape' && guidePanel.classList.contains('open')) { const od = guideOd; zamknijPrzewodnik(); od.focus(); }
   });
 
   /* ===================== LAWA: wosk w lukach paska (03.10) =====================
@@ -2056,7 +2054,7 @@
   let lawaPrzewija = false, lawaPrzewT = 0, lawaCzeka = false, lawaCzekaT = 0;
   function ustawLawe() {
     const stoi = document.hidden || lawaTelefon.matches || lawaMaloRuchu.matches || lawaPrzewija || lawaCzeka
-      || guidePanel.classList.contains('open') || linksWrap.classList.contains('open');
+      || guidePanel.classList.contains('open');
     navEl.dataset.lava = stoi ? 'stop' : 'run';
   }
   /* chwilowa pauza: przejscie miedzy trasami i ruch kursora nad mapa hero (mapa leci wtedy pelnym
@@ -2068,7 +2066,7 @@
     lawaCzekaT = setTimeout(() => { lawaCzeka = false; ustawLawe(); }, ms);
   }
   window.addEventListener('mousemove', (e) => {
-    if (rafOn && tloWidoczne && !navEl.contains(e.target)) lawaChwila(900);
+    if (rafOn && tloWidoczne && document.documentElement.dataset.route === 'start' && !navEl.contains(e.target)) lawaChwila(900);
   }, { passive: true });
   window.addEventListener('scroll', () => {
     // przy przewijaniu wosk stoi (strona dostaje caly czas klatki), rusza 250 ms po zatrzymaniu
@@ -2077,7 +2075,8 @@
     lawaPrzewT = setTimeout(() => { lawaPrzewija = false; ustawLawe(); }, 250);
   }, { passive: true });
   document.addEventListener('visibilitychange', ustawLawe);
-  lawaTelefon.addEventListener('change', () => { if (!lawaTelefon.matches) closeMenu(); ustawLawe(); lawaPozycje(); });
+  // przejscie telefon <-> komputer chowa przycisk, ktory otworzyl panel, wiec panel sie zamyka
+  lawaTelefon.addEventListener('change', () => { zamknijPrzewodnik(); ustawLawe(); lawaPozycje(); });
   lawaMaloRuchu.addEventListener('change', ustawLawe);
   let lawaResizeT = 0;
   window.addEventListener('resize', () => { clearTimeout(lawaResizeT); lawaResizeT = setTimeout(lawaPozycje, 150); });
