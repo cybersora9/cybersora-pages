@@ -279,7 +279,10 @@
     width:100%;
     height:100svh;   /* wartosc startowa; JS podmienia ja na zmierzona wysokosc hero */
     z-index:0;
-    background:var(--ink);
+    /* SPOJNOSC TLA S1 (03.10, wybor maisy J+S): cala strona to jeden kolor `--ink`,
+       a jedyna glebia to szara poswiata <=4% bieli TYLKO w hero. Elipsa gasnie przed
+       dolna krawedzia #stage, wiec pod hero nie ma szwu. Zero ziarna (zdjete 03.10). */
+    background:radial-gradient(ellipse 55% 42% at 52% 44%, rgba(255,255,255,.04), transparent 72%) var(--ink);
     overflow:hidden;
     isolation:isolate;
   }
@@ -971,7 +974,6 @@
     background:var(--ink);
     color:#fff;
     padding:clamp(4rem,10vw,8rem) 24px;
-    border-top:1px solid rgba(255,255,255,.07);
   }
   .services__inner{
     max-width:1080px;
@@ -1116,18 +1118,17 @@
      .card, rozciagniete na caly szkielet strony"). Dlatego nizsza, stala
      opacity zamiast 0→1 przy hover. */
   .hero{position:relative;}
-  /* Hero podstron lezy na odrobine jasniejszej POWIERZCHNI z jedna crimson
-     kreska na dolnej krawedzi (23.09, wariant 2 zamiast poswiaty). Start NIE:
-     tam pod tekstem jest mapa — jedyny cover strony, nie zaslaniamy jej. */
+  /* Hero podstron ma jedna crimson kreske na dolnej krawedzi (23.09, wariant 2
+     zamiast poswiaty). SPOJNOSC TLA S1 (03.10): kreska wygasa do bokow, a jasniejsza
+     powierzchnia #131318 zniknela — hero lezy na tym samym `--ink` co reszta strony.
+     Start NIE ma kreski: tam pod tekstem jest mapa — jedyny cover strony. */
   .hero:not(.hero--start){
-    background:#131318;
     border-bottom:1px solid rgba(225,29,51,.7);
+    border-image:linear-gradient(90deg,transparent,rgba(225,29,51,.7) 30%,rgba(225,29,51,.7) 70%,transparent) 1;
   }
-  /* M8 Sesja 1 (29.09): na KAZDEJ podstronie powierzchnia #131318 schodzi z hero na #stage,
-     bo inaczej zaslania tlo rysowane na canvas#map (dawniej tylko SOMI dla M1). #stage ma
-     wysokosc aktywnego hero, wiec wyglad bez zmian. Kreska na dole zostaje na .hero. */
+  /* M8 Sesja 1 (29.09): hero podstron przezroczyste, bo inaczej zaslania tlo rysowane
+     na canvas#map. Kolor i poswiate daje #stage (.bg), wspolne dla wszystkich tras. */
   html[data-route]:not([data-route="start"]) .hero:not(.hero--start){background:transparent;}
-  html[data-route]:not([data-route="start"]) #stage{background:#131318;}
   .hero::after{
     content:"";
     position:absolute;inset:26px;
@@ -1834,8 +1835,6 @@
   /* ---- proof bar: thin strip of real numbers between sections ---- */
   .proof{
     position:relative;
-    background:rgba(255,255,255,.015);
-    border-top:1px solid rgba(255,255,255,.07);
     padding:1.35rem 24px;
   }
   .proof__inner{
@@ -1873,7 +1872,6 @@
     position:relative;
     background:var(--ink);
     padding:clamp(4rem,10vw,7rem) 24px;
-    border-top:1px solid rgba(255,255,255,.07);
   }
   .steps__inner{
     max-width:1080px;
@@ -1941,7 +1939,6 @@
   .manifest{
     position:relative;
     background:var(--ink);
-    border-top:1px solid rgba(255,255,255,.07);
     padding:clamp(3.6rem,9vw,7rem) 24px;
   }
   .manifest__inner{
@@ -2135,15 +2132,14 @@
   /* ---------- TRZY PASY PROJEKTOW (M4.2) ----------
      ⚠️ BYL JASNY (#f4f2ef). Maisa 12.09: "ten bialy odpada, kolorystyka sie jebie".
      Blok zostaje CIEMNY — nie przywracac jasnego tla bez jej slowa.
-     Rytm niesie teraz nie jasnosc, tylko GLEBIA: tlo schodzi ponizej `--ink`
-     (#0e0e12 -> #08080b), wiec sekcja czyta sie jak wglebienie w stronie,
-     a nie jak drugi motyw. Granica jest sam skok tla — zabki, ktore ja
-     wczesniej znaczyly, zostaly usuniete 13.09 na zyczenie maisy.
+     Glebia #08080b (wglebienie ponizej `--ink`) ZDJETA 03.10 (SPOJNOSC TLA S1:
+     jeden kolor na cala strone). Rytm niesie odstep, nie skok tla. Zabki na
+     granicy usuniete 13.09 na zyczenie maisy.
      Skoro tlo jest ciemne, akcentem zostaje `--crimson-hot` (5,48 na ciemnym),
      a nie `--crimson-solid` (3,60 — tylko duzy tekst). */
   .projekty{
     position:relative;
-    background:#08080b;
+    background:var(--ink);
     color:#fff;
     padding:clamp(3.4rem,7.5vw,6rem) 24px clamp(3.4rem,7.5vw,5.5rem);
   }
