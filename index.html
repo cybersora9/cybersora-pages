@@ -263,24 +263,6 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size:180px 180px;
   }
-  /* ---------- FAKTURA TLA POD HERO (PROMPT_TLO_FAKTURA.md T1, 03.10) ----------
-     Wybor maisy z podgladu: ziarno 7% + jasniejszy srodek (wariant 5 "powierzchnia").
-     Upieczone w background-image sekcji: przewija sie z trescia, rasteryzuje raz.
-     NIE fixed, NIE mix-blend-mode, NIE pseudo-element z opacity (lekcja 26.09).
-     7% siedzi w samym filtrze: wiersz alfy 1.6*R-.45 przemnozony przez .07.
-     Kontrast --muted-dark w najjasniejszym pikselu (szczyt ziarna + srodek): 4,74:1.
-     Bez czerwieni (bloom 23.09). Hero tras nietkniete (seria M8). */
-  :root{
-    --tx-grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  .112 0 0 0 -.0315'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    --tx-light:radial-gradient(ellipse 70% 60% at 50% 30%, rgba(255,255,255,.03), transparent 75%);
-  }
-  /* main + klasa: wygrywa z pozniejszym skrotem background: w regulach sekcji */
-  main .services,main .steps,main .manifest,main .projekty{
-    background-image:var(--tx-grain),var(--tx-light);
-    background-size:160px 160px,auto;
-  }
-  /* pasek dowodow jest niski: samo ziarno, bez srodka */
-  main .proof{background-image:var(--tx-grain);background-size:160px 160px;}
 
   /* ---------- persistent particle background (never rebuilt on view change) ---------- */
   /* M4.1 (11.09) — MAPA ZYJE TYLKO W HERO.
