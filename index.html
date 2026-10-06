@@ -9,7 +9,6 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="favicon-180.png">
 <meta name="description" content="cybersora — studio kodu, designu i motion z Polski. Własne produkty AI dla resellerów Vinted, kalkulatory, boty i radary ofert. Zamów gotowe narzędzie albo własny projekt.">
-<!-- TODO: podmień na prawdziwy adres, gdy strona wyląduje na docelowej domenie -->
 <meta property="og:url" content="https://cybersora.pl/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="cybersora">
@@ -23,6 +22,26 @@
 <meta name="twitter:image" content="og-image.png">
 <meta name="theme-color" content="#0e0e12">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="canonical" href="https://cybersora.pl/">
+<!-- Dane strukturalne: tylko to, co juz jest publicznie na stronie (bez adresu, telefonu, NIP). -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://cybersora.pl/#firma",
+  "name": "cybersora",
+  "url": "https://cybersora.pl/",
+  "logo": "https://cybersora.pl/favicon-180.png",
+  "image": "https://cybersora.pl/og-image.png",
+  "email": "cybersora@zohomail.eu",
+  "description": "Programy, aplikacje, skrypty i strony internetowe na zamówienie. Automatyzacje, aplikacje na komputer, wizytówki Google i audyty widoczności.",
+  "areaServed": [
+    { "@type": "City", "name": "Gorlice" },
+    { "@type": "Country", "name": "Polska" }
+  ],
+  "sameAs": ["https://github.com/cybersora9"]
+}
+</script>
 <!-- Jedyny font potrzebny do pierwszego malowania hero. crossorigin jest
      OBOWIAZKOWE nawet dla pliku z tego samego serwera: fonty leca w trybie
      anonimowym CORS i bez tego atrybutu przegladarka pobralaby plik DWA RAZY,
