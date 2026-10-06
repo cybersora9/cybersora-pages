@@ -1664,6 +1664,260 @@
   }
   @keyframes t-blink{50%{opacity:0;}}
 
+  /* ---- KONFIGURATOR ZLECENIA (MK3a, 06.10): przelacznik trybow + deck w Kontakcie ----
+     Jeden kolor akcentu (karmazyn), Sora + Geist Mono, wagi 400/600/800, rozmiary ze skali --t-*.
+     Rabaty = znak "−" i jasniejszy tekst, ostrzezenia = karmazyn. Zero nowej petli rAF:
+     animacje tylko CSS (przeplyw kresek w schemacie, krotki puls ceny). */
+  .konf-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 clamp(1.2rem,3vw,2rem);}
+  .konf-tab{
+    appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:.6em;
+    font:inherit;font-size:var(--t-ui);font-weight:600;color:var(--muted-dark);
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;padding:.7rem 1.3rem;min-height:44px;
+    transition:color .2s ease,border-color .2s ease,background-color .2s ease;
+  }
+  .konf-tab:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+  .konf-tab[aria-selected="true"]{
+    color:#fff;border-color:var(--th-hot);
+    background:color-mix(in srgb, var(--th-solid) 22%, transparent);
+  }
+  .konf-tab:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .konf-tab__new{
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:var(--th-label);
+  }
+  .konf-tab__new::after{content:" " attr(data-hex);content:" " attr(data-hex) / "";font-weight:400;opacity:.55;}
+
+  .contact-main{display:flex;flex-direction:column;gap:1.4rem;min-width:0;scroll-margin-top:96px;}
+  .contact-wrap[data-mode="quick"] [data-konf-only],
+  .contact-wrap[data-mode="konf"] [data-quick-only]{display:none;}
+  .contact-wrap[data-mode="quick"] .konf,
+  .contact-wrap[data-mode="quick"] .konf-nav{display:none;}
+  .contact-wrap[data-mode="konf"]:not([data-step="5"]) #contactForm{display:none;}
+  .contact-wrap[data-mode="konf"][data-step="5"] .konf-pane{display:none;}
+  .contact-wrap[data-mode="konf"][data-step="5"] .konf-btn--go{display:none;}
+
+  /* ramka: scięte narożniki (prawy górny, lewy dolny) + nawiasy w pozostałych dwóch */
+  .konf{
+    --kc:18px;
+    position:relative;max-width:640px;
+    padding:0 0 .4rem;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));
+    border:1px solid color-mix(in srgb, var(--th-accent) 40%, rgba(255,255,255,.12));
+    clip-path:polygon(0 0,calc(100% - var(--kc)) 0,100% var(--kc),100% 100%,var(--kc) 100%,0 calc(100% - var(--kc)));
+  }
+  .konf::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(var(--th-hot),var(--th-hot)) top left / 26px 2px no-repeat,
+      linear-gradient(var(--th-hot),var(--th-hot)) top left / 2px 26px no-repeat,
+      linear-gradient(var(--th-hot),var(--th-hot)) bottom right / 26px 2px no-repeat,
+      linear-gradient(var(--th-hot),var(--th-hot)) bottom right / 2px 26px no-repeat,
+      linear-gradient(to top right,transparent calc(50% - 1.5px),color-mix(in srgb, var(--th-accent) 55%, transparent) calc(50% - .5px),transparent 50%) top right / var(--kc) var(--kc) no-repeat,
+      linear-gradient(to top right,transparent 50%,color-mix(in srgb, var(--th-accent) 55%, transparent) calc(50% + .5px),transparent calc(50% + 1.5px)) bottom left / var(--kc) var(--kc) no-repeat;
+  }
+  .konf-hud{
+    display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap;
+    padding:.8rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--muted-dark);
+  }
+  .konf-hud b{color:var(--th-label);font-weight:600;}
+  .konf-saved{color:var(--th-label);opacity:0;transition:opacity .3s;margin-right:.9rem;}
+  .konf-saved.on{opacity:1;}
+  .konf-steps{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;padding:.9rem 1.2rem .2rem;}
+  .konf-seg{
+    appearance:none;background:none;border:0;padding:0;cursor:pointer;text-align:left;
+    display:grid;gap:.4rem;align-content:end;min-height:44px;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted-dark);
+  }
+  .konf-seg i{display:block;height:5px;background:rgba(255,255,255,.12);clip-path:polygon(0 0,calc(100% - 4px) 0,100% 100%,0 100%);}
+  .konf-seg.is-done i{background:color-mix(in srgb, var(--th-accent) 55%, transparent);}
+  .konf-seg.is-on i{background:var(--th-hot);}
+  .konf-seg.is-on{color:#fff;}
+  .konf-seg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .konf-seg:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  @media (max-width:640px){.konf-seg span{display:none;}}
+
+  .konf-scan{
+    display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:1rem 1.4rem;align-items:center;
+    margin:.9rem 1.2rem 0;padding:.9rem;background:rgba(0,0,0,.28);
+    border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  }
+  @media (max-width:640px){.konf-scan{grid-template-columns:1fr;}}
+  .konf-diagram svg{display:block;width:100%;height:auto;}
+  .konf-diagram .dg-line{stroke:rgba(255,255,255,.2);stroke-width:1;fill:none;}
+  .konf-diagram .dg-flow{stroke:var(--th-hot);stroke-width:1.5;fill:none;stroke-dasharray:3 9;animation:konf-flow 1.2s linear infinite;}
+  @keyframes konf-flow{to{stroke-dashoffset:-12;}}
+  .konf-diagram .dg-node{fill:#15151a;stroke:var(--th-hot);stroke-width:1;}
+  .konf-diagram .dg-node.dim{stroke:rgba(255,255,255,.22);}
+  .konf-diagram .dg-frame{fill:none;stroke:rgba(255,255,255,.2);stroke-width:1;stroke-dasharray:4 3;}
+  .konf-diagram text{font-family:var(--mono);font-size:11px;letter-spacing:.04em;fill:var(--muted-dark);}
+  .konf-diagram .dg-sep{stroke-dasharray:2 4;}
+  .konf-diagram .dg-shield{fill:none;stroke:rgba(255,255,255,.3);stroke-width:1.2;}
+  .konf-diagram .dg-shield.on{fill:color-mix(in srgb, var(--th-solid) 35%, transparent);stroke:var(--th-hot);}
+  .konf-diagram .dg-tick{fill:none;stroke:var(--th-hot);stroke-width:1.6;}
+  .konf-diagram text.b{fill:#fff;}
+  .konf-diagram text.r{fill:var(--th-hot);}
+  .konf-diagram text.l{fill:var(--th-label);}
+  .konf-price small{
+    display:block;font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--muted-dark);
+  }
+  .konf-total{
+    font-size:var(--t-m);font-weight:800;line-height:1.05;letter-spacing:var(--ls-m);
+    font-variant-numeric:tabular-nums;margin:.2rem 0 0;
+  }
+  .konf-total.is-pulse{animation:konf-pulse .5s ease-out 1;}
+  @keyframes konf-pulse{0%{color:var(--th-hot);transform:translateY(3px);}100%{color:inherit;transform:none;}}
+  .konf-delta{
+    display:inline-block;min-height:1.4em;margin-top:.25rem;
+    font-family:var(--mono);font-size:var(--t-instrument);font-weight:600;color:var(--th-label);
+  }
+  .konf-upto{margin:.2rem 0 0;font-family:var(--mono);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .konf-lines{grid-column:1/-1;margin:0;}
+  .konf-lines summary{
+    cursor:pointer;font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--th-label);min-height:32px;display:flex;align-items:center;
+  }
+  .konf-lines summary:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-lines ul{list-style:none;margin:.4rem 0 0;padding:0;border-top:1px solid rgba(255,255,255,.08);}
+  .konf-lines li{
+    display:flex;justify-content:space-between;gap:1rem;padding:.4rem 0;
+    border-bottom:1px dashed rgba(255,255,255,.1);font-size:var(--t-label);color:var(--muted-dark);
+  }
+  .konf-lines li span:last-child{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;color:#fff;}
+  .konf-lines li.is-neg span:last-child{color:rgba(255,255,255,.72);}
+  .konf-lines li.is-base span:first-child{color:#fff;}
+
+  .konf-pane{padding:1.3rem 1.2rem .4rem;}
+  .konf-pane[hidden]{display:none;}
+  .konf-pane h3{margin:0;font-size:var(--t-title);font-weight:800;letter-spacing:var(--ls-m);}
+  .konf-pane h3:focus{outline:none;}
+  .konf-sub{margin:.4rem 0 1rem;font-size:var(--t-ui);line-height:var(--lh-text);color:var(--muted-dark);max-width:62ch;}
+  .konf-q{
+    display:flex;align-items:center;gap:.7rem;margin:1.2rem 0 .6rem;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--muted-dark);
+  }
+  .konf-q::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.1);}
+  .konf-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:.6rem;}
+  .konf-opts--2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+  .konf-opt{position:relative;display:block;cursor:pointer;}
+  .konf-opt input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1;}
+  .konf-opt input:disabled{cursor:not-allowed;}
+  .konf-opt__b{
+    position:relative;display:flex;flex-direction:column;gap:.3rem;height:100%;min-height:84px;
+    padding:.85rem .9rem .75rem;background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);border-radius:10px;
+    transition:border-color .2s ease,background-color .2s ease;
+  }
+  .konf-opt:hover .konf-opt__b{border-color:rgba(255,255,255,.32);}
+  .konf-opt__x{
+    position:absolute;top:.5rem;right:.7rem;font-family:var(--mono);font-size:var(--t-eyebrow);
+    color:var(--muted-dark);opacity:.6;
+  }
+  .konf-opt__k{font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:var(--th-label);}
+  .konf-opt__t{font-size:var(--t-ui);font-weight:600;line-height:1.25;color:#fff;padding-right:1.8rem;}
+  .konf-opt__d{font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .konf-opt__p{
+    margin-top:auto;padding-top:.45rem;display:flex;justify-content:space-between;gap:.5rem;
+    font-family:var(--mono);font-size:var(--t-label);color:var(--muted-dark);
+  }
+  .konf-opt__r{color:var(--th-label);}
+  .konf-opt.is-neg .konf-opt__p span:first-child{color:rgba(255,255,255,.78);}
+  .konf-opt input:checked + .konf-opt__b{
+    border-color:var(--th-hot);background:color-mix(in srgb, var(--th-solid) 20%, transparent);
+  }
+  .konf-opt input:checked + .konf-opt__b .konf-opt__p span:first-child{color:var(--th-label);}
+  .konf-opt input:checked + .konf-opt__b .konf-opt__t::before{content:"■ ";color:var(--th-hot);font-size:.7em;vertical-align:1px;}
+  .konf-opt input:focus-visible + .konf-opt__b{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-opt input:disabled + .konf-opt__b{opacity:.38;}
+  .konf-dep{
+    margin:.7rem 0 0;padding-left:.7rem;border-left:2px solid var(--th-hot);
+    font-family:var(--mono);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--th-label);
+  }
+  .konf-dep[hidden]{display:none;}
+  .konf-help{margin:.5rem 0 0;font-size:var(--t-label);color:var(--muted-dark);}
+  .konf-help summary{
+    cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;min-height:32px;list-style:none;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label);
+  }
+  .konf-help summary::-webkit-details-marker{display:none;}
+  .konf-help summary::before{
+    content:"?";display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;
+    border:1px solid var(--th-label);font-weight:600;
+  }
+  .konf-help[open] summary::before{content:"×";}
+  .konf-help summary:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-help p{margin:.3rem 0 0;padding:.6rem .8rem;border-left:2px solid var(--th-label);background:rgba(255,255,255,.04);max-width:64ch;line-height:var(--lh-text);}
+  .konf-unsure{
+    display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-top:1.3rem;
+    padding:.75rem .9rem;border:1px dashed rgba(255,255,255,.2);border-radius:10px;
+  }
+  .konf-unsure span{flex:1;min-width:200px;font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .konf-unsure button{
+    appearance:none;cursor:pointer;min-height:40px;padding:.5rem .9rem;border-radius:999px;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
+    color:#fff;background:none;border:1px solid rgba(255,255,255,.3);
+  }
+  .konf-unsure button[aria-pressed="true"]{border-color:var(--th-hot);color:var(--th-label);background:color-mix(in srgb, var(--th-solid) 18%, transparent);}
+  .konf-unsure button:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+
+  .konf-nav{display:flex;justify-content:space-between;gap:.8rem;max-width:640px;}
+  .konf-btn{
+    appearance:none;cursor:pointer;font:inherit;font-size:var(--t-ui);font-weight:600;color:#fff;
+    min-height:44px;padding:.7rem 1.4rem;border-radius:999px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);
+    transition:background-color .2s ease,transform .2s ease;
+  }
+  .konf-btn:hover{background:rgba(255,255,255,.12);}
+  .konf-btn:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .konf-btn[hidden]{display:none;}
+  .konf-btn--go{background:var(--th-solid);border-color:color-mix(in srgb, var(--th-hot) 50%, transparent);margin-left:auto;}
+  .konf-btn--go:hover{background:color-mix(in srgb, var(--th-solid) 88%, #fff);transform:translateY(-2px);}
+
+  /* krok 6: podsumowanie + co dalej, nad polami formularza */
+  .konf-recap{display:grid;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden;}
+  .konf-recap div{
+    display:grid;grid-template-columns:150px 1fr auto;gap:.7rem;align-items:center;
+    padding:.5rem .85rem;border-bottom:1px solid rgba(255,255,255,.08);font-size:var(--t-label);color:#fff;
+  }
+  .konf-recap div:last-child{border-bottom:0;}
+  .konf-recap span:first-child{font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--muted-dark);}
+  .konf-recap button{
+    appearance:none;background:none;border:0;cursor:pointer;min-height:32px;padding:0 .2rem;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label);
+  }
+  .konf-recap button:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  @media (max-width:560px){.konf-recap div{grid-template-columns:1fr auto;}.konf-recap span:first-child{grid-column:1/-1;}}
+  .konf-after{border:1px solid rgba(255,255,255,.1);border-radius:10px;}
+  .konf-after h4{
+    margin:0;padding:.6rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:var(--th-label);
+  }
+  .konf-after ol{list-style:none;margin:0;padding:.3rem .9rem .6rem;counter-reset:ka;}
+  .konf-after li{
+    counter-increment:ka;display:grid;grid-template-columns:24px 1fr;gap:.4rem;padding:.5rem 0;
+    border-bottom:1px dashed rgba(255,255,255,.1);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  .konf-after li:last-child{border-bottom:0;}
+  .konf-after li::before{content:counter(ka);font-family:var(--mono);font-weight:600;color:var(--th-label);}
+  .konf-after strong{color:#fff;font-weight:600;}
+  .konf-h5{margin:0;font-size:var(--t-title);font-weight:800;letter-spacing:var(--ls-m);}
+  .konf-h5:focus{outline:none;}
+
+  /* terminal: pozycje kalkulatora */
+  .t-disc{color:#fff;opacity:.78;}
+  .t-ok{color:var(--th-label);}
+
+  @media (prefers-reduced-motion:reduce){
+    .konf-diagram .dg-flow,.konf-total.is-pulse{animation:none;}
+    .konf-saved,.konf-opt__b,.konf-tab{transition:none;}
+  }
+
+
   /* ---- SOMI z bliska (18.09): duza kula + demo rozmowy bez backendu ----
      Reuzywa .terminal/.t-cursor/.t-muted z bloku wyzej — nowe klasy tylko
      tam, gdzie uklad naprawde inny (kolumny, tagi, pytania). */
@@ -4235,9 +4489,90 @@ fingerprint(maszyna)</div>
           <h2 class="services__title">Opowiedz mi o projekcie</h2>
         </div>
 
-        <div class="contact-wrap">
+        <div class="konf-tabs" role="tablist" aria-label="Sposób zgłoszenia">
+          <button type="button" class="konf-tab" role="tab" id="konfTabK" aria-selected="true" aria-controls="contactMain" data-mode="konf"><span class="konf-tab__new" data-hex="0xC0F1">nowe</span>Konfigurator zlecenia</button>
+          <button type="button" class="konf-tab" role="tab" id="konfTabQ" aria-selected="false" aria-controls="contactMain" tabindex="-1" data-mode="quick">Szybkie zgłoszenie</button>
+        </div>
+
+        <div class="contact-wrap" id="contactWrap" data-mode="konf" data-step="0">
+          <div class="contact-main" id="contactMain" role="tabpanel" aria-labelledby="konfTabK">
+          <section class="konf" id="konf" aria-label="Konfigurator zlecenia" data-konf-only>
+            <div class="konf-hud"><span>sys//cfg · krok <b id="konfN">01</b>/06 · <span id="konfT">start</span></span><span><span class="konf-saved" id="konfSaved">✓ zapisano</span><span id="konfLeft">ok. 3 min</span></span></div>
+            <div class="konf-steps" id="konfSteps"></div>
+            <div class="konf-scan">
+              <div class="konf-diagram" id="konfDiagram" role="img" aria-label="Schemat systemu"></div>
+              <div class="konf-price">
+                <small>cena orient.</small>
+                <p class="konf-total" id="konfTotal">—</p>
+                <span class="konf-delta" id="konfDelta" aria-hidden="true"></span>
+                <p class="konf-upto" id="konfUpto"></p>
+              </div>
+              <details class="konf-lines"><summary>Skąd ta cena</summary><ul id="konfLines"></ul></details>
+            </div>
+
+            <section class="konf-pane" data-pane="0" aria-labelledby="konfH0">
+              <h3 id="konfH0" tabindex="-1">Od czego zaczynamy?</h3>
+              <p class="konf-sub">Wybierz najbliższy opis. Ustawię rozsądne wartości domyślne, a zmienisz tylko to, co się nie zgadza.</p>
+              <div class="konf-opts konf-opts--2" id="kg-rodzaj"></div>
+              <p class="konf-dep" id="konfDepRodzaj" hidden></p>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Nie trzeba trafić idealnie. Przy wahaniu między dwoma opisami lepiej wybrać mniejszy. Jeśli okaże się za mały, powiem to przy wycenie, zanim cokolwiek zapłacisz.</p></details>
+            </section>
+
+            <section class="konf-pane" data-pane="1" aria-labelledby="konfH1" hidden>
+              <h3 id="konfH1" tabindex="-1">Jak ma działać</h3>
+              <p class="konf-sub">Trzy pytania, które najbardziej zmieniają nakład pracy.</p>
+              <div class="konf-q">Skąd bierze dane</div><div class="konf-opts" id="kg-zrodla"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Źródło to miejsce, z którego skrypt czyta informacje: plik Excel, strona internetowa, program księgowy, skrzynka mailowa. Policz, ile takich miejsc ma być w jednym działaniu.</p></details>
+              <div class="konf-q">Gdzie działa</div><div class="konf-opts" id="kg-gdzie"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Na komputerze zamawiającego: skrypt działa, kiedy komputer jest włączony. Na serwerze: działa sam, także w nocy i gdy komputer jest wyłączony. Serwer to dodatkowa praca przy konfiguracji i miesięczny koszt hostingu po stronie zamawiającego.</p></details>
+              <p class="konf-dep" id="konfDepGdzie" hidden>Panel w przeglądarce wymaga serwera, więc ustawiono go automatycznie.</p>
+              <div class="konf-q">Jak się go obsługuje</div><div class="konf-opts" id="kg-ui"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Bez okna: uruchamia się plik albo skrypt startuje sam i zostawia wynik. Proste okno: program z przyciskami. Panel w przeglądarce: wejście przez stronę, logowanie i tabele, może z niego korzystać kilka osób.</p></details>
+              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalę to z Tobą przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="1" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
+            </section>
+
+            <section class="konf-pane" data-pane="2" aria-labelledby="konfH2" hidden>
+              <h3 id="konfH2" tabindex="-1">Termin i materiały</h3>
+              <p class="konf-sub">Im więcej materiału na starcie i im mniej pośpiechu, tym taniej.</p>
+              <div class="konf-q">Termin</div><div class="konf-opts" id="kg-termin"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Termin liczy się od dnia, w którym wycena zostaje zaakceptowana i dostarczone są materiały. Pilne zlecenia wypychają inne prace, dlatego kosztują więcej.</p></details>
+              <div class="konf-q">Przykładowe dane i opis kroków</div><div class="konf-opts konf-opts--2" id="kg-dane"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Przykładowe dane to np. kilka prawdziwych plików albo zrzutów ekranu, na których skrypt ma pracować. Opis kroków to kilka zdań: najpierw to, potem tamto. Z tym praca idzie szybciej, więc taniej.</p></details>
+              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalę to z Tobą przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="2" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
+            </section>
+
+            <section class="konf-pane" data-pane="3" aria-labelledby="konfH3" hidden>
+              <h3 id="konfH3" tabindex="-1">Ochrona i jakość</h3>
+              <p class="konf-sub">Podstawowe zabezpieczenia są zawsze w cenie. Rozszerzone warto wybrać, gdy skrypt dotyka haseł, danych osobowych albo działa w internecie.</p>
+              <div class="konf-q">Zabezpieczenia</div><div class="konf-opts konf-opts--2" id="kg-zab"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Rozszerzone, jeśli skrypt loguje się na konta, trzyma hasła lub klucze, przetwarza dane klientów albo jest dostępny z internetu. Jeśli tylko porządkuje pliki na komputerze, podstawowe wystarczy.</p></details>
+              <div class="konf-q">Testy automatyczne</div><div class="konf-opts konf-opts--2" id="kg-testy"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Testy to drugi, mały program, który po każdej zmianie sprawdza, czy skrypt dalej liczy poprawnie. Opłacają się, gdy skrypt ma żyć długo i będzie rozwijany.</p></details>
+              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalę to z Tobą przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="3" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
+            </section>
+
+            <section class="konf-pane" data-pane="4" aria-labelledby="konfH4" hidden>
+              <h3 id="konfH4" tabindex="-1">Serwis po oddaniu</h3>
+              <p class="konf-sub">Świat wokół skryptu się zmienia: strona źródłowa przebuduje układ, zmieni się API, pojawi się nowa potrzeba. Serwis to niska, stała opłata za poprawki i rozwój. Nie jest obowiązkowy, a im dłużej trwa, tym jest tańszy.</p>
+              <div class="konf-opts" id="kg-serwis"></div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Serwis obejmuje poprawki, gdy coś przestanie działać z przyczyn zewnętrznych (zmiana strony, API, systemu), oraz rozwój. Nie obejmuje nowego, dużego zakresu: ten wyceniam osobno. Rezygnacja jest możliwa na koniec każdego okresu.</p></details>
+              <div id="konfOkresWrap"><div class="konf-q">Na jak długo</div><div class="konf-opts" id="kg-okres"></div></div>
+            </section>
+          </section>
+
           <form class="orderform" id="contactForm" novalidate>
             <input type="text" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+            <input type="hidden" name="ckalkulator" value="">
+            <div data-konf-only style="display:contents">
+              <h3 class="konf-h5" id="konfH5" tabindex="-1">Dane i wysyłka</h3>
+              <div class="konf-recap" id="konfRecap"></div>
+              <div class="konf-after"><h4>Co dzieje się po wysłaniu</h4><ol>
+                <li><span><strong>Zgłoszenie trafia do mnie</strong> razem z wyborami z konfiguratora i orientacyjną ceną. To prośba, a nie zamówienie.</span></li>
+                <li><span><strong>W ciągu ok. 24 godzin</strong> sprawdzam, czy zlecenie pasuje do tego, co robię dobrze, i odpisuję: biorę, mam pytania albo odmawiam z krótkim powodem.</span></li>
+                <li><span><strong>Jeśli się podejmuję,</strong> przychodzi wiążąca cena, a decyzja, czy ruszamy, należy do zamawiającego. Odmowa i „nie” niczego nie kosztują.</span></li>
+                <li><span><strong>Gdy obie strony mówią „tak”,</strong> ustalamy termin i sposób płatności, a po odbiorze zamawiający dostaje kod, instrukcję i gwarancję.</span></li>
+              </ol></div>
+            </div>
             <div class="orderform__grid">
               <label class="orderform__field">
                 <span>Imię / nazwa firmy</span>
@@ -4266,7 +4601,7 @@ fingerprint(maszyna)</div>
                 </select>
               </label>
             </div>
-            <label class="orderform__field">
+            <label class="orderform__field" data-quick-only>
               <span>O co chodzi?</span>
               <select name="ctopic" required>
                 <option value="" disabled selected>Wybierz temat…</option>
@@ -4279,7 +4614,7 @@ fingerprint(maszyna)</div>
                 <option value="Coś innego">Coś innego</option>
               </select>
             </label>
-            <div class="orderform__grid">
+            <div class="orderform__grid" data-quick-only>
               <label class="orderform__field">
                 <span>Orientacyjny budżet</span>
                 <select name="cbudget">
@@ -4301,14 +4636,19 @@ fingerprint(maszyna)</div>
               </label>
             </div>
             <label class="orderform__field">
-              <span>Opisz, o co chodzi</span>
+              <span data-quick-only>Opisz, o co chodzi</span><span data-konf-only>Opisz zlecenie: co ma robić, skąd dane i dokąd trafiają, jak często i kto korzysta</span>
               <textarea name="cmessage" rows="5" required placeholder="Im więcej konkretów, tym szybciej i trafniej odpowiem…"></textarea>
             </label>
             <div class="h-captcha" data-captcha="true"></div>
             <button class="cta-big" type="submit">Wyślij zgłoszenie &rarr;</button>
-            <p class="orderform__eta">odpowiadam w ciągu ~24h</p>
+            <p class="orderform__eta" data-quick-only>odpowiadam w ciągu ~24h</p>
             <p class="orderform__policy">Co robię z tymi danymi: <a href="#polityka" data-nav="polityka">polityka prywatności</a></p>
           </form>
+          <div class="konf-nav" data-konf-only>
+            <button class="konf-btn" id="konfPrev" type="button" hidden>← Wstecz</button>
+            <button class="konf-btn konf-btn--go" id="konfNext" type="button">Dalej →</button>
+          </div>
+          </div>
 
           <div class="terminal" aria-hidden="true">
             <div class="terminal__bar">
@@ -4510,7 +4850,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261003d"></script>
+<script src="app.js?v=20261006a"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly

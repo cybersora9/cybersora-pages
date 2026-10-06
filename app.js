@@ -2186,6 +2186,24 @@
     function escapeHtml(s) {
       return s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
     }
+    /* podsumowanie konfiguratora (ukryte pole ckalkulator, JSON); puste pole = tryb szybki */
+    function konfPodsumowanie(raw) {
+      if (!raw) return null;
+      try {
+        const k = JSON.parse(raw);
+        return k && k.v === 1 && Array.isArray(k.mod) ? k : null;
+      } catch (e) { return null; }
+    }
+    function zlKonf(n) { return n.toLocaleString('pl-PL').replace(/\s/g, '\u00a0') + '\u00a0zł'; }
+    function konfTekst(k) {
+      return 'Kalkulator (konfigurator na stronie):\n' +
+        'Rodzaj: ' + k.rodzaj + (k.od ? ' (cena od)' : '') + '\n' +
+        'Moduły: ' + k.mod.map((m) => m[0] + ' (' + m[1] + ')').join(', ') + '\n' +
+        'Serwis: ' + k.serwis + '\n' +
+        (k.ust.length ? 'Do ustalenia razem: ' + k.ust.join(', ') + '\n' : '') +
+        'Cena orientacyjna: ' + (k.od ? 'od ' : '') + zlKonf(k.cena) + ' (górna granica ' + zlKonf(k.hi) + ')\n\n';
+    }
+
 
     function render() {
       const fd = new FormData(form);
@@ -2200,9 +2218,25 @@
         line('TERMIN', fd.get('ctimeline'), '—'),
       ];
       const msg = (fd.get('cmessage') || '').trim();
+      const kalk = konfPodsumowanie(fd.get('ckalkulator'));
+      let kalkHtml = '';
+      if (kalk) {
+        const dots = (s, n) => s + ' ' + '.'.repeat(Math.max(2, n - s.length)) + ' ';
+        kalkHtml = '\n\n<span class="t-label">RODZAJ:</span> ' + escapeHtml(kalk.rodzaj) +
+          '\n<span class="t-label">MODUŁY:</span>\n' +
+          kalk.mod.map((m) => {
+            const disc = m[1].charAt(0) === '−';
+            return '<span class="t-muted">&gt; install</span> ' + escapeHtml(dots(m[0], 18)) + '<span class="t-ok">OK</span> ' +
+              (disc ? '<span class="t-disc">' + m[1] + '</span>' : m[1] === 'w cenie' ? '<span class="t-muted">0%</span>' : m[1]);
+          }).join('\n') +
+          '\n<span class="t-label">SERWIS:</span> ' + escapeHtml(kalk.serwis) +
+          (kalk.ust.length ? '\n<span class="t-label">DO USTALENIA:</span> ' + escapeHtml(kalk.ust.join(', ')) : '') +
+          '\n<span class="t-label">CENA ORIENT.:</span> ' + (kalk.od ? 'od ' : '') + escapeHtml(zlKonf(kalk.cena)) +
+          ' <span class="t-muted">(do ' + escapeHtml(zlKonf(kalk.hi)) + ')</span>';
+      }
       body.innerHTML =
         '<span class="t-muted">$ nowe_zgloszenie --od=cybersora.pl</span>\n\n' +
-        rows.join('\n') +
+        rows.join('\n') + kalkHtml +
         '\n\n<span class="t-label">OPIS:</span>\n' +
         (msg ? escapeHtml(msg) : '<span class="t-muted">zacznij pisać po lewej…</span>') +
         '<span class="t-cursor"></span>\n\n' +
@@ -2230,6 +2264,7 @@
         'Temat: ' + topicText + '\n' +
         'Budżet: ' + (fd.get('cbudget') || '') + '\n' +
         'Termin: ' + (fd.get('ctimeline') || '') + '\n\n' +
+        (konfPodsumowanie(fd.get('ckalkulator')) ? konfTekst(konfPodsumowanie(fd.get('ckalkulator'))) : '') +
         'Opis:\n' + (fd.get('cmessage') || '');
 
       submitBtn.disabled = true;
@@ -2247,6 +2282,7 @@
             'Dziękuję' + (fd.get('cname') ? ', ' + escapeHtml(fd.get('cname')) : '') + '. Odezwę się na ' +
             escapeHtml(fd.get('cemail') || '') + '.';
           Array.from(form.elements).forEach(el => el.disabled = true);
+          document.querySelectorAll('#konf input, #konf button, .konf-tab, .konf-nav button').forEach(el => { el.disabled = true; });
           submitBtn.textContent = 'Wysłano ✓';
         } else {
           throw new Error(data.message || 'nieznany błąd');
@@ -2335,6 +2371,349 @@
       }
     });
   }
+
+  /* ===================== Konfigurator zlecenia w Kontakcie (MK3a, 06.10) =====================
+     Lewa kolumna Kontaktu ma dwa tryby: "Konfigurator zlecenia" (kroki 1-5 + krok 6 = ten sam
+     #contactForm) i "Szybkie zgloszenie" (formularz jak dawniej). Konfigurator niczego nie
+     wysyla sam: zapisuje podsumowanie w ukrytym polu ckalkulator i mapuje wybory na istniejace
+     selecty (ctopic, cbudget, ctimeline), a terminal po prawej drukuje je jako instalacje.
+     Model cen i teksty: PROMPT_MARKETPLACE_SKRYPTY.md (korekty 1 i 2). Wszystko, co dotyczy
+     cen, terminu odpowiedzi i kryteriow odmowy, jest szkicem do potwierdzenia przez maise. */
+  (function () {
+    const wrap = document.getElementById('contactWrap');
+    const konf = document.getElementById('konf');
+    const form = document.getElementById('contactForm');
+    if (!wrap || !konf || !form) return;
+    const $ = (id) => document.getElementById(id);
+
+    const RODZAJE = [
+      { id: 'mikro', k: 'Porządek w plikach', t: 'Mikro-skrypt', d: 'Jedno zadanie, jedno źródło: zmiana nazw, scalanie arkuszy, mały konwerter.', base: 150 },
+      { id: 'skrypt', k: 'Raport i dane', t: 'Skrypt', d: 'Kilka kroków, pobieranie danych, raport, praca według harmonogramu.', base: 500 },
+      { id: 'bot', k: 'Pilnowanie 24/7', t: 'Bot', d: 'Działa całą dobę, pilnuje czegoś i odzywa się przez Discord, mail lub API.', base: 1200 },
+      { id: 'app', k: 'Program dla firmy', t: 'Aplikacja', d: 'Kalendarz, klienci, magazyn, panel dla zespołu. Pod jedną firmę.', base: 5000, from: true }
+    ];
+    const PRESET = {
+      mikro: { zrodla: '1', gdzie: 'pc', ui: 'cli', termin: 'std', dane: 'nie', zab: 'pod', testy: 'nie', serwis: 'brak', okres: '1' },
+      skrypt: { zrodla: '3', gdzie: 'pc', ui: 'cli', termin: 'std', dane: 'nie', zab: 'pod', testy: 'nie', serwis: 'pod', okres: '6' },
+      bot: { zrodla: '3', gdzie: 'srv', ui: 'cli', termin: 'std', dane: 'nie', zab: 'pod', testy: 'nie', serwis: 'pod', okres: '6' },
+      app: { zrodla: '1', gdzie: 'pc', ui: 'gui', termin: 'std', dane: 'nie', zab: 'pod', testy: 'nie', serwis: 'stal', okres: '12' }
+    };
+    /* s = krotka nazwa modulu do terminala (> install modul:serwer ...) */
+    const G = {
+      zrodla: [{ id: '1', s: '1', t: 'Jedno', d: 'jeden plik, strona lub system', p: 0 }, { id: '3', s: '2-3', t: '2 do 3', d: 'kilka plików, stron lub API', p: 0.25, rec: 1 }, { id: '4', s: '4+', t: '4 i więcej', d: 'wiele źródeł, scalanie i czyszczenie', p: 0.6 }],
+      gdzie: [{ id: 'pc', s: 'pc', t: 'Na komputerze zamawiającego', d: 'uruchamia się ręcznie lub z harmonogramu', p: 0 }, { id: 'srv', s: 'serwer', t: 'Na serwerze', d: 'działa bez komputera zamawiającego, uruchamiam i konfiguruję', p: 0.3 }],
+      ui: [{ id: 'cli', s: 'bez-okna', t: 'Bez okna', d: 'uruchamia się plik, wynik ląduje w pliku lub na mailu', p: 0 }, { id: 'gui', s: 'okno', t: 'Proste okno', d: 'kilka przycisków i pól na Windowsie', p: 0.35 }, { id: 'web', s: 'panel-www', t: 'Panel w przeglądarce', d: 'logowanie, tabele, kilku użytkowników', p: 0.7 }],
+      termin: [{ id: 'luz', s: '30d', t: 'Bez pośpiechu', d: 'do 30 dni', p: -0.1 }, { id: 'std', s: '14d', t: 'Standard', d: 'do 14 dni', p: 0, rec: 1 }, { id: 'szyb', s: '5d', t: 'Szybki', d: 'do 5 dni', p: 0.25 }, { id: 'pilny', s: '48h', t: 'Pilny', d: 'w 48 godzin', p: 0.5 }],
+      dane: [{ id: 'tak', s: 'gotowe', t: 'Są', d: 'przykładowe dane i opis krok po kroku', p: -0.1 }, { id: 'nie', s: 'brak', t: 'Brak', d: 'wyciągnę to z rozmowy', p: 0 }],
+      zab: [{ id: 'pod', s: 'podstawowe', t: 'Podstawowe', d: 'w cenie: brak haseł w kodzie, sprawdzanie danych wejściowych, dziennik błędów', p: 0, rec: 1 }, { id: 'roz', s: 'rozszerzone', t: 'Rozszerzone', d: 'sekrety poza kodem, szyfrowana konfiguracja, kopia zapasowa ustawień, przegląd pod kątem typowych luk', p: 0.2 }],
+      testy: [{ id: 'nie', s: 'bez', t: 'Bez testów', d: 'sprawdzanie ręczne na danych zamawiającego', p: 0 }, { id: 'tak', s: 'auto', t: 'Z testami automatycznymi', d: 'łatwiej bezpiecznie zmieniać kod w przyszłości', p: 0.15 }]
+    };
+    const GROUPS = ['zrodla', 'gdzie', 'ui', 'termin', 'dane', 'zab', 'testy'];
+    const SERWIS = [
+      { id: 'brak', t: 'Bez serwisu', d: 'Gwarancja z ceny i koniec. Zmiany później według cennika.', pct: 0, min: 0 },
+      { id: 'pod', t: 'Serwis Podstawowy', d: 'Naprawiam błędy i dopasowuję skrypt, gdy zmieni się źródło danych. Reakcja do 3 dni roboczych.', pct: 0.04, min: 39, rec: 1 },
+      { id: 'stal', t: 'Serwis Stały', d: 'To co Podstawowy, szybsza reakcja, miesięczny przegląd zabezpieczeń i jedna drobna zmiana w miesiącu.', pct: 0.08, min: 79 }
+    ];
+    const OKRES = [
+      { id: '1', t: 'Miesiąc po miesiącu', d: 'rezygnacja w dowolnym momencie', m: 0 },
+      { id: '6', t: '6 miesięcy', d: 'stawka niższa o 10%', m: 0.1, rec: 1 },
+      { id: '12', t: '12 miesięcy', d: 'stawka niższa o 20%', m: 0.2 }
+    ];
+    const STEPS = [['start', 'Start'], ['dzialanie', 'Działanie'], ['termin', 'Termin'], ['ochrona', 'Ochrona'], ['serwis', 'Serwis'], ['wysylka', 'Dane i wysyłka', 'Wysyłka']];
+    const LAB = { zrodla: 'Źródła danych', gdzie: 'Działa', ui: 'Interfejs', termin: 'Termin', dane: 'Przykładowe dane', zab: 'Zabezpieczenia', testy: 'Testy' };
+    const STEP_OF = { rodzaj: 0, zrodla: 1, gdzie: 1, ui: 1, termin: 2, dane: 2, zab: 3, testy: 3, serwis: 4, okres: 4 };
+    const KEY = 'konf_v1';
+    const QUICK_PLACEHOLDER = form.elements['cmessage'].getAttribute('placeholder') || '';
+    const KONF_PLACEHOLDER = 'np. Co rano pobiera ceny z trzech stron konkurencji i wpisuje je do arkusza. Dane z kilku stron WWW, wynik w pliku Excel, raz dziennie, korzysta jedna osoba.';
+
+    let st = Object.assign({ rodzaj: 'skrypt' }, PRESET.skrypt);
+    let step = 0;
+    let unsure = {};
+    let mode = 'konf';
+    let prevTotal = null;
+    let savedT = 0;
+
+    const nb = (s) => s.replace(/\s/g, ' ');
+    const zl = (n) => nb(n.toLocaleString('pl-PL')) + ' zł';
+    const r5 = (n) => Math.round(n / 5) * 5;
+    const find = (a, id) => a.find((x) => x.id === id);
+    const sgn = (p) => (p > 0 ? '+' : p < 0 ? '−' : '') + Math.round(Math.abs(p) * 100) + '%';
+
+    function save() {
+      try {
+        localStorage.setItem(KEY, JSON.stringify({ st: st, step: step, un: unsure }));
+        const el = $('konfSaved');
+        if (el) { el.classList.add('on'); clearTimeout(savedT); savedT = setTimeout(() => el.classList.remove('on'), 1400); }
+      } catch (e) { /* tryb prywatny / zablokowane dane: konfigurator dziala bez zapisu */ }
+    }
+    function load() {
+      try {
+        const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+        if (s && s.st && find(RODZAJE, s.st.rodzaj)) {
+          const ok = GROUPS.every((k) => find(G[k], s.st[k])) && find(SERWIS, s.st.serwis) && find(OKRES, s.st.okres);
+          if (ok) { st = Object.assign(st, s.st); step = Math.min(5, s.step | 0); unsure = s.un || {}; }
+        }
+      } catch (e) { /* uszkodzony zapis: zostaja ustawienia domyslne */ }
+    }
+
+    function calc(s) {
+      const rod = find(RODZAJE, s.rodzaj);
+      const lines = [];
+      let sum = rod.base;
+      GROUPS.forEach((k) => {
+        const o = find(G[k], s[k]);
+        if (o && o.p !== 0) {
+          const amt = r5(rod.base * o.p);
+          sum += amt;
+          const name = k === 'zrodla' ? 'Źródła danych: ' + o.t.toLowerCase()
+            : k === 'gdzie' ? 'Działa na serwerze'
+            : k === 'ui' ? 'Interfejs: ' + o.t.toLowerCase()
+            : k === 'termin' ? 'Termin: ' + o.t.toLowerCase()
+            : k === 'dane' ? 'Przykładowe dane są'
+            : k === 'zab' ? 'Zabezpieczenia rozszerzone' : 'Testy automatyczne';
+          lines.push({ k: k, n: name, p: o.p, a: amt });
+        }
+      });
+      const hi = Math.round((sum * 1.2) / 10) * 10;
+      const sv = find(SERWIS, s.serwis);
+      const ok = find(OKRES, s.okres);
+      let mon = 0;
+      if (sv.pct > 0) { mon = Math.max(sv.min, Math.round(sum * sv.pct)); mon = Math.round(mon * (1 - ok.m)); }
+      return { rod: rod, lines: lines, total: sum, hi: hi, mon: mon, sv: sv, ok: ok, months: s.serwis === 'brak' ? 0 : parseInt(s.okres, 10) };
+    }
+
+    /* ---------- budowa kart wyboru ---------- */
+    function optHtml(name, o, idx, pTxt, extra) {
+      return '<label class="konf-opt' + (o.p < 0 || o.m > 0 ? ' is-neg' : '') + '"><input type="radio" name="' + name + '" value="' + o.id + '">' +
+        '<span class="konf-opt__b"><span class="konf-opt__x">0x' + (idx + 1).toString(16).toUpperCase().padStart(2, '0') + '</span>' + (extra || '') +
+        '<span class="konf-opt__t">' + o.t + '</span><span class="konf-opt__d">' + o.d + '</span>' +
+        '<span class="konf-opt__p"><span>' + pTxt + '</span>' + (o.rec ? '<span class="konf-opt__r">polecane</span>' : '') + '</span></span></label>';
+    }
+    function build() {
+      $('kg-rodzaj').innerHTML = RODZAJE.map((o, i) => optHtml('rodzaj', { id: o.id, t: o.k, d: o.d, rec: o.id === 'skrypt' }, i, (o.from ? 'od ' : '') + zl(o.base), '<span class="konf-opt__k">' + o.t + '</span>')).join('');
+      GROUPS.forEach((k) => {
+        $('kg-' + k).innerHTML = G[k].map((o, i) => optHtml(k, o, i, o.p === 0 ? 'w cenie' : sgn(o.p) + ' ceny')).join('');
+      });
+      $('kg-serwis').innerHTML = SERWIS.map((o, i) => optHtml('serwis', o, i, o.pct === 0 ? '0 zł' : Math.round(o.pct * 100) + '% ceny / mies. (min. ' + o.min + ' zł)')).join('');
+      $('kg-okres').innerHTML = OKRES.map((o, i) => optHtml('okres', o, i, o.m === 0 ? 'stawka pełna' : '−' + Math.round(o.m * 100) + '% stawki')).join('');
+      $('konfSteps').innerHTML = STEPS.map((s, i) => '<button type="button" class="konf-seg" data-go="' + i + '" aria-label="Krok ' + (i + 1) + ': ' + s[1] + '"><i></i><span>' + (s[2] || s[1]) + '</span></button>').join('');
+      $('konfSteps').setAttribute('role', 'group');
+      $('konfSteps').setAttribute('aria-label', 'Kroki konfiguratora');
+    }
+    function syncRadios() {
+      Object.keys(st).forEach((k) => {
+        const el = konf.querySelector('input[name="' + k + '"][value="' + st[k] + '"]');
+        if (el) el.checked = true;
+      });
+    }
+
+    /* ---------- schemat systemu (SVG, tylko CSS-owy przeplyw kresek) ---------- */
+    function node(x, y, w, h, c, cls) {
+      return '<path class="dg-node ' + (cls || '') + '" d="M' + (x + c) + ' ' + y + 'H' + (x + w) + 'V' + (y + h - c) + 'L' + (x + w - c) + ' ' + (y + h) + 'H' + x + 'V' + (y + c) + 'Z"/>';
+    }
+    function tx(x, y, txt, cls) { return '<text' + (cls ? ' class="' + cls + '"' : '') + ' x="' + x + '" y="' + y + '">' + txt + '</text>'; }
+    function diagram(c) {
+      const n = st.zrodla === '1' ? 1 : st.zrodla === '3' ? 3 : 4;
+      const ys = n === 1 ? [56] : n === 3 ? [24, 56, 88] : [10, 40, 70, 100];
+      const outLbl = st.ui === 'cli' ? 'PLIK' : st.ui === 'gui' ? 'OKNO' : 'WWW';
+      const srv = st.gdzie === 'srv';
+      const roz = st.zab === 'roz';
+      let o = '<rect class="dg-frame" x="136" y="28" width="116" height="84"/>' + tx(140, 24, srv ? 'SERWER' : 'KOMPUTER', srv ? 'r' : '');
+      ys.forEach((y, i) => {
+        const yc = y + 11;
+        const d = 'M82 ' + yc + 'H110V70H152';
+        o += '<path class="dg-line" d="' + d + '"/><path class="dg-flow" d="' + d + '"/>' + node(18, y, 64, 22, 5, 'dim') + tx(26, y + 14, i === 3 ? 'ŹR 4+' : 'ŹR 0' + (i + 1));
+      });
+      o += '<path class="dg-line" d="M236 70H292"/><path class="dg-flow" d="M236 70H292"/>';
+      o += node(152, 48, 84, 44, 8) + tx(164, 68, { mikro: 'MIKRO', skrypt: 'SKRYPT', bot: 'BOT', app: 'APLIKACJA' }[c.rod.id], 'b') + tx(164, 82, c.rod.id === 'app' ? 'APP' : 'AUTO');
+      o += node(292, 54, 56, 32, 6) + tx(302, 74, outLbl, 'b');
+      o += '<path class="dg-shield' + (roz ? ' on' : '') + '" transform="translate(82 0)" d="M194 3l11 4v8c0 7-5 11-11 14c-6-3-11-7-11-14V7z"/>';
+      if (roz) o += '<path class="dg-tick" transform="translate(82 0)" d="M189 14l4 4 7-8"/>';
+      o += tx(294, 14, roz ? 'OCHRONA+' : 'OCHRONA', roz ? 'r' : '');
+      if (st.testy === 'tak') o += tx(292, 104, '✓ TESTY', 'l');
+      o += tx(292, 40, { luz: '30 DNI', std: '14 DNI', szyb: '5 DNI', pilny: '48 H' }[st.termin], st.termin === 'pilny' || st.termin === 'szyb' ? 'r' : '');
+      const sv = c.sv;
+      o += '<path class="dg-line dg-sep" d="M18 130H348"/>';
+      o += tx(18, 146, sv.pct ? 'SERWIS: ' + sv.t.replace('Serwis ', '').toUpperCase() + ' · ' + (c.months > 1 ? c.months + ' MIES.' : 'MIES.') : 'BEZ SERWISU · GWARANCJA ' + (c.rod.id === 'mikro' ? 7 : 14) + ' DNI', sv.pct ? 'l' : '');
+      $('konfDiagram').innerHTML = '<svg viewBox="0 0 366 154" aria-hidden="true" focusable="false">' + o + '</svg>';
+      $('konfDiagram').setAttribute('aria-label', 'Schemat: ' + n + (n === 1 ? ' źródło' : ' źródeł') + ' danych, ' + c.rod.t + ', ' + (srv ? 'serwer' : 'komputer zamawiającego') + ', wynik: ' + outLbl.toLowerCase());
+    }
+
+    /* ---------- podsumowanie dla terminala i wysylki (ukryte pole) ---------- */
+    function podsumowanie(c) {
+      return {
+        v: 1,
+        rodzaj: c.rod.k + ' (' + c.rod.t + ')',
+        od: !!c.rod.from,
+        mod: GROUPS.map((k) => { const o = find(G[k], st[k]); return [k + ':' + o.s, o.p === 0 ? 'w cenie' : sgn(o.p)]; }),
+        serwis: c.sv.t + (c.mon ? ', ' + (c.months > 1 ? c.months + ' mies.' : 'miesięcznie') + ' (' + zl(c.mon) + '/mies.)' : ''),
+        cena: c.total,
+        hi: c.hi,
+        ust: Object.keys(unsure).filter((k) => unsure[k]).map((k) => STEPS[k][1])
+      };
+    }
+    function syncForm(c) {
+      const f = form.elements['ckalkulator'];
+      if (mode === 'konf') {
+        f.value = JSON.stringify(podsumowanie(c));
+        form.elements['ctopic'].value = 'Zamówienie strony / aplikacji';
+        const bi = c.hi <= 1000 ? 1 : c.hi <= 5000 ? 2 : c.hi <= 15000 ? 3 : 4;
+        form.elements['cbudget'].selectedIndex = bi;
+        form.elements['ctimeline'].value = { luz: 'Elastycznie', std: 'W ciągu miesiąca', szyb: 'Na już / pilne', pilny: 'Na już / pilne' }[st.termin];
+      } else {
+        f.value = '';
+      }
+      form.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function render() {
+      const c = calc(st);
+      const pre = c.rod.from ? 'od ' : '';
+      const tot = $('konfTotal');
+      tot.textContent = pre + zl(c.total);
+      if (prevTotal !== null && prevTotal !== c.total) {
+        const d = c.total - prevTotal;
+        $('konfDelta').textContent = (d > 0 ? '+' : '−') + zl(Math.abs(d));
+        tot.classList.remove('is-pulse');
+        void tot.offsetWidth;
+        tot.classList.add('is-pulse');
+      }
+      prevTotal = c.total;
+      $('konfUpto').textContent = 'Górna granica, jeśli opis okaże się niepełny: ' + zl(c.hi) + '.';
+      let l = '<li class="is-base"><span>' + c.rod.t + ' (cena wyjściowa)</span><span>' + zl(c.rod.base) + '</span></li>';
+      c.lines.forEach((x) => {
+        l += '<li class="' + (x.a < 0 ? 'is-neg' : '') + '"><span>' + x.n + '</span><span>' + sgn(x.p) + ' · ' + (x.a < 0 ? '−' : '+') + zl(Math.abs(x.a)) + '</span></li>';
+      });
+      if (!c.lines.length) l += '<li><span>Bez dopłat i rabatów</span><span>0 zł</span></li>';
+      if (c.mon) l += '<li class="is-base"><span>' + c.sv.t + '</span><span>' + zl(c.mon) + ' / mies.</span></li>';
+      $('konfLines').innerHTML = l;
+
+      const web = st.ui === 'web';
+      const pc = konf.querySelector('input[name="gdzie"][value="pc"]');
+      if (pc) pc.disabled = web;
+      $('konfDepGdzie').hidden = !web;
+      $('konfOkresWrap').hidden = st.serwis === 'brak';
+      const tooBig = st.rodzaj === 'mikro' && c.total > 300;
+      const dep = $('konfDepRodzaj');
+      const txt = st.rodzaj === 'app'
+        ? 'Aplikacja to największy rodzaj. Kwota jest punktem wyjścia. Cenę ustalam po rozmowie o zakresie, o ile się podejmę.'
+        : tooBig ? 'Przy takich wymaganiach to już raczej Skrypt. Lepiej wybrać wyższy rodzaj albo zmniejszyć zakres, wtedy cena będzie uczciwsza.' : '';
+      dep.hidden = !txt;
+      dep.textContent = txt;
+      diagram(c);
+      recap(c);
+      syncForm(c);
+      save();
+    }
+    function recap(c) {
+      const rows = [['Rodzaj', c.rod.k + ' (' + c.rod.t + ')', 'rodzaj']];
+      GROUPS.forEach((k) => rows.push([LAB[k], find(G[k], st[k]).t, k]));
+      rows.push(['Serwis', c.sv.t + (c.mon ? ', ' + c.ok.t.toLowerCase() : ''), 'serwis']);
+      rows.push(['Cena orient.', (c.rod.from ? 'od ' : '') + zl(c.total) + ' (górna granica ' + zl(c.hi) + ')', null]);
+      $('konfRecap').innerHTML = rows.map((r) => {
+        const s = r[2] === null ? -1 : STEP_OF[r[2]];
+        const u = s >= 1 && s <= 3 && unsure[s];
+        return '<div><span>' + r[0] + '</span><span>' + r[1] + (u ? ' · do ustalenia razem' : '') + '</span>' +
+          (s >= 0 ? '<button type="button" data-go="' + s + '" aria-label="Zmień: ' + r[0] + '">zmień</button>' : '<span></span>') + '</div>';
+      }).join('');
+    }
+
+    /* ---------- kroki ---------- */
+    function go(i, focus) {
+      step = Math.max(0, Math.min(5, i));
+      wrap.dataset.step = String(step);
+      konf.querySelectorAll('.konf-pane').forEach((p) => { p.hidden = +p.getAttribute('data-pane') !== step; });
+      konf.querySelectorAll('.konf-seg').forEach((b, k) => {
+        b.classList.toggle('is-done', k < step);
+        b.classList.toggle('is-on', k === step);
+        if (k === step) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+      });
+      $('konfN').textContent = String(step + 1).padStart(2, '0');
+      $('konfT').textContent = STEPS[step][1];
+      $('konfPrev').hidden = step === 0;
+      $('konfPrev').textContent = '← ' + (step > 0 ? STEPS[step - 1][1] : 'Wstecz');
+      $('konfNext').textContent = 'Dalej: ' + STEPS[Math.min(5, step + 1)][1] + ' →';
+      const left = 5 - step;
+      $('konfLeft').textContent = step === 5 ? 'ostatni krok' : 'zostało ' + left + ' ' + (left === 1 ? 'krok' : left < 5 ? 'kroki' : 'kroków');
+      document.querySelectorAll('#konf [data-unsure]').forEach((b) => {
+        const k = +b.getAttribute('data-unsure');
+        b.setAttribute('aria-pressed', unsure[k] ? 'true' : 'false');
+        b.textContent = unsure[k] ? '✓ Ustalimy razem' : 'Nie wiem, ustalmy razem';
+      });
+      if (focus) {
+        $('contactMain').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        const h = $('konfH' + step);
+        if (h) h.focus({ preventScroll: true });
+      }
+      save();
+    }
+
+    /* ---------- tryb: konfigurator / szybkie zgloszenie ---------- */
+    const tabs = [$('konfTabK'), $('konfTabQ')];
+    function setMode(m, focusTab) {
+      mode = m === 'quick' ? 'quick' : 'konf';
+      wrap.dataset.mode = mode;
+      tabs.forEach((t) => {
+        const on = t.dataset.mode === mode;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      $('contactMain').setAttribute('aria-labelledby', mode === 'konf' ? 'konfTabK' : 'konfTabQ');
+      form.elements['cmessage'].setAttribute('placeholder', mode === 'konf' ? KONF_PLACEHOLDER : QUICK_PLACEHOLDER);
+      if (focusTab) tabs.find((t) => t.dataset.mode === mode).focus();
+      syncForm(calc(st));
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => setMode(t.dataset.mode, false));
+      t.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'Home' && key !== 'End') return;
+        e.preventDefault();
+        const j = key === 'Home' ? 0 : key === 'End' ? tabs.length - 1 : (i + (key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+        setMode(tabs[j].dataset.mode, true);
+      });
+    });
+
+    /* "Zapytaj o audyt / o SOMI..." (data-topic) ma lądować w szybkim zgloszeniu, a software na zamowienie w konfiguratorze;
+       ten listener jest dopisany po handlerze [data-nav], wiec wygrywa przy ctopic */
+    const TEMATY_KONF = ['Zamówienie strony / aplikacji'];
+    document.querySelectorAll('[data-nav][data-topic]').forEach((el) => {
+      el.addEventListener('click', () => setMode(TEMATY_KONF.includes(el.dataset.topic) ? 'konf' : 'quick', false));
+    });
+
+    /* ---------- zdarzenia konfiguratora ---------- */
+    konf.addEventListener('change', (e) => {
+      const t = e.target;
+      if (t.type !== 'radio') return;
+      if (t.name === 'rodzaj') { st = Object.assign({ rodzaj: t.value }, PRESET[t.value]); unsure = {}; syncRadios(); }
+      else {
+        st[t.name] = t.value;
+        if (t.name === 'ui' && t.value === 'web' && st.gdzie === 'pc') { st.gdzie = 'srv'; syncRadios(); }
+      }
+      render();
+    });
+    wrap.addEventListener('click', (e) => {
+      const g = e.target.closest('[data-go]');
+      if (g) { go(+g.getAttribute('data-go'), true); return; }
+      const u = e.target.closest('[data-unsure]');
+      if (u) {
+        const k = +u.getAttribute('data-unsure');
+        unsure[k] = !unsure[k];
+        u.setAttribute('aria-pressed', unsure[k] ? 'true' : 'false');
+        u.textContent = unsure[k] ? '✓ Ustalimy razem' : 'Nie wiem, ustalmy razem';
+        render();
+      }
+    });
+    $('konfNext').addEventListener('click', () => go(step + 1, true));
+    $('konfPrev').addEventListener('click', () => go(step - 1, true));
+
+    load();
+    build();
+    syncRadios();
+    render();
+    go(step, false);
+    setMode('konf', false);
+  })();
 
   /* ===================== SOMI z bliska — demo rozmowy BEZ backendu (18.09) =====================
      Zero tokenow, zero API: trzy pytania i trzy odpowiedzi ze skryptu w tym pliku.
