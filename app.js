@@ -3446,6 +3446,25 @@
           { q: 'Gdzie go wziąć?', a: 'Z PyPI: pip install pycodemath (wersja 0.4.0, Python 3.11 lub nowszy). Kod jest otwarty, na licencji MIT: github.com/cybersora9/pycodemath. Od wersji 0.4.0 umie sprawdzić wynik i odpowiedzieć: potwierdzony, obalony z kontrprzykładem albo nierozstrzygnięty.' },
         ],
       },
+      soraflux: {
+        nazwa: 'SoraFlux',
+        lead: 'Nasz konwerter na komputer. Zamienia wideo, dźwięk i obrazy na potrzebny format, pokazuje rozmiar wyniku przed startem i robi wszystko lokalnie, bez wysyłania plików do sieci.',
+        fakty: [
+          ['zakres', 'Wideo · audio · obrazy · GIF'],
+          ['wersja', '1.0.2 · Windows · w testach'],
+          ['silnik', 'Rust · Tauri 2 · ffmpeg'],
+          ['cena', 'Będzie za darmo'],
+        ],
+        zrzut: {
+          src: 'sadzonki/soraflux-konwertuj.webp', w: 1280, h: 860,
+          alt: 'SoraFlux, zakładka Konwertuj: gotowe ustawienia (Telefon 480p 25 fps, Discord 10 MB, WhatsApp 16 MB), lista plików, wybór formatu i przewidywany rozmiar wyniku 40 MB.',
+          podpis: 'Prawdziwy zrzut aplikacji w motywie cybersory, na przykładowych plikach.',
+        },
+        pytania: [
+          { q: 'Co potrafi?', a: 'Zmienia format wideo i dźwięku (MP4, MKV, WEBM, MP3, AAC, FLAC i inne), robi GIF-y z klipów i zmniejsza obrazy. Ustawisz rozdzielczość, liczbę klatek, jakość i bitrate, a gotowe zestawy, np. „Telefon 480p 25 fps” czy „Discord 10 MB”, robią to jednym kliknięciem.' },
+          { q: 'Kiedy i za ile?', a: 'Będzie za darmo. Teraz testujemy wersję 1.0.2 u siebie i u znajomych, a publiczne wydanie wyjdzie, gdy skończymy testy. Pliki nie wychodzą z Twojego komputera i program nie zbiera żadnej telemetrii.' },
+        ],
+      },
       frostwall: {
         nazwa: 'Frostwall',
         lead: 'Nasza biblioteka licencyjna. Sprawdza licencję i odblokowuje chroniony kod bez łączenia się z żadnym serwerem.',

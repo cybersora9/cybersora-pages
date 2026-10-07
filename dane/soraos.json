@@ -1,5 +1,5 @@
 {
- "zebrano": "2026-10-07T12:35+00:00",
+ "zebrano": "2026-10-07T15:00+00:00",
  "metoda": "nasz kod programu, bez bibliotek, testów, makiet, dokumentacji i pustych linii",
  "projekty": {
   "salondesk": {
@@ -17,9 +17,9 @@
    }
   },
   "somi": {
-   "commity": 515,
-   "tydzien": 192,
-   "ostatni": "2026-10-07T01:47:22+02:00",
+   "commity": 516,
+   "tydzien": 193,
+   "ostatni": "2026-10-07T16:31:04+02:00",
    "linie": 77722,
    "pliki": 229,
    "klocki": {
@@ -30,22 +30,22 @@
    }
   },
   "moonsora": {
-   "commity": 145,
-   "tydzien": 144,
-   "ostatni": "2026-10-06T21:18:52Z",
+   "commity": 154,
+   "tydzien": 146,
+   "ostatni": "2026-10-07T14:22:11Z",
    "wersja": "0.11.0",
-   "linie": 46313,
-   "pliki": 195,
+   "linie": 46874,
+   "pliki": 198,
    "klocki": {
     "crates/moonsora-core/src/cdpproxy.rs": 2369,
     "crates/moonsora-core/src/agentapi.rs": 3059,
     "crates/moonsora-core/src/agent_stream.rs": 955,
-    "crates/moonsora-core/src/pty.rs": 1169
+    "crates/moonsora-core/src/pty.rs": 1174
    }
   },
   "pycodemath": {
    "commity": 151,
-   "tydzien": 3,
+   "tydzien": 2,
    "ostatni": "2026-09-30T19:30:34+02:00",
    "wersja": "0.4.0",
    "linie": 11127,
@@ -69,6 +69,20 @@
     "src/SoraOracle.Service/Watch/DownloadsWatcher.cs": 89
    }
   },
+  "soraflux": {
+   "commity": 23,
+   "tydzien": 23,
+   "ostatni": "2026-10-07T16:51:23+02:00",
+   "wersja": "1.0.2",
+   "linie": 7437,
+   "pliki": 42,
+   "klocki": {
+    "src-tauri/src/budowniczy/mod.rs": 722,
+    "src-tauri/src/kolejka.rs": 488,
+    "src-tauri/src/szacunek.rs": 255,
+    "src/motywy.ts": 272
+   }
+  },
   "skrypty": {
    "commity": 37,
    "tydzien": 26,
@@ -82,11 +96,11 @@
    }
   },
   "strona": {
-   "commity": 285,
-   "tydzien": 95,
-   "ostatni": "2026-10-07T14:33:32+02:00",
-   "linie": 8536,
-   "pliki": 25
+   "commity": 298,
+   "tydzien": 108,
+   "ostatni": "2026-10-07T16:53:44+02:00",
+   "linie": 9550,
+   "pliki": 27
   }
  }
 }

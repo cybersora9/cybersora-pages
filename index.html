@@ -1257,7 +1257,7 @@
     display:flex;
     flex-wrap:wrap;
     align-items:flex-start;
-    gap:1.5rem;
+    gap:12px;
   }
   .seed{
     position:relative;
@@ -1285,14 +1285,15 @@
   }
   .seed:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
   /* rozmiar rosnie ze stopniem zaawansowania; suma szerokosci + odstepow
-     (07.10: 5 kart, 224+206+192+180+170 + 4x24px = 1068px) miesci sie w kontenerze 1080px
-     (.services__inner) — powyzej 1100px viewportu rzad NIE zawija sie
+     (07.10: 6 kart po dojsciu SoraFluxa, 196+184+172+164+156+148 + 5x12px = 1080px) miesci sie
+     w kontenerze 1080px (.services__inner) — powyzej 1100px viewportu rzad NIE zawija sie
      przypadkowo w polowie, ponizej przechodzi w kolumne (patrz media query) */
-  .seed[data-stage="1"]{width:224px;min-height:320px;margin-top:0;}
-  .seed[data-stage="2"]{width:206px;min-height:302px;margin-top:18px;}
-  .seed[data-stage="3"]{width:192px;min-height:284px;margin-top:36px;}
-  .seed[data-stage="4"]{width:180px;min-height:266px;margin-top:54px;}
-  .seed[data-stage="5"]{width:170px;min-height:250px;margin-top:72px;}
+  .seed[data-stage="1"]{width:196px;min-height:320px;margin-top:0;}
+  .seed[data-stage="2"]{width:184px;min-height:304px;margin-top:16px;}
+  .seed[data-stage="3"]{width:172px;min-height:288px;margin-top:32px;}
+  .seed[data-stage="4"]{width:164px;min-height:272px;margin-top:48px;}
+  .seed[data-stage="5"]{width:156px;min-height:256px;margin-top:64px;}
+  .seed[data-stage="6"]{width:148px;min-height:240px;margin-top:80px;}
   .seed__code{
     position:absolute;inset:0;padding:18px;
     font-family:var(--mono);font-size:11px;line-height:1.8;
@@ -1307,7 +1308,10 @@
   .seed[data-stage="2"] .seed__mark{width:82%;right:-11%;bottom:-5%;opacity:.10;}
   .seed[data-stage="3"] .seed__mark{width:68%;right:-6%;bottom:-6%;opacity:.11;}
   .seed[data-stage="4"] .seed__mark{width:68%;right:-7%;bottom:-7%;opacity:.11;}
-  .seed[data-stage="5"] .seed__mark{width:60%;right:-4%;bottom:-6%;opacity:.12;}
+  .seed[data-stage="5"] .seed__mark{width:64%;right:-6%;bottom:-6%;opacity:.12;}
+  .seed[data-stage="6"] .seed__mark{width:60%;right:-4%;bottom:-6%;opacity:.12;}
+  /* 07.10: dwie najwezsze karty (156/148px) z mniejszym wcieciem, zeby tag i slowa nie lamaly sie w pol */
+  .seed[data-stage="5"] .seed__content,.seed[data-stage="6"] .seed__content{padding-inline:1rem;}
   .seed__scrim{
     position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(135deg, var(--ink) 0%, var(--ink) 42%, color-mix(in srgb, var(--ink) 60%, transparent) 62%, transparent 90%);
@@ -3275,7 +3279,7 @@
         <h2 class="nav__panelH">Słowa, które tu padają</h2>
         <dl class="nav__gloss">
           <div><dt>Sadzonka</dt><dd>Projekt, który jeszcze rośnie: działa, ale nie trafił do oferty.</dd></div>
-          <div><dt>Commit</dt><dd>Jeden zapisany krok pracy nad kodem. W 7 naszych projektach zapisaliśmy ich już ponad 1 500.</dd></div>
+          <div><dt>Commit</dt><dd>Jeden zapisany krok pracy nad kodem. W 8 naszych projektach zapisaliśmy ich już ponad 1 600.</dd></div>
           <div><dt>Audyt widoczności</dt><dd>Sprawdzamy, co Google widzi na Twojej stronie i co warto poprawić. Pierwszy jest za darmo.</dd></div>
         </dl>
       </div>
@@ -3416,7 +3420,7 @@
           <div class="pas__tresc">
             <p class="pas__co">Wpisujesz wzór, dostajesz gotowy kod w Pythonie. Pochodne, całki, macierze, układy równań. Liczy silnik symboliczny, a nie model językowy — dlatego wynik da się sprawdzić, nie trzeba mu wierzyć.</p>
             <dl class="pas__meta">
-              <div><dt>stan</dt><dd>PyPI 0.4.0</dd></div>
+              <div><dt>stan</dt><dd>do pobrania za darmo</dd></div>
               <div><dt>instalacja</dt><dd>pip install pycodemath</dd></div>
             </dl>
           </div>
@@ -3483,9 +3487,9 @@
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
         <div class="overlay overlay--band">
-          <p class="stub">Audyt widoczności — za darmo na start, a potem wizytówka Google
-          i poprawki strony od 490 zł. Sprawdzamy realny skan Twojej strony (tytuł, meta opis,
-          dane strukturalne, PageSpeed) i mówimy wprost, co faktycznie widzi Google. Dostajesz więcej niż ocenę: publicznie dostępne, legalne dane o Twojej stronie (meta dane, tytuły, opisy, to, jak ją czyta wyszukiwarka) i konkretny plan, jak to poprawić na plus. Bez zaglądania do danych konkurencji i bez niczego spoza prawa.</p>
+          <p class="stub">Skan widoczności za darmo, a potem wizytówka Google
+          i poprawki strony od 490 zł. Sprawdzamy, czy Google widzi Twoją stronę i umie ją pokazać w wynikach,
+          czy działa na telefonie i czy szybko się ładuje. Dostajesz listę usterek i plan, co poprawić najpierw.</p>
           <a class="cta-big" href="#oferta" data-nav="oferta">Zobacz ofertę &rarr;</a>
         </div>
       </div>
@@ -3628,7 +3632,7 @@
           <article class="card">
             <span class="card__tag">Pełny &middot; 990 zł</span>
             <h3 class="card__title">Pełna widoczność</h3>
-            <p class="card__body">Wszystko ze Startu, a do tego opisy na wszystkich podstronach, dane strukturalne dla Google i plan zbierania opinii od klientów.</p>
+            <p class="card__body">Wszystko ze Startu, a do tego opisy na wszystkich podstronach, dane, z których Google wie, gdzie i w jakich godzinach działasz, oraz plan zbierania opinii od klientów.</p>
             <a class="card__go" href="#contact" data-nav="contact" data-topic="Pakiet Pełny (990 zł)">Zamów Pełny &rarr;</a>
           </article>
         </div>
@@ -3763,12 +3767,12 @@
                 <article data-roboczy>
                   <h4>Pakiet Pełny</h4>
                   <p data-pole="krotko">Pełna widoczność</p>
-                  <p data-pole="lead">Wszystko ze Startu, a do tego opisy na wszystkich podstronach, dane strukturalne dla Google i plan zbierania opinii.</p>
+                  <p data-pole="lead">Wszystko ze Startu, a do tego opisy na wszystkich podstronach, dane, z których Google wie, gdzie i w jakich godzinach działasz, oraz plan zbierania opinii.</p>
                   <p data-pole="cena">990 zł</p>
                   <p data-pole="czas">do 14 dni</p>
                   <ul data-pole="przyklady">
                     <li>opisy wszystkich podstron</li>
-                    <li>dane strukturalne</li>
+                    <li>adres i godziny czytelne dla Google</li>
                     <li>plan zbierania opinii</li>
                   </ul>
                   <a href="#contact" data-nav="contact" data-topic="Pakiet Pełny (990 zł)">Zamów</a>
@@ -3907,6 +3911,36 @@ generuj_kod(wzor)</code></pre>
                     </li>
                   </ul>
                   <a href="#contact" data-nav="contact" data-konf="skrypt">Zamów podobne</a>
+                </article>
+              </li>
+              <li data-id="soraflux" data-plik="soraflux.exe" data-usluga="app" data-znacznik="w testach">
+                <article data-roboczy>
+                  <h3>SoraFlux</h3>
+                  <p data-pole="krotko">Konwerter wideo, audio i obrazów na komputer</p>
+                  <p data-pole="lead">Zamienia wideo, dźwięk i obrazy na potrzebny format: MP4 na telefon, MP3 z filmu, GIF z klipu. Sam pilnuje rozmiaru pliku i działa w całości na Twoim komputerze. Będzie za darmo, teraz w testach.</p>
+                  <figure data-pole="zrzut"><img src="zrzuty_projektow/soraflux.png" alt="SoraFlux: zakładka Konwertuj z gotowymi ustawieniami i przewidywanym rozmiarem wyniku" width="1280" height="860" loading="lazy" decoding="async"></figure>
+                  <pre data-pole="kod" data-zrodlo="src-tauri/src/"><code>plan(media, profil, wejscie, wyjscie)
+bitrate_z_rozmiaru(mb, czas_s, kbps_audio)
+kolejka.dodaj(nowe_zadanie)</code></pre>
+                  <h4>Gotowe klocki</h4>
+                  <ul data-pole="klocki">
+                    <li data-sciezka="src-tauri/src/budowniczy/mod.rs" data-linie="722" data-uslugi="app skrypt">
+                      <h5>Kreator poleceń ffmpeg</h5>
+                      <p data-pole="co">Zamienia wybrane ustawienia na gotowe polecenie dla ffmpeg.</p>
+                      <p data-pole="dla">Dla Ciebie: obróbka nagrań jednym kliknięciem, bez znajomości ffmpeg.</p>
+                    </li>
+                    <li data-sciezka="src-tauri/src/kolejka.rs" data-linie="488" data-uslugi="app">
+                      <h5>Kolejka zadań</h5>
+                      <p data-pole="co">Kilka plików naraz, z anulowaniem i bez śmieci po przerwanym zadaniu.</p>
+                      <p data-pole="dla">Dla Ciebie: hurtowa obróbka setek plików w tle.</p>
+                    </li>
+                    <li data-sciezka="src-tauri/src/szacunek.rs" data-linie="255" data-uslugi="app mikro">
+                      <h5>Przewidywany rozmiar</h5>
+                      <p data-pole="co">Pokazuje rozmiar pliku wynikowego, zanim konwersja ruszy.</p>
+                      <p data-pole="dla">Dla Ciebie: plik zmieści się w limicie maila czy komunikatora za pierwszym razem.</p>
+                    </li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-konf="app">Zamów podobne</a>
                 </article>
               </li>
               <li data-id="oracle" data-plik="oracle.sys" data-usluga="app" data-znacznik="wczesny etap">
@@ -5133,7 +5167,27 @@ generuj_kod(wzor)</div>
               <span class="seed__hint">▸ otwórz</span>
             </div>
           </button>
-          <button type="button" class="seed" data-stage="5" data-project="frostwall" aria-label="Frostwall — zobacz więcej">
+          <button type="button" class="seed" data-stage="5" data-project="soraflux" aria-label="SoraFlux — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">plan(media, profil)
+bitrate_z_rozmiaru(mb, czas)
+kolejka.dodaj(zadanie)
+-c:a aac -b:a 8k -ac 1</div>
+            <!-- SoraFlux (07.10): znak z samej aplikacji (src/main.ts, MARKA), dwie fale, jednym kolorem jak reszta -->
+            <span class="seed__mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="96 96 320 320" role="img" aria-label="SoraFlux — znak">
+              <g fill="none" stroke="#e11d33" stroke-width="44" stroke-linecap="round">
+                <path d="M136 316c48 0 64-120 120-120s72 120 120 120"/>
+                <path d="M136 196c48 0 64 120 120 120s72-120 120-120"/>
+              </g>
+            </svg></span>
+            <div class="seed__scrim" aria-hidden="true"></div>
+            <div class="seed__content">
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> testy <span class="seed__br" aria-hidden="true">]</span></span>
+              <h3 class="seed__title">SoraFlux</h3>
+              <p class="seed__body">Konwerter wideo, audio i obrazów.</p>
+              <span class="seed__hint">▸ otwórz</span>
+            </div>
+          </button>
+          <button type="button" class="seed" data-stage="6" data-project="frostwall" aria-label="Frostwall — zobacz więcej">
             <div class="seed__code" aria-hidden="true">podpis = sign(dane, klucz)
 verify(podpis, klucz_pub)
 if not aktywacja.wazna(): blokuj
@@ -5159,9 +5213,9 @@ fingerprint(maszyna)</div>
             </svg></span>
             <div class="seed__scrim" aria-hidden="true"></div>
             <div class="seed__content">
-              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> 0.1.0, wstrzymane <span class="seed__br" aria-hidden="true">]</span></span>
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> pauza <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">Frostwall</h3>
-              <p class="seed__body">Biblioteka licencjonowania offline.</p>
+              <p class="seed__body">Licencje offline dla naszych programów.</p>
               <span class="seed__hint">▸ otwórz</span>
             </div>
           </button>
@@ -5579,7 +5633,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261007r"></script>
+<script src="app.js?v=20261007s"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
