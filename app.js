@@ -3440,6 +3440,36 @@
           { q: 'Po co to komu?', a: 'Przede wszystkim nam. To firmowa biblioteka, która pilnuje licencji naszych programów, a pierwszym z nich jest Rachmistrz. Każdy odmowny wynik ma swój konkretny powód, więc program może powiedzieć klientowi wprost, co jest nie tak.' },
         ],
       },
+      somi: {
+        nazwa: 'SOMI',
+        lead: 'Nasza asystentka AI. Rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. Robi też research i pracuje jak agent: czyta pliki, pisze kod, uruchamia komendy.',
+        fakty: [
+          ['gdzie', 'Terminal · Discord · rozmowa głosem'],
+          ['modele', 'DeepSeek do rutyny · Claude do trudnych'],
+          ['pamięć', 'Indeks z dziennika i dokumentacji'],
+          ['agent', 'Narzędzia: pliki, kod, komendy, zadania'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Co potrafi już dziś?', a: 'Rozmawia z nami w terminalu i na Discordzie, rozumie głos i potrafi z niego zrobić konkretną rzecz. Ma pamięć opartą o nasz dziennik i dokumentację, robi research (radar zleceń) i działa jako agent z narzędziami.' },
+          { q: 'Czy to czat na stronie?', a: 'Nie. Na stronie jest tylko zapis trzech pytań. Prawdziwa SOMI działa u nas w terminalu i na Discordzie.' },
+        ],
+      },
+      moonsora: {
+        nazwa: 'MoonSora',
+        lead: 'Terminal do pracy z agentami AI. Polecenia układają się w bloki, asystent siedzi obok terminala i pomaga przy błędzie, a agent ma własną przeglądarkę. Na co dzień pracujemy w nim sami.',
+        fakty: [
+          ['status', 'Wersja 0.11.0 · używamy na co dzień'],
+          ['bloki', 'Polecenia w blokach, kopiowanie wyniku'],
+          ['asystent', 'Obok terminala, przy błędzie testu'],
+          ['przeglądarka', 'Własna, dla agenta'],
+        ],
+        zrzut: null,
+        pytania: [
+          { q: 'Czym różni się od zwykłego terminala?', a: 'Polecenia i ich wyniki są blokami, które da się kopiować i oceniać. Obok działa asystent, który widzi błąd i podpowiada naprawę, a agent może korzystać z wbudowanej przeglądarki.' },
+          { q: 'Czy jej używacie?', a: 'Tak, na co dzień. To nasz główny terminal, więc usterki łapiemy od razu i poprawiamy w kolejnych wersjach.' },
+        ],
+      },
     };
 
     /* Karty "Co juz umie, co dochodzi" na SOMI (30.09). Zrodla w repo SOMI: modules/providers.py,
@@ -3571,6 +3601,7 @@
         shotImg.width = p.zrzut.w;
         shotImg.height = p.zrzut.h;
         shotImg.alt = p.zrzut.alt;
+        shotImg.onerror = () => { shot.hidden = true; };
         $('sproutShotCap').textContent = p.zrzut.podpis;
         shot.hidden = false;
       } else {

@@ -1292,6 +1292,8 @@
   .seed[data-stage="2"]{width:252px;min-height:296px;margin-top:22px;}
   .seed[data-stage="3"]{width:228px;min-height:272px;margin-top:44px;}
   .seed[data-stage="4"]{width:206px;min-height:250px;margin-top:66px;}
+  .seed[data-stage="5"]{width:280px;min-height:300px;margin-top:0;}
+  .seed[data-stage="6"]{width:252px;min-height:300px;margin-top:0;}
   .seed__code{
     position:absolute;inset:0;padding:18px;
     font-family:var(--mono);font-size:11px;line-height:1.8;
@@ -1306,6 +1308,7 @@
   .seed[data-stage="2"] .seed__mark{width:82%;right:-11%;bottom:-5%;opacity:.10;}
   .seed[data-stage="3"] .seed__mark{width:68%;right:-6%;bottom:-6%;opacity:.11;}
   .seed[data-stage="4"] .seed__mark{width:68%;right:-7%;bottom:-7%;opacity:.11;}
+  .seed[data-stage="5"] .seed__mark,.seed[data-stage="6"] .seed__mark{width:60%;right:-4%;bottom:-6%;opacity:.12;}
   .seed__scrim{
     position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(135deg, var(--ink) 0%, var(--ink) 42%, color-mix(in srgb, var(--ink) 60%, transparent) 62%, transparent 90%);
@@ -5155,6 +5158,34 @@ fingerprint(maszyna)</div>
               <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> W budowie <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">Frostwall</h3>
               <p class="seed__body">Biblioteka licencjonowania offline.</p>
+              <span class="seed__hint">▸ otwórz</span>
+            </div>
+          </button>
+          <button type="button" class="seed" data-stage="5" data-project="somi" aria-label="SOMI — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">somi&gt; router.wybierz(zadanie)
+rozmowa.glos(mikrofon)
+pamiec.szukaj("radar")
+agent.uruchom(plan)</div>
+            <span class="seed__mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak SOMI"><circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="32" r="9" fill="currentColor"/><circle cx="14" cy="22" r="2.6" fill="currentColor"/><circle cx="50" cy="19" r="2.2" fill="currentColor"/><circle cx="52" cy="42" r="2.6" fill="currentColor"/><circle cx="20" cy="51" r="2.2" fill="currentColor"/></svg></span>
+            <div class="seed__scrim" aria-hidden="true"></div>
+            <div class="seed__content">
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> Na co dzień <span class="seed__br" aria-hidden="true">]</span></span>
+              <h3 class="seed__title">SOMI</h3>
+              <p class="seed__body">Nasza asystentka AI: rozmowa, głos, research i agent.</p>
+              <span class="seed__hint">▸ otwórz</span>
+            </div>
+          </button>
+          <button type="button" class="seed" data-stage="6" data-project="moonsora" aria-label="MoonSora — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">$ cargo test --workspace
+blok.kopiuj(wynik)
+asystent.zapytaj(blad)
+przegladarka.dla_agenta()</div>
+            <span class="seed__mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak MoonSora"><path d="M40 8a24 24 0 1 0 16 38A20 20 0 0 1 40 8z" fill="currentColor"/></svg></span>
+            <div class="seed__scrim" aria-hidden="true"></div>
+            <div class="seed__content">
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> Na co dzień <span class="seed__br" aria-hidden="true">]</span></span>
+              <h3 class="seed__title">MoonSora</h3>
+              <p class="seed__body">Terminal do pracy z agentami AI.</p>
               <span class="seed__hint">▸ otwórz</span>
             </div>
           </button>
