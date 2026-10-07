@@ -2111,7 +2111,7 @@
         if (!wOS) return undefined;
         const czeka = new Promise(r => setTimeout(r, 900));
         return Promise.race([soraosZaladuj().then((os) => {
-          if (os && document.documentElement.dataset.route === 'marketplace') { os.wejdz({ pierwsze: pierwszeOS }); wszedl = true; }
+          if (os && document.documentElement.dataset.route === 'marketplace') { soraosWejdzRaz(os, pierwszeOS); wszedl = true; }
         }), czeka]);
       };
       const vt = document.startViewTransition(aplikuj);
@@ -2242,10 +2242,18 @@
       box.appendChild(b);
     }).observe(root, { childList: true, subtree: true });
   }
+  /* animacja wejscia komputera tylko RAZ (pierwsze wejscie w Marketplace); kolejne wejscia: bez animacji,
+     komputer jest juz zamontowany w stanie koncowym (maisa 07.10: przy ponownym wejsciu animacja sie psula) */
+  let soraosWszedlRaz = false;
+  function soraosWejdzRaz(os, pierwsze) {
+    if (soraosWszedlRaz) return;
+    soraosWszedlRaz = true;
+    os.wejdz({ pierwsze });
+  }
   function soraosWejdz(pierwsze) {
     soraosZaladuj().then((os) => {
       if (!os || document.documentElement.dataset.route !== 'marketplace') return;
-      os.wejdz({ pierwsze });
+      soraosWejdzRaz(os, pierwsze);
     });
   }
   // ladowanie modulu rusza przy najechaniu / dotknieciu "Marketplace", zanim padnie klik
