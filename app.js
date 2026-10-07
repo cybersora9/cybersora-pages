@@ -2244,28 +2244,39 @@
     term.after(k);
     /* powiekszanie gry (07.10): przycisk w rogu okna gry; pelny ekran = nakladka (+ Fullscreen API, jesli wolno).
        Gra sama skaluje plotno przez ResizeObserver. Esc zostaje pauza gry; wyjscie: ten przycisk albo Esc przegladarki. */
+    /* 07.10 wieczor (feedback maisy): stan przycisku liczony z jednego miejsca. Wczesniej wyjscie z pelnego ekranu
+       Esc przegladarki zdejmowalo nakladke, ale napis zostawal „Zmniejsz”. Przycisk: maly, na gornym srodku okna gry
+       (miedzy wynikiem a pauza), w obu trybach. */
+    const ustaw = (box, b, on) => {
+      box.classList.toggle('gra-pelny', on);
+      document.documentElement.classList.toggle('gra-pelny-on', on);
+      b.textContent = on ? 'Zmniejsz' : 'Powiększ';
+      b.setAttribute('aria-label', on ? 'Zmniejsz grę' : 'Powiększ grę na cały ekran');
+      window.dispatchEvent(new Event('resize'));
+    };
     const wylacz = () => {
       const g = root.querySelector('.gra-pelny');
-      if (g) { g.classList.remove('gra-pelny'); document.documentElement.classList.remove('gra-pelny-on'); }
+      const b = root.querySelector('[data-gra-powieksz]');
+      if (g && b) ustaw(g, b, false);
+      else if (g) { g.classList.remove('gra-pelny'); document.documentElement.classList.remove('gra-pelny-on'); }
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     };
     document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) wylacz(); });
     new MutationObserver(() => {
       const box = root.querySelector('[aria-label="DancyCloud"][role="region"]');
-      if (!box || box.querySelector('[data-gra-powieksz]') || !box.querySelector('canvas, button')) return;
+      if (!box) return;
+      const stary = root.querySelector('[data-gra-powieksz]');
+      if (stary && !box.contains(stary)) stary.remove();   // okno gry zamkniete i otwarte od nowa
+      if (root.querySelector('[data-gra-powieksz]') || !box.querySelector('canvas, button')) return;
       const b = document.createElement('button');
       b.type = 'button'; b.setAttribute('data-gra-powieksz', '');
-      b.textContent = 'Powiększ'; b.setAttribute('aria-label', 'Powiększ grę na cały ekran');
       b.addEventListener('click', () => {
-        const on = box.classList.toggle('gra-pelny');
-        document.documentElement.classList.toggle('gra-pelny-on', on);
-        b.textContent = on ? 'Zmniejsz' : 'Powiększ';
-        b.setAttribute('aria-label', on ? 'Zmniejsz grę' : 'Powiększ grę na cały ekran');
+        const on = !box.classList.contains('gra-pelny');
+        ustaw(box, b, on);
         if (on && box.requestFullscreen) box.requestFullscreen().catch(() => {});
-        else if (!on) wylacz();
-        window.dispatchEvent(new Event('resize'));
+        else if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
       });
-      box.appendChild(b);
+      box.appendChild(b); ustaw(box, b, false);
     }).observe(root, { childList: true, subtree: true });
   }
   /* wpiecie v2 (07.10): przy KAZDYM wejsciu jedna sekwencja modulu (pierwsze w sesji pelne, kolejne skrot);

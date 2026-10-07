@@ -3118,8 +3118,12 @@
   .view.soraos:has(> .soraos-lista [data-soraos-tresc][hidden]) > .hero{display:none;}
   .view.soraos:has(> .soraos-lista [data-soraos-tresc][hidden]){padding-top:65px;}
   /* powiekszona gra DancyCloud: nakladka na caly ekran, przycisk w rogu */
+  /* 07.10 wieczor: okno gry bylo 500x270 (max-width tekstu + wysokosc 34vh), a gra potrzebuje ok. 360x520 */
+  .sx-1s:has(> [aria-label="DancyCloud"][role="region"]){max-width:none;}
+  [aria-label="DancyCloud"][role="region"]:not(.gra-pelny){height:clamp(300px,calc(100vh - 380px),720px);display:block;position:relative;}
   [data-gra-powieksz]{position:static;display:block;margin:10px auto 0;z-index:3;font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(14,14,18,.8);border:1px solid rgba(255,255,255,.3);padding:8px 12px;cursor:pointer;}
-  .gra-pelny [data-gra-powieksz]{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);margin:0;}
+  [aria-label="DancyCloud"][role="region"] [data-gra-powieksz]{position:absolute;left:50%;top:8px;bottom:auto;transform:translateX(-50%);margin:0;padding:6px 10px;font-size:11px;opacity:.75;z-index:600;}
+  [aria-label="DancyCloud"][role="region"] [data-gra-powieksz]:hover,[aria-label="DancyCloud"][role="region"] [data-gra-powieksz]:focus-visible{opacity:1;}
   [data-gra-powieksz]:hover,[data-gra-powieksz]:focus-visible{border-color:var(--th-label,#ff4d6a);outline:none;}
   .gra-pelny{position:fixed !important;inset:0;z-index:500;width:auto !important;height:auto !important;max-width:none !important;background:#0b0b0e;}
   html.gra-pelny-on{overflow:hidden;}
@@ -5575,7 +5579,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261007j"></script>
+<script src="app.js?v=20261007k"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
