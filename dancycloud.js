@@ -61,9 +61,9 @@
   var BOSS_EVERY = 4;                 // kolejni bossowie co tyle fal (zegar fal stoi w trakcie walki)
   var BNEED = [250, 360, 360, 1350];  // trafień kulą do pokonania (Ogień, mnożnik 1); v4: 165/240/240/900, v3: 60/90/110/170
   var THR = [66.7, 33.4, 15];         // progi życia [%]: faza 2, faza 3, desperacja
-  var TELE = [0.6, 0.45, 0.35, 0.3];  // telegraf ataku w fazie 1, 2, 3 i w desperacji [s]
-  var IDLE_S = [0.5, 0.35, 0.25, 0.15]; // przerwa przed kolejnym atakiem [s] (v4: 0.6/0.45/0.35/0.2)
-  var PHASE_V = [1, 1.15, 1.3, 1.45]; // prędkość pocisków i ataków w fazie 1, 2, 3 i w desperacji (v4: 1/1/1/1.12)
+  var TELE = [0.6, 0.45, 0.35, 0.4];  // telegraf ataku w fazie 1, 2, 3 i w desperacji [s]
+  var IDLE_S = [0.5, 0.35, 0.25, 0.3]; // przerwa przed kolejnym atakiem [s] (v4: 0.6/0.45/0.35/0.2)
+  var PHASE_V = [1, 1.15, 1.3, 1.35]; // prędkość pocisków i ataków w fazie 1, 2, 3 i w desperacji (v4: 1/1/1/1.12)
   var REC_S = 0.35;                   // RECOVER: chwila po ataku [s] (v4: 0.4)
   var VULN_N = [2, 3, 3, 3];          // odsłonięcie (VULNERABLE) co tyle ataków
   var VULN_S = [1.8, 1.5, 1.3, 1.0];  // długość odsłonięcia [s]
@@ -1310,7 +1310,8 @@
           burst(b.jx, H - 8, 18, 260); sfx('bomb');
         } else if (tm > 0.8) { f = clamp((tm - 0.8) / 0.7, 0, 1); f = f * f * (3 - 2 * f); b.jy = y + (p.hy - y) * f; b.jx += (p.hx - b.jx) * f; if (f >= 1) b.jOn = 0; }
       } else if (j === A_SPI) {
-        if (tm >= b.fired * 0.065) { eye(p, 0); a = b.fired * 0.33; v = 150 * hs * b.vk; proj(EX, EY, Math.cos(a) * v, Math.sin(a) * v, 2, 7 * s0); proj(EX, EY, -Math.cos(a) * v, -Math.sin(a) * v, 2, 7 * s0); b.fired++; }
+        if (tm >= b.fired * 0.09) { eye(p, 0); a = b.fired * 0.42; v = 150 * hs * Math.min(b.vk, 1.15);   // 7.10: rzadsza i wolniejsza spirala (gracze: „nie ma czasu uciec”)
+        proj(EX, EY, Math.cos(a) * v, Math.sin(a) * v, 2, 7 * s0); proj(EX, EY, -Math.cos(a) * v, -Math.sin(a) * v, 2, 7 * s0); b.fired++; }
       } else if (j === A_SWP) {
         if (tm >= b.fired * 0.5) { ring(p.x, p.y, 10, b.fired * 0.4, 130 * hs * b.vk, 6); b.fired++; }
       } else if (j === A_OOM) {
