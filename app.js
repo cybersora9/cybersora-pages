@@ -2552,9 +2552,9 @@
 
     const RODZAJE = [
       { id: 'mikro', k: 'Porządek w plikach', t: 'Mikro-skrypt', d: 'Jedno zadanie, jedno źródło: zmiana nazw, scalanie arkuszy, mały konwerter.', base: 50 },
-      { id: 'skrypt', k: 'Raport i dane', t: 'Skrypt', d: 'Kilka kroków, pobieranie danych, raport, praca według harmonogramu.', base: 500 },
-      { id: 'bot', k: 'Pilnowanie 24/7', t: 'Bot', d: 'Działa całą dobę, pilnuje czegoś i odzywa się przez Discord, mail lub API.', base: 1200 },
-      { id: 'app', k: 'Program dla firmy', t: 'Aplikacja', d: 'Kalendarz, klienci, magazyn, panel dla zespołu. Pod jedną firmę.', base: 5000, from: true }
+      { id: 'skrypt', k: 'Raport i dane', t: 'Skrypt', d: 'Kilka kroków, pobieranie danych, raport, praca według harmonogramu.', base: 250 },
+      { id: 'bot', k: 'Pilnowanie 24/7', t: 'Bot', d: 'Działa całą dobę, pilnuje czegoś i odzywa się przez Discord, mail lub API.', base: 600 },
+      { id: 'app', k: 'Program dla firmy', t: 'Aplikacja', d: 'Kalendarz, klienci, magazyn, panel dla zespołu. Pod jedną firmę.', base: 2500, from: true }
     ];
     const PRESET = {
       mikro: { zrodla: '1', gdzie: 'pc', ui: 'cli', termin: 'std', dane: 'nie', zab: 'pod', testy: 'nie', serwis: 'brak', okres: '1' },
