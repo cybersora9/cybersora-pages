@@ -12,11 +12,24 @@
      „Made in Poland” i resellerzy Vinted nie trafialy w zadna fraze,
      ktora ktos wpisuje. Kanoniczny adres = strona glowna bez #widoku. -->
 <link rel="canonical" href="https://cybersora.pl/">
-<!-- Dane strukturalne: tylko to, co juz jest publicznie na stronie (bez adresu, telefonu, NIP). -->
+<meta name="description" content="Programy, aplikacje, skrypty i strony na zamówienie. Automatyzacje i wizytówki Google dla firm z Gorlic i całej Polski. Darmowy audyt widoczności.">
+<meta property="og:url" content="https://cybersora.pl/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="cybersora">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="cybersora — programy, aplikacje i strony na zamówienie">
+<meta property="og:description" content="Skrypty, automatyzacje, aplikacje na komputer i strony. Dla firm z Gorlic także wizytówki Google. Darmowy audyt widoczności.">
+<meta property="og:image" content="https://cybersora.pl/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="cybersora — programy, aplikacje i strony na zamówienie">
+<meta name="twitter:description" content="Skrypty, automatyzacje, aplikacje na komputer i strony. Dla firm z Gorlic także wizytówki Google.">
+<meta name="twitter:image" content="https://cybersora.pl/og-image.png">
+<!-- Dane strukturalne: firma usługowa BEZ adresu (praca z domu — adres
+     nie trafia nigdzie publicznie), obszar = Gorlice + zdalnie cala Polska. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": "ProfessionalService",
   "@id": "https://cybersora.pl/#firma",
   "name": "cybersora",
   "url": "https://cybersora.pl/",
@@ -24,11 +37,33 @@
   "image": "https://cybersora.pl/og-image.png",
   "email": "cybersora@zohomail.eu",
   "description": "Programy, aplikacje, skrypty i strony internetowe na zamówienie. Automatyzacje, aplikacje na komputer, wizytówki Google i audyty widoczności.",
+  "founder": { "@type": "Person", "name": "Patryk Gwóźdź", "jobTitle": "Lider, architekt i programista" },
+  "employee": [
+    { "@type": "Person", "name": "Wojtek Zięba", "jobTitle": "Tester, research i marketing" }
+  ],
   "areaServed": [
     { "@type": "City", "name": "Gorlice" },
+    { "@type": "AdministrativeArea", "name": "powiat gorlicki" },
     { "@type": "Country", "name": "Polska" }
   ],
-  "sameAs": ["https://github.com/cybersora9"]
+  "knowsLanguage": "pl",
+  "sameAs": [
+    "https://useme.com/pl/roles/contractor/songbird,657683/",
+    "https://github.com/cybersora9"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Oferta cybersory",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Skrypty, boty i automatyzacje na zamówienie" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Aplikacje na komputer i w przeglądarce" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Narzędzia z AI" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Strony internetowe" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Audyt widoczności w Google" }, "price": "0", "priceCurrency": "PLN" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Wizytówka Google i poprawki strony (Start)" }, "price": "490", "priceCurrency": "PLN" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Pełna widoczność w Google" }, "price": "990", "priceCurrency": "PLN" }
+    ]
+  }
 }
 </script>
 <meta name="theme-color" content="#0e0e12">
@@ -3087,6 +3122,16 @@
   /* SORA//OS L2 (06.10): "zwykla lista" Marketplace = jedno zrodlo tresci. Bez JS (i dla Google/czytnika)
      to jest caly widok; modul soraos.js czyta ja z DOM i buduje nad nia komputer. Tylko typografia z tokenow,
      zero ozdob: ozdoba to komputer. */
+  /* komputer SORA//OS jest pierwszym ekranem Marketplace: stary hero chowamy, gdy modul zamontowany (h1 niesie sam modul) */
+  .view.soraos:has(> .soraos-lista [data-soraos-tresc][hidden]) > .hero{display:none;}
+  .view.soraos:has(> .soraos-lista [data-soraos-tresc][hidden]){padding-top:65px;}
+  /* powiekszona gra DancyCloud: nakladka na caly ekran, przycisk w rogu */
+  [data-gra-powieksz]{position:static;display:block;margin:10px auto 0;z-index:3;font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(14,14,18,.8);border:1px solid rgba(255,255,255,.3);padding:8px 12px;cursor:pointer;}
+  .gra-pelny [data-gra-powieksz]{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);margin:0;}
+  [data-gra-powieksz]:hover,[data-gra-powieksz]:focus-visible{border-color:var(--th-label,#ff4d6a);outline:none;}
+  .gra-pelny{position:fixed !important;inset:0;z-index:500;width:auto !important;height:auto !important;max-width:none !important;background:#0b0b0e;}
+  html.gra-pelny-on{overflow:hidden;}
+  .view.soraos > .soraos-lista:has([data-soraos-tresc][hidden]){padding:0;}
   .soraos-tresc{display:flex;flex-direction:column;gap:clamp(2.5rem,5vw,4rem);max-width:100%;}
   .soraos-tresc h2{margin:0;font-size:var(--t-m);letter-spacing:var(--ls-m);line-height:var(--lh-display);font-weight:800;}
   .soraos-tresc h3{margin:1.6rem 0 .6rem;font-size:var(--t-title);letter-spacing:var(--ls-title);line-height:var(--lh-title);font-weight:800;}
@@ -3100,6 +3145,7 @@
   .soraos-tresc [data-pole="cena"],.soraos-tresc [data-pole="czas"]{font-family:var(--mono);font-size:var(--t-instrument);letter-spacing:var(--ls-instrument);}
   .soraos-tresc pre{margin:.6rem 0;overflow-x:auto;max-width:100%;font-family:var(--mono);font-size:var(--t-instrument);line-height:var(--lh-ui);color:var(--muted-dark);}
   .soraos-tresc figure:empty{display:none;}
+  .soraos-tresc figure img{display:block;width:100%;max-width:100%;height:auto;border:1px solid var(--th-line,rgba(255,255,255,.14));}
   .soraos-tresc a{color:var(--th-label);font-weight:600;}
   .soraos-tresc li[data-linie]::after{content:attr(data-linie) " linii";display:block;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);}
 </style>
@@ -3669,13 +3715,13 @@
                   <a href="#contact" data-nav="contact" data-topic="Skrypt lub automatyzacja" data-konf="bot">Zamów</a>
                 </article>
               </li>
-              <li data-id="app" data-cena="od 2 500 zł" data-czas="[maisa: czas]" data-topic="Aplikacja na zamówienie" data-konf="app">
+              <li data-id="app" data-cena="od 2 500 zł" data-czas="w toku" data-topic="Aplikacja na zamówienie" data-konf="app">
                 <article data-roboczy>
                   <h4>Aplikacja</h4>
                   <p data-pole="krotko">Program pod jedną firmę</p>
                   <p data-pole="lead">Program pisany pod jedną firmę, a nie pod uniwersalny formularz.</p>
                   <p data-pole="cena">od 2 500 zł</p>
-                  <p data-pole="czas">[maisa: czas]</p>
+                  <p data-pole="czas">w toku</p>
                   <ul data-pole="przyklady">
                     <li>program na komputer: kalendarz, klienci, magazyn</li>
                     <li>panel w przeglądarce dla zespołu</li>
@@ -3687,13 +3733,13 @@
             </ul>
             <h3 data-soraos-grupa>Widoczność w Google</h3>
             <ul>
-              <li data-id="audyt" data-cena="0 zł" data-czas="[maisa: czas]" data-topic="Audyt widoczności">
+              <li data-id="audyt" data-cena="0 zł" data-czas="w toku" data-topic="Audyt widoczności">
                 <article data-roboczy>
                   <h4>Audyt widoczności</h4>
                   <p data-pole="krotko">Realny skan Twojej strony</p>
                   <p data-pole="lead">Tytuł, meta opis, nagłówki, HTTPS, wersja na telefon, dane strukturalne, robots.txt, sitemap i wynik PageSpeed. Bez zobowiązań.</p>
                   <p data-pole="cena">0 zł</p>
-                  <p data-pole="czas">[maisa: czas]</p>
+                  <p data-pole="czas">w toku</p>
                   <ul data-pole="przyklady">
                     <li>raport z listą usterek</li>
                     <li>co poprawić najpierw</li>
@@ -3701,13 +3747,13 @@
                   <a href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zamów</a>
                 </article>
               </li>
-              <li data-id="start" data-cena="490 zł" data-czas="[maisa: czas]" data-topic="Pakiet Start (490 zł)">
+              <li data-id="start" data-cena="490 zł" data-czas="w toku" data-topic="Pakiet Start (490 zł)">
                 <article data-roboczy>
                   <h4>Pakiet Start</h4>
                   <p data-pole="krotko">Wizytówka Google + poprawki strony</p>
                   <p data-pole="lead">Zakładamy albo porządkujemy wizytówkę Google, a na stronie poprawiamy to, co audyt pokazał jako najpilniejsze.</p>
                   <p data-pole="cena">490 zł</p>
-                  <p data-pole="czas">[maisa: czas]</p>
+                  <p data-pole="czas">w toku</p>
                   <ul data-pole="przyklady">
                     <li>kategorie, opis, zdjęcia, godziny</li>
                     <li>tytuł, opis i nagłówki strony</li>
@@ -3715,13 +3761,13 @@
                   <a href="#contact" data-nav="contact" data-topic="Pakiet Start (490 zł)">Zamów</a>
                 </article>
               </li>
-              <li data-id="pelny" data-cena="990 zł" data-czas="[maisa: czas]" data-topic="Pakiet Pełny (990 zł)">
+              <li data-id="pelny" data-cena="990 zł" data-czas="w toku" data-topic="Pakiet Pełny (990 zł)">
                 <article data-roboczy>
                   <h4>Pakiet Pełny</h4>
                   <p data-pole="krotko">Pełna widoczność</p>
                   <p data-pole="lead">Wszystko ze Startu, a do tego opisy na wszystkich podstronach, dane strukturalne dla Google i plan zbierania opinii.</p>
                   <p data-pole="cena">990 zł</p>
-                  <p data-pole="czas">[maisa: czas]</p>
+                  <p data-pole="czas">w toku</p>
                   <ul data-pole="przyklady">
                     <li>opisy wszystkich podstron</li>
                     <li>dane strukturalne</li>
@@ -3740,7 +3786,7 @@
                   <h3>SalonDesk</h3>
                   <p data-pole="krotko">Program dla salonów beauty</p>
                   <p data-pole="lead">Kasa, magazyn, kalendarz i karty klientek w jednym programie na komputer. Działa bez internetu, dane zostają w salonie.</p>
-                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <figure data-pole="zrzut"><img src="zrzuty_projektow/salondesk.png" alt="SalonDesk: pulpit i kalendarz na danych pokazowych" width="1600" height="1000" loading="lazy" decoding="async"></figure>
                   <pre data-pole="kod" data-zrodlo="fragment ze strony"><code>zapis.klient = &quot;Klientka&quot;
 zapis.status = &quot;OPLACONE&quot;
 kasa.dodaj(zapis, kwota)</code></pre>
@@ -3775,7 +3821,7 @@ kasa.dodaj(zapis, kwota)</code></pre>
                   <h3>SOMI</h3>
                   <p data-pole="krotko">Asystentka AI: agent, terminal, bot, głos</p>
                   <p data-pole="lead">Nasza asystentka AI. Prowadzi bota społeczności, mówi głosem i pracuje w terminalu razem z nami.</p>
-                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <figure data-pole="zrzut"><img src="zrzuty_projektow/somi.png" alt="SOMI: największe klocki i ostatnie commity" width="1600" height="1000" loading="lazy" decoding="async"></figure>
                   <pre data-pole="kod" data-zrodlo="discord_bot.py"><code>async def watch_loop()
 def parse_watchdog_line(line: str)
 def save_state(state: Dict[str, Any])</code></pre>
@@ -3810,7 +3856,7 @@ def save_state(state: Dict[str, Any])</code></pre>
                   <h3>MoonSora</h3>
                   <p data-pole="krotko">Terminal do pracy z agentami AI</p>
                   <p data-pole="lead">Terminal na Windows, w którym pracujemy z agentami AI na co dzień: karty, podgląd przeglądarki, tryb telefon/komputer.</p>
-                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <figure data-pole="zrzut"></figure>
                   <pre data-pole="kod" data-zrodlo="src-tauri/src"><code>pub fn new(app: &amp;AppHandle, root: PathBuf)
 pub fn dir_for(&amp;self, profile: &amp;str, keep: bool)
 fn free_port()</code></pre>
@@ -3840,7 +3886,7 @@ fn free_port()</code></pre>
                   <h3>Pycodemath</h3>
                   <p data-pole="krotko">Silnik matematyczny, publicznie na PyPI</p>
                   <p data-pole="lead">Silnik matematyki symbolicznej dla agentów AI. Liczy pochodne, całki i równania, a wzór zamienia w gotowy kod.</p>
-                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <figure data-pole="zrzut"><img src="zrzuty_projektow/pycodemath.png" alt="Pycodemath: wzór, gotowy kod i prawdziwe wyniki" width="1600" height="1000" loading="lazy" decoding="async"></figure>
                   <pre data-pole="kod" data-zrodlo="fragment ze strony"><code>d/dx sin(x) = cos(x)
 solve(x**2 - 4, x)
 generuj_kod(wzor)</code></pre>
@@ -3871,7 +3917,7 @@ generuj_kod(wzor)</code></pre>
                   <p data-pole="krotko">Antywirus z lokalnym AI</p>
                   <p data-pole="lead">Antywirus, który sprawdza pliki regułami YARA i lokalnym modelem AI, bez wysyłania niczego do chmury. Wczesny etap.</p>
                   <p data-pole="extra" data-etykieta="reguły YARA">8 268</p>
-                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <figure data-pole="zrzut"><img src="zrzuty_projektow/sora-oracle.png" alt="Sora Oracle: stan wyjściowy usługi" width="1600" height="1000" loading="lazy" decoding="async"></figure>
                   <pre data-pole="kod" data-zrodlo="src/"><code>public DetectionEvent Decide(DetectionEvent evt)
 public Availability Check()</code></pre>
                   <h4>Gotowe klocki</h4>
@@ -3927,13 +3973,12 @@ def fetch_offer_detail(url)</code></pre>
             </ul>
           </section>
           <section data-soraos-app="terminy" aria-labelledby="sx-terminy">
-            <h2 id="sx-terminy">Kiedy start</h2>
-            <p data-roboczy>[maisa: najbliższy wolny start jednym zdaniem]</p>
+            <h2 id="sx-terminy">Update i patch notes</h2>
+            <p>Drop dates, update i patch notes: w toku.</p>
           </section>
           <section data-soraos-app="terminal" aria-labelledby="sx-terminal">
             <h2 id="sx-terminal">Terminal</h2>
             <ul>
-              <li data-opcja="o-cybersorze"><h3>O cybersorze</h3><p data-roboczy>[maisa: historia powstania]</p></li>
               <li data-opcja="dancycloud"><h3>DancyCloud</h3><p>Gra: unikasz linijek naszego kodu.</p></li>
               <!-- hak B: 03 Zamówienie (PROMPT_MARKETPLACE_ZAMOWIENIE.md) wejdzie tu jako data-opcja="zamowienie" -->
             </ul>
@@ -4679,7 +4724,7 @@ def fetch_offer_detail(url)</code></pre>
               <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Jeden strumień zdarzeń.</b> Terminal, Discord i narzędzia piszą do jednego dziennika z numeracją. Nic się nie dubluje i nie ginie między procesami. Sprawdziliśmy to na zgubionych liniach, nie na deklaracji.</span></li>
               <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Research z dowodem.</b> Strony pobiera naprawdę i równolegle (w teście 4 pobrania: 1,2 s → 0,3 s), a źródło liczy się tylko wtedy, gdy SOMI faktycznie je otworzyła. Cytat z pamięci nie wchodzi.</span></li>
               <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Szybkość i przepływ między apkami.</b> Niezależne odczyty idą równolegle (0,8 s → 0,2 s w teście), a zdarzenia płyną do innych aplikacji w około 0,2 s. Całość pilnuje 1509 testów.</span></li>
-              <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>AstralHeart: samonaprawa z pamięcią.</b> SOMI diagnozuje błędy we własnym kodzie, a każdą naprawę zapisuje pod odciskiem błędu. Gdy ten sam błąd wraca, nie zaczyna od zera: znajduje starą naprawę. Przy zalewie 5000 błędów wyszukanie trwa około 5 ms.</span></li>
+              <li><span class="somi-demo__tag is-live">działa · wielka aktualizacja</span> <span class="somi-demo__text"><b>AstralHeart: samonaprawa z pamięcią.</b> SOMI diagnozuje błędy we własnym kodzie, a każdą naprawę zapisuje pod odciskiem błędu. Gdy ten sam błąd wraca, nie zaczyna od zera: znajduje starą naprawę. Przy zalewie 5000 błędów wyszukanie trwa około 5 ms. Działa już dziś, a teraz przechodzi potężną aktualizację.</span></li>
               <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>Dojo snu.</b> W nocy SOMI ćwiczy na mutantach własnych błędów, w osobnym procesie, z twardym budżetem nocy i izolowanym dziennikiem. Rano wie więcej, a dzienne dane zostają nietknięte. Moduł pilnuje 11 testów.</span></li>
               <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>Tryb bezpieczny.</b> Wykrywa 7 rodzajów anomalii w mniej niż 60 s i potrafi się zatrzymać. W próbie 10 wstrzyknięć przez pętlę agenta: 0 wysłanych danych, 0 wycieków. Poziom autonomii ustawia macierz, nie nastrój modelu.</span></li>
               <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>Kokpit z uczciwymi liczbami.</b> Jedna strona (i komenda na Discordzie) z danymi prosto z dziennika. Bez atrap i ozdobnych wskaźników: widać tylko to, co SOMI naprawdę zrobiła.</span></li>
@@ -4761,7 +4806,7 @@ def fetch_offer_detail(url)</code></pre>
       <div class="overlay">
         <div class="eyebrow">kim jesteśmy</div>
         <h1 class="slogan">O nas</h1>
-        <p class="stub">Cybersora to Patryk Gwóźdź i Wojtek Zięba, a w zapleczu pracuje z nami SOMI, asystentka AI, którą sami zbudowaliśmy. Patryk prowadzi kod i architekturę, Wojtek jest bardzo kreatywny, poprawia kod, bada rynek i dba o komunikację. Każdy kod przechodzi u nas trzy etapy: Patryk go projektuje, Wojtek poprawia, a potem SOMI sprawdza go i testuje razem z agentami AI. Do projektów aktywnie szukamy partnerów.</p>
+        <p class="stub">Cybersora to duo dwóch asów w kodzie: Patryk Gwóźdź i Wojtek Zięba. Do tego SOMI, asystentka AI, którą sami zbudowaliśmy i która potrafi zastąpić cały zespół. Patryk projektuje kod i architekturę, Wojtek go poprawia, bada rynek i dba o komunikację, a SOMI sprawdza i testuje go razem z agentami AI. Do projektów aktywnie szukamy partnerów.</p>
         <!-- 05.10: liczby commitów (mierz_dorobek.py, 30.09) liczyły tylko commity Patryka, więc zdjęte. Pas faktów zostaje (tło-oscyloskop liczy z niego układ), ale niesie same prawdziwe fakty o zespole. -->
         <dl class="hero__rail">
           <div class="hero__fact"><dt>Zespół</dt><dd>2 osoby + SOMI</dd></div>
@@ -4843,9 +4888,9 @@ def fetch_offer_detail(url)</code></pre>
         </div>
         <div class="cards">
           <article class="card">
-            <span class="card__tag">Wrzesień 2026</span>
-            <h3 class="card__title">Zaczęliśmy we dwóch</h3>
-            <p class="card__body">4 września Wojtek założył repozytorium tej strony, a pierwszy klient SalonDeska przyszedł przez niego. Od tego czasu podział jest prosty: kod i architektura u Patryka, testy, rynek i komunikacja u Wojtka.</p>
+            <span class="card__tag">Od maja 2026</span>
+            <h3 class="card__title">Najpierw Patryk, potem we dwóch</h3>
+            <p class="card__body">Patryk zaczął programować w maju. Potem powstał cały obrys cybersory i ruszyła intensywna praca nad nią. Wojtek dołączył później i od razu zgrał się z Patrykiem przy kodzie, a do tego wnosi marketing i pomysły.</p>
           </article>
           <article class="card">
             <span class="card__tag">Zaplecze</span>
@@ -5552,7 +5597,7 @@ fingerprint(maszyna)</div>
      opóźniałaby pierwsze malowanie o tyle, ile trwa jej pobranie — a to ozdoba
      strony SOMI, nie treść.
      ============================================================ -->
-<script src="kula.js?v=20260930b"></script>
+<script src="kula.js?v=20261006d"></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.

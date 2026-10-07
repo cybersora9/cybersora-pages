@@ -2102,14 +2102,26 @@
          w konsoli (zlapane live: "Transition was aborted... Document
          hidden"). */
       if (pierwszeOS) document.documentElement.classList.add('vt-crack');
-      const vt = document.startViewTransition(apply);
+      /* modul ladujemy ZANIM przejscie zrobi migawke nowego widoku (max 900 ms czekania) i wejdz() odpalamy
+         w tym samym callbacku: nowy widok od pierwszej klatki ma komputer w stanie startowym, bez skoku
+         "stara lista -> komputer" po przejsciu i bez podwojnej animacji. Spoznione ladowanie = stara sciezka. */
+      let wszedl = false;
+      const aplikuj = () => {
+        apply();
+        if (!wOS) return undefined;
+        const czeka = new Promise(r => setTimeout(r, 900));
+        return Promise.race([soraosZaladuj().then((os) => {
+          if (os && document.documentElement.dataset.route === 'marketplace') { os.wejdz({ pierwsze: pierwszeOS }); wszedl = true; }
+        }), czeka]);
+      };
+      const vt = document.startViewTransition(aplikuj);
       vt.ready.catch(() => {});
       if (pierwszeOS) soraosPomin = () => vt.skipTransition();
       vt.finished.catch(() => {}).finally(() => {
         document.documentElement.classList.remove('vt-crack');
         soraosPomin = null;
         if (pierwszeOS) { try { sessionStorage.setItem('soraos:wpiety', '1'); } catch (e) {} }
-        if (wOS) soraosWejdz(pierwszeOS);
+        if (wOS && !wszedl) soraosWejdz(pierwszeOS);
       });
     } else {
       apply();
@@ -2121,7 +2133,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261007a';
+  const SORAOS_V = '20261007b';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2179,9 +2191,56 @@
         poziom: 'night',
         naglowek: 'B',
       });
+      soraosKafelGry(root);
       return soraosOS;
     }).catch(() => null);   // atrapa: brak modulu = zwykla lista, bez bledu w konsoli
     return soraosLaduje;
+  }
+  /* kafel gry na pulpicie (07.10): DancyCloud byl tylko wpisem w oknie Terminal. Kafel klonuje przycisk Terminal
+     (te same klasy = ten sam wyglad), klik otwiera Terminal i od razu wybiera gre. Selektory tylko po data-*. */
+  function soraosKafelGry(root) {
+    const term = root.querySelector('[data-a="otworz"][data-w="terminal"]');
+    if (!term || root.querySelector('[data-gra-kafel]')) return;
+    const k = term.cloneNode(true);
+    k.removeAttribute('data-w'); k.removeAttribute('data-a');
+    k.setAttribute('data-gra-kafel', ''); k.setAttribute('aria-pressed', 'false');
+    k.querySelector('svg').innerHTML = '<path d="M4 10h24v13H4z"></path><path d="M9 14v5M6.5 16.5h5M21 15h1M24 18h1"></path>';
+    const t = k.querySelectorAll('span');
+    t[0].textContent = 'DancyCloud'; t[1].textContent = 'Gra · jedno kliknięcie';
+    k.addEventListener('click', () => {
+      term.click();
+      const start = (n) => {
+        const o = root.querySelector('[data-a="opcja"][data-id="dancycloud"]');
+        if (o) o.click(); else if (n < 10) setTimeout(() => start(n + 1), 60);
+      };
+      start(0);
+    });
+    term.after(k);
+    /* powiekszanie gry (07.10): przycisk w rogu okna gry; pelny ekran = nakladka (+ Fullscreen API, jesli wolno).
+       Gra sama skaluje plotno przez ResizeObserver. Esc zostaje pauza gry; wyjscie: ten przycisk albo Esc przegladarki. */
+    const wylacz = () => {
+      const g = root.querySelector('.gra-pelny');
+      if (g) { g.classList.remove('gra-pelny'); document.documentElement.classList.remove('gra-pelny-on'); }
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    };
+    document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) wylacz(); });
+    new MutationObserver(() => {
+      const box = root.querySelector('[aria-label="DancyCloud"][role="region"]');
+      if (!box || box.querySelector('[data-gra-powieksz]') || !box.querySelector('canvas, button')) return;
+      const b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('data-gra-powieksz', '');
+      b.textContent = 'Powiększ'; b.setAttribute('aria-label', 'Powiększ grę na cały ekran');
+      b.addEventListener('click', () => {
+        const on = box.classList.toggle('gra-pelny');
+        document.documentElement.classList.toggle('gra-pelny-on', on);
+        b.textContent = on ? 'Zmniejsz' : 'Powiększ';
+        b.setAttribute('aria-label', on ? 'Zmniejsz grę' : 'Powiększ grę na cały ekran');
+        if (on && box.requestFullscreen) box.requestFullscreen().catch(() => {});
+        else if (!on) wylacz();
+        window.dispatchEvent(new Event('resize'));
+      });
+      box.appendChild(b);
+    }).observe(root, { childList: true, subtree: true });
   }
   function soraosWejdz(pierwsze) {
     soraosZaladuj().then((os) => {
@@ -2189,6 +2248,10 @@
       os.wejdz({ pierwsze });
     });
   }
+  // ladowanie modulu rusza przy najechaniu / dotknieciu "Marketplace", zanim padnie klik
+  document.querySelectorAll('[data-nav="marketplace"]').forEach(el => {
+    ['pointerenter', 'touchstart', 'focus'].forEach(ev => el.addEventListener(ev, () => { soraosZaladuj(); }, { once: true, passive: true }));
+  });
   // wpiecie trwa ~0,9 s: Esc albo klik je przeskakuje (jak "pomin" w MK5)
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && soraosPomin) soraosPomin(); }, true);
   document.addEventListener('pointerdown', () => { if (soraosPomin) soraosPomin(); }, true);
@@ -2676,18 +2739,24 @@
       const rod = find(RODZAJE, s.rodzaj);
       const lines = [];
       let sum = rod.base;
+      /* cena "od" = domyslny zestaw rodzaju (PRESET): dopłata liczy sie od roznicy wzgledem zestawu,
+         wiec preset kazdego rodzaju kosztuje dokladnie base, a odejscie od niego dodaje albo odejmuje */
       GROUPS.forEach((k) => {
         const o = find(G[k], s[k]);
-        if (o && o.p !== 0) {
-          const amt = r5(rod.base * o.p);
+        const z = find(G[k], PRESET[rod.id][k]);
+        const dp = o && z ? o.p - z.p : 0;
+        if (dp !== 0) {
+          const amt = r5(rod.base * dp);
+          if (amt === 0) return;
           sum += amt;
-          const name = k === 'zrodla' ? 'Źródła danych: ' + o.t.toLowerCase()
+          const name = dp < 0 && ['zrodla', 'gdzie', 'ui', 'zab', 'testy'].indexOf(k) >= 0 ? LAB[k] + ': ' + o.t.toLowerCase()
+            : k === 'zrodla' ? 'Źródła danych: ' + o.t.toLowerCase()
             : k === 'gdzie' ? 'Działa na serwerze'
             : k === 'ui' ? 'Interfejs: ' + o.t.toLowerCase()
             : k === 'termin' ? 'Termin: ' + o.t.toLowerCase()
             : k === 'dane' ? 'Przykładowe dane są'
             : k === 'zab' ? 'Zabezpieczenia rozszerzone' : 'Testy automatyczne';
-          lines.push({ k: k, n: name, p: o.p, a: amt });
+          lines.push({ k: k, n: name, p: dp, a: amt });
         }
       });
       const hi = Math.round((sum * 1.2) / 10) * 10;
@@ -2761,7 +2830,7 @@
         v: 1,
         rodzaj: c.rod.k + ' (' + c.rod.t + ')',
         od: !!c.rod.from,
-        mod: GROUPS.map((k) => { const o = find(G[k], st[k]); return [k + ':' + o.s, o.p === 0 ? 'w cenie' : sgn(o.p)]; }),
+        mod: GROUPS.map((k) => { const o = find(G[k], st[k]); const dp = o.p - find(G[k], PRESET[st.rodzaj][k]).p; return [k + ':' + o.s, dp === 0 ? 'w cenie' : sgn(dp)]; }),
         data: st.data ? st.data + ' (' + DNI[parseIso(st.data).getDay()] + ')' : '',
         serwis: c.sv.t + (c.mon ? ', ' + (c.months > 1 ? c.months + ' mies.' : 'miesięcznie') + ' (' + zl(c.mon) + '/mies.)' : ''),
         cena: c.total,
@@ -2786,6 +2855,14 @@
     function render() {
       if (st.data && dniDo(st.data) < 1) st.data = '';
       const c = calc(st);
+      GROUPS.forEach((k) => {   // doplaty na kartach liczone wzgledem zestawu wybranego rodzaju
+        const z = find(G[k], PRESET[st.rodzaj][k]);
+        G[k].forEach((o) => {
+          const el = konf.querySelector('input[name="' + k + '"][value="' + o.id + '"]');
+          const sp = el && el.closest('label').querySelector('.konf-opt__p > span');
+          if (sp) sp.textContent = o === z ? 'w cenie' : sgn(o.p - z.p) + ' ceny';
+        });
+      });
       const pre = c.rod.from ? 'od ' : '';
       const tot = $('konfTotal');
       tot.textContent = pre + zl(c.total);
