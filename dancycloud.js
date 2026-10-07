@@ -57,13 +57,14 @@
   var BN = ['NullPointer', 'Memory Leak', 'Race Condition', 'Segfault Prime'], BNU = BN.map(function (n) { return n.toUpperCase(); });
   // --- strojenie trudności (v4): wszystko, co zmienia tempo i ciężar walk, jest tutaj ---
   var WAVE_S = 20;                    // długość fali [s]; co falę szybciej i gęściej
-  var BOSS1_S = 48;                   // pierwszy boss po tylu sekundach gry
-  var BOSS_EVERY = 4;                 // kolejni bossowie co tyle fal (zegar fal stoi w trakcie walki)
+  var BOSS1_S = 100;                  // pierwszy boss na początku 6. fali (5 fal po 20 s; testerzy 7.10: za mało fal przed bossem; było 48)
+  var BOSS_EVERY = 5;                 // kolejni bossowie co tyle fal (było 4; zegar fal stoi w trakcie walki)
   var BNEED = [250, 360, 360, 1350];  // trafień kulą do pokonania (Ogień, mnożnik 1); v4: 165/240/240/900, v3: 60/90/110/170
   var THR = [66.7, 33.4, 15];         // progi życia [%]: faza 2, faza 3, desperacja
   var TELE = [0.6, 0.45, 0.35, 0.4];  // telegraf ataku w fazie 1, 2, 3 i w desperacji [s]
   var IDLE_S = [0.5, 0.35, 0.25, 0.3]; // przerwa przed kolejnym atakiem [s] (v4: 0.6/0.45/0.35/0.2)
   var PHASE_V = [1, 1.15, 1.3, 1.35]; // prędkość pocisków i ataków w fazie 1, 2, 3 i w desperacji (v4: 1/1/1/1.12)
+  var SWEEP_FREE = 10;                // laser, pasy, GC i tandem dopiero, gdy na polu jest najwyżej tyle pocisków bossa
   var REC_S = 0.35;                   // RECOVER: chwila po ataku [s] (v4: 0.4)
   var VULN_N = [2, 3, 3, 3];          // odsłonięcie (VULNERABLE) co tyle ataków
   var VULN_S = [1.8, 1.5, 1.3, 1.0];  // długość odsłonięcia [s]
@@ -529,7 +530,7 @@
     '<button type="button" class="dcg-cb dcg-bb" tabindex="-1" aria-label="Bomba" hidden>' + ibtn('bomb', 24) + '<span></span></button>' +
     '<section class="dcg-ov dcg-start" aria-label="DancyCloud: start"><div class="dcg-box">' +
     '<p class="dcg-k">terminal · gra</p><h2 class="dcg-h">DancyCloud</h2>' +
-    '<p class="dcg-p">Lecisz nad miastem. Z góry spada nasz kod. Co cztery fale czeka boss.</p>' +
+    '<p class="dcg-p">Lecisz nad miastem. Z góry spada nasz kod. Pięć fal, na szóstej boss.</p>' +
     '<div class="dcg-row" role="group" aria-label="Tryb gry">' +
     '<button type="button" data-m="unik" aria-pressed="true">' + ibtn('shield', 20) + 'Unik</button>' +
     '<button type="button" data-m="ogien" aria-pressed="false">' + ibtn('auto', 20) + 'Ogień</button></div>' +
@@ -1178,15 +1179,18 @@
     // ważone losowanie następnego ataku: faza + pozycja gracza (róg, pod bossem), bez powtórki tego samego ataku
     function pickAttack() {
       var b = BO, ph = b.phase, ty = b.type, j, k, A, w, sum = 0, r, q = nearP(),
-        cor = ship.x < W * 0.22 || ship.x > W * 0.78, und = Math.abs(ship.x - q.x) < q.w * 0.3;
+        cor = ship.x < W * 0.22 || ship.x > W * 0.78, und = Math.abs(ship.x - q.x) < q.w * 0.3,
+        busy = prN > SWEEP_FREE;   // 7.10 (testerzy: laser po ścianie/spirali = nie do ominięcia): ataki zamiatające pole czekają, aż pociski zejdą
       for (j = 0; j < ATK.length; j++) {
         A = ATK[j]; w = 0;
         if (A[2] === ty && j !== b.last) {
           if (ph === 4) { if (A[3] === 4 || (ty !== 3 && A[3] <= 3)) w = A[4] + (cor ? A[5] : 0) + (und ? A[6] : 0); }
           else if (A[3] <= ph) w = A[4] + (cor ? A[5] : 0) + (und ? A[6] : 0);
         }
+        if (busy && sweeping(j)) w = 0;
         AW[j] = w; sum += w;
       }
+      if (b.fqN > 0 && busy && sweeping(b.fq[0])) { setFs(S_IDLE, 0.3); return; }
       if (b.fqN > 0) { j = b.fq[0]; for (k = 1; k < b.fqN; k++) b.fq[k - 1] = b.fq[k]; b.fqN--; startTele(j); return; }
       if (sum <= 0) { setFs(S_IDLE, 0.3); b.last = -1; return; }
       r = Math.random() * sum;
@@ -1194,6 +1198,7 @@
       while (AW[j] <= 0) j--;
       startTele(j);
     }
+    function sweeping(j) { return j === A_DER || j === A_SWE || j === A_GC || j === A_ERC || j === A_TND; }
     function startTele(j) {
       var b = BO, p = BP[0], n, sl, k, jj, a, s, top;
       b.atk = j; b.last = j; b.tx = ship.x; b.ty = ship.y; b.tm = 0; b.k = 0; b.fired = 0;
