@@ -536,6 +536,7 @@
     '<p class="dcg-p dcg-md"></p><p class="dcg-k dcg-rec">' + ibtn('record', 18) + '<span></span></p>' +
     '<p class="dcg-k">' + ibtn('b1', 18) + ibtn('b2', 18) + ibtn('b3', 18) + ibtn('b4', 18) + '<span class="dcg-oc">4 bossy</span></p>' +
     '<div class="dcg-row"><button type="button" class="dcg-go" data-a="start">Start</button>' +
+    '<button type="button" data-a="cont" hidden>' + ibtn('boss', 20) + '<span></span></button>' +
     '<button type="button" data-a="snd" aria-pressed="false" aria-label="Dźwięk: wył.">' + ibtn('mute', 20) + '<span>Dźwięk: wył.</span></button></div>' +
     '<div class="dcg-row" role="group" aria-label="Wyzwania"><button type="button" data-a="sudo" aria-pressed="false">' + ibtn('power', 20) + 'sudo</button>' +
     '<button type="button" data-a="rush">' + ibtn('boss', 20) + 'Boss rush</button></div><p class="dcg-p dcg-sm dcg-lk"></p>' +
@@ -568,6 +569,8 @@
   function rnd(a, b) { return a + Math.random() * (b - a); }
   function load(k) { try { return Math.max(0, parseInt(G.localStorage.getItem(k), 10) || 0); } catch (e) { return 0; } }
   function save(k, v) { try { G.localStorage.setItem(k, String(v)); } catch (e) { /* bez localStorage gra działa dalej */ } }
+  function loadJ(k) { try { var v = G.localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function saveJ(k, v) { try { if (v) G.localStorage.setItem(k, JSON.stringify(v)); else G.localStorage.removeItem(k); } catch (e) { /* bez localStorage: bez punktu kontrolnego */ } }
   function waveName(n) { return 'fala ' + n + ': ' + FALE[Math.min(n, FALE.length) - 1]; }
 
   // Sylwetka rakiety (współrzędne jednostkowe, dziób do góry).
@@ -1674,8 +1677,16 @@
       if (id === 'cache') step = 800;
       if (id === 'graze') { grazeBonus = 25 + 10 * up.graze; grazeTxt = '+' + grazeBonus + ' muśnięcie'; }
     }
+    // punkt kontrolny (7.10, prośba maisy): po pokonanym bossie i wyborze ulepszenia zapisujemy stan rundy;
+    // na ekranie startowym „Po bossie …” wraca tu (wynik, bomby, ulepszenia), kolejny boss przychodzi szybciej
+    var CP_NEXT_S = 12;   // po wznowieniu z punktu kontrolnego kolejny boss po tylu sekundach
+    function cpKey() { return KEYP + 'cp.' + mode + (sudo ? '.sudo' : ''); }
     function resumeAfterBoss() {
       ovPick.hidden = ovMerge.hidden = true;
+      if (!rush && testTier < 0 && !god) {
+        var u = {}, k; for (k in up) u[k] = up[k];
+        saveJ(cpKey(), { score: score, bombs: bombs, wave: wave, waveT: waveT, t: t, nb: nextBomb, step: step, up: u, sh: shieldOn, tier: bossTier, nbt: waveT + CP_NEXT_S });
+      }
       BO.on = false; BO.st = 0; tag();
       ensureArt(bossTier % 4);
       grace = 1.2; spawnT = 1; invul = 0.8; prN = 0;
@@ -2773,6 +2784,9 @@
       sb.setAttribute('aria-pressed', String(sudo));
       for (j = 0; j < 4; j++) { k = load(KEYP + 'ocena.' + j); oc += (j ? ' ' : '') + (k ? GRADES[k - 1] : '–'); }
       q('.dcg-oc').textContent = '4 bossy · oceny ' + oc;
+      var cpd = loadJ(cpKey()), cb = q('[data-a=cont]');
+      cb.hidden = !(cpd && cpd.tier > 0);
+      if (cpd && cpd.tier > 0) q('[data-a=cont] span').textContent = 'Po bossie ' + BN[(cpd.tier - 1) % 4] + ' · ' + cpd.score;
       q('.dcg-lk').textContent = !ok ? 'sudo i boss rush: po pokonaniu Segfault Prime.' : sudo ? 'sudo: bossowie o 40% szybsi, krótsze telegrafy, bez tarczy.' :
         'Boss rush: czterech bossów pod rząd' + (rb ? ', rekord ' + fmtT(rb) : '') + '.';
     }
@@ -2806,7 +2820,7 @@
       keys.l = keys.r = keys.u = keys.d = 0; drag.on = false;
       live.textContent = '';
       ensureArt((retry && cp ? bossTier : rush ? 0 : testTier >= 0 ? testTier : bossTier) % 4);   // części bossa budujemy przed pętlą
-      if (retry && cp) { bossStart(); bossTier++; }   // ten sam boss od początku
+      if (retry === true && cp) { bossStart(); bossTier++; }   // ten sam boss od początku (z punktu kontrolnego: fala, boss za CP_NEXT_S)
       else tag();
       ui();
       try { root.focus({ preventScroll: true }); } catch (e) { root.focus(); }
@@ -2889,6 +2903,7 @@
       if ((a === 'again' || a === 'retry') && win.performance.now() - overAt < 450) return;
       if (a === 'start' || a === 'again') start(false);
       else if (a === 'retry') start(true);
+      else if (a === 'cont') { cp = loadJ(cpKey()); if (cp && cp.up) start('cp'); else { cp = null; start(false); } }
       else if (a === 'rush') { if (!b.disabled) start(false, true); }
       else if (a === 'sudo') { if (!b.disabled) { sudo = !sudo; setMode(mode); } }
       else if (a === 'next') pickScreen();
