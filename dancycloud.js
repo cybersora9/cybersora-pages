@@ -53,6 +53,7 @@
     unik: 'Same uniki. Jedna bomba czyści ekran.',
     ogien: 'Statek strzela sam. Ciężka linijka wytrzymuje 3 trafienia.'
   };
+  var PCT = []; for (var pc = 0; pc <= 100; pc++) PCT.push(pc + '%');   // napisy procentu życia bossa (bez sklejania w klatce)
   var BN = ['NullPointer', 'Memory Leak', 'Race Condition', 'Segfault Prime'], BNU = BN.map(function (n) { return n.toUpperCase(); });
   // --- strojenie trudności (v4): wszystko, co zmienia tempo i ciężar walk, jest tutaj ---
   var WAVE_S = 20;                    // długość fali [s]; co falę szybciej i gęściej
@@ -1083,7 +1084,7 @@
     }
 
     // --- bossowie v4: maszyna stanów, repertuar ataków, fazy, desperacja, stagger ---
-    function bossTop() { return W < 600 ? 174 : 68; }   // pod paskiem życia bossa
+    function bossTop() { return W < 600 ? 186 : 80; }   // pod paskiem życia bossa
     function hsc() { return clamp(H / 600, 0.75, 1.3); }
     function bossPos() {
       var ty = BO.type, u = bossU(ty) * (ty === 1 ? 0.95 + 0.2 * BO.g : 1), k, p, e = BO.st === 1 ? 1 - Math.pow(1 - BO.en, 3) : 1, xx, yy, top = bossTop(), am, sg = BO.sag * 16 * bs;
@@ -1592,6 +1593,11 @@
         b.cnt = 0; stagger(); bossDeal(BP[0], d);
         return;
       }
+      // 7.10 (feedback maisy): bomba przerywa też trwający atak bossa — promienie (dereferencja), ściany, pasy, przyciąganie,
+      // a w telegrafie anuluje atak, zanim wystrzeli. Wyjątki: zamek deadlocku (ma własną reakcję) i bullet hell (do przetrwania).
+      if ((b.fs === S_ATK || b.fs === S_TELE) && b.atk !== A_LCK && b.atk !== A_HEL) {
+        floater(ship.x, ship.y - 30 * s0, 'przerwane'); atkClear(); b.cnt++; setFs(S_REC, REC_S);
+      }
       if (b.atk === A_LCK && b.fs === S_ATK) lockBreak();
       else if (b.fs === S_VULN) stagger();
       for (k = 0; k < b.n; k++) { p = BP[k]; if (p.alive) bossDeal(p, d / n); if (b.st !== 2 || b.fs === S_SHIFT || b.fs === S_DESP) break; }
@@ -2009,28 +2015,31 @@
       ls(c, 0);
       if (BO.on) {                            // pasek życia bossa: odznaka, nazwa, faza, segmenty faz, biały błysk utraconego kawałka, bieżący atak
         var nar = W < 600, bw = nar ? W - 16 : Math.min(W * 0.56, 640), x0 = nar ? 8 : Math.max(152, W / 2 - bw / 2), x1 = nar ? W - 8 : Math.min(x0 + bw, W - 60),
-          y0 = nar ? 114 : 8, f = BO.hp / 100, gq = BO.hpG / 100, w2, yb = y0 + 25, jx = BO.hit > 0 && !reduced ? rnd(-2, 2) : 0, lab;
+          y0 = nar ? 114 : 8, f = BO.hp / 100, gq = BO.hpG / 100, w2, yb = y0 + 26, jx = BO.hit > 0 && !reduced ? rnd(-2, 2) : 0, lab;
         x0 += jx; x1 += jx; w2 = x1 - x0;
         if (BO.st === 1) { f *= Math.min(1, BO.age / BO.il); gq = f; }
-        c.fillStyle = C.ink; c.fillRect(x0 - 6, y0 - 3, w2 + 12, 54);
-        c.fillStyle = BO.phase === 4 ? C.hot : C.acc; c.fillRect(x0 - 6, y0 - 3, 2, 54);
+        // 7.10 (feedback maisy: pasek się nie rzucał w oczy): grubszy pasek 16 px, karmazynowa ramka, procent życia przy pasku
+        c.fillStyle = C.ink; c.fillRect(x0 - 8, y0 - 4, w2 + 16, 66);
+        c.fillStyle = BO.phase === 4 ? C.hot : C.acc; c.fillRect(x0 - 8, y0 - 4, 3, 66); c.fillRect(x0 - 8, y0 - 4, w2 + 16, 1); c.fillRect(x0 - 8, y0 + 61, w2 + 16, 1);
         c.drawImage(ic.bb[BO.type], x0, y0, 22, 22);
         c.textBaseline = 'middle'; c.textAlign = 'left';
-        c.font = '700 12px ' + MONO; ls(c, 1.8); c.fillStyle = C.bone; c.fillText(BNU[BO.type], x0 + 30, y0 + 11);
+        c.font = '700 14px ' + MONO; ls(c, 1.8); c.fillStyle = C.bone; c.fillText(BNU[BO.type], x0 + 30, y0 + 11);
         c.font = '500 11px ' + MONO; ls(c, 0.88); c.fillStyle = BO.phase === 4 ? C.hot : C.label; c.textAlign = 'right'; c.fillText(FZ[BO.phase - 1], x1, y0 + 11);
         c.textAlign = 'left'; ls(c, 0);
-        c.fillStyle = C.line; c.fillRect(x0, yb, w2, 10);
-        if (gq > f) { c.fillStyle = C.bone; c.fillRect(x0 + w2 * f, yb, w2 * (gq - f), 10); }
-        c.fillStyle = BO.hit > 0 ? C.hot : C.solid; c.fillRect(x0, yb, w2 * f, 10);
-        c.fillStyle = C.ink; for (j = 0; j < 3; j++) c.fillRect(x0 + w2 * THR[j] / 100 - 1.5, yb - 1, 3, 12);
+        c.fillStyle = C.line; c.fillRect(x0, yb, w2, 16);
+        if (gq > f) { c.fillStyle = C.bone; c.fillRect(x0 + w2 * f, yb, w2 * (gq - f), 16); }
+        c.fillStyle = BO.hit > 0 ? C.bone : BO.phase >= 3 ? C.hot : C.acc; c.fillRect(x0, yb, w2 * f, 16);
+        c.fillStyle = C.hot; c.fillRect(x0, yb, w2 * f, 3);   // jasna górna krawędź paska
+        c.fillStyle = C.ink; for (j = 0; j < 3; j++) c.fillRect(x0 + w2 * THR[j] / 100 - 1.5, yb - 1, 3, 18);
+        c.font = '700 13px ' + MONO; c.textAlign = 'right'; c.fillStyle = C.bone; c.fillText(PCT[clamp(Math.ceil(BO.hp), 0, 100)], x1, yb + 30); c.textAlign = 'left';
         c.fillStyle = C.muted;
-        for (j = 1; j < 30; j++) c.fillRect(x0 + w2 * j / 30, yb + 12, 1, j % 5 ? 2 : 4);
+        for (j = 1; j < 30; j++) c.fillRect(x0 + w2 * j / 30, yb + 18, 1, j % 5 ? 2 : 4);
         // co robi boss: atak (jak commit), odsłonięcie, stagger, przejście fazy
         lab = HSTL[BO.fs] || (BO.atk >= 0 && (BO.fs === S_TELE || BO.fs === S_ATK) ? (BO.fs === S_TELE ? ATT : ATA)[BO.atk] : '');
         if (BO.atk === A_HEL && BO.fs === S_ATK) lab = HELLT[clamp(Math.ceil(HELL_S - BO.hellT), 0, HELL_S)];
         if (lab && BO.st === 2) {
           c.font = '500 10px ' + MONO; ls(c, 0.8); c.fillStyle = BO.fs === S_VULN || BO.fs === S_STAG ? C.bone : BO.fs === S_TELE ? C.hot : C.label;
-          c.fillText(lab, x0, yb + 21); ls(c, 0);
+          c.fillText(lab, x0, yb + 30); ls(c, 0);
         }
       }
     }
