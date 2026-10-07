@@ -209,18 +209,18 @@ var ORB_PUNKT = {
   jasnosc:   0.36
 };
 
-/* SKALA ZIAREN SCENY (etap A, 06.10). ORB_PUNKT jest dobrany pod male kadry
+/* 07.10 maisa: skala 4 = za gesta, gruba chmura; wracamy do wygladu sprzed etapu A (wszystko 1),
+   zostaje reczny obrot. Panel ?tune=1 wyciety przed deployem (07.10, faza D).
+   SKALA ZIAREN SCENY (etap A, 06.10). ORB_PUNKT jest dobrany pod male kadry
    (pasek 52 px, kula ~25 px), a scena ma kadr 420 px i kule ~200 px — te same
    1,3 px dawaly tam pyl zamiast grubych ziaren z terminala. `skala` mnozy
    WSZYSTKIE rozmiary punktow sceny; `jasnosc` przestraja ekspozycje, bo ziarno
    rosnie w powierzchni (skala^2). Instancje `static` ida na ORB_NEUTRAL (parytet).
-   Strojenie na zywo: ?tune=1 (panel) albo ?o_skala=3&o_jasnosc=0.3 itd. */
+   Strojenie na zywo (tylko testy): ?o_skala=3&o_jasnosc=0.3 itd. */
 var ORB_NEUTRAL = {rozmiar: 1, wlokna: 1, zasieg: 1, skala: 1, rdzen: 1, halo: 1, zar: 1, iskra: 1, jasnosc: 1, kopce: ORB_CLOUD.kopce, sigma: ORB_CLOUD.sigma, amp: ORB_CLOUD.amp};
-var ORB_SCENA  = {rozmiar: 0.78, wlokna: 0.4, zasieg: 0.8, skala: 4, rdzen: 1, halo: 1, zar: 1, iskra: 1, jasnosc: 0.8, kopce: ORB_CLOUD.kopce, sigma: ORB_CLOUD.sigma, amp: ORB_CLOUD.amp};
-var ORB_TUNE = false;
+var ORB_SCENA  = {rozmiar: 1, wlokna: 1, zasieg: 1, skala: 1, rdzen: 1, halo: 1, zar: 1, iskra: 1, jasnosc: 1, kopce: ORB_CLOUD.kopce, sigma: ORB_CLOUD.sigma, amp: ORB_CLOUD.amp};
 try {
   var qs = new URLSearchParams(location.search);
-  ORB_TUNE = qs.get('tune') === '1';
   Object.keys(ORB_SCENA).forEach(function(k){
     var v = parseFloat(qs.get('o_' + k));
     if(isFinite(v)) ORB_SCENA[k] = v;
@@ -1170,98 +1170,22 @@ var somiDemoOrb;
    bo to DOKLADNIE ten wariant: kadr 322:205 przy wysokosci bliskiej 205 px,
    dla ktorego 460 punktow i poswiata 0,35 byly juz zmierzone w terminalu
    (mala/pasek boczny), zamiast zgadywac nowe liczby. */
-/* Gestosc sceny (A3, 06.10): 1600 jak duza kula terminala, schodzi do 900/460 na
-   slabym sprzecie. Wybor z gory (CPU/RAM/maly ekran) + wynik pomiaru z poprzedniej
-   wizyty (localStorage, patrz POMIAR w petli). */
+/* Gestosc sceny: 460 jak przed 06.10 (0aa1049). 07.10 maisa: 1600/2400 z etapu A = za duzo
+   czastek, zostaje tylko szybszy obrot. Bez wyboru po sprzecie i bez zapisu z pomiaru
+   (stary zapis somiOrbN=900 w localStorage podnosilby N), ?orbN= tylko do testow. */
 function wybierzN(){
-  /* Override do testow: ?orbN=460|900|1600|2400 (omija tez zapis z pomiaru). */
   try {
     var q = parseInt(new URLSearchParams(location.search).get('orbN'), 10);
-    if(q === 460 || q === 900 || q === 1600 || q === 2400) return q;
+    if(q >= 200 && q <= 3000) return q;
   } catch(e){}
-  try {
-    var zap = parseInt(localStorage.getItem('somiOrbN'), 10);
-    if(zap === 900 || zap === 460) return zap;
-  } catch(e){}
-  var c = navigator.hardwareConcurrency || 8, mem = navigator.deviceMemory || 8;
-  var krotszy = Math.min(screen.width || 9999, screen.height || 9999);
-  var dotyk = !!(window.matchMedia && matchMedia('(pointer:coarse)').matches);
-  var mysz = !!(window.matchMedia && matchMedia('(pointer:fine)').matches);
-  if(c <= 2 || mem <= 2) return 460;
-  if(c <= 4 || mem <= 4 || krotszy < 600 || (dotyk && krotszy < 820)) return 900;
-  if(c >= 8 && mem >= 8 && Math.max(screen.width || 0, screen.height || 0) >= 1200 && mysz && !dotyk) return 2400;
-  return 1600;
+  return 460;
 }
 var somiDemoOrbN = wybierzN();
-somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, somiDemoOrbN,somiDemoGlow, 0.35, ORB_FRAME.scena.kamera, 20260918, undefined, ORB_FRAME.scena.prop);
+somiDemoOrb = makeOrb(somiDemoCanvas, 0.0055,  /* 0,0022 do 07.10: obrotu nie bylo widac */ somiDemoOrbN,somiDemoGlow, 0.35, ORB_FRAME.scena.kamera, 20260918, undefined, ORB_FRAME.scena.prop);
 var orbs = [somiDemoOrb].filter(Boolean);
 if(!orbs.length) return;  // brak WebGL — znak tekstowy zostaje jedynym wskaźnikiem
 
 var moodOrbs = orbs;
-
-/* PANEL STROJENIA (?tune=1) — tylko lokalnie, do ręcznego dobrania wyglądu.
-   Suwaki ziaren/jasności działają na żywo (mutują ORB_SCENA, petla czyta co klatkę);
-   kopce/sigma/amp/N zmieniają geometrię, więc po puszczeniu suwaka przeładowują
-   stronę z parametrem w URL. Przed deployem usunąć albo zostawić martwy bez ?tune=1. */
-if(ORB_TUNE){
-  var strojDef = [
-    ['rozmiar', 0.4, 1.2, 0.01, true], ['wlokna', 0, 1.5, 0.02, true], ['zasieg', 0, 1.5, 0.02, true], ['skala', 0.5, 8, 0.05, true], ['rdzen', 0.2, 3, 0.05, true], ['halo', 0.2, 3, 0.05, true],
-    ['zar', 0, 3, 0.05, true], ['iskra', 0, 3, 0.05, true], ['jasnosc', 0.02, 1.5, 0.01, true],
-    ['kopce', 0, 12, 1, false], ['sigma', 0.05, 0.6, 0.01, false], ['amp', 0, 0.3, 0.005, false]
-  ];
-  var strojPanel = document.createElement('div');
-  strojPanel.style.cssText = 'position:fixed;right:12px;top:12px;z-index:99999;width:250px;padding:10px 12px;background:rgba(14,14,18,.92);border:1px solid #E11D33;color:#F6F2F3;font:12px/1.3 monospace;border-radius:6px';
-  var strojNaglowek = document.createElement('div');
-  strojNaglowek.textContent = 'kula: strojenie (?tune=1)';
-  strojNaglowek.style.cssText = 'margin-bottom:6px;color:#E11D33';
-  strojPanel.appendChild(strojNaglowek);
-  var strojWyniki = {};
-  function strojPrzeladuj(klucz, wartosc){
-    var u = new URL(location.href);
-    ORB_SCENA[klucz] = wartosc;
-    Object.keys(ORB_SCENA).forEach(function(k){ u.searchParams.set('o_' + k, String(ORB_SCENA[k])); });
-    location.href = u.toString();
-  }
-  strojDef.forEach(function(d){
-    var wiersz = document.createElement('label');
-    wiersz.style.cssText = 'display:grid;grid-template-columns:62px 1fr 42px;gap:6px;align-items:center;margin:3px 0';
-    var nazwa = document.createElement('span'); nazwa.textContent = d[0];
-    var suwak = document.createElement('input');
-    suwak.type = 'range'; suwak.min = d[1]; suwak.max = d[2]; suwak.step = d[3]; suwak.value = ORB_SCENA[d[0]];
-    var wart = document.createElement('span'); wart.textContent = String(ORB_SCENA[d[0]]);
-    suwak.addEventListener('input', function(){
-      var v = parseFloat(suwak.value); wart.textContent = String(v);
-      if(d[4]) ORB_SCENA[d[0]] = v;
-    });
-    if(!d[4]) suwak.addEventListener('change', function(){ strojPrzeladuj(d[0], parseFloat(suwak.value)); });
-    wiersz.appendChild(nazwa); wiersz.appendChild(suwak); wiersz.appendChild(wart);
-    strojPanel.appendChild(wiersz);
-  });
-  var wierszN = document.createElement('div');
-  wierszN.style.cssText = 'margin:6px 0';
-  wierszN.appendChild(document.createTextNode('N: '));
-  [460, 900, 1600, 2400].forEach(function(n){
-    var b = document.createElement('button');
-    b.textContent = String(n);
-    b.style.cssText = 'margin-right:4px;background:#222;color:#F6F2F3;border:1px solid #555;cursor:pointer';
-    b.addEventListener('click', function(){
-      var u = new URL(location.href); u.searchParams.set('orbN', String(n)); location.href = u.toString();
-    });
-    wierszN.appendChild(b);
-  });
-  strojPanel.appendChild(wierszN);
-  var kopiuj = document.createElement('button');
-  kopiuj.textContent = 'kopiuj wartości';
-  kopiuj.style.cssText = 'width:100%;padding:4px;background:#E11D33;color:#F6F2F3;border:0;cursor:pointer';
-  kopiuj.addEventListener('click', function(){
-    var out = JSON.stringify(Object.assign({N: somiDemoOrbN}, ORB_SCENA));
-    try { navigator.clipboard.writeText(out); } catch(e){}
-    kopiuj.textContent = 'skopiowano: ' + out.length + ' zn.';
-    console.log('ORB_TUNE', out);
-  });
-  strojPanel.appendChild(kopiuj);
-  document.body.appendChild(strojPanel);
-}
 
 /* Druga kula NIE moze chodzic caly czas — zasada 4 planu ("najwyzej dwie
    pracujace petle animacji") jest juz wyczerpana przez mape czastek + kule

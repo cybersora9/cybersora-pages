@@ -40,7 +40,11 @@
 
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
   let W = 0, H = 0;
-  let particles = [];
+  /* C (07.10): kropki mapy w tablicach typowanych (bylo: tablica ~4 800 obiektow). Petla mapy czyta
+     je co klatke, a przy 4x CPU dostep do pol obiektow byl polowa skryptu Startu. PN = liczba kropek. */
+  const DRYF_K = 1024 / (2 * Math.PI), DRYF = new Float32Array(1024);   // 1,6 * sin; cos = przesuniecie o 256
+  for (let i = 0; i < 1024; i++) DRYF[i] = Math.sin(i / DRYF_K) * 1.6;
+  let PN = 0, PX = new Float32Array(0), PY = PX, PVX = PX, PVY = PX, PHX = PX, PHY = PX, PPH = PX, PSP = PX, PR = PX, PCD = PX;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const mouse = { x: -9999, y: -9999, active: false };
@@ -120,7 +124,7 @@
 
     if (fontsReady) glyphAtlas();   // atlas znakow niezalezny od trasy
     bgBuild();                      // tlo trasy z rejestru BG (na somi: M1)
-    if (!uzyjMapy) { particles = []; return; }
+    if (!uzyjMapy) { PN = 0; return; }
 
     const rw = Math.max(1, Math.ceil(mapW));
     const rh = Math.max(1, Math.ceil(mapH));
@@ -158,7 +162,14 @@
         }
       }
     }
-    particles = pts;
+    PN = pts.length;
+    PX = new Float32Array(PN); PY = new Float32Array(PN); PVX = new Float32Array(PN); PVY = new Float32Array(PN);
+    PHX = new Float32Array(PN); PHY = new Float32Array(PN); PPH = new Float32Array(PN); PSP = new Float32Array(PN);
+    PR = new Float32Array(PN); PCD = new Float32Array(PN);
+    for (let i = 0; i < PN; i++) {
+      const q = pts[i];
+      PX[i] = PHX[i] = q.hx; PY[i] = PHY[i] = q.hy; PPH[i] = q.ph; PSP[i] = q.sp; PR[i] = q.r; PCD[i] = q.cd;
+    }
   }
 
   /* ===================== sparks — rare embers drifting up, away from the map ===================== */
@@ -238,6 +249,12 @@
   const bkStyle = new Array(BK_N), bkLast = new Int16Array(6).fill(-1);
   let bkHot = '';
   const bkOf = al => Math.min(BK_N - 1, (al * BK_N) | 0);
+  /* C (07.10): prostokaty i odcinki sortowane przez zliczanie po kubelku, jeden przebieg (bylo: 10
+     przebiegow po wszystkich). Prostokaty dalej fillRect: sciezka z setek rect byla tansza w JS,
+     ale rysowanie wolniejsze (fps tla SOMI 122 -> 83 przy 4x CPU). */
+  const bkCnt = new Int32Array(BK_N), bkOff = new Int32Array(BK_N);
+  let bkIdx = new Int32Array(1000), bkSIdx = new Int32Array(1000);
+  const bkSCnt = new Int32Array(BK_N), bkSOff = new Int32Array(BK_N);
   function bkPush(x, y, w, h, al) {
     if (al <= 0.004 || h <= 0) return;
     if ((bkRn + 1) * 5 > bkR.length) { const nr = new Float32Array(bkR.length * 2); nr.set(bkR); bkR = nr; }
@@ -265,20 +282,26 @@
   function bkFlush(c) {
     bkColors();
     c.lineWidth = 1;
+    if (bkIdx.length < bkRn) bkIdx = new Int32Array(bkRn * 2);
+    bkCnt.fill(0);
+    for (let r = 0; r < bkRn; r++) bkCnt[bkR[r * 5 + 4]]++;
+    for (let b = 0, o = 0; b < BK_N; b++) { bkOff[b] = o; o += bkCnt[b]; }
+    for (let r = 0; r < bkRn; r++) bkIdx[bkOff[bkR[r * 5 + 4]]++] = r;
+    // odcinki tak samo, po kubelku (bylo: 10 przebiegow po ~9 tys. odcinkow strefy wybrzuszenia)
+    if (bkSIdx.length < bkSn) bkSIdx = new Int32Array(bkSn * 2);
+    bkSCnt.fill(0);
+    for (let q = 0; q < bkSn; q++) bkSCnt[bkS[q * 5 + 4]]++;
+    for (let b = 0, o = 0; b < BK_N; b++) { bkSOff[b] = o; o += bkSCnt[b]; }
+    for (let q = 0; q < bkSn; q++) bkSIdx[bkSOff[bkS[q * 5 + 4]]++] = q;
     for (let b = 0; b < BK_N; b++) {
       c.fillStyle = c.strokeStyle = bkStyle[b];
-      for (let r = 0; r < bkRn; r++) {
-        const o = r * 5;
-        if (bkR[o + 4] === b) c.fillRect(bkR[o], bkR[o + 1], bkR[o + 2], bkR[o + 3]);
+      for (let e = bkOff[b], q = e - bkCnt[b]; q < e; q++) { const o = bkIdx[q] * 5; c.fillRect(bkR[o], bkR[o + 1], bkR[o + 2], bkR[o + 3]); }
+      const ns = bkSCnt[b];
+      if (ns) {
+        c.beginPath();
+        for (let e = bkSOff[b], q = e - ns; q < e; q++) { const o = bkSIdx[q] * 5; c.moveTo(bkS[o], bkS[o + 1]); c.lineTo(bkS[o + 2], bkS[o + 3]); }
+        c.stroke();
       }
-      let any = false;
-      for (let s = 0; s < bkSn; s++) {
-        const o = s * 5;
-        if (bkS[o + 4] !== b) continue;
-        if (!any) { c.beginPath(); any = true; }
-        c.moveTo(bkS[o], bkS[o + 1]); c.lineTo(bkS[o + 2], bkS[o + 3]);
-      }
-      if (any) c.stroke();
     }
     bkRn = bkSn = 0;
   }
@@ -819,7 +842,7 @@
 
   function ofWire() {
     const wf = document.createElement('canvas'); wf.width = OF_WW; wf.height = OF_WH;
-    const c = wf.getContext('2d');
+    const c = wf.getContext('2d', { willReadFrequently: true });   // C (07.10): w pamieci; getImageData z kanwy GPU = 111 ms przy 4x CPU na wejsciu w Oferte
     c.fillStyle = '#000'; c.strokeStyle = '#000'; c.lineWidth = 3;
     c.strokeRect(20, 20, OF_WW - 40, OF_WH - 40);                 // okno przegladarki
     c.fillRect(20, 20, OF_WW - 40, 60);                           // pasek adresu
@@ -1090,7 +1113,7 @@
   const RN_OP = 0.40, RN_G = 4.5, RN_CAP = 0.14, RN_BUDGET = 3, RN_FALL = 160, RN_LIE = 3.5;
   const RN_SEL = '[data-view="rnd"] .overlay';
   const RN_CODE = [
-    'zapis.klient="Anna K.";zapis.status="OPLACONE";kasa.dodaj(zapis,kwota);magazyn.sprawdz(zapasy);',
+    'zapis.klient="Klientka";zapis.status="OPLACONE";kasa.dodaj(zapis,kwota);magazyn.sprawdz(zapasy);',
     'd/dx sin(x)=cos(x);solve(x**2-4,x);det(M);grad(f,[x,y]);cse(expr);',
     'somi.slucha();somi.mysli(kontekst);somi.odpowiada(glos);pamiec.zapisz(fakt);',
     'if(sadzonka.gotowa){oferta.dodaj(sadzonka)}else{szklarnia.podlej(sadzonka)};',
@@ -1628,7 +1651,7 @@
   /* Bufory pod linie laczace. Alokowane RAZ, nie co klatke: pętla mapy jest
      goraca, a tablica tworzona 60 razy na sekunde to smieci dla GC. */
   const LINK_CAP = 50;
-  const nearMouse = new Array(LINK_CAP);
+  const nearMouse = new Int32Array(LINK_CAP);   // indeksy kropek
   const nearD2 = new Float64Array(LINK_CAP);
   let nearCount = 0;
 
@@ -1640,7 +1663,7 @@
   const lbSeg = new Float32Array(LINK_CAP * (LINK_CAP - 1) / 2 * 5), lbStyle = new Array(LB);
   let pbKey = '';
   function pbFit() {
-    const n = particles.length;
+    const n = PN;
     if (pbB.length !== n) { pbB = new Uint8Array(n); pbR = new Float32Array(n); pbIdx = new Int32Array(n); }
   }
   function pbColors(boost) {
@@ -1673,7 +1696,10 @@
   function tempoMapy(t) {
     if (bgPrevA > 0.02) return 0;
     for (const k in themeState.layers) if (Math.abs(themeState.layers[k] - themeTarget.layers[k]) > 0.01) return 0;
-    if (particles.length) return t - mouseT < 1500 && !slabyCpu ? 0 : 60;
+    /* C (07.10): bez kursora 30 kl./s (bylo 60): dryf kropek to ±1,6 px przy ~1,6 px/s, fala ~130 px/s
+       w pasie 70 px, przy 30 kl./s nie do odroznienia. Slaby procesor z kursorem tez 30 (bylo 60,
+       przy 4x CPU 7 ms/klatke = pol rdzenia); szybki z kursorem bez zmian: kazda klatka ekranu. */
+    if (PN) return t - mouseT < 1500 && !slabyCpu ? 0 : 30;
     const p = BG[bgId];
     if (p && themeState.layers[p.layer || 'bg'] > 0.02) return p.fps || 30;
     return 30;
@@ -1715,26 +1741,28 @@
     const LINK_RAD = 140, LINK_RAD2 = LINK_RAD * LINK_RAD;
     nearCount = 0;
     pbFit(); pbCnt.fill(0);
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
-
-      let tx = p.hx, ty = p.hy;
+    const mA = mouse.active, mx = mouse.x, my = mouse.y;
+    for (let i = 0; i < PN; i++) {
+      let tx = PHX[i], ty = PHY[i];
       if (!reduce) {
-        tx += Math.sin(time * p.sp + p.ph) * 1.6;
-        ty += Math.cos(time * p.sp * 0.9 + p.ph) * 1.6;
+        // C (07.10): sinus z tablicy (1024 probki, blad ~0,01 px); Math.sin/cos byly 80% tej petli
+        const sp = PSP[i], ph = PPH[i];
+        tx += DRYF[((time * sp + ph) * DRYF_K | 0) & 1023];
+        ty += DRYF[((time * sp * 0.9 + ph) * DRYF_K + 256 | 0) & 1023];
       }
 
-      p.vx += (tx - p.x) * 0.06;
-      p.vy += (ty - p.y) * 0.06;
+      let x = PX[i], y = PY[i];
+      let vx = PVX[i] + (tx - x) * 0.06;
+      let vy = PVY[i] + (ty - y) * 0.06;
 
-      if (mouse.active) {
-        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+      if (mA) {
+        const dx = x - mx, dy = y - my;
         const d2 = dx * dx + dy * dy;
         if (d2 < RAD2 && d2 > 0.01) {
           const d = Math.sqrt(d2);
           const force = (1 - d / RAD) * 5.5;
-          p.vx += (dx / d) * force;
-          p.vy += (dy / d) * force;
+          vx += (dx / d) * force;
+          vy += (dy / d) * force;
         }
         /* PULSOWANIE MAPY — naprawa 11.09. Bylo: z czastek w promieniu brano 50
            LOSOWYCH (reservoir sampling) i losowano OD NOWA CO KLATKE. W promieniu
@@ -1754,17 +1782,17 @@
             while (k > 0 && nearD2[k - 1] > d2) {
               nearD2[k] = nearD2[k - 1]; nearMouse[k] = nearMouse[k - 1]; k--;
             }
-            nearD2[k] = d2; nearMouse[k] = p;
+            nearD2[k] = d2; nearMouse[k] = i;
           }
         }
       }
 
-      p.vx *= 0.86; p.vy *= 0.86;
-      p.x += p.vx; p.y += p.vy;
+      vx *= 0.86; vy *= 0.86;
+      PVX[i] = vx; PVY[i] = vy; PX[i] = x + vx; PY[i] = y + vy;
 
-      let b = 0, rad = p.r;
+      let b = 0, rad = PR[i];
       if (waveR >= 0) {
-        const dd = Math.abs(p.cd - waveR);
+        const dd = Math.abs(PCD[i] - waveR);
         if (dd < 70) {
           const f = (1 - dd / 70) * waveGain;
           b = Math.min(PW, Math.round(f * PW));
@@ -1777,20 +1805,23 @@
        NA KAZDA kropke, ~2000 fill na klatke = polowa czasu Startu. Teraz alfa fali skwantowana do
        PW+1 kubelkow (roznica 0,05 krycia, nie do zobaczenia), jedna sciezka i jeden fill na kubelek,
        sortowanie przez zliczanie bez alokacji. Promien zostaje dokladny, per kropka. */
-    if (particles.length) {
+    if (PN) {
       pbColors(mouse.active ? 1 : 0.82);
       for (let k = 0, o = 0; k <= PW; k++) { pbOff[k] = o; o += pbCnt[k]; }
-      for (let i = 0; i < particles.length; i++) pbIdx[pbOff[pbB[i]]++] = i;
+      for (let i = 0; i < PN; i++) pbIdx[pbOff[pbB[i]]++] = i;
       for (let k = 0, o = 0; k <= PW; k++) {
         const n = pbCnt[k]; if (!n) continue;
         ctx.fillStyle = pbStyle[k];
         ctx.beginPath();
         for (let e = o + n; o < e; o++) {
-          const i = pbIdx[o], p = particles[i], r = pbR[i];
+          const i = pbIdx[o], px = PX[i], py = PY[i], r = pbR[i];
           // P1: kropka do 1,5 px promienia jako kwadrat (po wygladzeniu nie do odroznienia od kola, a rect
           // jest kilka razy tanszy od arc); wieksze kropki i fala zostaja kolami
-          if (r <= 1.5) { const q = r * 0.886; ctx.rect(p.x - q, p.y - q, 2 * q, 2 * q); }
-          else { ctx.moveTo(p.x + r, p.y); ctx.arc(p.x, p.y, r, 0, 6.2832); }
+          // C (07.10): wieksze kropki jako krzyz z dwoch prostokatow (osmiokat, po wygladzeniu przy 3-6 px
+          // wyglada jak kolo); arc byl polowa skryptu Startu przy 4x CPU, krzyz 2x tanszy. Jedna sciezka,
+          // nonzero: zachodzace prostokaty sie sumuja, nie podwajaja krycia.
+          if (r <= 1.5) { const q = r * 0.886; ctx.rect(px - q, py - q, 2 * q, 2 * q); }
+          else { const a = r * 0.924, c = r * 0.6; ctx.rect(px - a, py - c, 2 * a, 2 * c); ctx.rect(px - c, py - a, 2 * c, 2 * a); }
         }
         ctx.fill();
       }
@@ -1801,14 +1832,14 @@
     if (nearCount > 1) {
       let n = 0;
       for (let i = 0; i < nearCount; i++) {
-        const a = nearMouse[i];
+        const a = nearMouse[i], ax = PX[a], ay = PY[a];
         for (let j = i + 1; j < nearCount; j++) {
-          const q = nearMouse[j];
-          const dx = a.x - q.x, dy = a.y - q.y;
+          const q = nearMouse[j], qx = PX[q], qy = PY[q];
+          const dx = ax - qx, dy = ay - qy;
           const d2 = dx * dx + dy * dy;
           if (d2 >= 1600) continue;
           const o = n * 5;
-          lbSeg[o] = a.x; lbSeg[o + 1] = a.y; lbSeg[o + 2] = q.x; lbSeg[o + 3] = q.y;
+          lbSeg[o] = ax; lbSeg[o + 1] = ay; lbSeg[o + 2] = qx; lbSeg[o + 3] = qy;
           lbSeg[o + 4] = Math.min(LB - 1, ((1 - Math.sqrt(d2) / 40) * LB) | 0);
           n++;
         }
@@ -2039,13 +2070,8 @@
     const apply = () => {
       if (!NAMES.includes(view)) view = 'start';
       if (view === 'products' && !PRODUKTY_WIDOCZNE) view = 'start';   // patrz PRODUKTY_WIDOCZNE
-      /* w Kontakcie hCaptcha startuje w wolnej chwili (jej inicjacja to jeden ~400 ms task,
-         nie moze trafic w wjazd widoku); fokus w formularzu laduje ja od razu */
-      if (view === 'contact' && !captchaJest) {
-        const tuJeszcze = () => { if (document.documentElement.dataset.route === 'contact') ladujCaptche(); };
-        // wyjscie z Kontaktu przed czasem = czekamy na fokus, zeby ~400 ms nie trafilo w inna trase
-        setTimeout(() => (window.requestIdleCallback || setTimeout)(tuJeszcze, { timeout: 4000 }), 1500);
-      }
+      /* hCaptcha (07.10, faza B P19): tylko pierwszy fokus/dotyk w formularzu (wyzej). Timer 1,5 s po wejsciu
+         w Kontakt wyciety: jej inicjacja (~400 ms) trafiala w wyjscie z Kontaktu i przycinala Start. */
       // tlo starej trasy zamarza w drugim slocie, zanim nowe hero zmieni wymiar sceny
       if (document.documentElement.dataset.route !== view) bgLeave();
       // route theme: CSS switches via data-route, both canvases via themeTarget
@@ -2091,8 +2117,9 @@
        Bez wsparcia albo z prefers-reduced-motion: apply() leci od razu,
        DOM i tak sie zmienia — zero regresji, po prostu bez animacji. */
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    /* SORA//OS (L3): wejscie w Marketplace z innej trasy = modul dostaje wejdz();
-       PIERWSZE w sesji (i nie na telefonie) = wpiecie vt-crack zamiast zygzaka */
+    /* SORA//OS: wejscie w Marketplace z innej trasy = modul dostaje wejdz(). 07.10 (wpiecie v2): strona robi
+       zwykly zygzak, a CALA animacje komputera prowadzi modul (jedna sekwencja, start 300 ms po kliku, gdy
+       zygzak jest w polowie). PIERWSZE w sesji (i nie na telefonie) = pelna wersja, kolejne = skrot. */
     const wOS = view === 'marketplace' && document.documentElement.dataset.route !== 'marketplace';
     const pierwszeOS = wOS && !soraosWidziany() && !reduceMotion && !matchMedia('(max-width:760px)').matches;
     if (document.startViewTransition && !reduceMotion) {
@@ -2101,7 +2128,6 @@
          po prostu bez animacji. Bez tego .catch to byl niezlapany wyjatek
          w konsoli (zlapane live: "Transition was aborted... Document
          hidden"). */
-      if (pierwszeOS) document.documentElement.classList.add('vt-crack');
       /* modul ladujemy ZANIM przejscie zrobi migawke nowego widoku (max 900 ms czekania) i wejdz() odpalamy
          w tym samym callbacku: nowy widok od pierwszej klatki ma komputer w stanie startowym, bez skoku
          "stara lista -> komputer" po przejsciu i bez podwojnej animacji. Spoznione ladowanie = stara sciezka. */
@@ -2111,15 +2137,12 @@
         if (!wOS) return undefined;
         const czeka = new Promise(r => setTimeout(r, 900));
         return Promise.race([soraosZaladuj().then((os) => {
-          if (os && document.documentElement.dataset.route === 'marketplace') { soraosWejdzRaz(os, pierwszeOS); wszedl = true; }
+          if (os && document.documentElement.dataset.route === 'marketplace') { soraosWejdzTeraz(os, pierwszeOS, 300); wszedl = true; }
         }), czeka]);
       };
       const vt = document.startViewTransition(aplikuj);
       vt.ready.catch(() => {});
-      if (pierwszeOS) soraosPomin = () => vt.skipTransition();
       vt.finished.catch(() => {}).finally(() => {
-        document.documentElement.classList.remove('vt-crack');
-        soraosPomin = null;
         if (pierwszeOS) { try { sessionStorage.setItem('soraos:wpiety', '1'); } catch (e) {} }
         if (wOS && !wszedl) soraosWejdz(pierwszeOS);
       });
@@ -2133,7 +2156,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261007b';
+  const SORAOS_V = '20261007d';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2192,6 +2215,9 @@
         naglowek: 'B',
       });
       soraosKafelGry(root);
+      /* 07.10 (faza B P9): nazwa Marketplace zostaje, podtytul mowi wprost, ze to oferta jednej firmy */
+      const podtytul = [...root.querySelectorAll('h1 > span')].find((s) => !s.closest('.hero'));
+      if (podtytul) podtytul.textContent = 'gotowe skrypty i usługi cybersory, cena z góry';
       return soraosOS;
     }).catch(() => null);   // atrapa: brak modulu = zwykla lista, bez bledu w konsoli
     return soraosLaduje;
@@ -2242,25 +2268,23 @@
       box.appendChild(b);
     }).observe(root, { childList: true, subtree: true });
   }
-  /* animacja wejscia komputera tylko RAZ (pierwsze wejscie w Marketplace); kolejne wejscia: bez animacji,
-     komputer jest juz zamontowany w stanie koncowym (maisa 07.10: przy ponownym wejsciu animacja sie psula) */
-  let soraosWszedlRaz = false;
-  function soraosWejdzRaz(os, pierwsze) {
-    if (soraosWszedlRaz) return;
-    soraosWszedlRaz = true;
-    os.wejdz({ pierwsze });
+  /* wpiecie v2 (07.10): przy KAZDYM wejsciu jedna sekwencja modulu (pierwsze w sesji pelne, kolejne skrot);
+     stara blokada "tylko raz" byla latka na dubel vt-crack + nakladki modulu, ktorego juz nie ma */
+  function soraosWejdzTeraz(os, pierwsze, opoznienie) {
+    soraosPomin = () => { if (os.pomin) os.pomin(); };
+    Promise.resolve(os.wejdz({ pierwsze, opoznienie })).then(() => { soraosPomin = null; });
   }
   function soraosWejdz(pierwsze) {
     soraosZaladuj().then((os) => {
       if (!os || document.documentElement.dataset.route !== 'marketplace') return;
-      soraosWejdzRaz(os, pierwsze);
+      soraosWejdzTeraz(os, pierwsze, 0);
     });
   }
   // ladowanie modulu rusza przy najechaniu / dotknieciu "Marketplace", zanim padnie klik
   document.querySelectorAll('[data-nav="marketplace"]').forEach(el => {
     ['pointerenter', 'touchstart', 'focus'].forEach(ev => el.addEventListener(ev, () => { soraosZaladuj(); }, { once: true, passive: true }));
   });
-  // wpiecie trwa ~0,9 s: Esc albo klik je przeskakuje (jak "pomin" w MK5)
+  // wpiecie trwa ~1 s: Esc albo klik je przeskakuje
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && soraosPomin) soraosPomin(); }, true);
   document.addEventListener('pointerdown', () => { if (soraosPomin) soraosPomin(); }, true);
 
@@ -2622,10 +2646,10 @@
     const $ = (id) => document.getElementById(id);
 
     const RODZAJE = [
-      { id: 'mikro', k: 'Porządek w plikach', t: 'Mikro-skrypt', d: 'Jedno zadanie, jedno źródło: zmiana nazw, scalanie arkuszy, mały konwerter.', base: 50 },
-      { id: 'skrypt', k: 'Raport i dane', t: 'Skrypt', d: 'Kilka kroków, pobieranie danych, raport, praca według harmonogramu.', base: 250 },
-      { id: 'bot', k: 'Pilnowanie 24/7', t: 'Bot', d: 'Działa całą dobę, pilnuje czegoś i odzywa się przez Discord, mail lub API.', base: 600 },
-      { id: 'app', k: 'Program dla firmy', t: 'Aplikacja', d: 'Kalendarz, klienci, magazyn, panel dla zespołu. Pod jedną firmę.', base: 2500, from: true }
+      { id: 'mikro', k: 'Porządek w plikach', t: 'Mikro-skrypt', d: 'Jedno zadanie, jedno źródło: zmiana nazw, scalanie arkuszy, mały konwerter.', base: 150 },
+      { id: 'skrypt', k: 'Raport i dane', t: 'Skrypt', d: 'Kilka kroków, pobieranie danych, raport, praca według harmonogramu.', base: 500 },
+      { id: 'bot', k: 'Pilnowanie 24/7', t: 'Bot', d: 'Działa całą dobę, pilnuje czegoś i odzywa się przez Discord, mail lub API.', base: 1200 },
+      { id: 'app', k: 'Program dla firmy', t: 'Aplikacja', d: 'Kalendarz, klienci, magazyn, panel dla zespołu. Pod jedną firmę.', base: 5000, from: true }
     ];
     const PRESET = {
       mikro: { zrodla: '1', gdzie: 'pc', ui: 'cli', termin: 'std', dane: 'nie', zab: 'pod', testy: 'nie', serwis: 'brak', okres: '1' },
@@ -3087,11 +3111,11 @@
     const SKRYPT_DEMO = {
       robi: {
         q: 'Co robisz?',
-        a: 'Na co dzień pracuję w zapleczu cybersory: pilnuję radaru ofert i pomagam Patrykowi ogarniać robotę. Tu, na stronie, dopiero się tego uczę — na razie umiem porozmawiać i pokazać, od czego zacząć.'
+        a: 'Na co dzień pracuję w zapleczu cybersory: pilnuję radaru ofert i pomagam Patrykowi i Wojtkowi ogarniać robotę. Tu, na stronie, dopiero się tego uczę — na razie umiem porozmawiać i pokazać, od czego zacząć.'
       },
       dziala: {
         q: 'Jak działasz?',
-        a: 'Nie mam jednego mózgu do wszystkiego. Radar skanuje oferty bez przerwy i sam zgłasza, co warte uwagi — już zebrał 156 leadów z jednego skanu. Agent, który pisze kod, ma bramkę akceptacji: nic nie wysyła i nic nie zmienia bez zgody człowieka.'
+        a: 'Nie mam jednego mózgu do wszystkiego. Radar skanuje oferty bez przerwy i sam zgłasza, co warte uwagi — ma już w historii ponad 360 ofert. Agent, który pisze kod, ma bramkę akceptacji: nic nie wysyła i nic nie zmienia bez zgody człowieka.'
       },
       zdolna: {
         q: 'Do czego jesteś zdolna?',
@@ -3373,15 +3397,16 @@
 
     /* Zrodla (30.09): SalonDesk — app\salondesk\app\kasa.py, domain\reguly.py, wersja.py,
        DLA_TESTERA.md, app\README.md; Pycodemath — README, CHANGELOG, pyproject, PyPI JSON na zywo;
-       Rachmistrz — rachmistrz\rrso.py, ARCHITEKTURA.md, NASTEPNY_MODUL.md; Frostwall — verify.py,
-       fingerprint.py, seal.py, README. Nazwy klienta SalonDeska celowo NIE podajemy. */
+       Frostwall — verify.py,
+       fingerprint.py, seal.py, README. Nazwy klienta SalonDeska celowo NIE podajemy.
+       07.10: Rachmistrz zdjety ze strony (maisa: poki co), SalonDesk 1.5.0 (tag v1.5.0). */
     const SADZONKI = {
       salondesk: {
         nazwa: 'SalonDesk',
         lead: 'Program do prowadzenia salonu beauty na jednym komputerze: kalendarz wizyt, grafik zespołu, kartoteka klientek, kasa, magazyn i bony. Działa bez internetu i bez chmury.',
         fakty: [
           ['zakres', 'Wizyty · grafik · kartoteka · kasa · magazyn'],
-          ['wersja', '1.4.2 · Windows · instalator'],
+          ['wersja', '1.5.0 · Windows · instalator'],
           ['silnik', 'Python · pywebview · SQLite'],
           ['dane', 'Na komputerze salonu, bez serwera'],
         ],
@@ -3392,7 +3417,7 @@
         },
         pytania: [
           { q: 'Jak działa kasa?', a: 'Paragon składa się z usług, produktów, bonów i pakietów, a wizytę z kalendarza rozlicza się jednym ruchem, po cenie z dnia rezerwacji. Płacić można gotówką, kartą, bonem albo pakietem, także kilkoma formami naraz. Sprzedany produkt sam schodzi ze stanu magazynu. Kwoty liczymy w groszach, nigdy na liczbach z przecinkiem, więc suma dnia zgadza się co do grosza.' },
-          { q: 'Gdzie są dane?', a: 'Wszystko zapisuje się w jednej bazie SQLite na komputerze salonu. Program działa bez internetu i bez chmury, więc dane nie wychodzą poza ten komputer. Obecna wersja to 1.4.2, z instalatorem na Windows.' },
+          { q: 'Gdzie są dane?', a: 'Wszystko zapisuje się w jednej bazie SQLite na komputerze salonu. Program działa bez internetu i bez chmury, więc dane nie wychodzą poza ten komputer. Obecna wersja to 1.5.0, z instalatorem na Windows.' },
         ],
       },
       pycodemath: {
@@ -3410,34 +3435,19 @@
           { q: 'Gdzie go wziąć?', a: 'Z PyPI: pip install pycodemath (wersja 0.4.0, Python 3.11 lub nowszy). Kod jest otwarty, na licencji MIT: github.com/cybersora9/pycodemath. Od wersji 0.4.0 umie sprawdzić wynik i odpowiedzieć: potwierdzony, obalony z kontrprzykładem albo nierozstrzygnięty.' },
         ],
       },
-      rachmistrz: {
-        nazwa: 'Rachmistrz',
-        lead: 'Biblioteka do liczenia kredytu i pożyczki konsumenckiej: RRSO, rata i harmonogram spłat. Liczy według metody z ustawy, nie na oko.',
-        fakty: [
-          ['status', 'Działa · wersja 0.1.0'],
-          ['zakres', 'RRSO · rata annuitetowa · harmonogramy'],
-          ['silnik', 'Python 3.11+ · NumPy · bez interfejsu'],
-          ['ochrona', 'Licencja przez Frostwall'],
-        ],
-        zrzut: null,
-        pytania: [
-          { q: 'Jak liczy RRSO?', a: 'Tak, jak każe załącznik nr 4 do ustawy o kredycie konsumenckim. Szuka takiej rocznej stopy, przy której zdyskontowane wypłaty równają się zdyskontowanym spłatom. Równanie rozwiązuje metodą Newtona zabezpieczoną bisekcją. Wzór i jego pochodną wyprowadził Pycodemath, nasza druga sadzonka.' },
-          { q: 'Da się go kupić?', a: 'Jeszcze nie. Program działa, a decyzja o sprzedaży wciąż przed nami. Plan jest taki: 7 dni próby przypiętej do komputera, potem licencja bez terminu, w dwóch pakietach, sam RRSO albo pełny.' },
-        ],
-      },
       frostwall: {
         nazwa: 'Frostwall',
-        lead: 'Moja biblioteka licencyjna. Sprawdza licencję i odblokowuje chroniony kod bez łączenia się z żadnym serwerem.',
+        lead: 'Nasza biblioteka licencyjna. Sprawdza licencję i odblokowuje chroniony kod bez łączenia się z żadnym serwerem.',
         fakty: [
           ['status', 'Wersja 0.1.0 · biblioteka wewnętrzna'],
           ['kryptografia', 'Ed25519 · AES-GCM · SHA-256'],
           ['silnik', 'Python 3.11+ · cryptography'],
-          ['pierwszy', 'Chroni Rachmistrza'],
+          ['dla', 'Naszych programów na sprzedaż'],
         ],
         zrzut: null,
         pytania: [
-          { q: 'Jak działa bez internetu?', a: 'Licencja to token podpisany kluczem Ed25519, a podpis da się sprawdzić na miejscu, bez serwera. Po kolei sprawdzane są: podpis, cofnięty zegar, data ważności i odcisk komputera. Chroniony kod jest zaszyfrowany AES-GCM, a klucz do niego jest zapieczętowany odciskiem tej jednej maszyny. Nie udaję, że to pancerz: to podniesiona poprzeczka, nie zamek nie do ruszenia.' },
-          { q: 'Po co to komu?', a: 'Przede wszystkim nam. To firmowa biblioteka, która pilnuje licencji naszych programów, a pierwszym z nich jest Rachmistrz. Każdy odmowny wynik ma swój konkretny powód, więc program może powiedzieć klientowi wprost, co jest nie tak.' },
+          { q: 'Jak działa bez internetu?', a: 'Licencja to token podpisany kluczem Ed25519, a podpis da się sprawdzić na miejscu, bez serwera. Po kolei sprawdzane są: podpis, cofnięty zegar, data ważności i odcisk komputera. Chroniony kod jest zaszyfrowany AES-GCM, a klucz do niego jest zapieczętowany odciskiem tej jednej maszyny. Nie udajemy, że to pancerz: to podniesiona poprzeczka, nie zamek nie do ruszenia.' },
+          { q: 'Po co to komu?', a: 'Przede wszystkim nam. To firmowa biblioteka, która pilnuje licencji naszych programów sprzedawanych na komputer. Każdy odmowny wynik ma swój konkretny powód, więc program może powiedzieć klientowi wprost, co jest nie tak.' },
         ],
       },
       somi: {
@@ -3477,22 +3487,24 @@
        memory/offer_history.jsonl (281 ofert), memory/applications.jsonl (12 ghosted + 2 drafted),
        upwork_discord.py (research); modules/agent.py _HANDLERS (12 narzedzi), docs/PLAN_PARITY.md
        (tryby, P1-P10), git log P10 = 2026-07-29, NASTEPNY_MODUL_AGENT.md (569 po P10),
-       commit N6 29.09 (bramka 1509/0) (agent). "264 / 14 / 156" z karty NIE potwierdzone. */
+       commit N6 29.09 (bramka 1509/0) (agent). "264 / 14 / 156" z karty NIE potwierdzone.
+       07.10 (seria OPISY, faza A): offer_history.jsonl = 368 wierszy -> "ponad 360", applications 12 ghosted
+       (wyslane) + 2 drafted, bramka 1582/0 (05.10) -> "ponad 1 500", 156 wyciete (brak zrodla), N3b embeddingi scalone. */
     const SOMI_KROKI = {
       rozmowa: {
         nazwa: 'Przykładowa rozmowa',
-        lead: 'SOMI działa już na co dzień: rozmawiam z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostaję od niej gotowe rzeczy. Tutaj zobaczysz tylko zapis trzech pytań, bo czatu na żywo na stronie jeszcze nie ma.',
+        lead: 'SOMI działa już na co dzień: rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. Tutaj zobaczysz tylko zapis trzech pytań, bo czatu na żywo na stronie jeszcze nie ma.',
         kod: 'somi> router.wybierz(zadanie)\n  rutyna   -> deepseek-v4-flash\n  trudne   -> claude-sonnet-5\n  synteza  -> claude-opus-5-5\npamiec.szukaj("radar")',
         fakty: [
           ['na stronie', 'Zapis 3 pytań, bez czatu na żywo'],
           ['u nas', 'Terminal · Discord · rozmowa głosem'],
           ['modele', 'DeepSeek do rutyny · Claude do trudnych'],
-          ['pamięć', 'Indeks z dziennika i dokumentacji'],
+          ['pamięć', 'Po słowach i po znaczeniu'],
         ],
         zrzut: null,
         pytania: [
-          { q: 'Na jakim modelu działa?', a: 'Router dobiera model do zadania: DeepSeek V4 Flash do rutyny, Claude Sonnet 5 do trudnych pytań, Claude Opus 5.5 do syntezy. Na Discordzie model da się wybrać ręcznie.' },
-          { q: 'Czy pamięta rozmowy?', a: 'Ma indeks pamięci w SQLite, zbudowany z jej dziennika i z dokumentacji projektów. Wyszukiwanie po znaczeniu, na embeddingach, jest dopiero w planie.' },
+          { q: 'Na jakim modelu działa?', a: 'Router dobiera model do zadania: DeepSeek V4 Flash do rutyny, Claude Sonnet 5 do trudnych pytań, Claude Opus 5.5 do syntezy. Koszt modeli premium trzyma twardy limit, więc nic nie wypływa po cichu. Na Discordzie model da się wybrać ręcznie.' },
+          { q: 'Czy pamięta rozmowy?', a: 'Ma indeks pamięci w SQLite, zbudowany z jej dziennika i z dokumentacji projektów. Szuka dwiema drogami naraz: po słowach i po znaczeniu (embeddingi liczone lokalnie, bez chmury).' },
         ],
       },
       research: {
@@ -3501,30 +3513,30 @@
         znak: '.somi-demo__parts li:nth-child(2) .somi-demo__glyph',
         fakty: [
           ['źródła', 'Useme · Upwork'],
-          ['w historii', '281 ofert, bez powtórek'],
+          ['w historii', 'ponad 360 ofert, bez powtórek'],
           ['zgłoszenia', '12 wysłanych · 2 szkice'],
           ['wyniki', 'Raport w plikach · Upwork na Discordzie'],
         ],
         zrzut: null,
         pytania: [
           { q: 'Jak ocenia oferty?', a: 'Każda oferta dostaje wynik od 0 do 100 za dopasowanie tytułu, tagów i opisu do naszych umiejętności. Radar dolicza stawkę i wiek. Oferty starsze niż 21 dni odpadają, a 12 najlepszych dostaje pełny opis. Ostatnie słowo, czyli świeżość, dopasowanie, wykonalność i stawka, zapada w sesji z Claude.' },
-          { q: 'Skąd wie, co już widział?', a: 'Każda oferta trafia do historii. Przy następnym skanie radar pomija te, które już zna, a nowe stawia na górze. W historii jest dziś 281 ofert, od 21 lipca do 30 września.' },
+          { q: 'Skąd wie, co już widział?', a: 'Każda oferta trafia do historii. Przy następnym skanie radar pomija te, które już zna, a nowe stawia na górze. W historii jest dziś ponad 360 ofert, zbieranych od 21 lipca.' },
         ],
       },
       agent: {
         nazwa: 'Agent, który działa',
-        lead: 'W terminalu SOMI ma pętlę narzędzi: czyta i przeszukuje pliki, pisze i edytuje kod, uruchamia komendy. Nic ryzykownego bez mojej zgody.',
+        lead: 'W terminalu SOMI ma pętlę narzędzi: czyta i przeszukuje pliki, pisze i edytuje kod, uruchamia komendy. Nic ryzykownego bez naszej zgody.',
         znak: '.somi-demo__parts li:nth-child(3) .somi-demo__glyph',
         fakty: [
           ['narzędzia', '12: pliki, kod, komendy, zadania'],
           ['tryby', 'normal · auto · plan · bypass'],
           ['parity', '10 modułów, zamknięte 29.07.2026'],
-          ['bramka', '1509 testów, 0 błędów (29.09)'],
+          ['bramka', 'ponad 1 500 testów, 0 błędów'],
         ],
         zrzut: null,
         pytania: [
           { q: 'Kiedy pyta o zgodę?', a: 'Zależy od trybu, przełączanego Shift+Tab: normal, auto, plan albo bypass. Zapis w katalogu projektu nie pyta, komendy w terminalu pytają. Odpowiedź „tak i nie pytaj więcej” działa tylko dla tej jednej komendy, ścieżki albo narzędzia. Plik reguł z listami allow, ask i deny wygrywa nad trybem, a blokady niebezpiecznych komend nie wyłącza żaden tryb.' },
-          { q: 'Co znaczy parity z Claude Code?', a: 'To seria 10 modułów, od P1 do P10, w której terminal SOMI dostał to, co ma Claude Code: narzędzia, tryby zgody i reguły dostępu. Ostatni moduł zamknąłem 29 lipca 2026. Po nim bramka miała 569 testów bez błędu, a dziś cała bramka SOMI to 1509 testów.' },
+          { q: 'Co znaczy parity z Claude Code?', a: 'To seria 10 modułów, od P1 do P10, w której terminal SOMI dostał to, co ma Claude Code: narzędzia, tryby zgody i reguły dostępu. Ostatni moduł zamknęliśmy 29 lipca 2026. Po nim bramka miała 569 testów bez błędu, a dziś cała bramka SOMI to ponad 1 500 testów.' },
         ],
       },
     };
@@ -3674,6 +3686,13 @@
       const gr = GRUPY[nazwaGrupy];
       gr.karty.forEach((s) => s.addEventListener('click', () => openAt(nazwaGrupy, s.dataset[gr.klucz])));
     });
+    /* 07.10 (faza B P3): link "zobacz SalonDesk" w Ofercie otwiera to samo okno co karta w Sadzonkach;
+       bez JS href prowadzi do Sadzonek */
+    document.querySelectorAll('a[data-sadzonka]').forEach((l) => l.addEventListener('click', (e) => {
+      if (!SADZONKI[l.dataset.sadzonka]) return;
+      e.preventDefault();
+      openAt('sadzonki', l.dataset.sadzonka);
+    }));
     btnClose.addEventListener('click', close);
     $('sproutBackdrop').addEventListener('click', close);
     btnPrev.addEventListener('click', () => render(idx - 1));

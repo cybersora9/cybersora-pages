@@ -1,5 +1,5 @@
 {
- "zebrano": "2026-10-06T21:03+00:00",
+ "zebrano": "2026-10-07T12:35+00:00",
  "metoda": "nasz kod programu, bez bibliotek, testów, makiet, dokumentacji i pustych linii",
  "projekty": {
   "salondesk": {
@@ -17,35 +17,35 @@
    }
   },
   "somi": {
-   "commity": 472,
-   "tydzien": 149,
-   "ostatni": "2026-10-06T20:17:07Z",
-   "linie": 74078,
-   "pliki": 202,
+   "commity": 515,
+   "tydzien": 192,
+   "ostatni": "2026-10-07T01:47:22+02:00",
+   "linie": 77722,
+   "pliki": 229,
    "klocki": {
-    "modules/agent.py": 2071,
-    "discord_bot.py": 4506,
+    "modules/agent.py": 2089,
+    "discord_bot.py": 4523,
     "astralheart.py": 3701,
     "modules/file_bridge.py": 1435
    }
   },
   "moonsora": {
-   "commity": 143,
-   "tydzien": 143,
-   "ostatni": "2026-10-06T20:56:10Z",
+   "commity": 145,
+   "tydzien": 144,
+   "ostatni": "2026-10-06T21:18:52Z",
    "wersja": "0.11.0",
-   "linie": 43493,
-   "pliki": 194,
+   "linie": 46313,
+   "pliki": 195,
    "klocki": {
-    "crates/moonsora-core/src/cdpproxy.rs": 1904,
-    "crates/moonsora-core/src/agentapi.rs": 2282,
+    "crates/moonsora-core/src/cdpproxy.rs": 2369,
+    "crates/moonsora-core/src/agentapi.rs": 3059,
     "crates/moonsora-core/src/agent_stream.rs": 955,
     "crates/moonsora-core/src/pty.rs": 1169
    }
   },
   "pycodemath": {
    "commity": 151,
-   "tydzien": 7,
+   "tydzien": 3,
    "ostatni": "2026-09-30T19:30:34+02:00",
    "wersja": "0.4.0",
    "linie": 11127,
@@ -82,11 +82,11 @@
    }
   },
   "strona": {
-   "commity": 257,
-   "tydzien": 73,
-   "ostatni": "2026-10-06T22:18:35+02:00",
-   "linie": 5984,
-   "pliki": 19
+   "commity": 285,
+   "tydzien": 95,
+   "ostatni": "2026-10-07T14:33:32+02:00",
+   "linie": 8536,
+   "pliki": 25
   }
  }
 }
