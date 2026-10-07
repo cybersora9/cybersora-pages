@@ -1328,7 +1328,8 @@
         }
       } else if (j === A_CRS) {
         if (tm >= b.fired * 0.3 && tm < 2.2) {
-          b.gx = W / 2 + Math.sin(b.a0 + tm * 0.9) * W * 0.32;   // luka jedzie wolniej niż statek y = Math.max(BP[0].y, BP[1].y) + BP[0].h * 0.45; x = (b.fired & 1 ? 20 : 0) * s0 + 10 * s0;
+          b.gx = W / 2 + Math.sin(b.a0 + tm * 0.9) * W * 0.32;   // luka jedzie wolniej niż statek
+        y = Math.max(BP[0].y, BP[1].y) + BP[0].h * 0.45; x = (b.fired & 1 ? 20 : 0) * s0 + 10 * s0;   // 7.10: wcześniej połknięte przez komentarz (salwa nie strzelała, luka stała)
           for (; x < W; x += 40 * s0) if (Math.abs(x - b.gx) > b.gw / 2) proj(x, y, 0, 240 * hs * b.vk, 8, 5 * s0);
           BP[b.fired & 1].mz = 0.12; if (BO.n === 2 && !BP[b.fired & 1].alive) BP[(b.fired & 1) ^ 1].mz = 0.12;
           b.fired++;
