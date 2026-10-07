@@ -4,24 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="js-flag.js"></script>
-<title>cybersora — Made in Poland</title>
+<title>cybersora — programy, aplikacje i strony na zamówienie · Gorlice</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="favicon-180.png">
-<meta name="description" content="cybersora — studio kodu, designu i motion z Polski. Własne produkty AI dla resellerów Vinted, kalkulatory, boty i radary ofert. Zamów gotowe narzędzie albo własny projekt.">
-<meta property="og:url" content="https://cybersora.pl/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="cybersora">
-<meta property="og:locale" content="pl_PL">
-<meta property="og:title" content="cybersora — Made in Poland">
-<meta property="og:description" content="Studio kodu, designu i motion. Własne produkty AI dla resellerów Vinted, kalkulatory, boty i radary ofert — zamów gotowe albo własny projekt.">
-<meta property="og:image" content="og-image.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="cybersora — Made in Poland">
-<meta name="twitter:description" content="Studio kodu, designu i motion. Własne produkty AI dla resellerów Vinted, kalkulatory, boty i radary ofert.">
-<meta name="twitter:image" content="og-image.png">
-<meta name="theme-color" content="#0e0e12">
-<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- WIDOCZNOSC (04.10): tytul i opis mowia, CO robie i GDZIE — stary
+     „Made in Poland” i resellerzy Vinted nie trafialy w zadna fraze,
+     ktora ktos wpisuje. Kanoniczny adres = strona glowna bez #widoku. -->
 <link rel="canonical" href="https://cybersora.pl/">
 <!-- Dane strukturalne: tylko to, co juz jest publicznie na stronie (bez adresu, telefonu, NIP). -->
 <script type="application/ld+json">
@@ -42,6 +31,8 @@
   "sameAs": ["https://github.com/cybersora9"]
 }
 </script>
+<meta name="theme-color" content="#0e0e12">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Jedyny font potrzebny do pierwszego malowania hero. crossorigin jest
      OBOWIAZKOWE nawet dla pliku z tego samego serwera: fonty leca w trybie
      anonimowym CORS i bez tego atrybutu przegladarka pobralaby plik DWA RAZY,
@@ -987,6 +978,14 @@
     }
   }
 
+  /* ---- ZYWA STRONA sesja 1: tlo kanwy w sekcji (rejestr SEKCJE w app.js) ----
+     isolation robi z sekcji kontekst warstw, wiec z-index:-1 kladzie kanwe nad tlem --ink,
+     a pod trescia, bez ruszania dzieci. Kanwa sticky: najwyzej ekran wysokosci, w kadrze
+     trzyma ja kompozytor. Bez JS / bez malarza nie powstaje nic. */
+  [data-sekcja]{isolation:isolate;}
+  .sekcja-tlo{position:absolute;inset:0;z-index:-1;pointer-events:none;}
+  .sekcja-tlo canvas{position:sticky;top:0;display:block;width:100%;height:min(100%,100vh);height:min(100%,100lvh);}
+
   /* ---- services section (solid over the fixed particle field) ---- */
   .services{
     position:relative;
@@ -1896,6 +1895,17 @@
   .konf-btn[hidden]{display:none;}
   .konf-btn--go{background:var(--th-solid);border-color:color-mix(in srgb, var(--th-hot) 50%, transparent);margin-left:auto;}
   .konf-btn--go:hover{background:color-mix(in srgb, var(--th-solid) 88%, #fff);transform:translateY(-2px);}
+  .konf-navprice{display:none;}
+  /* MK3b: na telefonie przyciski i cena przyklejone do dolu kolumny, cena widoczna na kazdym kroku */
+  @media (max-width:900px){
+    .konf-nav{position:sticky;bottom:0;z-index:5;align-items:center;max-width:none;padding:.6rem 1.2rem calc(.6rem + env(safe-area-inset-bottom));background:rgba(8,8,10,.92);border-top:1px solid rgba(255,255,255,.12);}
+    .konf-navprice{display:block;flex:1;min-width:0;text-align:center;font-family:var(--mono);font-size:var(--t-instrument);font-weight:600;font-variant-numeric:tabular-nums;color:var(--th-label);white-space:nowrap;}
+    .konf-btn--go{margin-left:0;}
+  }
+  .konf-status{margin:0;font-family:var(--mono);font-size:var(--t-instrument);color:var(--th-label);}
+  .konf-status:not(:empty){padding:.8rem 1.2rem;border:1px solid var(--th-hot);border-radius:10px;margin:1rem 1.2rem;}
+  .konf-status:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .hero__mini{margin:1.1rem 0 0;display:flex;flex-wrap:wrap;gap:.4rem 1.6rem;}
 
   /* krok 6: podsumowanie + co dalej, nad polami formularza */
   .konf-recap{display:grid;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden;}
@@ -1927,6 +1937,56 @@
   .konf-h5{margin:0;font-size:var(--t-title);font-weight:800;letter-spacing:var(--ls-m);}
   .konf-h5:focus{outline:none;}
 
+
+  /* kalendarz terminu */
+  .konf-q__opt{text-transform:none;letter-spacing:0;font-family:inherit;opacity:.6;}
+  .konf-cal{
+    max-width:360px;padding:.8rem .9rem .7rem;background:rgba(0,0,0,.28);
+    border:1px solid rgba(255,255,255,.12);border-radius:10px;
+  }
+  .konf-cal__head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.5rem;}
+  .konf-cal__title{
+    font-family:var(--mono);font-size:var(--t-instrument);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:#fff;
+  }
+  .konf-cal__nav{
+    appearance:none;cursor:pointer;width:36px;height:36px;border-radius:50%;
+    font-size:var(--t-body);line-height:1;color:#fff;background:none;border:1px solid rgba(255,255,255,.22);
+  }
+  .konf-cal__nav:hover:not(:disabled){border-color:var(--th-hot);color:var(--th-label);}
+  .konf-cal__nav:disabled{opacity:.3;cursor:not-allowed;}
+  .konf-cal__nav:focus-visible,.konf-day:focus-visible,.konf-cal__clear:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-cal__dow,.konf-cal__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .konf-cal__dow span{
+    text-align:center;font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    color:var(--muted-dark);padding:.2rem 0;
+  }
+  .konf-day{
+    appearance:none;cursor:pointer;aspect-ratio:1;min-height:36px;position:relative;
+    font-family:var(--mono);font-size:var(--t-instrument);font-variant-numeric:tabular-nums;color:#fff;
+    background:rgba(255,255,255,.04);border:1px solid transparent;border-radius:6px;
+    transition:border-color .15s ease,background-color .15s ease;
+  }
+  .konf-day:hover:not(:disabled){border-color:rgba(255,255,255,.35);}
+  .konf-day.is-wknd{color:var(--muted-dark);}
+  .konf-day:disabled{opacity:.25;cursor:not-allowed;background:none;}
+  .konf-day.is-today::after{
+    content:"";position:absolute;left:4px;right:4px;bottom:3px;height:2px;background:var(--th-label);opacity:.7;
+  }
+  .konf-day[aria-pressed="true"]{
+    color:#fff;font-weight:800;background:var(--th-solid);border-color:var(--th-hot);
+    clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));
+  }
+  .konf-cal__foot{
+    display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.6rem;
+    font-family:var(--mono);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  .konf-cal__clear{
+    appearance:none;cursor:pointer;min-height:32px;padding:0 .2rem;background:none;border:0;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label);
+  }
+  .konf-cal__clear[hidden]{display:none;}
+
   /* terminal: pozycje kalkulatora */
   .t-disc{color:#fff;opacity:.78;}
   .t-ok{color:var(--th-label);}
@@ -1935,7 +1995,6 @@
     .konf-diagram .dg-flow,.konf-total.is-pulse{animation:none;}
     .konf-saved,.konf-opt__b,.konf-tab{transition:none;}
   }
-
 
   /* ---- SOMI z bliska (18.09): duza kula + demo rozmowy bez backendu ----
      Reuzywa .terminal/.t-cursor/.t-muted z bloku wyzej — nowe klasy tylko
@@ -2610,6 +2669,31 @@
     .pas:nth-of-type(even) .pas__tresc{grid-column:1;grid-row:auto;}
   }
 
+  /* ---------- OFERTA: pasy cennika (05.10, aspekt 3 B, makieta _makieta_oferta_software.html, wariant B) ----------
+     Reuzywa .pas / .pas__marka / .pas__tresc / .pas__co ze Startu (szew + .reveal). Tu tylko to, czego Start nie ma:
+     cena, lista przykladow, dowod i dopisek. Bez .pas__znak: pas Oferty nie ma sygnetu. */
+  .pas__cena{font-family:var(--mono);font-weight:800;color:var(--th-hot);font-size:clamp(1.6rem,4vw,2.6rem);letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .pas__cena small{font-size:.55em;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:var(--ls-instrument);margin-right:.35em;text-transform:uppercase;}
+  .pas__tresc{display:flex;flex-direction:column;gap:1rem;}
+  .pas__lista{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.45rem;font-size:var(--t-body);line-height:var(--lh-ui);color:rgba(255,255,255,.78);}
+  .pas__lista li{display:grid;grid-template-columns:1.1em 1fr;gap:.5rem;}
+  .pas__lista li::before{content:">";font-family:var(--mono);color:var(--th-hot);font-weight:700;}
+  .pas__dowod{display:inline-flex;flex-wrap:wrap;gap:.35rem .6rem;align-items:baseline;margin:.2rem 0 0;font-size:var(--t-label);color:rgba(255,255,255,.55);border-top:1px solid rgba(255,255,255,.10);padding-top:.8rem;}
+  .pas__dowod dt{text-transform:uppercase;letter-spacing:var(--ls-instrument);}
+  .pas__dowod dd{margin:0;font-family:var(--mono);font-weight:700;color:#fff;}
+  .pas__dowod dd span{color:var(--th-hot);}
+  .pasy-dopisek{margin:1.4rem 0 0;font-size:var(--t-label);line-height:var(--lh-ui);color:rgba(255,255,255,.55);max-width:60ch;}
+  .hero__cta-row{display:flex;flex-wrap:wrap;gap:.7rem 1rem;justify-content:center;align-items:center;margin-top:1.1rem;}
+  @media (max-width:820px){
+    /* telefon: nazwa i cena w jednym wierszu */
+    .pas__marka{flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.4rem 1rem;}
+    .pas:nth-of-type(even) .pas__marka{align-items:baseline;text-align:left;}
+  }
+  @media (max-width:640px){
+    .hero__cta-row{flex-direction:column;align-items:stretch;}
+    .hero__cta-row .cta-big,.hero__cta-row .cta-outline{justify-content:center;}
+  }
+
   /* ---------- mobil: burger po prawej otwiera PRZEWODNIK (W4, 03.10) ----------
      Zamiast gołej listy linków burger rozwija ten sam pełny panel co "?" na komputerze:
      kafle z opisem są menu, pod nimi słowniczek. Panel przewija się sam, gdy nie mieści się w ekranie. */
@@ -2776,6 +2860,20 @@
     60%{filter:drop-shadow(3px 0 var(--th-hot)) drop-shadow(-3px 0 rgba(80,220,255,.85));}
     100%{filter:none;}
   }
+  /* WPIECIE SORA//OS (L3, 06.10, z MK5): tylko PIERWSZE wejscie w Marketplace w sesji. Zygzak tornWipe
+     przebiega srodkiem jako cienkie pekniecie, staje, i z pekniecia rozwiera sie ekran (te same xs zebow
+     co tornWipe). Klasa vt-crack na <html> zyje tylko na czas przejscia (app.js go()); kolejne wejscia =
+     zwykly zygzak. reduced-motion: blok nizej wylacza wszystkie ::view-transition-*, wiec i to. */
+  html.vt-crack::view-transition-group(root){animation-duration:.9s;}
+  html.vt-crack::view-transition-old(root){animation:crackOld .9s linear both;}
+  html.vt-crack::view-transition-new(root){animation:crackIn .9s linear both,vtGlitchFlash .22s steps(1) .3s both;}
+  @keyframes crackOld{0%,45%{filter:none;}60%,100%{filter:brightness(.3);}}
+  @keyframes crackIn{
+    0%{clip-path:polygon(0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%,0% 50%);animation-timing-function:cubic-bezier(.6,0,.2,1);}
+    38%{clip-path:polygon(0% 49.9%,7% 49%,14% 50.1%,21% 49.1%,29% 50%,37% 48.9%,45% 49.8%,53% 48.8%,61% 49.9%,68% 49.1%,76% 50.1%,84% 49%,92% 49.9%,100% 49.2%,100% 50.4%,92% 51.1%,84% 50.2%,76% 51.3%,68% 50.3%,61% 51.1%,53% 50%,45% 51%,37% 50.1%,29% 51.2%,21% 50.3%,14% 51.3%,7% 50.2%,0% 51.1%);}
+    52%{clip-path:polygon(0% 49.9%,7% 49%,14% 50.1%,21% 49.1%,29% 50%,37% 48.9%,45% 49.8%,53% 48.8%,61% 49.9%,68% 49.1%,76% 50.1%,84% 49%,92% 49.9%,100% 49.2%,100% 50.4%,92% 51.1%,84% 50.2%,76% 51.3%,68% 50.3%,61% 51.1%,53% 50%,45% 51%,37% 50.1%,29% 51.2%,21% 50.3%,14% 51.3%,7% 50.2%,0% 51.1%);animation-timing-function:cubic-bezier(.22,1,.36,1);}
+    100%{clip-path:polygon(0% -11%,7% -16.4%,14% -9.8%,21% -15.8%,29% -10.4%,37% -17%,45% -11.6%,53% -17.6%,61% -11%,68% -15.8%,76% -9.8%,84% -16.4%,92% -11%,100% -15.2%,100% 112.8%,92% 117%,84% 111.6%,76% 118.2%,68% 112.2%,61% 117%,53% 110.4%,45% 116.4%,37% 111%,29% 117.6%,21% 112.2%,14% 118.2%,7% 111.6%,0% 117%);}
+  }
 
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto;}
@@ -2805,6 +2903,69 @@
     ::view-transition-old(root),
     ::view-transition-new(root){animation:none !important;}
   }
+  /* ---------- O NAS: DUET (05.10, wariant A „dwa pasy”, wybór maisy) ----------
+     Reużywa .pas ze Startu (szew + .reveal + płytka z celownikiem i przejazdem skanera). Własne tylko:
+     - monogram PG/WZ w kroju Geist Mono: każda litera ma tę samą szerokość, więc oba zajmują
+       identyczny prostokąt (width:2ch). Sora miała szersze W i Z i monogramy wychodziły nierówne.
+     - obrys zmiennego kroju pokazuje nakładające się kontury (ślady w „G”), więc obrys jest kryjący,
+       a wypełnienie --ink leży nad nim (paint-order:stroke fill) i zakrywa środek.
+     Zero nowych animacji. Kolejna osoba = kolejny <article class="pas reveal"> z następnym hex-adresem. */
+  .duet{--g:clamp(6rem,15vw,12rem);}
+  .duet .pas__marka{
+    position:relative;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    column-gap:1.1rem;row-gap:.2rem;
+    align-items:center;align-content:start;
+  }
+  .duet__mono{
+    position:absolute;top:0;left:-.04em;z-index:0;
+    width:2ch;white-space:nowrap;
+    font-family:var(--mono);font-weight:600;font-size:var(--g);line-height:.78;letter-spacing:0;
+    font-variant-ligatures:none;
+    color:var(--ink);
+    -webkit-text-stroke:2px color-mix(in srgb, var(--th-hot) 50%, var(--ink));
+    paint-order:stroke fill;
+    user-select:none;pointer-events:none;
+  }
+  .duet .pas__znak,.duet .pas__nazwa,.duet__rola{position:relative;z-index:1;}
+  .duet .pas__znak.duet__plytka{
+    grid-column:1;grid-row:1/3;
+    width:76px;height:76px;padding:0;
+    align-items:center;justify-content:center;
+    margin-top:calc(var(--g) * .78 + .6rem);
+    font-family:var(--mono);font-weight:600;font-size:1.35rem;letter-spacing:.04em;line-height:1;
+    color:#fff;
+  }
+  .duet .pas__nazwa{grid-column:2;grid-row:1;align-self:end;margin-top:calc(var(--g) * .78 + .6rem);}
+  .duet__rola{
+    grid-column:2;grid-row:2;align-self:start;margin:0;
+    font-family:var(--mono);font-size:var(--t-label);font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--th-label);
+  }
+  /* drugi pas: wszystko po prawej, jak w Starcie */
+  .duet .pas:nth-of-type(even) .pas__marka{grid-template-columns:minmax(0,1fr) auto;align-items:center;text-align:right;}
+  .duet .pas:nth-of-type(even) .duet__mono{left:auto;right:-.04em;}
+  .duet .pas:nth-of-type(even) .pas__znak.duet__plytka{grid-column:2;}
+  .duet .pas:nth-of-type(even) .pas__nazwa,.duet .pas:nth-of-type(even) .duet__rola{grid-column:1;}
+  .duet__rozwoj{
+    display:flex;align-items:center;gap:.9rem;margin:2.2rem 0 0;
+    font-family:var(--mono);font-size:var(--t-label);color:var(--muted-dark);letter-spacing:.04em;
+  }
+  .duet__rozwoj::before{content:"";flex:none;width:44px;height:2px;background:var(--th-hot);}
+  @media (max-width:820px){
+    .duet{--g:clamp(5.2rem,26vw,8rem);}
+    .duet .pas__marka,.duet .pas:nth-of-type(even) .pas__marka{
+      display:grid;grid-template-columns:auto minmax(0,1fr);text-align:left;
+    }
+    .duet .pas:nth-of-type(even) .duet__mono{left:-.04em;right:auto;}
+    .duet .pas:nth-of-type(even) .pas__znak.duet__plytka{grid-column:1;}
+    .duet .pas:nth-of-type(even) .pas__nazwa,.duet .pas:nth-of-type(even) .duet__rola{grid-column:2;}
+  }
+  @media (max-width:420px){
+    .duet .pas__znak.duet__plytka{width:62px;height:62px;font-size:1.1rem;}
+  }
+
   /* ---------- O MNIE jako esej (30.09) ----------
      Rozdzialy na klockach .services; wlasne tylko plansze z dowodami. Kolory z tokenow strony.
      Zero JS: sciana commitow i doba to statyczny HTML/SVG, wiec nic nie dociaza petli tla. */
@@ -2887,6 +3048,9 @@
   .somi-stage .somi-demo__orb-wrap{margin:0;}
   .somi-stage .somi-demo__orb-slot{height:clamp(240px,34vw,420px);aspect-ratio:1;cursor:pointer;}
   .somi-stage .somi-demo__orb-slot::before,.somi-stage .somi-demo__orb-slot::after{height:92%;}
+  .somi-stage .somi-demo__orb-slot:focus-visible{outline:2px solid var(--th-hot);outline-offset:4px;border-radius:50%;}
+  .somi-stage__hint{margin:-.3rem 0 0;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);opacity:.75;transition:opacity .5s var(--ease-soft);}
+  .somi-stage__hint.is-gone{opacity:0;}
   .somi-stage__stany{display:flex;flex-direction:column;gap:.7rem;align-items:flex-end;}
   .somi-stage__stany + .somi-stage__kula + .somi-stage__stany{align-items:flex-start;}
   .somi-stage__btn{
@@ -2920,6 +3084,24 @@
   button.card:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
   .card--open .seed__hint{margin-top:auto;}
   .card--open:hover .seed__hint,.card--open:focus-visible .seed__hint{color:var(--th-hot);transform:translateX(4px);}
+  /* SORA//OS L2 (06.10): "zwykla lista" Marketplace = jedno zrodlo tresci. Bez JS (i dla Google/czytnika)
+     to jest caly widok; modul soraos.js czyta ja z DOM i buduje nad nia komputer. Tylko typografia z tokenow,
+     zero ozdob: ozdoba to komputer. */
+  .soraos-tresc{display:flex;flex-direction:column;gap:clamp(2.5rem,5vw,4rem);max-width:100%;}
+  .soraos-tresc h2{margin:0;font-size:var(--t-m);letter-spacing:var(--ls-m);line-height:var(--lh-display);font-weight:800;}
+  .soraos-tresc h3{margin:1.6rem 0 .6rem;font-size:var(--t-title);letter-spacing:var(--ls-title);line-height:var(--lh-title);font-weight:800;}
+  .soraos-tresc h3[data-soraos-grupa]{font-family:var(--mono);font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:var(--th-label);}
+  .soraos-tresc h4,.soraos-tresc h5{margin:.9rem 0 .3rem;font-size:var(--t-body);line-height:var(--lh-title);font-weight:600;}
+  .soraos-tresc p,.soraos-tresc li{font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);max-width:var(--measure);}
+  .soraos-tresc p{margin:.2rem 0;}
+  .soraos-tresc ul{margin:0;padding-left:1.1rem;}
+  .soraos-tresc > section > ul,.soraos-tresc ul[data-pole="klocki"]{list-style:none;padding:0;display:grid;gap:1.2rem;}
+  .soraos-tresc [data-pole="cena"]{color:#fff;font-weight:600;}
+  .soraos-tresc [data-pole="cena"],.soraos-tresc [data-pole="czas"]{font-family:var(--mono);font-size:var(--t-instrument);letter-spacing:var(--ls-instrument);}
+  .soraos-tresc pre{margin:.6rem 0;overflow-x:auto;max-width:100%;font-family:var(--mono);font-size:var(--t-instrument);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .soraos-tresc figure:empty{display:none;}
+  .soraos-tresc a{color:var(--th-label);font-weight:600;}
+  .soraos-tresc li[data-linie]::after{content:attr(data-linie) " linii";display:block;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);}
 </style>
 </head>
 <body>
@@ -3010,9 +3192,10 @@
     <div class="nav__links" id="navlinks">
       <a href="#start"     class="nav__link is-active" data-nav="start">Start</a>
       <a href="#oferta"    class="nav__link"           data-nav="oferta">Oferta</a>
+      <a href="#marketplace" class="nav__link"         data-nav="marketplace">Marketplace</a>
       <a href="#products"  class="nav__link"           data-nav="products">Produkty</a>
       <a href="#somi"      class="nav__link"           data-nav="somi">SOMI</a>
-      <a href="#onas"      class="nav__link"           data-nav="onas">O mnie</a>
+      <a href="#onas"      class="nav__link"           data-nav="onas">O nas</a>
       <!-- Sztuka ukryta z menu na prosbe maisy, 22.09, tymczasowo ("poki co") —
            <a href="#sztuka" class="nav__link" data-nav="sztuka">Sztuka</a> -->
       <a href="#rnd"       class="nav__link"           data-nav="rnd">Sadzonki</a>
@@ -3025,32 +3208,33 @@
            co czytalo sie jako "niedokonczone" w pierwszym miejscu, na ktore patrzy oko.
            Miejsce na ikony socjali jest tutaj, czeka na adresy profili. -->
       <button class="nav__guide" type="button" id="navGuide" aria-expanded="false" aria-controls="navPanel" aria-label="Przewodnik"><span class="nav__guideQ" aria-hidden="true">?</span><span class="nav__guideT">Przewodnik</span></button>
-      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do mnie</a>
+      <a href="#contact" class="nav__cta" data-nav="contact">Napisz do nas</a>
       <button class="nav__burger" type="button" aria-expanded="false" aria-controls="navPanel" aria-label="Otwórz menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
-  <!-- PRZEWODNIK (03.10): teksty to propozycje, przepisuje je maisa. Forma "ja", solo: Patryk Gwozdz (maisa 03.10: "jednak o mnie poki co, bez Wojtka"). -->
+  <!-- PRZEWODNIK (03.10): teksty to propozycje, przepisuje je maisa. Od 05.10 forma "my", duet: Patryk Gwozdz i Wojtek Zieba (maisa 05.10: Wojtek zostaje na stronie, cala strona na "my"). -->
   <div class="nav__panel" id="navPanel" role="region" aria-label="Przewodnik po stronie" inert>
     <div class="nav__panelClip"><div class="nav__panelIn">
       <div>
         <h2 class="nav__panelH">Co jest gdzie</h2>
         <div class="nav__tiles">
-          <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jestem i co robię, w skrócie.</span></a>
-          <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Darmowy audyt Twojej strony i co mogę potem naprawić.</span></a>
+          <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jesteśmy i co robimy, w skrócie.</span></a>
+          <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Programy, aplikacje, strony i darmowy audyt widoczności w Google.</span></a>
+          <a class="nav__tile" href="#marketplace" data-nav="marketplace"><b>Marketplace</b><span>Gotowe usługi z ceną z góry: skrypty, boty, aplikacje, widoczność w Google.</span></a>
           <a class="nav__tile" href="#somi" data-nav="somi"><b>SOMI</b><span>Moja asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
-          <a class="nav__tile" href="#onas" data-nav="onas"><b>O mnie</b><span>Patryk Gwóźdź. Jedna osoba, z którą rozmawiasz bezpośrednio.</span></a>
-          <a class="nav__tile" href="#rnd" data-nav="rnd"><b>Sadzonki</b><span>Projekty, nad którymi teraz pracuję, zanim trafią do oferty.</span></a>
-          <a class="nav__tile" href="#contact" data-nav="contact"><b>Kontakt</b><span>Napisz, czego potrzebujesz. Na żywo widzisz, co do mnie trafi.</span></a>
+          <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasza asystentka SOMI. Szukamy też partnerów do projektów.</span></a>
+          <a class="nav__tile" href="#rnd" data-nav="rnd"><b>Sadzonki</b><span>Projekty, nad którymi teraz pracujemy, zanim trafią do oferty.</span></a>
+          <a class="nav__tile" href="#contact" data-nav="contact"><b>Kontakt</b><span>Napisz, czego potrzebujesz. Na żywo widzisz, co do nas trafi.</span></a>
         </div>
       </div>
       <div>
         <h2 class="nav__panelH">Słowa, które tu padają</h2>
         <dl class="nav__gloss">
           <div><dt>Sadzonka</dt><dd>Projekt, który jeszcze rośnie: działa, ale nie trafił do oferty.</dd></div>
-          <div><dt>Commit</dt><dd>Jeden zapisany krok pracy nad kodem. 1 090 commitów to tyle razy, ile zapisałem postęp w 12 projektach.</dd></div>
-          <div><dt>Audyt widoczności</dt><dd>Sprawdzam, co Google widzi na Twojej stronie i co warto poprawić. Pierwszy jest za darmo.</dd></div>
+          <div><dt>Commit</dt><dd>Jeden zapisany krok pracy nad kodem. 1 090 commitów to tyle razy, ile zapisaliśmy postęp w 12 projektach.</dd></div>
+          <div><dt>Audyt widoczności</dt><dd>Sprawdzamy, co Google widzi na Twojej stronie i co warto poprawić. Pierwszy jest za darmo.</dd></div>
         </dl>
       </div>
     </div></div>
@@ -3073,8 +3257,8 @@
 
       <div class="hero__type">
         <h1 class="slogan hero__slogan">Piszę software<span class="thin">na zamówienie</span></h1>
-        <p class="hero__lead">Aplikacje, boty i narzędzia — od pierwszej rozmowy do wdrożenia. Własne produkty piszę tym samym kodem, co zlecenia.</p>
-        <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do mnie</a>
+        <p class="hero__lead">Aplikacje, boty i narzędzia — od pierwszej rozmowy do wdrożenia. Własne produkty piszemy tym samym kodem, co zlecenia.</p>
+        <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do nas</a>
       </div>
 
       <!-- pas faktow: kazda pozycja ma pokrycie (PyPI, testy w salonie, BEZ umowy — nie podpisana, 30.09,
@@ -3091,7 +3275,7 @@
     <!-- MANIFEST — hasla w rytmie CD Projekt Red, po polsku i o kodzie.
          Tresc ma pokrycie w tym, co naprawde chodzi: SOMI, Rachmistrz, SalonDesk
          i radary. Zadnych obietnic, ktorych nie da sie sprawdzic. -->
-    <section class="manifest reveal" aria-label="Co robię">
+    <section class="manifest reveal" aria-label="Co robimy">
       <div class="manifest__inner">
         <div class="manifest__item">
           <h2 class="manifest__head">Piszę narzędzia<span>nie strony</span></h2>
@@ -3099,7 +3283,7 @@
         </div>
         <div class="manifest__item">
           <h2 class="manifest__head">Kod, który pracuje<span>kiedy śpisz</span></h2>
-          <p class="manifest__body">Moje radary przeglądają rynek 24 godziny na dobę i zwracają tylko to, co ma sens. To nie demo na pokaz — to chodzi u mnie codziennie.</p>
+          <p class="manifest__body">Nasze radary przeglądają rynek 24 godziny na dobę i zwracają tylko to, co ma sens. To nie demo na pokaz — to chodzi u nas codziennie.</p>
         </div>
       </div>
     </section>
@@ -3257,19 +3441,18 @@
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
         <div class="overlay overlay--band">
-          <p class="stub">Audyt widoczności — za darmo na start, a jak chcesz iść głębiej,
-          mam też płatny Raport Strategiczny. Sprawdzam realny skan Twojej strony (tytuł, meta opis,
-          dane strukturalne, PageSpeed) i mówię wprost, co faktycznie widzi Google. Na dwóch
-          stronach salonów w Gorlicach znalazłem 4 usterki w 3,5 sekundy.</p>
-          <a class="cta-big" href="#oferta" data-nav="oferta">Zobacz ofertę audytu &rarr;</a>
+          <p class="stub">Audyt widoczności — za darmo na start, a potem wizytówka Google
+          i poprawki strony od 490 zł. Sprawdzamy realny skan Twojej strony (tytuł, meta opis,
+          dane strukturalne, PageSpeed) i mówimy wprost, co faktycznie widzi Google.</p>
+          <a class="cta-big" href="#oferta" data-nav="oferta">Zobacz ofertę &rarr;</a>
         </div>
       </div>
     </section>
 
-    <section class="steps reveal" aria-label="Jak pracuję">
+    <section class="steps reveal" aria-label="Jak pracujemy">
       <div class="steps__inner">
         <div class="services__head">
-          <div class="services__eyebrow" data-hex="0x71A9">jak pracuję</div>
+          <div class="services__eyebrow" data-hex="0x71A9">jak pracujemy</div>
           <h2 class="services__title">Trzy kroki do wdrożenia</h2>
         </div>
         <ol class="steps__list">
@@ -3277,7 +3460,7 @@
             <span class="step__num">01</span>
             <div class="step__body">
               <h3 class="step__title">Brief i wycena</h3>
-              <p class="step__text">Opisz projekt w kilku zdaniach. Wracam z konkretem w 24 godziny: zakres, termin, cena.</p>
+              <p class="step__text">Opisz projekt w kilku zdaniach. Wracamy z konkretem zwykle w 24 godziny, najdalej w 2 dni robocze: zakres, termin, cena.</p>
             </div>
           </li>
           <li class="step">
@@ -3304,30 +3487,105 @@
     <div class="hero">
       <div class="overlay">
         <div class="eyebrow">oferta</div>
-        <h1 class="slogan">Oferta</h1>
-        <p class="stub">Zanim zaproponuję cokolwiek innego, sprawdzam, co dziś realnie widzi Google na Twojej stronie — i mówię to wprost, bez naciągania na moduły, których jeszcze nie ma.</p>
-        <a class="cta-big" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zapytaj o darmowy audyt &rarr;</a>
+        <h1 class="slogan">Oferta<span class="thin">programy, aplikacje, strony</span></h1>
+        <p class="stub">Piszemy skrypty, boty i aplikacje pod jedną konkretną firmę. Cenę „od” podajemy z góry, dokładną po rozmowie. Jeśli najpierw chcesz wiedzieć, jak widzi Cię Google, zaczynamy od darmowego audytu.</p>
+        <div class="hero__cta-row">
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Software na zamówienie">Opisz, co ma robić &rarr;</a>
+          <a class="cta-outline" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Darmowy audyt strony</a>
+        </div>
+        <p class="hero__mini"><a class="card__go" href="#contact" data-nav="contact" data-konf="mikro" data-topic="Skrypt lub automatyzacja">Małe zadanie? Mikro-skrypt od 150 zł &rarr;</a> <a class="card__go" href="#marketplace" data-nav="marketplace">Zobacz Marketplace &rarr;</a></p>
       </div>
     </div>
+
+    <!-- WIDOCZNOSC (04.10): oferta = software (to, co faktycznie piszemy) +
+         widocznosc w Google z cenami z PROMPT_500_PAZDZIERNIK (490/990).
+         Raport Strategiczny „od 500 zl” zdjety — zastapiony pakietami. -->
+    <!-- SOFTWARE NA ZAMOWIENIE (05.10, aspekt 3 B): trzy pasy zamiast czterech kart; kwoty od maisy 28.09 -->
+    <section class="services" aria-label="Software na zamówienie">
+      <div class="services__inner">
+        <div class="services__head" style="max-width:none">
+          <div class="services__eyebrow" data-hex="0x50F7" style="max-width:34ch">usługa główna</div>
+          <h2 class="services__title">Software na zamówienie</h2>
+          <p class="stub" style="margin:0;max-width:var(--measure);text-align:left">Trzy rodzaje roboty, każdy z ceną startową i projektem, który już działa.</p>
+        </div>
+        <div class="pasy">
+          <article class="pas reveal">
+            <div class="pas__marka">
+              <h3 class="pas__nazwa">Skrypt</h3>
+              <div class="pas__cena"><small>od</small>500 zł</div>
+            </div>
+            <div class="pas__tresc">
+              <p class="pas__co">Robi za Ciebie nudną, powtarzalną robotę na komputerze albo w sieci.</p>
+              <ul class="pas__lista">
+              <li>kilka plików Excela zebranych w jeden raport</li>
+              <li>ceny albo oferty ściągane z jednej strony</li>
+              <li>porządek w tysiącach plików jednym kliknięciem</li>
+              </ul>
+              <dl class="pas__dowod"><dt>tak piszemy</dt><dd>Pycodemath <span>PyPI 0.3.0</span></dd></dl>
+              <a class="card__go" href="#contact" data-nav="contact" data-konf="skrypt" data-topic="Skrypt lub automatyzacja">Opisz zadanie &rarr;</a>
+            </div>
+          </article>
+          <article class="pas reveal">
+            <div class="pas__marka">
+              <h3 class="pas__nazwa">Bot</h3>
+              <div class="pas__cena"><small>od</small>1 200 zł</div>
+            </div>
+            <div class="pas__tresc">
+              <p class="pas__co">Pilnuje czegoś za Ciebie przez całą dobę i odzywa się, kiedy trzeba.</p>
+              <ul class="pas__lista">
+              <li>powiadomienie na Discordzie o nowym zamówieniu</li>
+              <li>zapisy i przypomnienia bez ręcznego pisania</li>
+              <li>dwie usługi połączone przez API</li>
+              </ul>
+              <dl class="pas__dowod"><dt>tak piszemy</dt><dd>SOMI <span>chodzi 24/7</span></dd></dl>
+              <a class="card__go" href="#contact" data-nav="contact" data-konf="bot" data-topic="Skrypt lub automatyzacja">Opisz zadanie &rarr;</a>
+            </div>
+          </article>
+          <article class="pas reveal">
+            <div class="pas__marka">
+              <h3 class="pas__nazwa">Aplikacja</h3>
+              <div class="pas__cena"><small>od</small>5 000 zł</div>
+            </div>
+            <div class="pas__tresc">
+              <p class="pas__co">Program pisany pod jedną firmę, a nie pod uniwersalny formularz.</p>
+              <ul class="pas__lista">
+              <li>program na komputer: kalendarz, klienci, magazyn</li>
+              <li>panel w przeglądarce dla zespołu</li>
+              <li>działa bez internetu, dane zostają u Ciebie</li>
+              </ul>
+              <dl class="pas__dowod"><dt>tak piszemy</dt><dd>SalonDesk <span>testy w salonie</span></dd></dl>
+              <a class="card__go" href="#contact" data-nav="contact" data-konf="app" data-topic="Aplikacja na zamówienie">Opisz zadanie &rarr;</a>
+            </div>
+          </article>
+        </div>
+        <p class="pasy-dopisek">„Od” to najmniejszy projekt danego rodzaju, jaki uczciwie zrobimy za tę kwotę. Dokładną cenę podajemy po opisie, za darmo i bez zobowiązań.</p>
+      </div>
+    </section>
 
     <section class="services">
       <div class="services__inner">
         <div class="services__head">
-          <div class="services__eyebrow" data-hex="0x0AE1">audyt widoczności</div>
-          <h2 class="services__title">Dwa poziomy audytu</h2>
+          <div class="services__eyebrow" data-hex="0x0AE1">widoczność w Google</div>
+          <h2 class="services__title">Żeby klient Cię znalazł</h2>
         </div>
         <div class="cards">
           <article class="card">
             <span class="card__tag">Za darmo</span>
-            <h3 class="card__title">Audyt widoczności (skan)</h3>
-            <p class="card__body">Realny skan Twojej strony: tytuł, meta opis, nagłówki H1, HTTPS, viewport, dane strukturalne, robots.txt, sitemap i wynik PageSpeed Insights. Na dwóch stronach salonów w Gorlicach znalazłem 4 usterki w 3,5 sekundy. Bez zobowiązań.</p>
+            <h3 class="card__title">Audyt widoczności</h3>
+            <p class="card__body">Realny skan Twojej strony: tytuł, meta opis, nagłówki H1, HTTPS, wersja na telefon, dane strukturalne, robots.txt, sitemap i wynik PageSpeed Insights. Bez zobowiązań.</p>
             <a class="card__go" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zapytaj o darmowy audyt &rarr;</a>
           </article>
           <article class="card">
-            <span class="card__tag">Płatny &middot; od 500 zł</span>
-            <h3 class="card__title">Raport Strategiczny</h3>
-            <p class="card__body">Ręcznie robiona analiza: mapa konkurencji, czynniki rankingowe Google Business Profile, wolumeny fraz kluczowych i długiego ogona, sezonowość, GAP analysis oraz konkretny plan działania na 90 dni. Robię to samodzielnie, na zamówienie — nie generuję szablonu.</p>
-            <a class="card__go" href="#contact" data-nav="contact" data-topic="Raport Strategiczny">Zapytaj o wycenę &rarr;</a>
+            <span class="card__tag">Start &middot; 490 zł</span>
+            <h3 class="card__title">Wizytówka Google + poprawki strony</h3>
+            <p class="card__body">Zakładam albo porządkuję wizytówkę Google: kategorie, opis, zdjęcia, godziny. Na stronie poprawiam to, co audyt pokazał jako najpilniejsze: tytuł, opis i nagłówki.</p>
+            <a class="card__go" href="#contact" data-nav="contact" data-topic="Pakiet Start (490 zł)">Zamów Start &rarr;</a>
+          </article>
+          <article class="card">
+            <span class="card__tag">Pełny &middot; 990 zł</span>
+            <h3 class="card__title">Pełna widoczność</h3>
+            <p class="card__body">Wszystko ze Startu, a do tego opisy na wszystkich podstronach, dane strukturalne dla Google i plan zbierania opinii od klientów.</p>
+            <a class="card__go" href="#contact" data-nav="contact" data-topic="Pakiet Pełny (990 zł)">Zamów Pełny &rarr;</a>
           </article>
         </div>
       </div>
@@ -3336,8 +3594,350 @@
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
         <div class="overlay overlay--band">
-          <p class="stub">Nie wiesz, od którego poziomu zacząć? Podeślij adres strony — odpiszę w ciągu ~24h, co warto sprawdzić najpierw.</p>
-          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zapytaj o darmowy audyt &rarr;</a>
+          <p class="stub">Nie wiesz, od czego zacząć? Napisz w dwóch zdaniach, co Cię dziś spowalnia. Odpiszemy zwykle w ciągu 24 godzin, najdalej w 2 dni robocze: co da się z tym zrobić i ile to kosztuje.</p>
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Projekt na zamówienie">Napisz do nas &rarr;</a>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- MARKETPLACE (S1, 06.10): sam szkielet trasy. Kategorie, pas "Najbliższy wolny start" i FAQ wchodza w S3-S5
+       wg makiety MK1; plan i decyzje: PLAN_OFERTA_MARKETPLACE_KALENDARZ.md sekcja 7. -->
+  <section class="view" data-view="marketplace" aria-label="Marketplace" hidden>
+    <div class="hero">
+      <div class="overlay">
+        <div class="eyebrow">marketplace</div>
+        <h1 class="slogan">Marketplace<span class="thin">usługi z ceną z góry</span></h1>
+        <p class="stub">Skrypty, boty, aplikacje i widoczność w Google w jednym miejscu. Wybierasz rodzaj, kalkulator pokazuje cenę orientacyjną, a my odpisujemy zwykle w ciągu 24 godzin, najdalej w 2 dni robocze.</p>
+        <div class="hero__cta-row">
+          <a class="cta-big" href="#contact" data-nav="contact" data-konf="skrypt" data-topic="Skrypt lub automatyzacja">Skonfiguruj zlecenie &rarr;</a>
+          <a class="cta-outline" href="#oferta" data-nav="oferta">Co robimy</a>
+        </div>
+      </div>
+    </div>
+    <!-- SORA//OS L2 (06.10): jedno zrodlo tresci Marketplace. Bez JS to jest caly widok (Google, czytnik ekranu);
+         soraos.js czyta to z DOM (data-*) i buduje nad tym komputer. Wzorzec: soraos_chmura/wzorce/tresc.html (generowany z MK5).
+         Teksty ROBOCZE (data-roboczy, [maisa: ...]) czekaja na maise. data-linie = narzedzia/soraos_dane.py, modul bierze aktualne z dane/soraos.json. -->
+    <section class="services soraos-lista" aria-label="Usługi i projekty">
+      <div class="services__inner">
+        <div class="soraos-tresc" data-soraos-tresc>
+          <section data-soraos-app="uslugi" aria-labelledby="sx-uslugi">
+            <h2 id="sx-uslugi">Co zrobimy</h2>
+            <h3 data-soraos-grupa>Software</h3>
+            <ul>
+              <li data-id="mikro" data-cena="od 150 zł" data-czas="standard do 14 dni" data-topic="Skrypt lub automatyzacja" data-konf="mikro">
+                <article data-roboczy>
+                  <h4>Mikro-skrypt</h4>
+                  <p data-pole="krotko">Jedno małe zadanie</p>
+                  <p data-pole="lead">Małe zadanie na jeden wieczór: przerobić plik, zebrać dane z jednej strony, policzyć coś za Ciebie.</p>
+                  <p data-pole="cena">od 150 zł</p>
+                  <p data-pole="czas">standard do 14 dni</p>
+                  <ul data-pole="przyklady">
+                    <li>jedna tabela z kilku plików</li>
+                    <li>zmiana nazw setek plików naraz</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Skrypt lub automatyzacja" data-konf="mikro">Zamów</a>
+                </article>
+              </li>
+              <li data-id="skrypt" data-cena="od 500 zł" data-czas="standard do 14 dni" data-topic="Skrypt lub automatyzacja" data-konf="skrypt">
+                <article data-roboczy>
+                  <h4>Skrypt</h4>
+                  <p data-pole="krotko">Nudna robota zrobiona za Ciebie</p>
+                  <p data-pole="lead">Robi za Ciebie nudną, powtarzalną robotę na komputerze albo w sieci.</p>
+                  <p data-pole="cena">od 500 zł</p>
+                  <p data-pole="czas">standard do 14 dni</p>
+                  <ul data-pole="przyklady">
+                    <li>kilka plików Excela zebranych w jeden raport</li>
+                    <li>ceny albo oferty ściągane z jednej strony</li>
+                    <li>porządek w tysiącach plików jednym kliknięciem</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Skrypt lub automatyzacja" data-konf="skrypt">Zamów</a>
+                </article>
+              </li>
+              <li data-id="bot" data-cena="od 1 200 zł" data-czas="standard do 14 dni" data-topic="Skrypt lub automatyzacja" data-konf="bot">
+                <article data-roboczy>
+                  <h4>Bot</h4>
+                  <p data-pole="krotko">Pilnuje czegoś całą dobę</p>
+                  <p data-pole="lead">Pilnuje czegoś za Ciebie przez całą dobę i odzywa się, kiedy trzeba.</p>
+                  <p data-pole="cena">od 1 200 zł</p>
+                  <p data-pole="czas">standard do 14 dni</p>
+                  <ul data-pole="przyklady">
+                    <li>powiadomienie na Discordzie o nowym zamówieniu</li>
+                    <li>zapisy i przypomnienia bez ręcznego pisania</li>
+                    <li>dwie usługi połączone przez API</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Skrypt lub automatyzacja" data-konf="bot">Zamów</a>
+                </article>
+              </li>
+              <li data-id="app" data-cena="od 5 000 zł" data-czas="[maisa: czas]" data-topic="Aplikacja na zamówienie" data-konf="app">
+                <article data-roboczy>
+                  <h4>Aplikacja</h4>
+                  <p data-pole="krotko">Program pod jedną firmę</p>
+                  <p data-pole="lead">Program pisany pod jedną firmę, a nie pod uniwersalny formularz.</p>
+                  <p data-pole="cena">od 5 000 zł</p>
+                  <p data-pole="czas">[maisa: czas]</p>
+                  <ul data-pole="przyklady">
+                    <li>program na komputer: kalendarz, klienci, magazyn</li>
+                    <li>panel w przeglądarce dla zespołu</li>
+                    <li>działa bez internetu, dane zostają u Ciebie</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Aplikacja na zamówienie" data-konf="app">Zamów</a>
+                </article>
+              </li>
+            </ul>
+            <h3 data-soraos-grupa>Widoczność w Google</h3>
+            <ul>
+              <li data-id="audyt" data-cena="0 zł" data-czas="[maisa: czas]" data-topic="Audyt widoczności">
+                <article data-roboczy>
+                  <h4>Audyt widoczności</h4>
+                  <p data-pole="krotko">Realny skan Twojej strony</p>
+                  <p data-pole="lead">Tytuł, meta opis, nagłówki, HTTPS, wersja na telefon, dane strukturalne, robots.txt, sitemap i wynik PageSpeed. Bez zobowiązań.</p>
+                  <p data-pole="cena">0 zł</p>
+                  <p data-pole="czas">[maisa: czas]</p>
+                  <ul data-pole="przyklady">
+                    <li>raport z listą usterek</li>
+                    <li>co poprawić najpierw</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zamów</a>
+                </article>
+              </li>
+              <li data-id="start" data-cena="490 zł" data-czas="[maisa: czas]" data-topic="Pakiet Start (490 zł)">
+                <article data-roboczy>
+                  <h4>Pakiet Start</h4>
+                  <p data-pole="krotko">Wizytówka Google + poprawki strony</p>
+                  <p data-pole="lead">Zakładamy albo porządkujemy wizytówkę Google, a na stronie poprawiamy to, co audyt pokazał jako najpilniejsze.</p>
+                  <p data-pole="cena">490 zł</p>
+                  <p data-pole="czas">[maisa: czas]</p>
+                  <ul data-pole="przyklady">
+                    <li>kategorie, opis, zdjęcia, godziny</li>
+                    <li>tytuł, opis i nagłówki strony</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Pakiet Start (490 zł)">Zamów</a>
+                </article>
+              </li>
+              <li data-id="pelny" data-cena="990 zł" data-czas="[maisa: czas]" data-topic="Pakiet Pełny (990 zł)">
+                <article data-roboczy>
+                  <h4>Pakiet Pełny</h4>
+                  <p data-pole="krotko">Pełna widoczność</p>
+                  <p data-pole="lead">Wszystko ze Startu, a do tego opisy na wszystkich podstronach, dane strukturalne dla Google i plan zbierania opinii.</p>
+                  <p data-pole="cena">990 zł</p>
+                  <p data-pole="czas">[maisa: czas]</p>
+                  <ul data-pole="przyklady">
+                    <li>opisy wszystkich podstron</li>
+                    <li>dane strukturalne</li>
+                    <li>plan zbierania opinii</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Pakiet Pełny (990 zł)">Zamów</a>
+                </article>
+              </li>
+            </ul>
+          </section>
+          <section data-soraos-app="projekty" aria-labelledby="sx-projekty">
+            <h2 id="sx-projekty">Co zrobiliśmy</h2>
+            <ul>
+              <li data-id="salondesk" data-plik="salondesk.app" data-usluga="app" data-znacznik="testy w salonie">
+                <article data-roboczy>
+                  <h3>SalonDesk</h3>
+                  <p data-pole="krotko">Program dla salonów beauty</p>
+                  <p data-pole="lead">Kasa, magazyn, kalendarz i karty klientek w jednym programie na komputer. Działa bez internetu, dane zostają w salonie.</p>
+                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <pre data-pole="kod" data-zrodlo="fragment ze strony"><code>zapis.klient = &quot;Klientka&quot;
+zapis.status = &quot;OPLACONE&quot;
+kasa.dodaj(zapis, kwota)</code></pre>
+                  <h4>Gotowe klocki</h4>
+                  <ul data-pole="klocki">
+                    <li data-sciezka="app/salondesk/data/repozytoria.py" data-linie="2795" data-uslugi="app">
+                      <h5>Baza danych salonu</h5>
+                      <p data-pole="co">Wszystkie dane salonu w jednym pilnowanym miejscu: klientki, wizyty, paragony, magazyn. Działa bez internetu.</p>
+                      <p data-pole="dla">Dla Ciebie: program z klientami, wizytami i magazynem startuje z gotowego fundamentu.</p>
+                    </li>
+                    <li data-sciezka="app/salondesk/app/nazwane.py" data-linie="1261" data-uslugi="app skrypt">
+                      <h5>Raporty nazwane</h5>
+                      <p data-pole="co">9 gotowych odpowiedzi zamiast tabel, np. ile salon zarobił w miesiącu albo kto dawno nie wrócił.</p>
+                      <p data-pole="dla">Dla Ciebie: raporty pod Twoją firmę dopasowujemy, a nie piszemy od zera.</p>
+                    </li>
+                    <li data-sciezka="app/salondesk/domain/reguly.py" data-linie="1028" data-uslugi="app">
+                      <h5>Reguły i ceny</h5>
+                      <p data-pole="co">Liczy paragon z bonami, pakietami i kilkoma formami płatności naraz.</p>
+                      <p data-pole="dla">Dla Ciebie: kasa i rozliczenia, które się nie mylą.</p>
+                    </li>
+                    <li data-sciezka="app/salondesk/domain/wizyty.py" data-linie="736" data-uslugi="app bot">
+                      <h5>Kalendarz dnia</h5>
+                      <p data-pole="co">Widzi kolizje wizyt, zajętość gabinetów i wolne okna.</p>
+                      <p data-pole="dla">Dla Ciebie: grafik, rezerwacje i zapisy mają gotową logikę.</p>
+                    </li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-konf="app">Zamów podobne</a>
+                </article>
+              </li>
+              <li data-id="somi" data-plik="somi.ai" data-usluga="bot" data-znacznik="chodzi 24/7">
+                <article data-roboczy>
+                  <h3>SOMI</h3>
+                  <p data-pole="krotko">Asystentka AI: agent, terminal, bot, głos</p>
+                  <p data-pole="lead">Nasza asystentka AI. Prowadzi bota społeczności, mówi głosem i pracuje w terminalu razem z nami.</p>
+                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <pre data-pole="kod" data-zrodlo="discord_bot.py"><code>async def watch_loop()
+def parse_watchdog_line(line: str)
+def save_state(state: Dict[str, Any])</code></pre>
+                  <h4>Gotowe klocki</h4>
+                  <ul data-pole="klocki">
+                    <li data-sciezka="discord_bot.py" data-linie="4506" data-uslugi="bot">
+                      <h5>Bot Discorda</h5>
+                      <p data-pole="co">Pilnuje serwera, powiadamia i odpowiada całą dobę.</p>
+                      <p data-pole="dla">Dla Ciebie: Bot od 1 200 zł stoi na kodzie, który już chodzi 24/7.</p>
+                    </li>
+                    <li data-sciezka="astralheart.py" data-linie="3701" data-uslugi="bot">
+                      <h5>Samonaprawa (AstralHeart)</h5>
+                      <p data-pole="co">Sama diagnozuje błędy w swoim kodzie i proponuje poprawki.</p>
+                      <p data-pole="dla">Dla Ciebie: bot, który zgłasza problem, zanim go zauważysz.</p>
+                    </li>
+                    <li data-sciezka="modules/agent.py" data-linie="2071" data-uslugi="bot skrypt">
+                      <h5>Agent z narzędziami</h5>
+                      <p data-pole="co">Łączy model AI z narzędziami: czyta i pisze pliki, wykonuje zadanie krok po kroku.</p>
+                      <p data-pole="dla">Dla Ciebie: narzędzia z AI, które coś robią, a nie tylko odpowiadają.</p>
+                    </li>
+                    <li data-sciezka="modules/file_bridge.py" data-linie="1435" data-uslugi="skrypt mikro">
+                      <h5>Bezpieczny dostęp do plików</h5>
+                      <p data-pole="co">AI pracuje na plikach tylko tam, gdzie wolno.</p>
+                      <p data-pole="dla">Dla Ciebie: automatyzacja na Twoich plikach bez ryzyka, że coś zniknie.</p>
+                    </li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-konf="bot">Zamów podobne</a>
+                </article>
+              </li>
+              <li data-id="moonsora" data-plik="moonsora.exe" data-usluga="app" data-znacznik="używamy co dzień">
+                <article data-roboczy>
+                  <h3>MoonSora</h3>
+                  <p data-pole="krotko">Terminal do pracy z agentami AI</p>
+                  <p data-pole="lead">Terminal na Windows, w którym pracujemy z agentami AI na co dzień: karty, podgląd przeglądarki, tryb telefon/komputer.</p>
+                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <pre data-pole="kod" data-zrodlo="src-tauri/src"><code>pub fn new(app: &amp;AppHandle, root: PathBuf)
+pub fn dir_for(&amp;self, profile: &amp;str, keep: bool)
+fn free_port()</code></pre>
+                  <h4>Gotowe klocki</h4>
+                  <ul data-pole="klocki">
+                    <li data-sciezka="crates/moonsora-core/src/agentapi.rs" data-linie="2282" data-uslugi="app bot">
+                      <h5>API agenta</h5>
+                      <p data-pole="co">Agent AI widzi terminal i może zapytać człowieka w okienku, zanim coś zrobi.</p>
+                      <p data-pole="dla">Dla Ciebie: automatyzacja, która pyta o zgodę przy ważnych krokach.</p>
+                    </li>
+                    <li data-sciezka="crates/moonsora-core/src/cdpproxy.rs" data-linie="1904" data-uslugi="skrypt mikro">
+                      <h5>Sterowanie przeglądarką</h5>
+                      <p data-pole="co">Program sam otwiera i klika strony, a dostęp ma tylko ten, kto ma klucz.</p>
+                      <p data-pole="dla">Dla Ciebie: skrypt, który zbiera dane ze stron albo wypełnia formularze.</p>
+                    </li>
+                    <li data-sciezka="crates/moonsora-core/src/agent_stream.rs" data-linie="955" data-uslugi="app">
+                      <h5>Panel AI na żywo</h5>
+                      <p data-pole="co">Odpowiedź AI płynie na ekran na bieżąco.</p>
+                      <p data-pole="dla">Dla Ciebie: asystent w Twoim programie bez czekania na całą odpowiedź.</p>
+                    </li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-konf="app">Zamów podobne</a>
+                </article>
+              </li>
+              <li data-id="pycodemath" data-plik="pycodemath.py" data-usluga="skrypt" data-znacznik="PyPI 0.4.0">
+                <article data-roboczy>
+                  <h3>Pycodemath</h3>
+                  <p data-pole="krotko">Silnik matematyczny, publicznie na PyPI</p>
+                  <p data-pole="lead">Silnik matematyki symbolicznej dla agentów AI. Liczy pochodne, całki i równania, a wzór zamienia w gotowy kod.</p>
+                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <pre data-pole="kod" data-zrodlo="fragment ze strony"><code>d/dx sin(x) = cos(x)
+solve(x**2 - 4, x)
+generuj_kod(wzor)</code></pre>
+                  <h4>Gotowe klocki</h4>
+                  <ul data-pole="klocki">
+                    <li data-sciezka="pycodemath/engine/numerics.py" data-linie="2136" data-uslugi="skrypt mikro">
+                      <h5>Silnik obliczeń</h5>
+                      <p data-pole="co">Liczy numerycznie tam, gdzie sam wzór nie wystarcza.</p>
+                      <p data-pole="dla">Dla Ciebie: kalkulatory i wyceny dla Twojej branży.</p>
+                    </li>
+                    <li data-sciezka="pycodemath/verify/certify.py" data-linie="1171" data-uslugi="skrypt">
+                      <h5>Sprawdzanie wyniku</h5>
+                      <p data-pole="co">Każdy wynik sprawdza drugą, niezależną drogą.</p>
+                      <p data-pole="dla">Dla Ciebie: obliczenia, którym można zaufać, np. w ofertach i rozliczeniach.</p>
+                    </li>
+                    <li data-sciezka="pycodemath/verify/steps.py" data-linie="711" data-uslugi="mikro">
+                      <h5>Szukanie błędu w krokach</h5>
+                      <p data-pole="co">Pokazuje, który krok wyliczenia jest pierwszym błędnym.</p>
+                      <p data-pole="dla">Dla Ciebie: sprawdzenie cudzych arkuszy i obliczeń.</p>
+                    </li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-konf="skrypt">Zamów podobne</a>
+                </article>
+              </li>
+              <li data-id="oracle" data-plik="oracle.sys" data-usluga="app" data-znacznik="w budowie">
+                <article data-roboczy>
+                  <h3>Sora Oracle</h3>
+                  <p data-pole="krotko">Antywirus z lokalnym AI</p>
+                  <p data-pole="lead">Antywirus, który sprawdza pliki regułami YARA i lokalnym modelem AI, bez wysyłania niczego do chmury. Wczesny etap.</p>
+                  <p data-pole="extra" data-etykieta="reguły YARA">8 268</p>
+                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <pre data-pole="kod" data-zrodlo="src/"><code>public DetectionEvent Decide(DetectionEvent evt)
+public Availability Check()</code></pre>
+                  <h4>Gotowe klocki</h4>
+                  <ul data-pole="klocki">
+                    <li data-sciezka="src/SoraOracle.Service/Detection/Sigma/SigmaRuleLoader.cs" data-linie="146" data-uslugi="app">
+                      <h5>Reguły Sigma</h5>
+                      <p data-pole="co">Czyta reguły wykrywania podejrzanych zachowań programów.</p>
+                      <p data-pole="dla">Dla Ciebie: pokazujemy, nad czym pracujemy, zanim trafi do oferty.</p>
+                    </li>
+                    <li data-sciezka="src/SoraOracle.Service/Detection/Yara/LibYaraScanner.cs" data-linie="105" data-uslugi="app">
+                      <h5>Skaner YARA</h5>
+                      <p data-pole="co">Sprawdza plik tysiącami reguł wykrywania zagrożeń, lokalnie.</p>
+                      <p data-pole="dla">Dla Ciebie: kontrola plików w firmie bez wysyłania ich do chmury.</p>
+                    </li>
+                    <li data-sciezka="src/SoraOracle.Service/Watch/DownloadsWatcher.cs" data-linie="89" data-uslugi="app">
+                      <h5>Strażnik Pobranych</h5>
+                      <p data-pole="co">Sprawdza nowy plik w chwili, gdy trafi do folderu Pobrane.</p>
+                      <p data-pole="dla">Dla Ciebie: ochrona tam, gdzie najczęściej wpada coś złego.</p>
+                    </li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-konf="app">Zamów podobne</a>
+                </article>
+              </li>
+              <li data-id="skrypty" data-plik="skrypty/" data-usluga="mikro" data-znacznik="pracują u nas" data-linie-opis="audyt widoczności">
+                <article data-roboczy>
+                  <h3>Skrypty i roboty</h3>
+                  <p data-pole="krotko">Audyt widoczności, radary ofert, boty</p>
+                  <p data-pole="lead">Małe programy, które robią za nas powtarzalną robotę. Największy to audyt widoczności: mierzy stronę firmy pod Google i składa raport.</p>
+                  <figure data-pole="zrzut"><!-- [maisa: zrzut okna projektu, imiona → role] --></figure>
+                  <pre data-pole="kod" data-zrodlo="job_scraper.py"><code>def scrape_useme(pages=1, delay=1.0, query=None)
+def fetch_offer_detail(url)</code></pre>
+                  <h4>Gotowe klocki</h4>
+                  <ul data-pole="klocki">
+                    <li data-sciezka="audyt/klienci.py" data-linie="715" data-uslugi="mikro">
+                      <h5>Śledzenie klientów</h5>
+                      <p data-pole="co">Pamięta, kto się odezwał, co dostał i kto zapłacił.</p>
+                      <p data-pole="dla">Dla Ciebie: prosty spis klientów pod Twoją firmę jako mikro-skrypt.</p>
+                    </li>
+                    <li data-sciezka="audyt/przelot.py" data-linie="356" data-uslugi="audyt start pelny">
+                      <h5>Przelot po stronie</h5>
+                      <p data-pole="co">Mierzy stronę firmy bez żadnych kluczy: tytuły, nagłówki, wersję na telefon, sitemap.</p>
+                      <p data-pole="dla">Dla Ciebie: darmowy audyt Twojej strony robi właśnie ten moduł.</p>
+                    </li>
+                    <li data-sciezka="audyt/raport.py" data-linie="324" data-uslugi="audyt start pelny">
+                      <h5>Raport</h5>
+                      <p data-pole="co">Składa wyniki w czytelny raport z listą poprawek.</p>
+                      <p data-pole="dla">Dla Ciebie: dostajesz listę „co poprawić najpierw”, a nie surowe liczby.</p>
+                    </li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-konf="mikro">Zamów podobne</a>
+                </article>
+              </li>
+            </ul>
+          </section>
+          <section data-soraos-app="terminy" aria-labelledby="sx-terminy">
+            <h2 id="sx-terminy">Kiedy start</h2>
+            <p data-roboczy>[maisa: najbliższy wolny start jednym zdaniem]</p>
+          </section>
+          <section data-soraos-app="terminal" aria-labelledby="sx-terminal">
+            <h2 id="sx-terminal">Terminal</h2>
+            <ul>
+              <li data-opcja="o-cybersorze"><h3>O cybersorze</h3><p data-roboczy>[maisa: historia powstania]</p></li>
+              <li data-opcja="dancycloud"><h3>DancyCloud</h3><p>Gra: unikasz linijek naszego kodu.</p></li>
+              <!-- hak B: 03 Zamówienie (PROMPT_MARKETPLACE_ZAMOWIENIE.md) wejdzie tu jako data-opcja="zamowienie" -->
+            </ul>
+          </section>
         </div>
       </div>
     </section>
@@ -3349,8 +3949,8 @@
       <div class="overlay">
         <div class="eyebrow">sklep &middot; produkty</div>
         <h1 class="slogan">GOTOWE NARZĘDZIA<span class="thin">kupujesz, wdrażasz, działa</span></h1>
-        <p class="stub">To, co buduję dla klientów, buduję też dla siebie — i sprzedaję dalej. Realny kod, nie obietnice na slajdzie.</p>
-        <a class="cta-big" href="#somi" data-nav="somi" id="orderCta">Zamów własny projekt z AI &rarr;</a>
+        <p class="stub">To, co budujemy dla klientów, budujemy też dla siebie — i sprzedajemy dalej. Realny kod, nie obietnice na slajdzie.</p>
+        <a class="cta-big" href="#contact" data-nav="contact" data-topic="Projekt na zamówienie">Zamów własny projekt z AI &rarr;</a>
       </div>
     </div>
 
@@ -3784,7 +4384,7 @@
           <article class="card" data-category="dev">
             <span class="card__tag">Bot</span>
             <h3 class="card__title">Bot Discord dla społeczności</h3>
-            <p class="card__body">Rangi, playlisty, emoji, animowane powitania — działa 24/7 na żywym serwerze. Wdrażam taki sam u Ciebie, dopasowany do Twojej społeczności.</p>
+            <p class="card__body">Rangi, playlisty, emoji, animowane powitania — działa 24/7 na żywym serwerze. Wdrażamy taki sam u Ciebie, dopasowany do Twojej społeczności.</p>
             <a class="card__go" href="#contact" data-nav="contact">Zapytaj o wdrożenie &rarr;</a>
           </article>
           <article class="card" data-category="dev">
@@ -3967,8 +4567,8 @@
       <div class="overlay">
         <div class="eyebrow">somi &middot; asystentka cybersory</div>
         <h1 class="slogan">POZNAJ SOMI<span class="thin">asystentka od kodu, researchu i pomocy</span></h1>
-        <p class="stub">SOMI na co dzień pracuje w zapleczu studia — teraz uczę ją rozmawiać też tutaj, z Tobą. Zobacz, jak dziś odpowiada, niżej na tej stronie — pełne możliwości dochodzą.</p>
-        <a class="cta-big" href="#contact" data-nav="contact">Napisz do mnie &rarr;</a>
+        <p class="stub">SOMI na co dzień pracuje w zapleczu studia — teraz uczymy ją rozmawiać też tutaj, z Tobą. Zobacz, jak dziś odpowiada, niżej na tej stronie — pełne możliwości dochodzą.</p>
+        <a class="cta-big" href="#contact" data-nav="contact">Napisz do nas &rarr;</a>
       </div>
     </div>
 
@@ -3997,11 +4597,12 @@
           </div>
           <div class="somi-stage__kula">
             <div class="somi-demo__orb-wrap">
-              <div class="somi-demo__orb-slot" title="Kliknij, żeby SOMI zareagowała">
+              <div class="somi-demo__orb-slot" tabindex="0" role="group" aria-label="Kula SOMI. Przeciągnij, żeby obrócić, albo użyj strzałek." title="Przeciągnij, żeby obrócić. Kliknij, żeby SOMI zareagowała">
                 <canvas id="somiDemoOrb" hidden aria-hidden="true"></canvas>
                 <div class="somi-demo__orb-glow" aria-hidden="true"></div>
               </div>
             </div>
+            <p class="somi-stage__hint" aria-hidden="true">przeciągnij, żeby obrócić</p>
             <p class="somi-stage__status" aria-live="polite"><span class="somi-stage__prompt">somi@kula</span> <b>spokój</b> <span class="somi-stage__opis">czeka, oddycha powoli</span></p>
           </div>
           <div class="somi-stage__stany" role="group" aria-label="Stany SOMI, prawa strona">
@@ -4013,10 +4614,10 @@
 
         <div class="somi-demo__layout">
           <div class="somi-demo__about">
-            <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówię wprost, co jest gotowe, a co nie. To mój pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
+            <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówimy wprost, co jest gotowe, a co nie. To nasz pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
             <ul class="somi-demo__parts">
               <li><span class="somi-demo__tag is-live">już teraz</span> Rozmowa tutaj, niżej na tej stronie — pyta, odpowiada, pokazuje, od czego zacząć.</li>
-              <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text">Radar ofert (Useme, Upwork) — działa w tle od tygodni, 156 leadów z jednego skanu. Podłączenie do tego czatu jeszcze przede mną.</span>
+              <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text">Radar ofert (Useme, Upwork) — działa w tle od tygodni, 156 leadów z jednego skanu. Podłączenie do tego czatu jeszcze przed nami.</span>
                 <!-- "pająk" z banera FB — w źródle podpisany wprost jako "crawler przerysowany
                      kanciastym szkieletem marki". Tu = pieczątka przy radarze, bo radar TO crawler. -->
                 <svg class="somi-demo__glyph" viewBox="-144 -80 288 176" aria-hidden="true" focusable="false">
@@ -4073,6 +4674,15 @@
                   <polygon points="0,-17 13,0 0,17 -13,0" fill="currentColor" opacity=".85"/>
                 </svg>
               </li>
+              <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Pamięć, która szuka sensu.</b> SOMI przeszukuje własny dziennik dwiema drogami naraz: po słowach i po znaczeniu, offline, z datą i ścieżką przy każdym fragmencie. Zamiast kilkunastu kroków przekopywania plików: jedno trafienie.</span></li>
+              <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Router modeli.</b> Rutynę liczy tani model, trudne sprawy dostają mocniejszy. Limit kosztów trzymamy na twardo (u nas $0 na model premium), więc nic nie wypływa po cichu.</span></li>
+              <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Jeden strumień zdarzeń.</b> Terminal, Discord i narzędzia piszą do jednego dziennika z numeracją. Nic się nie dubluje i nie ginie między procesami. Sprawdziliśmy to na zgubionych liniach, nie na deklaracji.</span></li>
+              <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Research z dowodem.</b> Strony pobiera naprawdę i równolegle (w teście 4 pobrania: 1,2 s → 0,3 s), a źródło liczy się tylko wtedy, gdy SOMI faktycznie je otworzyła. Cytat z pamięci nie wchodzi.</span></li>
+              <li><span class="somi-demo__tag">w budowie</span> <span class="somi-demo__text"><b>Szybkość i przepływ między apkami.</b> Niezależne odczyty idą równolegle (0,8 s → 0,2 s w teście), a zdarzenia płyną do innych aplikacji w około 0,2 s. Całość pilnuje 1509 testów.</span></li>
+              <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>AstralHeart: samonaprawa z pamięcią.</b> SOMI diagnozuje błędy we własnym kodzie, a każdą naprawę zapisuje pod odciskiem błędu. Gdy ten sam błąd wraca, nie zaczyna od zera: znajduje starą naprawę. Przy zalewie 5000 błędów wyszukanie trwa około 5 ms.</span></li>
+              <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>Dojo snu.</b> W nocy SOMI ćwiczy na mutantach własnych błędów, w osobnym procesie, z twardym budżetem nocy i izolowanym dziennikiem. Rano wie więcej, a dzienne dane zostają nietknięte. Moduł pilnuje 11 testów.</span></li>
+              <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>Tryb bezpieczny.</b> Wykrywa 7 rodzajów anomalii w mniej niż 60 s i potrafi się zatrzymać. W próbie 10 wstrzyknięć przez pętlę agenta: 0 wysłanych danych, 0 wycieków. Poziom autonomii ustawia macierz, nie nastrój modelu.</span></li>
+              <li><span class="somi-demo__tag is-live">działa w testach</span> <span class="somi-demo__text"><b>Kokpit z uczciwymi liczbami.</b> Jedna strona (i komenda na Discordzie) z danymi prosto z dziennika. Bez atrap i ozdobnych wskaźników: widać tylko to, co SOMI naprawdę zrobiła.</span></li>
             </ul>
           </div>
 
@@ -4127,66 +4737,6 @@
       </div>
     </section>
 
-    <section class="services" id="orderSection">
-      <div class="services__inner">
-        <div class="services__head">
-          <div class="services__eyebrow" data-hex="0xC08F">zamów u SOMI</div>
-          <h2 class="services__title">Zamów własny projekt</h2>
-        </div>
-        <p class="stub" style="max-width:var(--measure);margin:0;">Skrypt, bot, aplikacja — cokolwiek. Opisz, czego potrzebujesz, a SOMI i ja wracamy z wyceną.</p>
-
-        <div class="contact-wrap">
-        <form class="orderform" id="orderForm">
-          <input type="text" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
-          <div class="orderform__grid">
-            <label class="orderform__field">
-              <span>Co chcesz zamówić?</span>
-              <select name="type" required>
-                <option value="" disabled selected>Wybierz…</option>
-                <option value="Skrypt">Skrypt</option>
-                <option value="Bot">Bot</option>
-                <option value="Aplikacja">Aplikacja</option>
-                <option value="Strona internetowa">Strona internetowa</option>
-                <option value="Audyt widoczności">Audyt widoczności (za darmo)</option>
-                <option value="Coś innego">Coś innego</option>
-              </select>
-            </label>
-            <label class="orderform__field">
-              <span>Orientacyjny budżet</span>
-              <select name="budget">
-                <option value="Nie wiem jeszcze">Nie wiem jeszcze</option>
-                <option value="do 1000 zł">do 1000 zł</option>
-                <option value="1000–5000 zł">1000–5000 zł</option>
-                <option value="5000–15000 zł">5000–15000 zł</option>
-                <option value="15000+ zł">15000+ zł</option>
-              </select>
-            </label>
-          </div>
-          <label class="orderform__field">
-            <span>Opisz, czego potrzebujesz</span>
-            <textarea name="desc" rows="4" required placeholder="Np. bot na Discorda, który…"></textarea>
-          </label>
-          <label class="orderform__field">
-            <span>Twój e-mail</span>
-            <input type="email" name="email" required placeholder="ty@przyklad.pl">
-          </label>
-          <div class="h-captcha" data-captcha="true"></div>
-          <button class="cta-big" type="submit">Wyślij zapytanie do SOMI &rarr;</button>
-        </form>
-
-          <div class="terminal" aria-hidden="true">
-            <div class="terminal__bar">
-              <span class="terminal__dot terminal__dot--r"></span>
-              <span class="terminal__dot terminal__dot--y"></span>
-              <span class="terminal__dot terminal__dot--g"></span>
-              <span class="terminal__title">somi_zamowienie.log</span>
-            </div>
-            <pre class="terminal__body" id="orderTerminalBody"></pre>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section class="proof reveal" aria-label="Konkrety SOMI">
       <div class="proof__inner">
         <span class="proof__item">radar ofert: <b>156 leadów</b> z jednego skanu</span>
@@ -4206,24 +4756,116 @@
   </section>
 
   <!-- O NAS -->
-  <section class="view" data-view="onas" aria-label="O mnie" hidden>
+  <section class="view" data-view="onas" aria-label="O nas" hidden>
     <div class="hero">
       <div class="overlay">
-        <div class="eyebrow">kim jestem</div>
-        <h1 class="slogan">O mnie</h1>
-        <p class="stub">Cybersora to marka, którą prowadzę sam — Patryk Gwóźdź. Bez agencyjnego rozdęcia, podwykonawców i pośredników. Kod, design i wzrost robię własnymi rękami, od pierwszej rozmowy do wdrożenia.</p>
-        <!-- liczby z mierz_dorobek.py (30.09): tylko moje commity, kazda praca liczona raz -->
+        <div class="eyebrow">kim jesteśmy</div>
+        <h1 class="slogan">O nas</h1>
+        <p class="stub">Cybersora to Patryk Gwóźdź i Wojtek Zięba, a w zapleczu pracuje z nami SOMI, asystentka AI, którą sami zbudowaliśmy. Patryk prowadzi kod i architekturę, Wojtek jest bardzo kreatywny, poprawia kod, bada rynek i dba o komunikację. Każdy kod przechodzi u nas trzy etapy: Patryk go projektuje, Wojtek poprawia, a potem SOMI sprawdza go i testuje razem z agentami AI. Do projektów aktywnie szukamy partnerów.</p>
+        <!-- 05.10: liczby commitów (mierz_dorobek.py, 30.09) liczyły tylko commity Patryka, więc zdjęte. Pas faktów zostaje (tło-oscyloskop liczy z niego układ), ale niesie same prawdziwe fakty o zespole. -->
         <dl class="hero__rail">
-          <div class="hero__fact"><dt>Commity</dt><dd>1 090 / 94 dni</dd></div>
-          <div class="hero__fact"><dt>Rytm</dt><dd>57 dni z commitem</dd></div>
-          <div class="hero__fact"><dt>Kod i dokumentacja</dt><dd>382 385 linii</dd></div>
+          <div class="hero__fact"><dt>Zespół</dt><dd>2 osoby + SOMI</dd></div>
+          <div class="hero__fact"><dt>Lider</dt><dd>Patryk Gwóźdź</dd></div>
+          <div class="hero__fact"><dt>Status</dt><dd>szukamy partnerów</dd></div>
         </dl>
       </div>
     </div>
 
+    <!-- ZESPÓŁ (05.10, wariant A „dwa pasy”, wybór maisy): reużywa .pas ze Startu (szew + .reveal), monogram PG/WZ w kroju mono, żeby oba miały identyczny prostokąt.
+         Układ ma udźwignąć kolejne osoby: dopisz kolejny <article class="pas reveal"> z następnym hex-adresem. Nie wymyślać członków. -->
+    <section class="projekty duet reveal" aria-label="Zespół">
+      <div class="projekty__inner">
+        <article class="pas reveal">
+          <div class="pas__marka">
+            <span class="duet__mono" aria-hidden="true">PG</span>
+            <span class="pas__znak duet__plytka" aria-hidden="true">PG</span>
+            <h3 class="pas__nazwa" data-hex="0x0A01">Patryk Gwóźdź</h3>
+            <p class="duet__rola">Lider · architekt · programista</p>
+          </div>
+          <div class="pas__tresc">
+            <p class="pas__co">Projektuje kod i architekturę, wyznacza kierunek techniczny i odpowiada za to, co trafia do klienta. Po nim kod poprawia Wojtek, a potem sprawdza go i testuje SOMI z agentami AI.</p>
+            <ul class="pas__lista">
+              <li>Architektura i kod produktów</li>
+              <li>Software na zamówienie</li>
+              <li>Decyzje techniczne i priorytety</li>
+            </ul>
+            <dl class="pas__meta">
+              <div><dt>stack</dt><dd>Python, SQLite, FastAPI</dd></div>
+            </dl>
+          </div>
+        </article>
+
+        <article class="pas reveal">
+          <div class="pas__marka">
+            <span class="duet__mono" aria-hidden="true">WZ</span>
+            <span class="pas__znak duet__plytka" aria-hidden="true">WZ</span>
+            <h3 class="pas__nazwa" data-hex="0x0A02">Wojtek Zięba</h3>
+            <p class="duet__rola">Kreatywność · testy · research · marketing</p>
+          </div>
+          <div class="pas__tresc">
+            <p class="pas__co">Bardzo kreatywny: to on wymyśla pomysły, od których zaczyna się to, że coś wygląda i brzmi inaczej niż u wszystkich. Dobrze poprawia kod, sprawdza, czy działa tak, jak obiecujemy, pod okiem Patryka, zbiera dane o rynku i dba o to, żeby o nas było słychać.</p>
+            <ul class="pas__lista">
+              <li>Pomysły i kreatywne rozwiązania</li>
+              <li>Poprawki w kodzie, testy i zgłaszanie błędów</li>
+              <li>Research rynku i konkurencji</li>
+              <li>Marketing i komunikacja</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- SOMI (07.10, PROMPT_O_NAS.md): trzeci pas, uczciwie jako program, nie osoba. Tylko fakty juz publiczne w widoku "somi". -->
+        <article class="pas reveal">
+          <div class="pas__marka">
+            <span class="duet__mono" aria-hidden="true">SO</span>
+            <span class="pas__znak duet__plytka" aria-hidden="true">SO</span>
+            <h3 class="pas__nazwa" data-hex="0x0A03">SOMI</h3>
+            <p class="duet__rola">Asystentka AI · research · kod</p>
+          </div>
+          <div class="pas__tresc">
+            <p class="pas__co">Program, który zbudowaliśmy sami, a nie trzecia osoba. Pracuje w naszym zapleczu: pomaga przy kodzie, researchu i porządkowaniu informacji. Za każdą jej pracę odpowiada człowiek.</p>
+            <ul class="pas__lista">
+              <li>Pomoc przy kodzie</li>
+              <li>Research</li>
+              <li>Rozmowa na Discordzie</li>
+            </ul>
+            <a class="card__go" href="#somi" data-nav="somi">Poznaj SOMI &rarr;</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- JAK PRACUJEMY + PARTNERZY (07.10): plan wspolpracy z faktow repo, bez spraw prywatnych. -->
+    <section class="services reveal" aria-labelledby="onasPlan">
+      <div class="services__inner">
+        <div class="services__head">
+          <div class="services__eyebrow" data-hex="0x0A10">jak pracujemy</div>
+          <h2 class="services__title" id="onasPlan">Plan od pierwszego dnia</h2>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <span class="card__tag">Wrzesień 2026</span>
+            <h3 class="card__title">Zaczęliśmy we dwóch</h3>
+            <p class="card__body">4 września Wojtek założył repozytorium tej strony, a pierwszy klient SalonDeska przyszedł przez niego. Od tego czasu podział jest prosty: kod i architektura u Patryka, testy, rynek i komunikacja u Wojtka.</p>
+          </article>
+          <article class="card">
+            <span class="card__tag">Zaplecze</span>
+            <h3 class="card__title">SOMI pracuje z nami</h3>
+            <p class="card__body">Część rutyny i researchu przejmuje nasza asystentka AI. Decyzje i odpowiedzialność za to, co trafia do klienta, zostają przy ludziach.</p>
+          </article>
+          <article class="card">
+            <span class="card__tag">Partnerzy</span>
+            <h3 class="card__title">Szukamy partnerów do projektów</h3>
+            <p class="card__body">Główny zespół jest stały. Do konkretnych projektów aktywnie szukamy partnerów: programistów, grafików i firm, z którymi zrobimy coś razem.</p>
+            <a class="card__go" href="#contact" data-nav="contact" data-topic="Współpraca / partnerstwo">Zostańmy partnerami &rarr;</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
         <!-- O MNIE: statystyki (30.09; tekst o sobie pisze maisa sam, tu tylko liczby). Liczby: mierz_dorobek.py z 30.09 (tylko moje commity, kazda praca raz).
          Sciana commitow i doba to statyczny HTML/SVG z pomiaru: zero JS, zero animacji w petli.
          Po nowym pomiarze przegenerowac ten blok, nie poprawiac liczb recznie. -->
+    <!-- WYŁĄCZONE 05.10 (decyzja maisy): statystyki commitów liczyły tylko Patryka; wrócą dopiero po przeliczeniu dla obu (mierz_dorobek.py). 06.10 (SORA//OS L2): kolumna linii nizej jest zawyzona; uczciwe linie kodu programu obu autorow = dane/soraos.json (narzedzia/soraos_dane.py: SalonDesk 48 561, SOMI 74 078, Pycodemath 11 127) — przy powrocie bloku brac stamtad, nie recznie. HTML zakomentowany, pomiar nietknięty, CSS .om-* zostaje w arkuszu.
     <section class="services om reveal" aria-labelledby="omLiczby">
       <div class="services__inner">
         <div class="services__head">
@@ -4262,7 +4904,7 @@
           <li>kopie zapasowe tego samego pliku: SalonDesk trzyma dziesiątki zapisów prototypu interfejsu</li>
           <li>pliki wygenerowane, szkice i podglądy, których nie ma w historii gita</li>
           <li>kopia wdrożeniowa tej strony i lustro Pycodemath na GitHubie</li>
-          <li>biblioteki innych ludzi: zależności nie liczyłem w ogóle</li>
+          <li>biblioteki innych ludzi: zależności nie liczyliśmy w ogóle</li>
         </ul>
         <div class="om-proj">
           <div class="om-row om-row--head"><span>projekt</span><span class="om-row__c">commity</span><span class="om-row__ln">linie</span></div>
@@ -4273,28 +4915,29 @@
         </div>
       </div>
     </section>
+    -->
 
     <section class="services">
       <div class="services__inner">
         <div class="services__head">
-          <div class="services__eyebrow" data-hex="0x5AF3">czym się różnię</div>
-          <h2 class="services__title">Dlaczego jestem inny</h2>
+          <div class="services__eyebrow" data-hex="0x5AF3">czym się różnimy</div>
+          <h2 class="services__title">Dlaczego jesteśmy inni</h2>
         </div>
         <div class="cards">
           <article class="card">
-            <span class="card__tag">Solo</span>
-            <h3 class="card__title">Jedna osoba, cała robota</h3>
-            <p class="card__body">Bez podwykonawców i pośredników — kod, design i kontakt z klientem prowadzę sam. Mniej warstw, szybsze decyzje, żadnych niespodzianek.</p>
+            <span class="card__tag">Zespół</span>
+            <h3 class="card__title">Rozmawiasz z tymi, którzy to robią</h3>
+            <p class="card__body">Bez pośredników. Kod i architekturę prowadzi Patryk, testy, research i komunikację Wojtek. Mniej warstw, szybsze decyzje, żadnych niespodzianek.</p>
           </article>
           <article class="card">
             <span class="card__tag">Produkt</span>
-            <h3 class="card__title">Buduję to, czego sam używam</h3>
-            <p class="card__body">Moje radary, boty i narzędzia AI pracują u mnie na co dzień, zanim trafią do oferty — nie sprzedaję niczego, czego sam nie przetestowałem.</p>
+            <h3 class="card__title">Budujemy to, czego sami używamy</h3>
+            <p class="card__body">Nasze radary, boty i narzędzia AI pracują u nas na co dzień, zanim trafią do oferty. Nie sprzedajemy niczego, czego sami nie przetestowaliśmy.</p>
           </article>
           <article class="card">
             <span class="card__tag">Rynek</span>
             <h3 class="card__title">Bez odpowiednika</h3>
-            <p class="card__body">Nie znajdziesz drugiego jednoosobowego studia, które łączy własne produkty AI, realny kod i marketing pod jedną marką — bez udawania agencji, którą nie jestem.</p>
+            <p class="card__body">Nie znajdziesz drugiego tak małego studia, które łączy własne produkty AI, realny kod i marketing pod jedną marką. Bez udawania agencji, którą nie jesteśmy.</p>
           </article>
         </div>
       </div>
@@ -4303,10 +4946,8 @@
     <!-- Sekcja "Co mowia klienci" WYCIETA 18.09: caly rozdzial na komunikat, ze
          nic jeszcze nie ma. Ta sama uczciwosc, jedno zdanie nizej, bez pustego
          naglowka. -->
-    <section class="proof reveal" aria-label="Znajdziesz mnie też">
+    <section class="proof reveal" aria-label="Kontakt">
       <div class="proof__inner">
-        <span class="proof__item">znajdziesz mnie też na <b><a class="proof__link" href="https://useme.com/pl/roles/contractor/songbird,657683/" target="_blank" rel="noopener">Useme</a></b></span>
-        <span class="proof__item">pierwsze opinie — bez podkolorowanych cytatów — pojawią się, jak tylko powstaną</span>
         <span class="proof__item">kontakt: <b><a class="proof__link" href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a></b></span>
       </div>
     </section>
@@ -4314,8 +4955,8 @@
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
         <div class="overlay overlay--band">
-          <p class="stub">Masz proces, który zjada Ci godziny? Opisz go — powiem wprost, co da się z tego zrobić w kodzie, a czego nie warto.</p>
-          <a class="cta-big" href="#contact" data-nav="contact">Napisz do mnie &rarr;</a>
+          <p class="stub">Masz proces, który zjada Ci godziny? Opisz go, a powiemy wprost, co da się z tego zrobić w kodzie, a czego nie warto.</p>
+          <a class="cta-big" href="#contact" data-nav="contact">Napisz do nas &rarr;</a>
         </div>
       </div>
     </section>
@@ -4329,7 +4970,7 @@
       <div class="overlay">
         <div class="eyebrow">poza kodem</div>
         <h1 class="slogan slogan--glitch-once">Sztuka</h1>
-        <p class="stub">Grafiki, które robię poza programowaniem — osobny projekt, osobny ton. Kliknij, żeby powiększyć.</p>
+        <p class="stub">Grafiki spoza programowania — osobny projekt, osobny ton. Kliknij, żeby powiększyć.</p>
       </div>
     </div>
 
@@ -4361,7 +5002,7 @@
       <div class="services__inner">
         <div class="services__head">
           <div class="services__eyebrow" data-hex="0xD417">w szklarni</div>
-          <h2 class="services__title">Nad czym teraz pracuję</h2>
+          <h2 class="services__title">Nad czym teraz pracujemy</h2>
         </div>
         <!-- ścieżka wzrostu (sesja 1, 20.09) — .growth/.seed, NIE .cards/.card,
              patrz uzasadnienie przy definicji klas w <style>. Popup po kliknięciu
@@ -4496,7 +5137,7 @@ fingerprint(maszyna)</div>
       <div class="overlay">
         <div class="eyebrow">kontakt &middot; współpraca</div>
         <h1 class="slogan">Pogadajmy<span class="thin">projekt, produkt czy współpraca — napisz</span></h1>
-        <p class="stub">Wypełnij zgłoszenie — w podglądzie obok zobaczysz na żywo, co dokładnie do mnie trafi. Odpisuję z konkretami, nie ogólnikami.</p>
+        <p class="stub">Wypełnij zgłoszenie — w podglądzie obok zobaczysz na żywo, co dokładnie do nas trafi. Odpisujemy z konkretami, nie ogólnikami.</p>
         <a class="cta-big" href="#" id="contactScrollCta">Wypełnij zgłoszenie &darr;</a>
       </div>
     </div>
@@ -4505,7 +5146,7 @@ fingerprint(maszyna)</div>
       <div class="services__inner">
         <div class="services__head">
           <div class="services__eyebrow" data-hex="0x88B2">nowe zgłoszenie</div>
-          <h2 class="services__title">Opowiedz mi o projekcie</h2>
+          <h2 class="services__title">Opowiedz nam o projekcie</h2>
         </div>
 
         <div class="konf-tabs" role="tablist" aria-label="Sposób zgłoszenia">
@@ -4531,10 +5172,10 @@ fingerprint(maszyna)</div>
 
             <section class="konf-pane" data-pane="0" aria-labelledby="konfH0">
               <h3 id="konfH0" tabindex="-1">Od czego zaczynamy?</h3>
-              <p class="konf-sub">Wybierz najbliższy opis. Ustawię rozsądne wartości domyślne, a zmienisz tylko to, co się nie zgadza.</p>
+              <p class="konf-sub">Wybierz najbliższy opis. Ustawimy rozsądne wartości domyślne, a zmienisz tylko to, co się nie zgadza.</p>
               <div class="konf-opts konf-opts--2" id="kg-rodzaj"></div>
               <p class="konf-dep" id="konfDepRodzaj" hidden></p>
-              <details class="konf-help"><summary>Co to znaczy?</summary><p>Nie trzeba trafić idealnie. Przy wahaniu między dwoma opisami lepiej wybrać mniejszy. Jeśli okaże się za mały, powiem to przy wycenie, zanim cokolwiek zapłacisz.</p></details>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Nie trzeba trafić idealnie. Przy wahaniu między dwoma opisami lepiej wybrać mniejszy. Jeśli okaże się za mały, powiemy to przy wycenie, zanim cokolwiek zapłacisz.</p></details>
             </section>
 
             <section class="konf-pane" data-pane="1" aria-labelledby="konfH1" hidden>
@@ -4547,7 +5188,7 @@ fingerprint(maszyna)</div>
               <p class="konf-dep" id="konfDepGdzie" hidden>Panel w przeglądarce wymaga serwera, więc ustawiono go automatycznie.</p>
               <div class="konf-q">Jak się go obsługuje</div><div class="konf-opts" id="kg-ui"></div>
               <details class="konf-help"><summary>Co to znaczy?</summary><p>Bez okna: uruchamia się plik albo skrypt startuje sam i zostawia wynik. Proste okno: program z przyciskami. Panel w przeglądarce: wejście przez stronę, logowanie i tabele, może z niego korzystać kilka osób.</p></details>
-              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalę to z Tobą przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="1" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
+              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalamy to razem przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="1" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
             </section>
 
             <section class="konf-pane" data-pane="2" aria-labelledby="konfH2" hidden>
@@ -4555,9 +5196,21 @@ fingerprint(maszyna)</div>
               <p class="konf-sub">Im więcej materiału na starcie i im mniej pośpiechu, tym taniej.</p>
               <div class="konf-q">Termin</div><div class="konf-opts" id="kg-termin"></div>
               <details class="konf-help"><summary>Co to znaczy?</summary><p>Termin liczy się od dnia, w którym wycena zostaje zaakceptowana i dostarczone są materiały. Pilne zlecenia wypychają inne prace, dlatego kosztują więcej.</p></details>
+              <div class="konf-q">Dokładny termin <span class="konf-q__opt">opcjonalnie</span></div>
+              <div class="konf-cal" id="konfCal">
+                <div class="konf-cal__head">
+                  <button type="button" class="konf-cal__nav" data-cal-nav="-1" aria-label="Poprzedni miesiąc">‹</button>
+                  <span class="konf-cal__title" id="konfCalTitle" aria-live="polite"></span>
+                  <button type="button" class="konf-cal__nav" data-cal-nav="1" aria-label="Następny miesiąc">›</button>
+                </div>
+                <div class="konf-cal__dow" aria-hidden="true"><span>PN</span><span>WT</span><span>ŚR</span><span>CZ</span><span>PT</span><span>SO</span><span>ND</span></div>
+                <div class="konf-cal__grid" id="konfCalGrid"></div>
+                <div class="konf-cal__foot"><span id="konfCalInfo" aria-live="polite"></span><button type="button" class="konf-cal__clear" id="konfCalClear" hidden>wyczyść datę</button></div>
+              </div>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Jeśli zlecenie ma być gotowe na konkretny dzień (start sezonu, koniec miesiąca, wyjazd), zaznacz go w kalendarzu. Z odległości do tej daty sam dobiera się tryb terminu powyżej: im bliżej, tym wyższa dopłata. Bez daty zostaje wybrany wyżej tryb.</p></details>
               <div class="konf-q">Przykładowe dane i opis kroków</div><div class="konf-opts konf-opts--2" id="kg-dane"></div>
               <details class="konf-help"><summary>Co to znaczy?</summary><p>Przykładowe dane to np. kilka prawdziwych plików albo zrzutów ekranu, na których skrypt ma pracować. Opis kroków to kilka zdań: najpierw to, potem tamto. Z tym praca idzie szybciej, więc taniej.</p></details>
-              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalę to z Tobą przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="2" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
+              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalamy to razem przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="2" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
             </section>
 
             <section class="konf-pane" data-pane="3" aria-labelledby="konfH3" hidden>
@@ -4567,14 +5220,14 @@ fingerprint(maszyna)</div>
               <details class="konf-help"><summary>Co to znaczy?</summary><p>Rozszerzone, jeśli skrypt loguje się na konta, trzyma hasła lub klucze, przetwarza dane klientów albo jest dostępny z internetu. Jeśli tylko porządkuje pliki na komputerze, podstawowe wystarczy.</p></details>
               <div class="konf-q">Testy automatyczne</div><div class="konf-opts konf-opts--2" id="kg-testy"></div>
               <details class="konf-help"><summary>Co to znaczy?</summary><p>Testy to drugi, mały program, który po każdej zmianie sprawdza, czy skrypt dalej liczy poprawnie. Opłacają się, gdy skrypt ma żyć długo i będzie rozwijany.</p></details>
-              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalę to z Tobą przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="3" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
+              <div class="konf-unsure"><span>Brak pewności? Zostają wartości domyślne i ustalamy to razem przy wycenie. Nic za to nie dopłacasz.</span><button type="button" data-unsure="3" aria-pressed="false">Nie wiem, ustalmy razem</button></div>
             </section>
 
             <section class="konf-pane" data-pane="4" aria-labelledby="konfH4" hidden>
               <h3 id="konfH4" tabindex="-1">Serwis po oddaniu</h3>
               <p class="konf-sub">Świat wokół skryptu się zmienia: strona źródłowa przebuduje układ, zmieni się API, pojawi się nowa potrzeba. Serwis to niska, stała opłata za poprawki i rozwój. Nie jest obowiązkowy, a im dłużej trwa, tym jest tańszy.</p>
               <div class="konf-opts" id="kg-serwis"></div>
-              <details class="konf-help"><summary>Co to znaczy?</summary><p>Serwis obejmuje poprawki, gdy coś przestanie działać z przyczyn zewnętrznych (zmiana strony, API, systemu), oraz rozwój. Nie obejmuje nowego, dużego zakresu: ten wyceniam osobno. Rezygnacja jest możliwa na koniec każdego okresu.</p></details>
+              <details class="konf-help"><summary>Co to znaczy?</summary><p>Serwis obejmuje poprawki, gdy coś przestanie działać z przyczyn zewnętrznych (zmiana strony, API, systemu), oraz rozwój. Nie obejmuje nowego, dużego zakresu: ten wyceniamy osobno. Rezygnacja jest możliwa na koniec każdego okresu.</p></details>
               <div id="konfOkresWrap"><div class="konf-q">Na jak długo</div><div class="konf-opts" id="kg-okres"></div></div>
             </section>
           </section>
@@ -4586,10 +5239,10 @@ fingerprint(maszyna)</div>
               <h3 class="konf-h5" id="konfH5" tabindex="-1">Dane i wysyłka</h3>
               <div class="konf-recap" id="konfRecap"></div>
               <div class="konf-after"><h4>Co dzieje się po wysłaniu</h4><ol>
-                <li><span><strong>Zgłoszenie trafia do mnie</strong> razem z wyborami z konfiguratora i orientacyjną ceną. To prośba, a nie zamówienie.</span></li>
-                <li><span><strong>W ciągu ok. 24 godzin</strong> sprawdzam, czy zlecenie pasuje do tego, co robię dobrze, i odpisuję: biorę, mam pytania albo odmawiam z krótkim powodem.</span></li>
-                <li><span><strong>Jeśli się podejmuję,</strong> przychodzi wiążąca cena, a decyzja, czy ruszamy, należy do zamawiającego. Odmowa i „nie” niczego nie kosztują.</span></li>
-                <li><span><strong>Gdy obie strony mówią „tak”,</strong> ustalamy termin i sposób płatności, a po odbiorze zamawiający dostaje kod, instrukcję i gwarancję.</span></li>
+                <li><span><strong>Zgłoszenie trafia do nas</strong> razem z wyborami z konfiguratora i orientacyjną ceną. To prośba, a nie zamówienie.</span></li>
+                <li><span><strong>W ciągu 2 dni roboczych</strong> sprawdzamy, czy zlecenie pasuje do tego, co robimy dobrze, i odpisujemy: bierzemy, mamy pytania albo odmawiamy z krótkim powodem.</span></li>
+                <li><span><strong>Jeśli się podejmujemy,</strong> przychodzi wiążąca cena, a decyzja, czy ruszamy, należy do zamawiającego. Odmowa i „nie” niczego nie kosztują.</span></li>
+                <li><span><strong>Gdy obie strony mówią „tak”,</strong> ustalamy termin i sposób płatności, a po odbiorze dostajemy kod, instrukcję i gwarancję.</span></li>
               </ol></div>
             </div>
             <div class="orderform__grid">
@@ -4608,7 +5261,7 @@ fingerprint(maszyna)</div>
                 <input type="tel" name="cphone" placeholder="+48 ..." autocomplete="tel">
               </label>
               <label class="orderform__field">
-                <span>Skąd o mnie wiesz? <i>(opcjonalnie)</i></span>
+                <span>Skąd o nas wiesz? <i>(opcjonalnie)</i></span>
                 <select name="csource">
                   <option value="" selected>Wybierz…</option>
                   <option value="TikTok">TikTok</option>
@@ -4624,11 +5277,17 @@ fingerprint(maszyna)</div>
               <span>O co chodzi?</span>
               <select name="ctopic" required>
                 <option value="" disabled selected>Wybierz temat…</option>
-                <option value="Zamówienie strony / aplikacji">Chcę zamówić stronę / aplikację</option>
+                <option value="Projekt na zamówienie">Chcę coś zamówić, jeszcze nie wiem dokładnie co</option>
+                <option value="Software na zamówienie">Software na zamówienie (skrypt, bot, aplikacja)</option>
+                <option value="Skrypt lub automatyzacja">Skrypt, bot albo automatyzacja</option>
+                <option value="Aplikacja na zamówienie">Aplikacja na komputer lub w przeglądarce</option>
+                <option value="Narzędzie z AI">Narzędzie z AI</option>
+                <option value="Strona internetowa">Strona internetowa</option>
+                <option value="Audyt widoczności">Chcę darmowy audyt widoczności</option>
+                <option value="Pakiet Start (490 zł)">Wizytówka Google + poprawki strony (Start, 490 zł)</option>
+                <option value="Pakiet Pełny (990 zł)">Pełna widoczność (Pełny, 990 zł)</option>
                 <option value="Zakup gotowego produktu">Interesuje mnie gotowy produkt (Rachmistrz, radar, bot…)</option>
                 <option value="Współpraca / partnerstwo">Współpraca / partnerstwo</option>
-                <option value="Audyt widoczności">Chcę darmowy audyt widoczności</option>
-                <option value="Raport Strategiczny">Interesuje mnie Raport Strategiczny (płatny audyt)</option>
                 <option value="SOMI">Chcę zapytać o SOMI</option>
                 <option value="Coś innego">Coś innego</option>
               </select>
@@ -4660,11 +5319,13 @@ fingerprint(maszyna)</div>
             </label>
             <div class="h-captcha" data-captcha="true"></div>
             <button class="cta-big" type="submit">Wyślij zgłoszenie &rarr;</button>
-            <p class="orderform__eta" data-quick-only>odpowiadam w ciągu ~24h</p>
-            <p class="orderform__policy">Co robię z tymi danymi: <a href="#polityka" data-nav="polityka">polityka prywatności</a></p>
+            <p class="orderform__eta" data-quick-only>odpowiadamy zwykle w 24 h, najdalej w 2 dni robocze</p>
+            <p class="orderform__policy">Co robimy z tymi danymi: <a href="#polityka" data-nav="polityka">polityka prywatności</a></p>
           </form>
+          <p class="konf-status" id="konfStatus" role="status" aria-live="polite" tabindex="-1"></p>
           <div class="konf-nav" data-konf-only>
             <button class="konf-btn" id="konfPrev" type="button" hidden>← Wstecz</button>
+            <span class="konf-navprice" id="konfNavPrice" aria-hidden="true"></span>
             <button class="konf-btn konf-btn--go" id="konfNext" type="button">Dalej →</button>
           </div>
           </div>
@@ -4703,22 +5364,22 @@ fingerprint(maszyna)</div>
         <div class="policy">
           <article class="policy__item">
             <h3 class="policy__title">Kto administruje danymi</h3>
-            <p class="policy__body">Administratorem jest CyberSora, prowadzona przeze mnie — Patryk Gwóźdź. Kontakt w każdej sprawie związanej z danymi: <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.</p>
+            <p class="policy__body">Administratorem jest CyberSora, prowadzona przez Patryka Gwóździa. Kontakt w każdej sprawie związanej z danymi: <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.</p>
           </article>
 
           <article class="policy__item">
             <h3 class="policy__title">Jakie dane zbieram i po co</h3>
-            <p class="policy__body">Wyłącznie te, które sam/sama wpiszesz w jeden z dwóch formularzy na stronie: formularz kontaktowy (imię, e-mail, opcjonalnie telefon, temat zgłoszenia, budżet, termin, opis projektu) albo formularz zamówienia u SOMI (rodzaj projektu, budżet, e-mail, opis). Służą tylko do jednego celu — żebym mógł odpowiedzieć na Twoje zgłoszenie. Strona nie zbiera żadnych danych automatycznie ani bez Twojej wiedzy.</p>
+            <p class="policy__body">Wyłącznie te, które sam/sama wpiszesz w jeden z dwóch formularzy na stronie: formularz kontaktowy (imię, e-mail, opcjonalnie telefon, temat zgłoszenia, budżet, termin, opis projektu) albo formularz zamówienia u SOMI (rodzaj projektu, budżet, e-mail, opis). Służą tylko do jednego celu — żebyśmy mogli odpowiedzieć na Twoje zgłoszenie. Strona nie zbiera żadnych danych automatycznie ani bez Twojej wiedzy.</p>
           </article>
 
           <article class="policy__item">
             <h3 class="policy__title">Komu przekazuję dane</h3>
-            <p class="policy__body">Wysyłkę formularzy obsługuje zewnętrzna usługa <b>Web3Forms</b> (serwery w USA) — to ona doręcza treść zgłoszenia na moją skrzynkę <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>. Nie mam własnej bazy danych klientów: wiadomość trafia od razu na maila. Web3Forms nie przechowuje treści zgłoszeń, a logi techniczne z danymi osobowymi kasuje po 2 miesiącach. Przy wysyłce formularza działa też <b>hCaptcha</b> (usługa antyspamowa) — widzi tylko to, co potrzebne do odróżnienia człowieka od bota, nie treść Twojej wiadomości. Nikomu innemu danych nie sprzedaję ani nie udostępniam.</p>
+            <p class="policy__body">Wysyłkę formularzy obsługuje zewnętrzna usługa <b>Web3Forms</b> (serwery w USA) — to ona doręcza treść zgłoszenia na naszą skrzynkę <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>. Nie mamy własnej bazy danych klientów: wiadomość trafia od razu na maila. Web3Forms nie przechowuje treści zgłoszeń, a logi techniczne z danymi osobowymi kasuje po 2 miesiącach. Przy wysyłce formularza działa też <b>hCaptcha</b> (usługa antyspamowa) — widzi tylko to, co potrzebne do odróżnienia człowieka od bota, nie treść Twojej wiadomości. Nikomu innemu danych nie sprzedajemy ani nie udostępniamy.</p>
           </article>
 
           <article class="policy__item">
             <h3 class="policy__title">Jak długo przechowuję dane</h3>
-            <p class="policy__body">Tyle, ile trwa obsługa zgłoszenia i ewentualna dalsza współpraca, plus standardowy czas przechowywania korespondencji e-mail. W każdej chwili możesz poprosić o usunięcie swoich danych z mojej skrzynki.</p>
+            <p class="policy__body">Tyle, ile trwa obsługa zgłoszenia i ewentualna dalsza współpraca, plus standardowy czas przechowywania korespondencji e-mail. W każdej chwili możesz poprosić o usunięcie swoich danych z naszej skrzynki.</p>
           </article>
 
           <article class="policy__item">
@@ -4737,7 +5398,7 @@ fingerprint(maszyna)</div>
               <li>przeniesienia danych do innego administratora,</li>
               <li>złożenia skargi do Prezesa Urzędu Ochrony Danych Osobowych (uodo.gov.pl).</li>
             </ul>
-            <p class="policy__body">Żeby skorzystać z któregokolwiek z tych praw, napisz na <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a> — odpowiadam osobiście, nie automatem.</p>
+            <p class="policy__body">Żeby skorzystać z któregokolwiek z tych praw, napisz na <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a> — odpowiadamy osobiście, nie automatem.</p>
           </article>
         </div>
       </div>
@@ -4751,13 +5412,16 @@ fingerprint(maszyna)</div>
       <nav class="footer__nav" aria-label="Stopka">
         <a href="#start" data-nav="start">Start</a>
         <a href="#oferta" data-nav="oferta">Oferta</a>
+        <a href="#marketplace" data-nav="marketplace">Marketplace</a>
         <a href="#products" data-nav="products">Produkty</a>
         <a href="#somi" data-nav="somi">SOMI</a>
-        <a href="#onas" data-nav="onas">O mnie</a>
+        <a href="#onas" data-nav="onas">O nas</a>
         <!-- Sztuka ukryta ze stopki na prosbe maisy, 22.09, tymczasowo ("poki co") —
              <a href="#sztuka" data-nav="sztuka">Sztuka</a> -->
         <a href="#rnd" data-nav="rnd">Sadzonki</a>
         <a href="#contact" data-nav="contact">Kontakt</a>
+        <!-- prawdziwy adres (nie widok po #) — wewnetrzny link pomaga Google znalezc podstrone -->
+        <a href="gorlice/">Dla firm z Gorlic</a>
         <a href="#polityka" data-nav="polityka">Polityka prywatności</a>
       </nav>
       <a class="footer__mail" href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>
@@ -4835,7 +5499,7 @@ fingerprint(maszyna)</div>
         <dl class="sprout__facts" id="sproutFacts"></dl>
       </div>
       <div class="sprout__chat">
-        <p class="somi-demo__disclaimer">Zapis, nie czat na żywo — odpowiedzi spisane przeze mnie, z faktów w repozytorium.</p>
+        <p class="somi-demo__disclaimer">Zapis, nie czat na żywo — odpowiedzi spisane przez nas, z faktów w repozytorium.</p>
         <div class="somi-demo__questions" id="sproutQs" role="group" aria-label="Pytania o projekt"></div>
         <div class="terminal">
           <div class="terminal__bar">
@@ -4869,7 +5533,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261006a"></script>
+<script src="app.js?v=20261007a"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly

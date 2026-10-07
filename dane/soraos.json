@@ -1,0 +1,92 @@
+{
+ "zebrano": "2026-10-06T21:03+00:00",
+ "metoda": "nasz kod programu, bez bibliotek, testów, makiet, dokumentacji i pustych linii",
+ "projekty": {
+  "salondesk": {
+   "commity": 439,
+   "tydzien": 119,
+   "ostatni": "2026-10-05T14:32:04+02:00",
+   "wersja": "1.5.0",
+   "linie": 48561,
+   "pliki": 181,
+   "klocki": {
+    "app/salondesk/data/repozytoria.py": 2795,
+    "app/salondesk/app/nazwane.py": 1261,
+    "app/salondesk/domain/wizyty.py": 736,
+    "app/salondesk/domain/reguly.py": 1028
+   }
+  },
+  "somi": {
+   "commity": 472,
+   "tydzien": 149,
+   "ostatni": "2026-10-06T20:17:07Z",
+   "linie": 74078,
+   "pliki": 202,
+   "klocki": {
+    "modules/agent.py": 2071,
+    "discord_bot.py": 4506,
+    "astralheart.py": 3701,
+    "modules/file_bridge.py": 1435
+   }
+  },
+  "moonsora": {
+   "commity": 143,
+   "tydzien": 143,
+   "ostatni": "2026-10-06T20:56:10Z",
+   "wersja": "0.11.0",
+   "linie": 43493,
+   "pliki": 194,
+   "klocki": {
+    "crates/moonsora-core/src/cdpproxy.rs": 1904,
+    "crates/moonsora-core/src/agentapi.rs": 2282,
+    "crates/moonsora-core/src/agent_stream.rs": 955,
+    "crates/moonsora-core/src/pty.rs": 1169
+   }
+  },
+  "pycodemath": {
+   "commity": 151,
+   "tydzien": 7,
+   "ostatni": "2026-09-30T19:30:34+02:00",
+   "wersja": "0.4.0",
+   "linie": 11127,
+   "pliki": 27,
+   "klocki": {
+    "pycodemath/engine/numerics.py": 2136,
+    "pycodemath/verify/certify.py": 1171,
+    "pycodemath/verify/steps.py": 711,
+    "pycodemath/core/budget.py": 604
+   }
+  },
+  "oracle": {
+   "commity": 2,
+   "tydzien": 2,
+   "ostatni": "2026-10-01T01:20:36+02:00",
+   "linie": 1398,
+   "pliki": 23,
+   "klocki": {
+    "src/SoraOracle.Service/Detection/Yara/LibYaraScanner.cs": 105,
+    "src/SoraOracle.Service/Detection/Sigma/SigmaRuleLoader.cs": 146,
+    "src/SoraOracle.Service/Watch/DownloadsWatcher.cs": 89
+   }
+  },
+  "skrypty": {
+   "commity": 37,
+   "tydzien": 26,
+   "ostatni": "2026-09-30T23:13:24+02:00",
+   "linie": 4116,
+   "pliki": 21,
+   "klocki": {
+    "audyt/przelot.py": 356,
+    "audyt/raport.py": 324,
+    "audyt/klienci.py": 715
+   }
+  },
+  "strona": {
+   "commity": 257,
+   "tydzien": 73,
+   "ostatni": "2026-10-06T22:18:35+02:00",
+   "linie": 5984,
+   "pliki": 19
+  }
+ }
+}

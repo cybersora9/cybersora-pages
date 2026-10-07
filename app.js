@@ -56,6 +56,7 @@
   const THEMES = {
     start:     { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
     oferta:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'oferta' },
+    marketplace: { a: [225, 29, 51], hot: [255, 58, 82], layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
     products:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 1, bg: 0 } },
     somi:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 1, chips: 0, bg: 0 }, bg: 'm1' },
     onas:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'onas' },
@@ -336,8 +337,57 @@
      Maska ma wymiar bloku tekstu z marginesem, nie ekranu. Miekka krawedz = zagniezdzone prostokaty
      (raz, przy budowie), bez blur. */
   const TXT_PAD = 6, TXT_F = 22, TXT_FN = 8;
-  const TXT = { x: 0, y: 0, w: 0, h: 0, n: 0, r: new Float32Array(160), ok: false };
-  const bgMask = document.createElement('canvas'), mctx = bgMask.getContext('2d');
+  /* ZYWA STRONA sesja 1: obiekt maski jest ogolny (linie tekstu + wlasny bufor), zeby kazda sekcja
+     z rejestru SEKCJE miala swoja maske ta sama metoda. TXT = naglowek widoku dla tel podstron. */
+  const txtNowy = (n) => { const cv = document.createElement('canvas');
+    return { x: 0, y: 0, w: 0, h: 0, n: 0, r: new Float32Array(n * 4), ok: false, cv, cx: cv.getContext('2d') }; };
+  const TXT = txtNowy(40);
+  // linie tekstu elementow els we wspolrzednych (ox, oy) — prostokat kazdej linii, nie bloku
+  function txtZbierz(T, els, ox, oy) {
+    T.ok = false; T.n = 0;
+    const cap = T.r.length / 4, rg = document.createRange();
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (const el of els) {
+      rg.selectNodeContents(el);
+      const rs = rg.getClientRects();
+      for (let i = 0; i < rs.length && T.n < cap; i++) {
+        const q = rs[i];
+        if (q.width < 1 || q.height < 1) continue;
+        const o = T.n * 4, x = q.left - ox, y = q.top - oy;
+        T.r[o] = x; T.r[o + 1] = y; T.r[o + 2] = q.width; T.r[o + 3] = q.height; T.n++;
+        x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + q.width); y1 = Math.max(y1, y + q.height);
+      }
+    }
+    if (!T.n) return false;
+    const m = TXT_PAD + TXT_F;
+    T.x = x0 - m; T.y = y0 - m; T.w = x1 - x0 + 2 * m; T.h = y1 - y0 + 2 * m;
+    return (T.ok = true);
+  }
+  // s: skala bufora (dpr dla naglowka; sekcje 1, bo krawedz i tak jest miekka, a bufor bywa wysoki)
+  function txtMaska(T, s) {
+    if (!T.ok) return;
+    const c = T.cx, w = Math.ceil(T.w * s), h = Math.ceil(T.h * s);
+    if (T.cv.width !== w || T.cv.height !== h) { T.cv.width = w; T.cv.height = h; }
+    c.setTransform(s, 0, 0, s, -T.x * s, -T.y * s);
+    c.clearRect(T.x, T.y, T.w, T.h);
+    c.fillStyle = '#000';
+    // warstwy od najszerszej: kazda doklada krycie, rdzen (linia + TXT_PAD) konczy na pelnym
+    for (let l = TXT_FN; l >= 0; l--) {
+      const e = TXT_PAD + TXT_F * l / TXT_FN;
+      c.globalAlpha = l ? 1 / (TXT_FN + 1) : 1;
+      for (let i = 0; i < T.n; i++) {
+        const o = i * 4;
+        c.fillRect(T.r[o] - e, T.r[o + 1] - e, T.r[o + 2] + 2 * e, T.r[o + 3] + 2 * e);
+      }
+    }
+    c.globalAlpha = 1;
+  }
+  function txtWytnij(c, T, k, dy) {   // k: jaka czesc krycia zdjac pod tekstem (0..1); dy: przesuniecie ukladu
+    if (!T.ok) return;
+    c.globalCompositeOperation = 'destination-out'; c.globalAlpha = k;
+    c.drawImage(T.cv, T.x, T.y - dy, T.w, T.h);
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  }
   /* Widok wjezdza animacja viewIn (translateY 10px -> 0, 0,45 s), a build leci w pierwszej klatce trasy:
      pomiar bez poprawki wychodzil do 10 px za nisko (tlo O nas siadalo na kresce faktow). Odejmujemy
      biezace przesuniecie widoku, zeby mierzyc uklad docelowy. */
@@ -351,21 +401,8 @@
     const el = document.querySelector(sel);
     TXT.ok = false; TXT.n = 0;
     if (!el) return false;
-    const rg = document.createRange(); rg.selectNodeContents(el);
-    const rs = rg.getClientRects(), st = stage.getBoundingClientRect(), dy = bgViewDy(el);
-    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-    for (let i = 0; i < rs.length && TXT.n < 40; i++) {
-      const q = rs[i];
-      if (q.width < 1 || q.height < 1) continue;
-      const o = TXT.n * 4, x = q.left - st.left, y = q.top - st.top - dy;
-      TXT.r[o] = x; TXT.r[o + 1] = y; TXT.r[o + 2] = q.width; TXT.r[o + 3] = q.height; TXT.n++;
-      x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + q.width); y1 = Math.max(y1, y + q.height);
-    }
-    if (!TXT.n) return false;
-    const m = TXT_PAD + TXT_F;
-    TXT.x = x0 - m; TXT.y = y0 - m; TXT.w = x1 - x0 + 2 * m; TXT.h = y1 - y0 + 2 * m;
-    TXT.ok = true;
-    return true;
+    const st = stage.getBoundingClientRect();
+    return txtZbierz(TXT, [el], st.left, st.top + bgViewDy(el));
   }
   function bgInText(x, y) {
     for (let i = 0; i < TXT.n; i++) {
@@ -375,30 +412,8 @@
     }
     return false;
   }
-  function bgMaskBuild() {   // raz na build, po bgTextMeasure
-    if (!TXT.ok) return;
-    const w = Math.ceil(TXT.w * dpr), h = Math.ceil(TXT.h * dpr);
-    if (bgMask.width !== w || bgMask.height !== h) { bgMask.width = w; bgMask.height = h; }
-    mctx.setTransform(dpr, 0, 0, dpr, -TXT.x * dpr, -TXT.y * dpr);
-    mctx.clearRect(TXT.x, TXT.y, TXT.w, TXT.h);
-    mctx.fillStyle = '#000';
-    // warstwy od najszerszej: kazda doklada krycie, rdzen (linia + TXT_PAD) konczy na pelnym
-    for (let s = TXT_FN; s >= 0; s--) {
-      const e = TXT_PAD + TXT_F * s / TXT_FN;
-      mctx.globalAlpha = s ? 1 / (TXT_FN + 1) : 1;
-      for (let i = 0; i < TXT.n; i++) {
-        const o = i * 4;
-        mctx.fillRect(TXT.r[o] - e, TXT.r[o + 1] - e, TXT.r[o + 2] + 2 * e, TXT.r[o + 3] + 2 * e);
-      }
-    }
-    mctx.globalAlpha = 1;
-  }
-  function bgMaskOut(c, k) {   // k: jaka czesc krycia zdjac pod tekstem (0..1)
-    if (!TXT.ok) return;
-    c.globalCompositeOperation = 'destination-out'; c.globalAlpha = k;
-    c.drawImage(bgMask, TXT.x, TXT.y, TXT.w, TXT.h);
-    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
-  }
+  const bgMaskBuild = () => txtMaska(TXT, dpr);   // raz na build, po bgTextMeasure
+  const bgMaskOut = (c, k) => txtWytnij(c, TXT, k, 0);
 
   /* ===================== silnik tel podstron (M8 Sesja 1, 29.09) =====================
      Rejestr BG = { id: { build(W,H), paint(c,time,age,op), live?(ctx,dt,time,op), fps, comp, layer? } }.
@@ -458,6 +473,137 @@
     ctx.globalAlpha = 1;
     if (p.live && !reduce) p.live(ctx, dt, time, w);
   }
+
+  /* ===================== rejestr SEKCJE (ZYWA STRONA sesja 1, 04.10) =====================
+     Tlo kanwy konczy sie na hero (dopasujTloDoHero), wiec wszystko pod nim stalo na plaskim --ink.
+     Sekcja dostaje wlasne tlo deklaracja w HTML: data-sekcja="<id malarza>". Malarz w MALARZE:
+       { fps, przypiety?, tekst?: selektor linii pod maske, build?(S), paint(c, S, time, age) }
+     Kanwa lezy za trescia sekcji (isolation + z-index -1) i jest sticky: ma najwyzej wysokosc
+     ekranu, a w kadrze trzyma ja kompozytor, wiec wysoka sekcja nie robi wysokiego bufora.
+     S.y0 = w ktorym miejscu sekcji jest teraz gorna krawedz kanwy; rysunek przypiety do sekcji
+     odejmuje y0 i deklaruje przypiety: true (przemalowanie przy zmianie y0 i pelne tempo petli
+     przez chwile po przewinieciu). Rysunek przypiety do ekranu tego nie potrzebuje.
+     Zero nowej petli: IntersectionObserver liczy sekcje w kadrze, ustawPetleMapy budzi frame()
+     takze dla nich, a gdy mapy nie widac, frame() rysuje same sekcje. fps 0 albo reduced motion =
+     jedna statyczna klatka przy budowie, petli nie budza. Maska tekstu: S.wytnij(c, k). */
+  const MALARZE = {};
+  const SEKCJE = [];
+  let sekcjeWKadrze = 0, przewinT = -1e9;
+  const sekcjaStatyczna = (S) => reduce || (!S.m.fps && !S.m.przypiety);
+  function sekcjaPolozenie(S) {
+    const r = S.el.getBoundingClientRect();
+    S.H = r.height;
+    S.y0 = Math.max(0, Math.min(-r.top, S.H - S.h));
+    return r;
+  }
+  function sekcjaMaluj(S, time) {
+    S.t = time;
+    if (S.t0 < 0) S.t0 = time;
+    S.yM = S.y0;
+    S.cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S.cx.clearRect(0, 0, S.w, S.h);
+    S.m.paint(S.cx, S, time, reduce ? 99 : time - S.t0);
+  }
+  function sekcjaBuduj(S) {
+    S.zly = false;
+    S.w = S.cv.clientWidth; S.h = S.cv.clientHeight;
+    // widok, z ktorego wlasnie wychodzimy (IO jeszcze go nie zgasil): nic do budowania, bylo 4,5 ms w klatce zmiany trasy
+    if (!S.w || !S.h) return;
+    const pw = Math.round(S.w * dpr), ph = Math.round(S.h * dpr);
+    if (S.cv.width !== pw || S.cv.height !== ph) { S.cv.width = pw; S.cv.height = ph; }
+    const r = sekcjaPolozenie(S);
+    if (S.m.tekst) { txtZbierz(S.T, S.el.querySelectorAll(S.m.tekst), r.left, r.top); txtMaska(S.T, 1); }
+    S.t = -1; S.t0 = -1;
+    if (S.m.build) S.m.build(S);
+    if (sekcjaStatyczna(S)) sekcjaMaluj(S, performance.now() * 0.001);
+  }
+  // z frame(): tylko sekcje w kadrze; przerysowanie wg fps malarza (jak `due` w bgDraw)
+  function sekcjeDraw(time) {
+    let budowa = 1;   // najwyzej jedna budowa na klatke: przy zmianie trasy nie skladamy kilku sekcji naraz
+    for (const S of SEKCJE) {
+      if (!S.vis || sekcjaStatyczna(S)) continue;
+      if (S.zly) { if (!budowa) continue; budowa--; sekcjaBuduj(S); }
+      if (!S.w || !S.h) continue;
+      if (S.m.przypiety) sekcjaPolozenie(S);
+      const fps = S.m.fps || 60;
+      if (S.t < 0 || time < S.t || time - S.t >= 1 / fps - 0.004 || (S.m.przypiety && S.y0 !== S.yM)) sekcjaMaluj(S, time);
+    }
+  }
+  // -1 = zadna ruchoma sekcja w kadrze; 0 = kazda klatka ekranu (przewijanie nad przypietym rysunkiem)
+  function sekcjeTempo(t) {
+    let f = -1;
+    for (const S of SEKCJE) {
+      if (!S.vis || sekcjaStatyczna(S)) continue;
+      if (S.m.przypiety && t - przewinT < 250) return 0;
+      f = Math.max(f, S.m.fps || 60);
+    }
+    return f;
+  }
+  function sekcjeStart() {
+    if (/[?&]sekcje=test\b/.test(location.search)) {   // podglad fundamentu: malarz testowy na wszystkich blokach
+      document.querySelectorAll('.view > .services, .view > .steps, .view > .manifest').forEach(el => {
+        if (!el.dataset.sekcja) el.dataset.sekcja = 'test';
+      });
+    }
+    const io = 'IntersectionObserver' in window && new IntersectionObserver((wpisy) => {
+      for (const w of wpisy) {
+        const S = w.target._sekcja;
+        S.vis = w.isIntersecting;
+        if (S.vis && S.zly && sekcjaStatyczna(S)) sekcjaBuduj(S);
+      }
+      sekcjeWKadrze = SEKCJE.reduce((n, S) => n + (S.vis && !sekcjaStatyczna(S) ? 1 : 0), 0);
+      ustawPetleMapy();
+    });
+    const ro = 'ResizeObserver' in window && new ResizeObserver((wpisy) => {
+      for (const w of wpisy) {
+        const S = w.target._sekcja;
+        S.zly = true;
+        if (S.vis && sekcjaStatyczna(S)) sekcjaBuduj(S);
+      }
+    });
+    if (!io || !ro) return;   // bez obserwatorow sekcje zostaja na plaskim --ink, jak dotad
+    document.querySelectorAll('[data-sekcja]').forEach(el => {
+      const m = MALARZE[el.dataset.sekcja];
+      if (!m) return;
+      const tlo = document.createElement('div'), cv = document.createElement('canvas');
+      tlo.className = 'sekcja-tlo'; tlo.setAttribute('aria-hidden', 'true');
+      tlo.appendChild(cv); el.prepend(tlo);
+      const S = { el, m, cv, cx: cv.getContext('2d'), T: txtNowy(120), vis: false, zly: true,
+                  w: 0, h: 0, H: 0, y0: 0, yM: -1, t: -1, t0: -1 };
+      S.wytnij = (c, k) => txtWytnij(c, S.T, k, S.y0);
+      el._sekcja = S; SEKCJE.push(S);
+      io.observe(el); ro.observe(el);
+    });
+    if (SEKCJE.some(S => S.m.przypiety)) window.addEventListener('scroll', () => { przewinT = performance.now(); }, { passive: true });
+  }
+  // wymiar kanwy zalezy od ekranu, nie tylko od sekcji (100lvh) — resize okna oznacza wszystkie
+  function sekcjeResize() {
+    for (const S of SEKCJE) { S.zly = true; if (S.vis && sekcjaStatyczna(S)) sekcjaBuduj(S); }
+  }
+
+  /* Malarz testowy (tylko ?sekcje=test): siatka kropek 1 px przypieta do SEKCJI (sprawdza y0 przy
+     przewijaniu), linia 1 px wedrujaca po EKRANIE (sprawdza tempo) i maska pod tekstem. Krycie 0,2.
+     Wzor dla prawdziwych malarzy: staly motyw raz do kafla w build (createPattern), w paint jedno
+     wypelnienie — ~3600 osobnych kropek kosztowalo 2-3 ms na klatke przy 4x CPU. */
+  const TEST_K = 24;
+  MALARZE.test = {
+    fps: 30, przypiety: true, tekst: 'h2, h3, p, li, a, .eyebrow',
+    build(S) {
+      if (S.wzor) return;
+      const k = document.createElement('canvas'); k.width = k.height = TEST_K;
+      const kc = k.getContext('2d'); kc.fillStyle = 'rgba(225,29,51,.2)'; kc.fillRect(0, 0, 1, 1);
+      S.wzor = S.cx.createPattern(k, 'repeat');
+    },
+    paint(c, S, time) {
+      const ox = Math.round((S.w % TEST_K) / 2), oy = -(S.y0 % TEST_K);
+      c.save(); c.translate(ox, oy); c.fillStyle = S.wzor;
+      c.fillRect(-ox, -oy, S.w, S.h);
+      c.restore();
+      c.fillStyle = 'rgba(225,29,51,.2)';
+      c.fillRect(0, (time * 40) % S.h, S.w, 1);
+      S.wytnij(c, 1);
+    }
+  };
 
   /* ===================== M1 Blackwall — sciana za SOMI (aspekt 11, Sesja 2, 29.09) =====================
      Malarz BG.m1 na warstwie `net` widoku somi. Wzor: makieta_m1_sciana.html.
@@ -1519,6 +1665,12 @@
      na 120 Hz slabszy laptop dostaje polowe pracy zamiast pelnego rdzenia. */
   let pracaMs = 0, slabyCpu = false;   // histereza: wlacza sie > 6 ms, puszcza < 3 ms
   function tempoPetli(t) {
+    const ts = sekcjeTempo(t);
+    if (!tloWidoczne) return ts < 0 ? 30 : ts;
+    const tm = tempoMapy(t);
+    return ts < 0 ? tm : tm === 0 || ts === 0 ? 0 : Math.max(tm, ts);
+  }
+  function tempoMapy(t) {
     if (bgPrevA > 0.02) return 0;
     for (const k in themeState.layers) if (Math.abs(themeState.layers[k] - themeTarget.layers[k]) > 0.01) return 0;
     if (particles.length) return t - mouseT < 1500 && !slabyCpu ? 0 : 60;
@@ -1540,8 +1692,10 @@
     const dt = Math.max(0, Math.min((t - lastT) / 1000, 0.05)) || 0;
     lastT = t;
     themeApproach(dt);
-    ctx.clearRect(0, 0, W, H);
     const time = t * 0.001;
+    // mapy nie widac, a petla chodzi dla sekcji pod hero: tylko one (kanwa mapy i tak poza kadrem)
+    if (!tloWidoczne) { sekcjeDraw(time); klatkaKoniec(t0p); return; }
+    ctx.clearRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'lighter';
 
     // pulse wave: every ~9s a soft front expands from the map centroid and fades out
@@ -1709,6 +1863,10 @@
     bgDraw(dt, time);
 
     ctx.globalCompositeOperation = 'source-over';
+    sekcjeDraw(time);
+    klatkaKoniec(t0p);
+  }
+  function klatkaKoniec(t0p) {
     pracaMs += (performance.now() - t0p - pracaMs) * 0.05;
     if (pracaMs > 6) slabyCpu = true; else if (pracaMs < 3) slabyCpu = false;
     if (rafOn) requestAnimationFrame(frame);
@@ -1722,7 +1880,10 @@
      petla jest pisanie w terminalu popupu (zasada: max dwie naraz) */
   let popupZakrywa = false;
   function ustawPetleMapy() {
-    const maBiec = tloWidoczne && !document.hidden && !popupZakrywa;
+    /* SORA//OS (L3, 06.10): na trasie Marketplace komputer zakrywa hero, wiec mapa stoi
+       (jedyna stala petla zostaje kula w pasku; animacje modulu sa krotkie, rAF tylko na ich czas) */
+    const maBiec = (tloWidoczne || sekcjeWKadrze > 0) && !document.hidden && !popupZakrywa
+      && document.documentElement.dataset.route !== 'marketplace';
     if (maBiec && !rafOn) { rafOn = true; lastT = performance.now(); requestAnimationFrame(frame); }
     else if (!maBiec) { rafOn = false; }
     /* PASEK 03.10: nad pracujaca mapa szklo paska przeliczaloby rozmycie w kazdej klatce
@@ -1771,7 +1932,7 @@
   const burger = document.querySelector('.nav__burger');
   const links = [...bar.querySelectorAll('.nav__link')];
   const views = [...document.querySelectorAll('.view')];
-  const NAMES = ['start', 'oferta', 'products', 'somi', 'onas', 'sztuka', 'rnd', 'contact', 'polityka'];
+  const NAMES = ['start', 'oferta', 'marketplace', 'products', 'somi', 'onas', 'sztuka', 'rnd', 'contact', 'polityka'];
 
   /* PRODUKTY SCHOWANE (11.09, prosba maisy: "schowalbym te produkty poki co").
      Nic nie jest kasowane: sekcja, karty, trasa i przyciski zostaja w kodzie —
@@ -1889,6 +2050,7 @@
       if (document.documentElement.dataset.route !== view) bgLeave();
       // route theme: CSS switches via data-route, both canvases via themeTarget
       document.documentElement.dataset.route = view;
+      ustawPetleMapy();   // SORA//OS: na Marketplace mapa stoi, po wyjsciu wraca
       themeTarget = THEMES[view] || THEMES.start;
       views.forEach(v => { v.hidden = (v.dataset.view !== view); });
       links.forEach(l => {
@@ -1929,17 +2091,107 @@
        Bez wsparcia albo z prefers-reduced-motion: apply() leci od razu,
        DOM i tak sie zmienia — zero regresji, po prostu bez animacji. */
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* SORA//OS (L3): wejscie w Marketplace z innej trasy = modul dostaje wejdz();
+       PIERWSZE w sesji (i nie na telefonie) = wpiecie vt-crack zamiast zygzaka */
+    const wOS = view === 'marketplace' && document.documentElement.dataset.route !== 'marketplace';
+    const pierwszeOS = wOS && !soraosWidziany() && !reduceMotion && !matchMedia('(max-width:760px)').matches;
     if (document.startViewTransition && !reduceMotion) {
       /* .ready odrzuca sie z InvalidStateError, gdy karta jest w tle w
          momencie klikniecia (np. alt-tab) — apply() i tak sie wykonuje,
          po prostu bez animacji. Bez tego .catch to byl niezlapany wyjatek
          w konsoli (zlapane live: "Transition was aborted... Document
          hidden"). */
-      document.startViewTransition(apply).ready.catch(() => {});
+      if (pierwszeOS) document.documentElement.classList.add('vt-crack');
+      const vt = document.startViewTransition(apply);
+      vt.ready.catch(() => {});
+      if (pierwszeOS) soraosPomin = () => vt.skipTransition();
+      vt.finished.catch(() => {}).finally(() => {
+        document.documentElement.classList.remove('vt-crack');
+        soraosPomin = null;
+        if (pierwszeOS) { try { sessionStorage.setItem('soraos:wpiety', '1'); } catch (e) {} }
+        if (wOS) soraosWejdz(pierwszeOS);
+      });
     } else {
       apply();
+      if (wOS) soraosWejdz(false);
     }
   }
+
+  /* ===================== SORA//OS: wpiecie modulu komputera (L3, 06.10) =====================
+     Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
+     (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
+     wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
+  const SORAOS_V = '20261007a';
+  let soraosOS = null, soraosLaduje = null, soraosPomin = null;
+  function soraosWidziany() {
+    try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
+  }
+  function soraosZasob(tag, attrs) {
+    return new Promise((ok, zle) => {
+      const el = document.createElement(tag);
+      Object.assign(el, attrs);
+      el.onload = () => ok(el); el.onerror = () => { el.remove(); zle(new Error(attrs.src || attrs.href)); };
+      document.head.appendChild(el);
+    });
+  }
+  function soraosJson(url) {
+    return fetch(url, { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null);
+  }
+  /* dostepnosc.json pokazujemy tylko swiezy: brak "aktualizowano" albo starszy niz 14 dni = null
+     (modul wtedy nie pokazuje wolnych dni zamiast udawac, ze sa) */
+  function soraosSwieza(d) {
+    if (!d || !d.aktualizowano) return null;
+    const dni = (Date.now() - new Date(d.aktualizowano + 'T00:00:00').getTime()) / 864e5;
+    return dni >= 0 && dni <= 14 ? d : null;
+  }
+  function soraosZamow(usluga, data) {
+    const li = usluga && document.querySelector('[data-soraos-tresc] li[data-id="' + usluga + '"]');
+    const konf = li ? li.dataset.konf : (['mikro', 'skrypt', 'bot', 'app'].includes(usluga) ? usluga : '');
+    const topic = li && li.dataset.topic;
+    go('contact');
+    const sel = topic && document.querySelector('#contactForm [name="ctopic"]');
+    if (sel && [...sel.options].some(o => o.value === topic)) {
+      sel.value = topic;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    // data najpierw: konf:rodzaj zachowuje st.data przy resecie do presetu rodzaju
+    if (data) window.dispatchEvent(new CustomEvent('konf:data', { detail: data }));
+    if (konf) window.dispatchEvent(new CustomEvent('konf:rodzaj', { detail: konf }));
+  }
+  function soraosZaladuj() {
+    if (soraosLaduje) return soraosLaduje;
+    const v = '?v=' + SORAOS_V;
+    soraosLaduje = Promise.all([
+      soraosZasob('link', { rel: 'stylesheet', href: 'soraos.css' + v }),
+      soraosZasob('script', { src: 'soraos.js' + v, async: true }),
+      soraosJson('dane/soraos.json'),
+      soraosJson('dane/dostepnosc.json'),
+    ]).then(([, , dane, dost]) => {
+      const tresc = document.querySelector('[data-soraos-tresc]');
+      const root = tresc && tresc.closest('[data-view="marketplace"]');
+      if (!window.SoraOS || !root) return null;
+      soraosOS = window.SoraOS.mount(root, {
+        tresc, dane, dostepnosc: soraosSwieza(dost),
+        onOrder: soraosZamow,
+        onNav: (widok) => go(widok),
+        loadGame: () => (window.DancyCloud ? Promise.resolve(window.DancyCloud)
+          : soraosZasob('script', { src: 'dancycloud.js' + v, async: true }).then(() => window.DancyCloud)),
+        poziom: 'night',
+        naglowek: 'B',
+      });
+      return soraosOS;
+    }).catch(() => null);   // atrapa: brak modulu = zwykla lista, bez bledu w konsoli
+    return soraosLaduje;
+  }
+  function soraosWejdz(pierwsze) {
+    soraosZaladuj().then((os) => {
+      if (!os || document.documentElement.dataset.route !== 'marketplace') return;
+      os.wejdz({ pierwsze });
+    });
+  }
+  // wpiecie trwa ~0,9 s: Esc albo klik je przeskakuje (jak "pomin" w MK5)
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && soraosPomin) soraosPomin(); }, true);
+  document.addEventListener('pointerdown', () => { if (soraosPomin) soraosPomin(); }, true);
 
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', (e) => {
@@ -1953,6 +2205,9 @@
         sel.value = topic;
         sel.dispatchEvent(new Event('change', { bubbles: true }));
       }
+      /* RODZAJ Z GORY (S1, 06.10): data-konf="mikro|skrypt|bot|app" otwiera konfigurator
+         z ustawionym rodzajem; reszte robi IIFE konfiguratora (nasluch konf:rodzaj). */
+      if (el.dataset.konf) window.dispatchEvent(new CustomEvent('konf:rodzaj', { detail: el.dataset.konf }));
     });
   });
 
@@ -2048,32 +2303,17 @@
       });
     });
   }
-  /* regula pauzy: jeden atrybut na pasku, CSS zatrzymuje wszystkie animacje wosku */
+  /* regula pauzy: jeden atrybut na pasku, CSS zatrzymuje wszystkie animacje wosku.
+     05.10: wosk NIE staje przy scrollu, kliknieciu ani ruchu nad mapa (maisa: ma plynac caly czas).
+     Stoi tylko gdy i tak go nie widac albo user prosi o spokoj: ukryta karta, telefon,
+     prefers-reduced-motion, otwarty panel przewodnika (pelny, zaslania pasek). */
   const lawaTelefon = matchMedia('(max-width: 900px)');
   const lawaMaloRuchu = matchMedia('(prefers-reduced-motion: reduce)');
-  let lawaPrzewija = false, lawaPrzewT = 0, lawaCzeka = false, lawaCzekaT = 0;
   function ustawLawe() {
-    const stoi = document.hidden || lawaTelefon.matches || lawaMaloRuchu.matches || lawaPrzewija || lawaCzeka
+    const stoi = document.hidden || lawaTelefon.matches || lawaMaloRuchu.matches
       || guidePanel.classList.contains('open');
     navEl.dataset.lava = stoi ? 'stop' : 'run';
   }
-  /* chwilowa pauza: przejscie miedzy trasami i ruch kursora nad mapa hero (mapa leci wtedy pelnym
-     tempem). ZMIERZONE 03.10 przy 4x CPU: mapa pod kursorem + wosk naraz = przyciete klatki, osobno 0.
-     Kursor nad paskiem nie zatrzymuje wosku — tam sie na niego patrzy. */
-  function lawaChwila(ms) {
-    if (!lawaCzeka) { lawaCzeka = true; ustawLawe(); }
-    clearTimeout(lawaCzekaT);
-    lawaCzekaT = setTimeout(() => { lawaCzeka = false; ustawLawe(); }, ms);
-  }
-  window.addEventListener('mousemove', (e) => {
-    if (rafOn && tloWidoczne && document.documentElement.dataset.route === 'start' && !navEl.contains(e.target)) lawaChwila(900);
-  }, { passive: true });
-  window.addEventListener('scroll', () => {
-    // przy przewijaniu wosk stoi (strona dostaje caly czas klatki), rusza 250 ms po zatrzymaniu
-    if (!lawaPrzewija) { lawaPrzewija = true; ustawLawe(); }
-    clearTimeout(lawaPrzewT);
-    lawaPrzewT = setTimeout(() => { lawaPrzewija = false; ustawLawe(); }, 250);
-  }, { passive: true });
   document.addEventListener('visibilitychange', ustawLawe);
   // przejscie telefon <-> komputer chowa przycisk, ktory otworzyl panel, wiec panel sie zamyka
   lawaTelefon.addEventListener('change', () => { zamknijPrzewodnik(); ustawLawe(); lawaPozycje(); });
@@ -2153,17 +2393,6 @@
     });
   });
 
-  /* ===================== Produkty → SOMI order form: jump straight to the form, not just the top of the page ===================== */
-  const orderCta = document.getElementById('orderCta');
-  if (orderCta) {
-    orderCta.addEventListener('click', () => {
-      setTimeout(() => {
-        const target = document.getElementById('orderSection');
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 60);
-    });
-  }
-
   /* ===================== Kontakt — form + live terminal preview, hands off to a formatted mailto ===================== */
   (function () {
     const scrollCta = document.getElementById('contactScrollCta');
@@ -2199,11 +2428,11 @@
       return 'Kalkulator (konfigurator na stronie):\n' +
         'Rodzaj: ' + k.rodzaj + (k.od ? ' (cena od)' : '') + '\n' +
         'Moduły: ' + k.mod.map((m) => m[0] + ' (' + m[1] + ')').join(', ') + '\n' +
+        (k.data ? 'Termin docelowy: ' + k.data + '\n' : '') +
         'Serwis: ' + k.serwis + '\n' +
         (k.ust.length ? 'Do ustalenia razem: ' + k.ust.join(', ') + '\n' : '') +
         'Cena orientacyjna: ' + (k.od ? 'od ' : '') + zlKonf(k.cena) + ' (górna granica ' + zlKonf(k.hi) + ')\n\n';
     }
-
 
     function render() {
       const fd = new FormData(form);
@@ -2229,6 +2458,7 @@
             return '<span class="t-muted">&gt; install</span> ' + escapeHtml(dots(m[0], 18)) + '<span class="t-ok">OK</span> ' +
               (disc ? '<span class="t-disc">' + m[1] + '</span>' : m[1] === 'w cenie' ? '<span class="t-muted">0%</span>' : m[1]);
           }).join('\n') +
+          (kalk.data ? '\n<span class="t-label">TERMIN DOCEL.:</span> ' + escapeHtml(kalk.data) : '') +
           '\n<span class="t-label">SERWIS:</span> ' + escapeHtml(kalk.serwis) +
           (kalk.ust.length ? '\n<span class="t-label">DO USTALENIA:</span> ' + escapeHtml(kalk.ust.join(', ')) : '') +
           '\n<span class="t-label">CENA ORIENT.:</span> ' + (kalk.od ? 'od ' : '') + escapeHtml(zlKonf(kalk.cena)) +
@@ -2260,7 +2490,7 @@
         'Od: ' + (fd.get('cname') || '') + '\n' +
         'Email: ' + (fd.get('cemail') || '') + '\n' +
         'Telefon: ' + (fd.get('cphone') || '—') + '\n' +
-        'Skąd o mnie wie: ' + (fd.get('csource') || '—') + '\n' +
+        'Skąd o nas wie: ' + (fd.get('csource') || '—') + '\n' +
         'Temat: ' + topicText + '\n' +
         'Budżet: ' + (fd.get('cbudget') || '') + '\n' +
         'Termin: ' + (fd.get('ctimeline') || '') + '\n\n' +
@@ -2284,93 +2514,27 @@
           Array.from(form.elements).forEach(el => el.disabled = true);
           document.querySelectorAll('#konf input, #konf button, .konf-tab, .konf-nav button').forEach(el => { el.disabled = true; });
           submitBtn.textContent = 'Wysłano ✓';
+          /* terminal jest aria-hidden, wiec potwierdzenie idzie do regionu role=status; fokus na nim, bo pola sa juz wylaczone */
+          const stat = document.getElementById('konfStatus');
+          if (stat) {
+            stat.textContent = 'Zgłoszenie wysłane. Odpiszemy na ' + (fd.get('cemail') || 'podany adres') + ', zwykle w ciągu 24 godzin, najdalej w 2 dni robocze.';
+            document.getElementById('contactWrap').dataset.done = '1';
+            stat.focus();
+          }
         } else {
           throw new Error(data.message || 'nieznany błąd');
         }
       } catch (err) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Wyślij zgłoszenie →';
+        const statErr = document.getElementById('konfStatus');
+        if (statErr) { statErr.textContent = 'Nie udało się wysłać zgłoszenia. Spróbuj jeszcze raz albo napisz na cybersora@zohomail.eu.'; }
         body.innerHTML += '\n\n<span class="t-label">✕ NIE WYSŁANO</span>\n' +
           'Coś nie zagrało — spróbuj jeszcze raz albo napisz prosto na ' +
           '<a class="proof__link" href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.';
       }
     });
   })();
-
-  /* ===================== SOMI — custom project order form (no backend yet, so it hands off to a formatted mailto) ===================== */
-  const orderForm = document.getElementById('orderForm');
-  const orderTerminalBody = document.getElementById('orderTerminalBody');
-  if (orderForm) {
-    if (orderTerminalBody) {
-      const escOrder = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-      const orderLine = (label, value, placeholder) => {
-        const v = (value || '').trim();
-        return '<span class="t-label">' + label + ':</span> ' + (v ? escOrder(v) : '<span class="t-muted">' + placeholder + '</span>');
-      };
-      const renderOrder = () => {
-        const fd = new FormData(orderForm);
-        const typeText = orderForm.elements['type'].selectedOptions[0]?.text || '';
-        const msg = (fd.get('desc') || '').trim();
-        orderTerminalBody.innerHTML =
-          '<span class="t-muted">$ zamowienie_somi --klient=Ty</span>\n\n' +
-          orderLine('RODZAJ', fd.get('type') ? typeText : '', 'czekam na wybór…') + '\n' +
-          orderLine('BUDŻET', fd.get('budget'), '—') + '\n' +
-          orderLine('EMAIL', fd.get('email'), 'czekam na e-mail…') +
-          '\n\n<span class="t-label">OPIS:</span>\n' +
-          (msg ? escOrder(msg) : '<span class="t-muted">zacznij pisać po lewej…</span>') +
-          '<span class="t-cursor"></span>\n\n' +
-          '<span class="t-muted">--- gotowe do wysłania, kliknij "Wyślij zapytanie do SOMI" ---</span>';
-      };
-      orderForm.addEventListener('input', renderOrder);
-      orderForm.addEventListener('change', renderOrder);
-      renderOrder();
-    }
-
-    const orderSubmitBtn = orderForm.querySelector('button[type="submit"]');
-
-    orderForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(orderForm);
-      if (fd.get('botcheck')) return; // honeypot
-      if (!fd.get('h-captcha-response')) { alert('Zaznacz proszę hCaptcha.'); return; }
-      const type = fd.get('type') || '';
-      const budget = fd.get('budget') || '';
-      const desc = fd.get('desc') || '';
-      const email = fd.get('email') || '';
-      const subject = 'Zamówienie projektu: ' + type;
-      const msg = 'Rodzaj: ' + type + '\nBudżet: ' + budget + '\nEmail kontaktowy: ' + email + '\n\nOpis:\n' + desc;
-
-      orderSubmitBtn.disabled = true;
-      orderSubmitBtn.textContent = 'Wysyłanie…';
-      try {
-        const data = await wyslijDoWeb3Forms({
-          subject: subject,
-          from_name: 'Zamówienie ze strony',
-          email: email,
-          message: msg,
-          'h-captcha-response': fd.get('h-captcha-response') || ''
-        });
-        if (data.success) {
-          if (orderTerminalBody) {
-            orderTerminalBody.innerHTML = '<span class="t-label">✔ WYSŁANO</span>\n\n' +
-              'Zapytanie poszło do SOMI. Odezwę się na ' + email.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) + '.';
-          }
-          Array.from(orderForm.elements).forEach(el => el.disabled = true);
-          orderSubmitBtn.textContent = 'Wysłano ✓';
-        } else {
-          throw new Error(data.message || 'nieznany błąd');
-        }
-      } catch (err) {
-        orderSubmitBtn.disabled = false;
-        orderSubmitBtn.textContent = 'Wyślij zapytanie do SOMI →';
-        if (orderTerminalBody) {
-          orderTerminalBody.innerHTML += '\n\n<span class="t-label">✕ NIE WYSŁANO</span>\n' +
-            'Coś nie zagrało — spróbuj jeszcze raz albo napisz prosto na ' +
-            '<a class="proof__link" href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.';
-        }
-      }
-    });
-  }
 
   /* ===================== Konfigurator zlecenia w Kontakcie (MK3a, 06.10) =====================
      Lewa kolumna Kontaktu ma dwa tryby: "Konfigurator zlecenia" (kroki 1-5 + krok 6 = ten sam
@@ -2401,17 +2565,17 @@
     /* s = krotka nazwa modulu do terminala (> install modul:serwer ...) */
     const G = {
       zrodla: [{ id: '1', s: '1', t: 'Jedno', d: 'jeden plik, strona lub system', p: 0 }, { id: '3', s: '2-3', t: '2 do 3', d: 'kilka plików, stron lub API', p: 0.25, rec: 1 }, { id: '4', s: '4+', t: '4 i więcej', d: 'wiele źródeł, scalanie i czyszczenie', p: 0.6 }],
-      gdzie: [{ id: 'pc', s: 'pc', t: 'Na komputerze zamawiającego', d: 'uruchamia się ręcznie lub z harmonogramu', p: 0 }, { id: 'srv', s: 'serwer', t: 'Na serwerze', d: 'działa bez komputera zamawiającego, uruchamiam i konfiguruję', p: 0.3 }],
+      gdzie: [{ id: 'pc', s: 'pc', t: 'Na komputerze zamawiającego', d: 'uruchamia się ręcznie lub z harmonogramu', p: 0 }, { id: 'srv', s: 'serwer', t: 'Na serwerze', d: 'działa bez komputera zamawiającego, uruchamiamy i konfigurujemy', p: 0.3 }],
       ui: [{ id: 'cli', s: 'bez-okna', t: 'Bez okna', d: 'uruchamia się plik, wynik ląduje w pliku lub na mailu', p: 0 }, { id: 'gui', s: 'okno', t: 'Proste okno', d: 'kilka przycisków i pól na Windowsie', p: 0.35 }, { id: 'web', s: 'panel-www', t: 'Panel w przeglądarce', d: 'logowanie, tabele, kilku użytkowników', p: 0.7 }],
       termin: [{ id: 'luz', s: '30d', t: 'Bez pośpiechu', d: 'do 30 dni', p: -0.1 }, { id: 'std', s: '14d', t: 'Standard', d: 'do 14 dni', p: 0, rec: 1 }, { id: 'szyb', s: '5d', t: 'Szybki', d: 'do 5 dni', p: 0.25 }, { id: 'pilny', s: '48h', t: 'Pilny', d: 'w 48 godzin', p: 0.5 }],
-      dane: [{ id: 'tak', s: 'gotowe', t: 'Są', d: 'przykładowe dane i opis krok po kroku', p: -0.1 }, { id: 'nie', s: 'brak', t: 'Brak', d: 'wyciągnę to z rozmowy', p: 0 }],
+      dane: [{ id: 'tak', s: 'gotowe', t: 'Są', d: 'przykładowe dane i opis krok po kroku', p: -0.1 }, { id: 'nie', s: 'brak', t: 'Brak', d: 'wyciągniemy to z rozmowy', p: 0 }],
       zab: [{ id: 'pod', s: 'podstawowe', t: 'Podstawowe', d: 'w cenie: brak haseł w kodzie, sprawdzanie danych wejściowych, dziennik błędów', p: 0, rec: 1 }, { id: 'roz', s: 'rozszerzone', t: 'Rozszerzone', d: 'sekrety poza kodem, szyfrowana konfiguracja, kopia zapasowa ustawień, przegląd pod kątem typowych luk', p: 0.2 }],
       testy: [{ id: 'nie', s: 'bez', t: 'Bez testów', d: 'sprawdzanie ręczne na danych zamawiającego', p: 0 }, { id: 'tak', s: 'auto', t: 'Z testami automatycznymi', d: 'łatwiej bezpiecznie zmieniać kod w przyszłości', p: 0.15 }]
     };
     const GROUPS = ['zrodla', 'gdzie', 'ui', 'termin', 'dane', 'zab', 'testy'];
     const SERWIS = [
       { id: 'brak', t: 'Bez serwisu', d: 'Gwarancja z ceny i koniec. Zmiany później według cennika.', pct: 0, min: 0 },
-      { id: 'pod', t: 'Serwis Podstawowy', d: 'Naprawiam błędy i dopasowuję skrypt, gdy zmieni się źródło danych. Reakcja do 3 dni roboczych.', pct: 0.04, min: 39, rec: 1 },
+      { id: 'pod', t: 'Serwis Podstawowy', d: 'Naprawiamy błędy i dopasowujemy skrypt, gdy zmieni się źródło danych. Reakcja do 3 dni roboczych.', pct: 0.04, min: 39, rec: 1 },
       { id: 'stal', t: 'Serwis Stały', d: 'To co Podstawowy, szybsza reakcja, miesięczny przegląd zabezpieczeń i jedna drobna zmiana w miesiącu.', pct: 0.08, min: 79 }
     ];
     const OKRES = [
@@ -2451,9 +2615,61 @@
         const s = JSON.parse(localStorage.getItem(KEY) || 'null');
         if (s && s.st && find(RODZAJE, s.st.rodzaj)) {
           const ok = GROUPS.every((k) => find(G[k], s.st[k])) && find(SERWIS, s.st.serwis) && find(OKRES, s.st.okres);
-          if (ok) { st = Object.assign(st, s.st); step = Math.min(5, s.step | 0); unsure = s.un || {}; }
+          if (ok) { st = Object.assign(st, s.st); step = Math.min(5, s.step | 0); unsure = s.un || {}; if (st.data && dniDo(st.data) < 1) st.data = ''; }
         }
       } catch (e) { /* uszkodzony zapis: zostaja ustawienia domyslne */ }
+    }
+
+    /* ---------- kalendarz terminu ---------- */
+    const MIESIACE = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'];
+    const MIESIACE_D = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
+    const DNI = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'];
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const isoOf = (d) => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    function parseIso(v) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+      if (!m) return null;
+      const d = new Date(+m[1], +m[2] - 1, +m[3]);
+      return isoOf(d) === v ? d : null;
+    }
+    function dzis() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+    function dniDo(v) { const d = parseIso(v); return d ? Math.round((d - dzis()) / 864e5) : -1; }
+    /* odleglosc do daty -> tryb terminu (te same dopłaty co wybor reczny) */
+    function terminZDaty(n) { return n >= 21 ? 'luz' : n >= 6 ? 'std' : n >= 3 ? 'szyb' : 'pilny'; }
+    function dataOpis(v) {
+      const d = parseIso(v);
+      return d ? d.getDate() + ' ' + MIESIACE_D[d.getMonth()] + ' ' + d.getFullYear() + ', ' + DNI[d.getDay()] : '';
+    }
+    let calY = dzis().getFullYear();
+    let calM = dzis().getMonth();
+    function calRender() {
+      const t0 = dzis();
+      const minIdx = t0.getFullYear() * 12 + t0.getMonth();
+      const idx = calY * 12 + calM;
+      $('konfCalTitle').textContent = MIESIACE[calM] + ' ' + calY;
+      konf.querySelector('[data-cal-nav="-1"]').disabled = idx <= minIdx;
+      konf.querySelector('[data-cal-nav="1"]').disabled = idx >= minIdx + 12;
+      const first = (new Date(calY, calM, 1).getDay() + 6) % 7;
+      const dni = new Date(calY, calM + 1, 0).getDate();
+      let g = '';
+      for (let i = 0; i < first; i++) g += '<span></span>';
+      for (let d = 1; d <= dni; d++) {
+        const dt = new Date(calY, calM, d);
+        const v = isoOf(dt);
+        const n = Math.round((dt - t0) / 864e5);
+        const wk = dt.getDay() === 0 || dt.getDay() === 6;
+        g += '<button type="button" class="konf-day' + (wk ? ' is-wknd' : '') + (n === 0 ? ' is-today' : '') + '" data-date="' + v + '"' +
+          (n < 1 ? ' disabled' : '') + ' aria-pressed="' + (st.data === v ? 'true' : 'false') + '" aria-label="' + dataOpis(v) + '">' + d + '</button>';
+      }
+      $('konfCalGrid').innerHTML = g;
+      const info = $('konfCalInfo');
+      if (st.data) {
+        const n = dniDo(st.data);
+        info.textContent = dataOpis(st.data) + ' · za ' + n + ' dni · tryb: ' + find(G.termin, st.termin).t.toLowerCase() + (n < 2 ? ' · poniżej 48 h: czy to realne, wychodzi w rozmowie' : '');
+      } else {
+        info.textContent = 'Bez konkretnej daty. Wybierz dzień albo zostaw tryb powyżej.';
+      }
+      $('konfCalClear').hidden = !st.data;
     }
 
     function calc(s) {
@@ -2531,7 +2747,7 @@
       if (roz) o += '<path class="dg-tick" transform="translate(82 0)" d="M189 14l4 4 7-8"/>';
       o += tx(294, 14, roz ? 'OCHRONA+' : 'OCHRONA', roz ? 'r' : '');
       if (st.testy === 'tak') o += tx(292, 104, '✓ TESTY', 'l');
-      o += tx(292, 40, { luz: '30 DNI', std: '14 DNI', szyb: '5 DNI', pilny: '48 H' }[st.termin], st.termin === 'pilny' || st.termin === 'szyb' ? 'r' : '');
+      o += tx(292, 40, st.data ? st.data.slice(8) + '.' + st.data.slice(5, 7) : { luz: '30 DNI', std: '14 DNI', szyb: '5 DNI', pilny: '48 H' }[st.termin], st.termin === 'pilny' || st.termin === 'szyb' ? 'r' : '');
       const sv = c.sv;
       o += '<path class="dg-line dg-sep" d="M18 130H348"/>';
       o += tx(18, 146, sv.pct ? 'SERWIS: ' + sv.t.replace('Serwis ', '').toUpperCase() + ' · ' + (c.months > 1 ? c.months + ' MIES.' : 'MIES.') : 'BEZ SERWISU · GWARANCJA ' + (c.rod.id === 'mikro' ? 7 : 14) + ' DNI', sv.pct ? 'l' : '');
@@ -2546,6 +2762,7 @@
         rodzaj: c.rod.k + ' (' + c.rod.t + ')',
         od: !!c.rod.from,
         mod: GROUPS.map((k) => { const o = find(G[k], st[k]); return [k + ':' + o.s, o.p === 0 ? 'w cenie' : sgn(o.p)]; }),
+        data: st.data ? st.data + ' (' + DNI[parseIso(st.data).getDay()] + ')' : '',
         serwis: c.sv.t + (c.mon ? ', ' + (c.months > 1 ? c.months + ' mies.' : 'miesięcznie') + ' (' + zl(c.mon) + '/mies.)' : ''),
         cena: c.total,
         hi: c.hi,
@@ -2556,7 +2773,7 @@
       const f = form.elements['ckalkulator'];
       if (mode === 'konf') {
         f.value = JSON.stringify(podsumowanie(c));
-        form.elements['ctopic'].value = 'Zamówienie strony / aplikacji';
+        form.elements['ctopic'].value = st.rodzaj === 'app' ? 'Aplikacja na zamówienie' : 'Skrypt lub automatyzacja';
         const bi = c.hi <= 1000 ? 1 : c.hi <= 5000 ? 2 : c.hi <= 15000 ? 3 : 4;
         form.elements['cbudget'].selectedIndex = bi;
         form.elements['ctimeline'].value = { luz: 'Elastycznie', std: 'W ciągu miesiąca', szyb: 'Na już / pilne', pilny: 'Na już / pilne' }[st.termin];
@@ -2567,10 +2784,12 @@
     }
 
     function render() {
+      if (st.data && dniDo(st.data) < 1) st.data = '';
       const c = calc(st);
       const pre = c.rod.from ? 'od ' : '';
       const tot = $('konfTotal');
       tot.textContent = pre + zl(c.total);
+      $('konfNavPrice').textContent = pre + zl(c.total);
       if (prevTotal !== null && prevTotal !== c.total) {
         const d = c.total - prevTotal;
         $('konfDelta').textContent = (d > 0 ? '+' : '−') + zl(Math.abs(d));
@@ -2596,18 +2815,19 @@
       const tooBig = st.rodzaj === 'mikro' && c.total > 300;
       const dep = $('konfDepRodzaj');
       const txt = st.rodzaj === 'app'
-        ? 'Aplikacja to największy rodzaj. Kwota jest punktem wyjścia. Cenę ustalam po rozmowie o zakresie, o ile się podejmę.'
+        ? 'Aplikacja to największy rodzaj. Kwota jest punktem wyjścia. Cenę ustalamy po rozmowie o zakresie, o ile się podejmiemy.'
         : tooBig ? 'Przy takich wymaganiach to już raczej Skrypt. Lepiej wybrać wyższy rodzaj albo zmniejszyć zakres, wtedy cena będzie uczciwsza.' : '';
       dep.hidden = !txt;
       dep.textContent = txt;
       diagram(c);
+      calRender();
       recap(c);
       syncForm(c);
       save();
     }
     function recap(c) {
       const rows = [['Rodzaj', c.rod.k + ' (' + c.rod.t + ')', 'rodzaj']];
-      GROUPS.forEach((k) => rows.push([LAB[k], find(G[k], st[k]).t, k]));
+      GROUPS.forEach((k) => rows.push([LAB[k], find(G[k], st[k]).t + (k === 'termin' && st.data ? ', do ' + dataOpis(st.data) : ''), k]));
       rows.push(['Serwis', c.sv.t + (c.mon ? ', ' + c.ok.t.toLowerCase() : ''), 'serwis']);
       rows.push(['Cena orient.', (c.rod.from ? 'od ' : '') + zl(c.total) + ' (górna granica ' + zl(c.hi) + ')', null]);
       $('konfRecap').innerHTML = rows.map((r) => {
@@ -2676,7 +2896,7 @@
 
     /* "Zapytaj o audyt / o SOMI..." (data-topic) ma lądować w szybkim zgloszeniu, a software na zamowienie w konfiguratorze;
        ten listener jest dopisany po handlerze [data-nav], wiec wygrywa przy ctopic */
-    const TEMATY_KONF = ['Zamówienie strony / aplikacji'];
+    const TEMATY_KONF = ['Software na zamówienie', 'Skrypt lub automatyzacja', 'Aplikacja na zamówienie'];
     document.querySelectorAll('[data-nav][data-topic]').forEach((el) => {
       el.addEventListener('click', () => setMode(TEMATY_KONF.includes(el.dataset.topic) ? 'konf' : 'quick', false));
     });
@@ -2685,9 +2905,15 @@
     konf.addEventListener('change', (e) => {
       const t = e.target;
       if (t.type !== 'radio') return;
-      if (t.name === 'rodzaj') { st = Object.assign({ rodzaj: t.value }, PRESET[t.value]); unsure = {}; syncRadios(); }
+      if (t.name === 'rodzaj') {
+        const keep = st.data;
+        st = Object.assign({ rodzaj: t.value }, PRESET[t.value]); unsure = {};
+        if (keep) { st.data = keep; st.termin = terminZDaty(dniDo(keep)); }
+        syncRadios();
+      }
       else {
         st[t.name] = t.value;
+        if (t.name === 'termin') st.data = '';
         if (t.name === 'ui' && t.value === 'web' && st.gdzie === 'pc') { st.gdzie = 'srv'; syncRadios(); }
       }
       render();
@@ -2695,6 +2921,24 @@
     wrap.addEventListener('click', (e) => {
       const g = e.target.closest('[data-go]');
       if (g) { go(+g.getAttribute('data-go'), true); return; }
+      const dd = e.target.closest('[data-date]');
+      if (dd) {
+        st.data = dd.getAttribute('data-date');
+        st.termin = terminZDaty(dniDo(st.data));
+        syncRadios();
+        render();
+        const again = konf.querySelector('[data-date="' + st.data + '"]');
+        if (again) again.focus();
+        return;
+      }
+      const cn = e.target.closest('[data-cal-nav]');
+      if (cn) {
+        const idx = calY * 12 + calM + (+cn.getAttribute('data-cal-nav'));
+        calY = Math.floor(idx / 12); calM = idx % 12;
+        calRender();
+        return;
+      }
+      if (e.target.closest('#konfCalClear')) { st.data = ''; render(); return; }
       const u = e.target.closest('[data-unsure]');
       if (u) {
         const k = +u.getAttribute('data-unsure');
@@ -2707,7 +2951,30 @@
     $('konfNext').addEventListener('click', () => go(step + 1, true));
     $('konfPrev').addEventListener('click', () => go(step - 1, true));
 
+    /* wejscie z Oferty/Marketplace: reset do presetu rodzaju, krok 2 ("Jak ma dzialac"), tryb konfiguratora */
+    window.addEventListener('konf:rodzaj', (e) => {
+      const id = e.detail;
+      if (!find(RODZAJE, id) || wrap.dataset.done) return;
+      const keep = st.data;
+      st = Object.assign({ rodzaj: id }, PRESET[id]); unsure = {};
+      if (keep) { st.data = keep; st.termin = terminZDaty(dniDo(keep)); }
+      setMode('konf', false);
+      syncRadios();
+      render();
+      go(1, false);
+    });
+    /* SORA//OS (L3): klik w wolny dzien kalendarza komputera = termin docelowy w konfiguratorze.
+       Wysylane PRZED konf:rodzaj, ktory zachowuje st.data przy resecie do presetu. */
+    window.addEventListener('konf:data', (e) => {
+      const d = e.detail;
+      if (wrap.dataset.done || !/^\d{4}-\d{2}-\d{2}$/.test(d || '') || dniDo(d) < 1) return;
+      st.data = d; st.termin = terminZDaty(dniDo(d));
+      const d0 = parseIso(d); calY = d0.getFullYear(); calM = d0.getMonth();
+      syncRadios(); render();
+    });
+
     load();
+    if (st.data) { const d0 = parseIso(st.data); calY = d0.getFullYear(); calM = d0.getMonth(); }
     build();
     syncRadios();
     render();
@@ -3069,8 +3336,8 @@
         ],
         zrzut: null,
         pytania: [
-          { q: 'Jak liczy RRSO?', a: 'Tak, jak każe załącznik nr 4 do ustawy o kredycie konsumenckim. Szuka takiej rocznej stopy, przy której zdyskontowane wypłaty równają się zdyskontowanym spłatom. Równanie rozwiązuje metodą Newtona zabezpieczoną bisekcją. Wzór i jego pochodną wyprowadził Pycodemath, moja druga sadzonka.' },
-          { q: 'Da się go kupić?', a: 'Jeszcze nie. Program działa, a decyzja o sprzedaży wciąż przede mną. Plan jest taki: 7 dni próby przypiętej do komputera, potem licencja bez terminu, w dwóch pakietach, sam RRSO albo pełny.' },
+          { q: 'Jak liczy RRSO?', a: 'Tak, jak każe załącznik nr 4 do ustawy o kredycie konsumenckim. Szuka takiej rocznej stopy, przy której zdyskontowane wypłaty równają się zdyskontowanym spłatom. Równanie rozwiązuje metodą Newtona zabezpieczoną bisekcją. Wzór i jego pochodną wyprowadził Pycodemath, nasza druga sadzonka.' },
+          { q: 'Da się go kupić?', a: 'Jeszcze nie. Program działa, a decyzja o sprzedaży wciąż przed nami. Plan jest taki: 7 dni próby przypiętej do komputera, potem licencja bez terminu, w dwóch pakietach, sam RRSO albo pełny.' },
         ],
       },
       frostwall: {
@@ -3085,7 +3352,7 @@
         zrzut: null,
         pytania: [
           { q: 'Jak działa bez internetu?', a: 'Licencja to token podpisany kluczem Ed25519, a podpis da się sprawdzić na miejscu, bez serwera. Po kolei sprawdzane są: podpis, cofnięty zegar, data ważności i odcisk komputera. Chroniony kod jest zaszyfrowany AES-GCM, a klucz do niego jest zapieczętowany odciskiem tej jednej maszyny. Nie udaję, że to pancerz: to podniesiona poprzeczka, nie zamek nie do ruszenia.' },
-          { q: 'Po co to komu?', a: 'Przede wszystkim mnie. To firmowa biblioteka, która pilnuje licencji moich programów, a pierwszym z nich jest Rachmistrz. Każdy odmowny wynik ma swój konkretny powód, więc program może powiedzieć klientowi wprost, co jest nie tak.' },
+          { q: 'Po co to komu?', a: 'Przede wszystkim nam. To firmowa biblioteka, która pilnuje licencji naszych programów, a pierwszym z nich jest Rachmistrz. Każdy odmowny wynik ma swój konkretny powód, więc program może powiedzieć klientowi wprost, co jest nie tak.' },
         ],
       },
     };
@@ -3103,7 +3370,7 @@
         kod: 'somi> router.wybierz(zadanie)\n  rutyna   -> deepseek-v4-flash\n  trudne   -> claude-sonnet-5\n  synteza  -> claude-opus-5-5\npamiec.szukaj("radar")',
         fakty: [
           ['tutaj', '3 pytania, odpowiedzi spisane'],
-          ['u mnie', 'Terminal · bot na Discordzie'],
+          ['u nas', 'Terminal · bot na Discordzie'],
           ['modele', 'DeepSeek do rutyny · Claude do trudnych'],
           ['pamięć', 'Indeks z dziennika i dokumentacji'],
         ],
@@ -3115,7 +3382,7 @@
       },
       research: {
         nazwa: 'Deep research',
-        lead: 'Radar przegląda zlecenia z Useme i Upwork, odrzuca stare i ocenia resztę pod moje umiejętności. Działa dziś, tylko jeszcze nie z poziomu czatu SOMI.',
+        lead: 'Radar przegląda zlecenia z Useme i Upwork, odrzuca stare i ocenia resztę pod nasze umiejętności. Działa dziś, tylko jeszcze nie z poziomu czatu SOMI.',
         znak: '.somi-demo__parts li:nth-child(2) .somi-demo__glyph',
         fakty: [
           ['źródła', 'Useme · Upwork'],
@@ -3125,7 +3392,7 @@
         ],
         zrzut: null,
         pytania: [
-          { q: 'Jak ocenia oferty?', a: 'Każda oferta dostaje wynik od 0 do 100 za dopasowanie tytułu, tagów i opisu do moich umiejętności. Radar dolicza stawkę i wiek. Oferty starsze niż 21 dni odpadają, a 12 najlepszych dostaje pełny opis. Ostatnie słowo, czyli świeżość, dopasowanie, wykonalność i stawka, zapada w sesji z Claude.' },
+          { q: 'Jak ocenia oferty?', a: 'Każda oferta dostaje wynik od 0 do 100 za dopasowanie tytułu, tagów i opisu do naszych umiejętności. Radar dolicza stawkę i wiek. Oferty starsze niż 21 dni odpadają, a 12 najlepszych dostaje pełny opis. Ostatnie słowo, czyli świeżość, dopasowanie, wykonalność i stawka, zapada w sesji z Claude.' },
           { q: 'Skąd wie, co już widział?', a: 'Każda oferta trafia do historii. Przy następnym skanie radar pomija te, które już zna, a nowe stawia na górze. W historii jest dziś 281 ofert, od 21 lipca do 30 września.' },
         ],
       },
@@ -3329,6 +3596,7 @@
       buildParticles();
       buildSparks();
       buildChips();
+      sekcjeResize();
       moveMagic(activeLink());
     }, 160);
   });
@@ -3338,6 +3606,7 @@
   buildSparks();
   buildChips();
   go(location.hash.slice(1) || 'start', false);
+  sekcjeStart();
   requestAnimationFrame(frame);
   // settle the magic-line once fonts/layout are final
   window.addEventListener('load', () => requestAnimationFrame(() => moveMagic(activeLink())));

@@ -1,0 +1,8 @@
+{
+ "uwaga": "Jeden plik dla komputera w Marketplace i kalendarza w Kontakcie. Wpisuje maisa raz w tygodniu: zajęte dni robocze (YYYY-MM-DD) i do kiedy przyjmujemy (wolne_do), potem ustaw aktualizowano na dzisiejszą datę. Brak daty albo data starsza niż 14 dni = pas i dni wolne się nie pokazują (nic nie udaje prawdy). Weekendy i święta są zawsze poza kolejką.",
+ "aktualizowano": null,
+ "od": "2026-10-07",
+ "wolne_do": null,
+ "zajete": [],
+ "swieta": ["2026-11-01","2026-11-11","2026-12-25","2026-12-26","2027-01-01","2027-01-06"]
+}
