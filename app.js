@@ -2551,7 +2551,7 @@
     const $ = (id) => document.getElementById(id);
 
     const RODZAJE = [
-      { id: 'mikro', k: 'Porządek w plikach', t: 'Mikro-skrypt', d: 'Jedno zadanie, jedno źródło: zmiana nazw, scalanie arkuszy, mały konwerter.', base: 150 },
+      { id: 'mikro', k: 'Porządek w plikach', t: 'Mikro-skrypt', d: 'Jedno zadanie, jedno źródło: zmiana nazw, scalanie arkuszy, mały konwerter.', base: 50 },
       { id: 'skrypt', k: 'Raport i dane', t: 'Skrypt', d: 'Kilka kroków, pobieranie danych, raport, praca według harmonogramu.', base: 500 },
       { id: 'bot', k: 'Pilnowanie 24/7', t: 'Bot', d: 'Działa całą dobę, pilnuje czegoś i odzywa się przez Discord, mail lub API.', base: 1200 },
       { id: 'app', k: 'Program dla firmy', t: 'Aplikacja', d: 'Kalendarz, klienci, magazyn, panel dla zespołu. Pod jedną firmę.', base: 5000, from: true }
@@ -2812,7 +2812,7 @@
       if (pc) pc.disabled = web;
       $('konfDepGdzie').hidden = !web;
       $('konfOkresWrap').hidden = st.serwis === 'brak';
-      const tooBig = st.rodzaj === 'mikro' && c.total > 300;
+      const tooBig = st.rodzaj === 'mikro' && c.total > 150;
       const dep = $('konfDepRodzaj');
       const txt = st.rodzaj === 'app'
         ? 'Aplikacja to największy rodzaj. Kwota jest punktem wyjścia. Cenę ustalamy po rozmowie o zakresie, o ile się podejmiemy.'
