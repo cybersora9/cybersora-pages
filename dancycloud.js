@@ -2784,7 +2784,7 @@
       var bs2 = root.querySelectorAll('[data-m]');
       for (var k = 0; k < bs2.length; k++) bs2[k].setAttribute('aria-pressed', String(bs2[k].getAttribute('data-m') === mode));
       q('.dcg-md').textContent = TRYBY[mode];
-      recNow = best(mode); q('.dcg-rec span').textContent = 'rekord: ' + recNow;
+      recNow = best(mode); q('.dcg-rec span').textContent = 'rekord: ' + recNow + ' · próby: ' + load(KEYP + 'proby.' + mode);
       var ok = unlockOpt || load(KEYP + 'sudo') > 0, oc = '', rb = load(KEYP + 'rush.' + mode), j, sb = q('[data-a=sudo]'), rbt = q('[data-a=rush]');
       sb.disabled = rbt.disabled = !ok; if (!ok) sudo = false;
       sb.setAttribute('aria-pressed', String(sudo));
@@ -2852,7 +2852,11 @@
       var sc = Math.floor(score), b = best(mode), nowy = sc > b, h = '', k;
       if (nowy) { b = sc; mem[mode] = sc; save(KEYP + mode, sc); }
       recNow = b;
-      q('.dcg-why').textContent = 'core dumped · ' + (diedBoss ? 'boss: ' + BN[BO.type] : waveName(wave));
+      // licznik prób (7.10, prośba maisy): wszystkie śmierci w trybie + osobno na każdym bossie
+      var pr = 0, prb = 0;
+      if (!god) { pr = load(KEYP + 'proby.' + mode) + 1; save(KEYP + 'proby.' + mode, pr); if (diedBoss) { prb = load(KEYP + 'proby.boss.' + BO.type) + 1; save(KEYP + 'proby.boss.' + BO.type, prb); } }
+      q('.dcg-why').textContent = 'core dumped · ' + (diedBoss ? 'boss: ' + BN[BO.type] : waveName(wave)) +
+        (pr ? ' · próba #' + pr + (prb ? ' (na tym bossie: ' + prb + ')' : '') : '');
       q('.dcg-sc').textContent = String(sc);
       q('.dcg-best span').textContent = (nowy && sc > 0 ? 'nowy rekord! ' : 'rekord: ') + b + ' · tryb ' + (mode === 'ogien' ? 'ogień' : 'unik');
       for (k = 0; k < 4; k++) if (earned[k]) h += ibtn('b' + (k + 1), 22, 'l', 1);
