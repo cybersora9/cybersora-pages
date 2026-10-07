@@ -209,6 +209,24 @@ var ORB_PUNKT = {
   jasnosc:   0.36
 };
 
+/* SKALA ZIAREN SCENY (etap A, 06.10). ORB_PUNKT jest dobrany pod male kadry
+   (pasek 52 px, kula ~25 px), a scena ma kadr 420 px i kule ~200 px — te same
+   1,3 px dawaly tam pyl zamiast grubych ziaren z terminala. `skala` mnozy
+   WSZYSTKIE rozmiary punktow sceny; `jasnosc` przestraja ekspozycje, bo ziarno
+   rosnie w powierzchni (skala^2). Instancje `static` ida na ORB_NEUTRAL (parytet).
+   Strojenie na zywo: ?tune=1 (panel) albo ?o_skala=3&o_jasnosc=0.3 itd. */
+var ORB_NEUTRAL = {rozmiar: 1, wlokna: 1, zasieg: 1, skala: 1, rdzen: 1, halo: 1, zar: 1, iskra: 1, jasnosc: 1, kopce: ORB_CLOUD.kopce, sigma: ORB_CLOUD.sigma, amp: ORB_CLOUD.amp};
+var ORB_SCENA  = {rozmiar: 0.78, wlokna: 0.4, zasieg: 0.8, skala: 4, rdzen: 1, halo: 1, zar: 1, iskra: 1, jasnosc: 0.8, kopce: ORB_CLOUD.kopce, sigma: ORB_CLOUD.sigma, amp: ORB_CLOUD.amp};
+var ORB_TUNE = false;
+try {
+  var qs = new URLSearchParams(location.search);
+  ORB_TUNE = qs.get('tune') === '1';
+  Object.keys(ORB_SCENA).forEach(function(k){
+    var v = parseFloat(qs.get('o_' + k));
+    if(isFinite(v)) ORB_SCENA[k] = v;
+  });
+} catch(e){}
+
 /* Wysokosc, na jakiej plotno naprawde stoi w pasku. Slot ma display:none az do
    chwili, gdy kula wstanie (klasa has-orb), wiec przy pierwszym wywolaniu
    prostokat jest zerowy — stad wartosc zapasowa z ORB_FRAME. Kiedy slot sie
@@ -476,6 +494,7 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
   var camera = new THREE.PerspectiveCamera(38, PROP, 0.1, 14);
   camera.position.z = kamera;   /* patrz ORB_FRAME: wysokość bufora i ta odległość idą w parze */
   var expo = ekspozycja(N);                   /* gestosc chmury — dotyczy tez wlokien */
+  var S = esStatic ? ORB_NEUTRAL : ORB_SCENA;  /* skala ziaren: tylko scena */
   var expoPunkt = expo * ORB_PUNKT.jasnosc;   /* + tlumienie za urosniety punkt (M2.1) */
   var rnd = zZiarna(ziarnoBazowe);
 
@@ -487,7 +506,7 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
 
   var dirs = fibonacciSphere(N);
   rozstrojSiatke(dirs, N, rnd);
-  var puff = addPuff(dirs, N, ORB_CLOUD.kopce, ORB_CLOUD.sigma, ORB_CLOUD.amp, rnd);
+  var puff = addPuff(dirs, N, Math.round(S.kopce), S.sigma, S.amp, rnd);
   var phase = new Float32Array(N);
   var kick  = new Float32Array(N);
   for(var i = 0; i < N; i++){
@@ -505,14 +524,14 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
   var coreGeo = new THREE.BufferGeometry();
   coreGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3).setUsage(THREE.DynamicDrawUsage));
   coreGeo.setAttribute('color',    new THREE.BufferAttribute(new Float32Array(N * 3), 3).setUsage(THREE.DynamicDrawUsage));
-  var coreMat = new THREE.PointsMaterial(zMieszaniem({ map: dotTexture, color: 0xffffff, vertexColors: true, size: ORB_PUNKT.rdzen * doSceny, transparent: true, depthWrite: false, sizeAttenuation: true }));
+  var coreMat = new THREE.PointsMaterial(zMieszaniem({ map: dotTexture, color: 0xffffff, vertexColors: true, size: ORB_PUNKT.rdzen * S.skala * S.rdzen * doSceny, transparent: true, depthWrite: false, sizeAttenuation: true }));
   var core = new THREE.Points(coreGeo, coreMat);
   core.frustumCulled = false;
 
   var haloGeo = new THREE.BufferGeometry();
   haloGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3).setUsage(THREE.DynamicDrawUsage));
   haloGeo.setAttribute('color',    new THREE.BufferAttribute(new Float32Array(N * 3), 3).setUsage(THREE.DynamicDrawUsage));
-  var haloMat = new THREE.PointsMaterial(zMieszaniem({ map: dotTexture, color: 0xffffff, vertexColors: true, size: ORB_PUNKT.halo * doSceny, transparent: true, depthWrite: false, sizeAttenuation: true }));
+  var haloMat = new THREE.PointsMaterial(zMieszaniem({ map: dotTexture, color: 0xffffff, vertexColors: true, size: ORB_PUNKT.halo * S.skala * S.halo * doSceny, transparent: true, depthWrite: false, sizeAttenuation: true }));
   var halo = new THREE.Points(haloGeo, haloMat);
   halo.frustumCulled = false;
   group.add(core, halo);
@@ -728,6 +747,8 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
   var flara = 0;                                                  /* obwiednia rozbłysku, 1 → 0 */
   var skanPoz = -1.2, autoRotY = 0, ramaRotY = 0;
   var userRotX = 0, userRotY = 0, glowOstatnie = -1, klatkaNr = 0;
+  var dragging = false, userVelY = 0;                              /* reczny obrot: przeciaganie + bezwladnosc */
+  var probe = [], probeGotowe = false;                             /* pomiar kosztu klatki -> dobor N na NASTEPNE wejscie */
   var SKALA = new THREE.Vector3();
 
   var corePos = coreGeo.attributes.position.array, coreCol = coreGeo.attributes.color.array;
@@ -756,6 +777,7 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
     var t = performance.now();
     var i, k;
     klatkaNr++;
+    var t0 = t;
 
     /* --- 0. PRZEJŚCIE: stan się przelewa, nie przeskakuje ----------------
        Każdy parametr dochodzi do celu wykładniczo. Dzięki temu wejście
@@ -768,8 +790,8 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
     }
     kolorTeraz.lerp(kolorCel, pk);
     spin = biezace.spin * baseSpin;
-    coreMat.size = ORB_PUNKT.rdzen * doSceny * biezace.size;
-    haloMat.size = ORB_PUNKT.halo  * doSceny * biezace.size;
+    coreMat.size = ORB_PUNKT.rdzen * S.skala * S.rdzen * doSceny * biezace.size;
+    haloMat.size = ORB_PUNKT.halo  * S.skala * S.halo  * doSceny * biezace.size;
     if(glowEl && Math.abs(biezace.glow - glowOstatnie) > 0.005){
       glowOstatnie = biezace.glow;
       glowEl.style.opacity = String(biezace.glow * glowStrength);
@@ -782,8 +804,9 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
     var glebia = ORB_LAYERS.depth;
     var burn = Math.min(1, biezace.burn * (1 + 0.25 * flara));   /* 0,7 do 11.09 */
     var br = kolorTeraz.r, bg = kolorTeraz.g, bb = kolorTeraz.b;
-    var rdzenKr = KRYCIE.rdzen * expoPunkt;
-    var krycieH = krycieHalo(biezace.glow) * expoPunkt;
+    var expoS = expoPunkt * S.jasnosc;
+    var rdzenKr = KRYCIE.rdzen * expoS;
+    var krycieH = krycieHalo(biezace.glow) * expoS;
     var rozpad = ORB_MOTION.burst * flara;
     var turbo = ORB_MOTION.turbulence * 0.045;
     var falaAmp = biezace.wave * 0.085;
@@ -801,6 +824,14 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
        Głębia liczy się z macierzy świata, więc obrót musi być już ustawiony
        i przeliczony, ZANIM policzymy, który punkt jest z przodu. */
     autoRotY += spin;
+    /* Bezwladnosc recznego obrotu: po puszczeniu predkosc wygasa wykladniczo,
+       a przechylenie X wraca powoli do zera, zeby kula nie zostawala przekrzywiona. */
+    if(!dragging){
+      userRotY += userVelY;
+      userVelY *= 0.94;
+      if(Math.abs(userVelY) < 0.00005) userVelY = 0;
+      userRotX *= 0.985;
+    }
     /* KONTR-ROTACJA: klatka idzie w DRUGĄ stronę i wolniej. Dwa obiekty
        w tym samym tempie czyta się jako jeden; przeciwne kierunki czyta
        się jako dwa niezależne mechanizmy — i o to chodzi. */
@@ -809,7 +840,7 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
     /* esStatic: kula w pasku ma tylko rotowac wokol Y (spin), bez kiwania
        glowa po X — to kiwanie bylo zaszyte tu na sztywno, poza MOOD_PARAMS. */
     group.rotation.x = esStatic ? userRotX : (Math.sin(t / 4000) * 0.15 + userRotX);
-    var cel = 1 + 0.05 * flara;   /* skok skali przy rozbłysku — 0,16 do 11.09 */
+    var cel = S.rozmiar * (1 + 0.05 * flara);   /* skok skali przy rozbłysku — 0,16 do 11.09 */
     group.scale.lerp(SKALA.set(cel, cel, cel), 0.22);
     rama.rotation.y = ramaRotY + userRotY * 0.6;
     rama.rotation.x = group.rotation.x * 0.45;
@@ -879,7 +910,7 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
       /* gęstość to naprawdę LICZBA rysowanych włókien, nie sama jasność */
       var widoczne = Math.round(fibN * biezace.fibers);
       wlokno.geometry.setDrawRange(0, widoczne * fibLay * 4);
-      var jasBaza = (0.55 + 0.45 * biezace.fibers) * KRYCIE.wlokno * (0.55 + 0.45 * expo);
+      var jasBaza = (0.55 + 0.45 * biezace.fibers) * KRYCIE.wlokno * S.wlokna * (0.55 + 0.45 * expo);
       for(var fi = 0; fi < widoczne; fi++){
         var id = fibIdx[fi];
         var wx = dirs[id*3], wy = dirs[id*3+1], wz = dirs[id*3+2];
@@ -890,7 +921,7 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
         puls *= 1 + rozpad * kick[id];
         var wsd = (wy - skanPoz) * skanInv;
         var wsb = wsd*wsd < 1 ? skan * (1 - wsd*wsd) : 0;
-        var rOut = (1 + puff[id]) * puls * (1 + fibLen[fi] * ORB_LAYERS.reach * (0.78 + 0.22 * Math.sin(freq * 1.3 + wf)) + wsb * 0.22);
+        var rOut = (1 + puff[id]) * puls * (1 + fibLen[fi] * ORB_LAYERS.reach * S.zasieg * (0.78 + 0.22 * Math.sin(freq * 1.3 + wf)) + wsb * 0.22);
         var rIn = 0.12, rMid = rIn + (rOut - rIn) * 0.40;
 
         var wzs = m0*wx + m1*wy + m2*wz;
@@ -986,12 +1017,12 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
     }
 
     /* --- 7. jądro przepalenia ---------------------------------------------- */
-    iskraMat.size = (ORB_PUNKT.iskraBaza + burn * ORB_PUNKT.iskraZar) * doSceny;
+    iskraMat.size = (ORB_PUNKT.iskraBaza + burn * ORB_PUNKT.iskraZar) * S.skala * S.iskra * doSceny;
     var sila = burn * KRYCIE.jadro;
     iskraMat.color.setRGB((br + (1-br)*0.72) * sila, (bg + (1-bg)*0.72) * sila, (bb + (1-bb)*0.72) * sila);
     /* żar: mały, prawie biały i jasny — WARTOŚĆ, nie krycie, decyduje o tym,
        czy środek czyta się jako rozgrzany do białości czy jako szara plama */
-    zarMat.size = (ORB_PUNKT.zarBaza + burn * ORB_PUNKT.zarZar) * doSceny;
+    zarMat.size = (ORB_PUNKT.zarBaza + burn * ORB_PUNKT.zarZar) * S.skala * S.zar * doSceny;
     var zj = Math.min(1, 0.12 + burn * 0.92);
     zarMat.color.setRGB(br + (1-br)*0.93*zj, bg + (1-bg)*0.93*zj, bb + (1-bb)*0.93*zj);
     /* Podwojne uzycie zj (raz na barwe, raz na wartosc) dawalo przy spokoju
@@ -1014,15 +1045,75 @@ function makeOrb(canvas, baseSpin, N, glowEl, glowStrength, kamera, ziarnoBazowe
       renderer.setRenderTarget(null);
       renderer.render(scene, camera);
     }
+
+    /* POMIAR: koszt pracy klatki po stronie CPU (bez GPU), 60 pierwszych klatek.
+       Mediana z ostatnich 50 (pierwsze 10 = rozgrzewka). Zbyt wolno => nastepne
+       wejscie na strone startuje z mniejszym N (zmiany N w locie nie ma: chmura
+       i bufory powstaja raz, a odtworzenie WebGLRenderera na tym samym plotnie
+       gubi kontekst). Wynik czyta tez bramka: window.SOMI_ORB_PROBE. */
+    if(!probeGotowe){
+      probe.push(performance.now() - t0);
+      if(probe.length >= 60){
+        probeGotowe = true;
+        var s = probe.slice(10).sort(function(a, b){ return a - b; });
+        var med = s[s.length >> 1];
+        window.SOMI_ORB_PROBE = {N: N, medianaMs: Math.round(med * 100) / 100};
+        if(med > 12 && N > 460){
+          try { localStorage.setItem('somiOrbN', String(N > 900 ? 900 : 460)); } catch(err){}
+        }
+      }
+    }
   };
   rysuj();
 
   canvas.hidden = false;
 
-  /* Przeciaganie recznej rotacji (i "szturchniecie" palcem) z terminala tu NIE
-     wchodzi: w pasku kula jest wnetrzem <button>, wiec pointerdown na plotnie
-     zjadalby klik otwierajacy czat, a obracanie kuli wielkosci 40 px nikomu
-     do niczego nie sluzy. Klik obsluguje przycisk, blysk leci przez SOMI_PULSE. */
+  /* Reczny obrot (wzor: SOMI Terminal). Przeciaganie obraca kule; klik bez
+     przeciagania (<6 px ruchu) = "szturchniecie", czyli SOMI_PULSE (rozblysk).
+     Tylko dla sceny: kula w pasku (initMood 'static') jest wnetrzem <button>. */
+  if(!esStatic){
+    canvas.style.cursor = 'grab';
+    canvas.style.touchAction = 'none';
+    var lastX = 0, lastY = 0, moved = 0;
+    var hint = document.querySelector('.somi-stage__hint');
+    var ukryjHint = function(){ if(hint){ hint.classList.add('is-gone'); hint = null; } };
+    canvas.addEventListener('pointerdown', function(e){
+      dragging = true; lastX = e.clientX; lastY = e.clientY; moved = 0; userVelY = 0;
+      try { canvas.setPointerCapture(e.pointerId); } catch(err){}
+      canvas.style.cursor = 'grabbing';
+    });
+    canvas.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var dx = e.clientX - lastX, dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      moved += Math.abs(dx) + Math.abs(dy);
+      userRotY += dx * 0.014;
+      userVelY = dx * 0.014;   /* ostatni ruch = predkosc startowa bezwladnosci */
+      userRotX = Math.max(-1.1, Math.min(1.1, userRotX + dy * 0.014));
+      if(moved >= 6) ukryjHint();
+    });
+    var endDrag = function(){
+      if(!dragging) return;
+      dragging = false;
+      canvas.style.cursor = 'grab';
+      if(moved < 6){ userVelY = 0; if(window.SOMI_PULSE) window.SOMI_PULSE(); else flara = 1; }
+    };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+    /* Klawiatura: strzalki obracaja kule (slot ma tabindex i aria-label w HTML). */
+    var slot = canvas.parentNode;
+    if(slot){
+      slot.addEventListener('keydown', function(e){
+        var kroki = {ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1]};
+        var kr = kroki[e.key];
+        if(!kr) return;
+        e.preventDefault();
+        userVelY += kr[0] * 0.03;
+        userRotX = Math.max(-1.1, Math.min(1.1, userRotX + kr[1] * 0.25));
+        ukryjHint();
+      });
+    }
+  }
 
   /* applyMood ustawia CEL, nie wartość: pętla dociąga do niego wykładniczo
      (patrz PRZEJŚCIE). Z zewnątrz setMood(m) działa dokładnie tak samo jak
@@ -1079,11 +1170,98 @@ var somiDemoOrb;
    bo to DOKLADNIE ten wariant: kadr 322:205 przy wysokosci bliskiej 205 px,
    dla ktorego 460 punktow i poswiata 0,35 byly juz zmierzone w terminalu
    (mala/pasek boczny), zamiast zgadywac nowe liczby. */
-somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, 460, somiDemoGlow, 0.35, ORB_FRAME.scena.kamera, 20260918, undefined, ORB_FRAME.scena.prop);
+/* Gestosc sceny (A3, 06.10): 1600 jak duza kula terminala, schodzi do 900/460 na
+   slabym sprzecie. Wybor z gory (CPU/RAM/maly ekran) + wynik pomiaru z poprzedniej
+   wizyty (localStorage, patrz POMIAR w petli). */
+function wybierzN(){
+  /* Override do testow: ?orbN=460|900|1600|2400 (omija tez zapis z pomiaru). */
+  try {
+    var q = parseInt(new URLSearchParams(location.search).get('orbN'), 10);
+    if(q === 460 || q === 900 || q === 1600 || q === 2400) return q;
+  } catch(e){}
+  try {
+    var zap = parseInt(localStorage.getItem('somiOrbN'), 10);
+    if(zap === 900 || zap === 460) return zap;
+  } catch(e){}
+  var c = navigator.hardwareConcurrency || 8, mem = navigator.deviceMemory || 8;
+  var krotszy = Math.min(screen.width || 9999, screen.height || 9999);
+  var dotyk = !!(window.matchMedia && matchMedia('(pointer:coarse)').matches);
+  var mysz = !!(window.matchMedia && matchMedia('(pointer:fine)').matches);
+  if(c <= 2 || mem <= 2) return 460;
+  if(c <= 4 || mem <= 4 || krotszy < 600 || (dotyk && krotszy < 820)) return 900;
+  if(c >= 8 && mem >= 8 && Math.max(screen.width || 0, screen.height || 0) >= 1200 && mysz && !dotyk) return 2400;
+  return 1600;
+}
+var somiDemoOrbN = wybierzN();
+somiDemoOrb = makeOrb(somiDemoCanvas, 0.0022, somiDemoOrbN,somiDemoGlow, 0.35, ORB_FRAME.scena.kamera, 20260918, undefined, ORB_FRAME.scena.prop);
 var orbs = [somiDemoOrb].filter(Boolean);
 if(!orbs.length) return;  // brak WebGL — znak tekstowy zostaje jedynym wskaźnikiem
 
 var moodOrbs = orbs;
+
+/* PANEL STROJENIA (?tune=1) — tylko lokalnie, do ręcznego dobrania wyglądu.
+   Suwaki ziaren/jasności działają na żywo (mutują ORB_SCENA, petla czyta co klatkę);
+   kopce/sigma/amp/N zmieniają geometrię, więc po puszczeniu suwaka przeładowują
+   stronę z parametrem w URL. Przed deployem usunąć albo zostawić martwy bez ?tune=1. */
+if(ORB_TUNE){
+  var strojDef = [
+    ['rozmiar', 0.4, 1.2, 0.01, true], ['wlokna', 0, 1.5, 0.02, true], ['zasieg', 0, 1.5, 0.02, true], ['skala', 0.5, 8, 0.05, true], ['rdzen', 0.2, 3, 0.05, true], ['halo', 0.2, 3, 0.05, true],
+    ['zar', 0, 3, 0.05, true], ['iskra', 0, 3, 0.05, true], ['jasnosc', 0.02, 1.5, 0.01, true],
+    ['kopce', 0, 12, 1, false], ['sigma', 0.05, 0.6, 0.01, false], ['amp', 0, 0.3, 0.005, false]
+  ];
+  var strojPanel = document.createElement('div');
+  strojPanel.style.cssText = 'position:fixed;right:12px;top:12px;z-index:99999;width:250px;padding:10px 12px;background:rgba(14,14,18,.92);border:1px solid #E11D33;color:#F6F2F3;font:12px/1.3 monospace;border-radius:6px';
+  var strojNaglowek = document.createElement('div');
+  strojNaglowek.textContent = 'kula: strojenie (?tune=1)';
+  strojNaglowek.style.cssText = 'margin-bottom:6px;color:#E11D33';
+  strojPanel.appendChild(strojNaglowek);
+  var strojWyniki = {};
+  function strojPrzeladuj(klucz, wartosc){
+    var u = new URL(location.href);
+    ORB_SCENA[klucz] = wartosc;
+    Object.keys(ORB_SCENA).forEach(function(k){ u.searchParams.set('o_' + k, String(ORB_SCENA[k])); });
+    location.href = u.toString();
+  }
+  strojDef.forEach(function(d){
+    var wiersz = document.createElement('label');
+    wiersz.style.cssText = 'display:grid;grid-template-columns:62px 1fr 42px;gap:6px;align-items:center;margin:3px 0';
+    var nazwa = document.createElement('span'); nazwa.textContent = d[0];
+    var suwak = document.createElement('input');
+    suwak.type = 'range'; suwak.min = d[1]; suwak.max = d[2]; suwak.step = d[3]; suwak.value = ORB_SCENA[d[0]];
+    var wart = document.createElement('span'); wart.textContent = String(ORB_SCENA[d[0]]);
+    suwak.addEventListener('input', function(){
+      var v = parseFloat(suwak.value); wart.textContent = String(v);
+      if(d[4]) ORB_SCENA[d[0]] = v;
+    });
+    if(!d[4]) suwak.addEventListener('change', function(){ strojPrzeladuj(d[0], parseFloat(suwak.value)); });
+    wiersz.appendChild(nazwa); wiersz.appendChild(suwak); wiersz.appendChild(wart);
+    strojPanel.appendChild(wiersz);
+  });
+  var wierszN = document.createElement('div');
+  wierszN.style.cssText = 'margin:6px 0';
+  wierszN.appendChild(document.createTextNode('N: '));
+  [460, 900, 1600, 2400].forEach(function(n){
+    var b = document.createElement('button');
+    b.textContent = String(n);
+    b.style.cssText = 'margin-right:4px;background:#222;color:#F6F2F3;border:1px solid #555;cursor:pointer';
+    b.addEventListener('click', function(){
+      var u = new URL(location.href); u.searchParams.set('orbN', String(n)); location.href = u.toString();
+    });
+    wierszN.appendChild(b);
+  });
+  strojPanel.appendChild(wierszN);
+  var kopiuj = document.createElement('button');
+  kopiuj.textContent = 'kopiuj wartości';
+  kopiuj.style.cssText = 'width:100%;padding:4px;background:#E11D33;color:#F6F2F3;border:0;cursor:pointer';
+  kopiuj.addEventListener('click', function(){
+    var out = JSON.stringify(Object.assign({N: somiDemoOrbN}, ORB_SCENA));
+    try { navigator.clipboard.writeText(out); } catch(e){}
+    kopiuj.textContent = 'skopiowano: ' + out.length + ' zn.';
+    console.log('ORB_TUNE', out);
+  });
+  strojPanel.appendChild(kopiuj);
+  document.body.appendChild(strojPanel);
+}
 
 /* Druga kula NIE moze chodzic caly czas — zasada 4 planu ("najwyzej dwie
    pracujace petle animacji") jest juz wyczerpana przez mape czastek + kule
@@ -1141,7 +1319,12 @@ stanBtns.forEach(function(b){
   });
 });
 if(somiDemoCanvas && somiDemoCanvas.parentNode){
-  somiDemoCanvas.parentNode.addEventListener('click', function(){ window.SOMI_PULSE(); });
+  /* Klik na samym plotnie obsluguje juz pointerup w makeOrb (zeby nie bylo
+     podwojnego rozblysku); tu zostaje klik w otoczke/poswiate. */
+  somiDemoCanvas.parentNode.addEventListener('click', function(e){
+    if(e.target === somiDemoCanvas) return;
+    window.SOMI_PULSE();
+  });
 }
 
 var realPulse = window.SOMI_PULSE;
