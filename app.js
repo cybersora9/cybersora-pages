@@ -3443,11 +3443,11 @@
     const SOMI_KROKI = {
       rozmowa: {
         nazwa: 'Przykładowa rozmowa',
-        lead: 'Na tej stronie SOMI odpowiada na trzy gotowe pytania. To zapis, nie czat na żywo. Prawdziwa SOMI rozmawia ze mną w terminalu i na Discordzie.',
+        lead: 'SOMI działa już na co dzień: rozmawiam z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostaję od niej gotowe rzeczy. Tutaj zobaczysz tylko zapis trzech pytań, bo czatu na żywo na stronie jeszcze nie ma.',
         kod: 'somi> router.wybierz(zadanie)\n  rutyna   -> deepseek-v4-flash\n  trudne   -> claude-sonnet-5\n  synteza  -> claude-opus-5-5\npamiec.szukaj("radar")',
         fakty: [
-          ['tutaj', '3 pytania, odpowiedzi spisane'],
-          ['u nas', 'Terminal · bot na Discordzie'],
+          ['na stronie', 'Zapis 3 pytań, bez czatu na żywo'],
+          ['u nas', 'Terminal · Discord · rozmowa głosem'],
           ['modele', 'DeepSeek do rutyny · Claude do trudnych'],
           ['pamięć', 'Indeks z dziennika i dokumentacji'],
         ],
@@ -3459,7 +3459,7 @@
       },
       research: {
         nazwa: 'Deep research',
-        lead: 'Radar przegląda zlecenia z Useme i Upwork, odrzuca stare i ocenia resztę pod nasze umiejętności. Działa dziś, tylko jeszcze nie z poziomu czatu SOMI.',
+        lead: 'SOMI robi deep research na to, czego akurat potrzebujemy. Najlepiej widać to w radarze: przegląda zlecenia z Useme i Upwork, odrzuca stare i ocenia resztę pod nasze umiejętności. Radar działa już dziś, a z poziomu czatu SOMI dopiero go podłączamy.',
         znak: '.somi-demo__parts li:nth-child(2) .somi-demo__glyph',
         fakty: [
           ['źródła', 'Useme · Upwork'],
