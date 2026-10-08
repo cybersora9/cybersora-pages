@@ -1972,13 +1972,12 @@
      POWROT = jedno slowo nizej na true, nic wiecej.
      Powod praktyczny stoi w PLAN_STRONY: 32 z 38 przyciskow Gumroada prowadza
      w blad, wiec dzisiaj kazde wejscie na Produkty konczy sie bledem. */
-  const PRODUKTY_WIDOCZNE = false;
+  /* 08.10: Produkty WRACAJA jako nasze programy do pobrania (SoraFlux, Pycodemath, DancyCloud,
+     Rodzina Sora wkrotce). Stary blok "Top produkty" na Starcie (Gumroad) zostaje schowany na stale. */
+  const PRODUKTY_WIDOCZNE = true;
+  document.querySelectorAll('[data-produkty]').forEach(el => { el.hidden = true; });
   if (!PRODUKTY_WIDOCZNE) {
-    /* Nie tylko linki: rowniez blok "Top produkty" na stronie glownej, ktory ma
-       wlasne przyciski "Kup na Gumroad" i po samym schowaniu trasy zostawal
-       widoczny (zlapane 11.09 przy ogladaniu calej strony). */
-    document.querySelectorAll('[data-nav="products"], [data-produkty]')
-      .forEach(el => { el.hidden = true; });
+    document.querySelectorAll('[data-nav="products"]').forEach(el => { el.hidden = true; });
   }
 
   /* ===== SOCJALE =====
@@ -2156,7 +2155,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261008b';
+  const SORAOS_V = '20261008c';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2431,6 +2430,43 @@
   ustawLawe();
 
   window.addEventListener('hashchange', () => go(location.hash.slice(1), false));
+
+  /* PRODUKTY (08.10): "Graj teraz" = Marketplace + kafel gry DancyCloud (ten sam, co na pulpicie SORA//OS).
+     Wpiecie komputera przeskakujemy (pomin), zeby gra ruszyla od razu. Bez modulu zostaje sam Marketplace. */
+  document.querySelectorAll('[data-pr-graj]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      go('marketplace');
+      soraosZaladuj().then((os) => {
+        if (!os) return;
+        const klik = (n) => {
+          const k = document.querySelector('[data-view="marketplace"] [data-gra-kafel]');
+          if (k && document.documentElement.dataset.route === 'marketplace') { if (soraosPomin) soraosPomin(); k.click(); }
+          else if (n < 40) setTimeout(() => klik(n + 1), 50);
+        };
+        setTimeout(() => klik(0), 350);
+      });
+    });
+  });
+  /* filtry siatki Produktow (v2): kafel "Twoj program" (data-pr-typ="all") widac zawsze */
+  document.querySelectorAll('.pr-filtry').forEach(bar => {
+    const siatka = bar.parentElement.querySelector('.pr-siatka');
+    bar.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-pr-f]');
+      if (!b || !siatka) return;
+      bar.querySelectorAll('[data-pr-f]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      const f = b.dataset.prF;
+      siatka.querySelectorAll('.pr-k').forEach(k => { k.hidden = !(f === 'all' || k.dataset.prTyp === f || k.dataset.prTyp === 'all'); });
+    });
+  });
+  /* przycisk w hero Produktow: przewiniecie do karty, nie zmiana #hash (hash = trasa) */
+  document.querySelectorAll('[data-pr-przewin]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cel = document.getElementById(el.dataset.prPrzewin);
+      if (cel) cel.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
 
   /* ===================== magnetic links (small reach, soft return) ===================== */
   if (!reduce) {
@@ -3451,9 +3487,9 @@
         lead: 'Nasz konwerter na komputer. Zamienia wideo, dźwięk i obrazy na potrzebny format, pokazuje rozmiar wyniku przed startem i robi wszystko lokalnie, bez wysyłania plików do sieci.',
         fakty: [
           ['zakres', 'Wideo · audio · obrazy · GIF'],
-          ['wersja', '1.0.2 · Windows · w testach'],
+          ['wersja', '1.2.1 · Windows 10 i 11'],
           ['silnik', 'Rust · Tauri 2 · ffmpeg'],
-          ['cena', 'Będzie za darmo'],
+          ['cena', 'Za darmo, do pobrania w Produktach'],
         ],
         zrzut: {
           src: 'sadzonki/soraflux-konwertuj.webp', w: 1280, h: 860,
@@ -3462,7 +3498,7 @@
         },
         pytania: [
           { q: 'Co potrafi?', a: 'Zmienia format wideo i dźwięku (MP4, MKV, WEBM, MP3, AAC, FLAC i inne), robi GIF-y z klipów i zmniejsza obrazy. Ustawisz rozdzielczość, liczbę klatek, jakość i bitrate, a gotowe zestawy, np. „Telefon 480p 25 fps” czy „Discord 10 MB”, robią to jednym kliknięciem.' },
-          { q: 'Kiedy i za ile?', a: 'Będzie za darmo. Teraz testujemy wersję 1.0.2 u siebie i u znajomych, a publiczne wydanie wyjdzie, gdy skończymy testy. Pliki nie wychodzą z Twojego komputera i program nie zbiera żadnej telemetrii.' },
+          { q: 'Kiedy i za ile?', a: 'Już teraz, za darmo: wersję 1.2.1 pobierzesz z zakładki Produkty na tej stronie. Pliki nie wychodzą z Twojego komputera i program nie zbiera żadnej telemetrii.' },
         ],
       },
       frostwall: {

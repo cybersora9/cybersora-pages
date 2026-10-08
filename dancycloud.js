@@ -11332,7 +11332,7 @@
     }
     var autoFire = !!(opts.autoFire || qs && qs.get("auto") === "1" || typeof navigator !== "undefined" && navigator.webdriver && !(qs && qs.get("auto") === "0"));
     function firing() {
-      return autoFire || mFire || keys.f || padFire || drag.on && drag.id !== "lock";
+      return autoFire || mFire || keys.f || padFire || drag.on && drag.id !== "lock" && drag.id !== "mysz";
     }
     function locked() {
       return doc.pointerLockElement === cv;
@@ -11364,7 +11364,17 @@
       if (state === "play") pause();
     }
     function onMouseMove(e) {
-      if (!locked() || !drag.on || drag.id !== "lock") return;
+      if (!locked()) {
+        if (state !== "play" || touch || e.target !== cv || drag.on && drag.id !== "mysz") return;
+        var r = cv.getBoundingClientRect(), m = 11 * s0;
+        if (!r.width || !r.height) return;
+        drag.on = true;
+        drag.id = "mysz";
+        drag.tx = clamp2((e.clientX - r.left) * W / r.width, m, W - m);
+        drag.ty = clamp2((e.clientY - r.top) * H / r.height, 14 * s0, H - 20 * s0);
+        return;
+      }
+      if (!drag.on || drag.id !== "lock") return;
       var mx = 11 * s0;
       drag.tx = clamp2(drag.tx + e.movementX * MOUSE_K, mx, W - mx);
       drag.ty = clamp2(drag.ty + e.movementY * MOUSE_K, 14 * s0, H - 20 * s0);
@@ -14406,8 +14416,13 @@
         return;
       }
       if (state === "play") {
-        if (setKey(k, 1)) e.preventDefault();
-        else if (k === set.keys.bomb || k === " " || k === "Spacebar") {
+        if (setKey(k, 1)) {
+          if (drag.id === "mysz") {
+            drag.on = false;
+            drag.id = null;
+          }
+          e.preventDefault();
+        } else if (k === set.keys.bomb || k === " " || k === "Spacebar") {
           if (!e.repeat) bomb();
           e.preventDefault();
         } else if (k === set.keys.pause || k === "Escape" || k === "p" || k === "P") {
@@ -14697,7 +14712,7 @@
         ship.vx = ship.vy = 0;
       }
     }
-    win.addEventListener("keydown", onKey);
+    win.addEventListener("keydown", onKey, true);
     win.addEventListener("keyup", onKeyUp);
     doc.addEventListener("pointerlockchange", onLock);
     doc.addEventListener("mousemove", onMouseMove);
@@ -14749,7 +14764,7 @@
       if (dead) return;
       dead = true;
       stopLoop();
-      win.removeEventListener("keydown", onKey);
+      win.removeEventListener("keydown", onKey, true);
       win.removeEventListener("keyup", onKeyUp);
       doc.removeEventListener("pointerlockchange", onLock);
       doc.removeEventListener("mousemove", onMouseMove);
