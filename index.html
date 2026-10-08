@@ -3148,6 +3148,51 @@
   .soraos-tresc figure img{display:block;width:100%;max-width:100%;height:auto;border:1px solid var(--th-line,rgba(255,255,255,.14));}
   .soraos-tresc a{color:var(--th-label);font-weight:600;}
   .soraos-tresc li[data-linie]::after{content:attr(data-linie) " linii";display:block;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);}
+
+  /* ---- PRODUKTY (08.10 v2, uklad A): wyroznik + filtry + siatka kafli ze znakami ---- */
+  .pr .services__inner{display:flex;flex-direction:column;gap:1.5rem;}
+  .pr-hit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(1.2rem,3vw,2.6rem);align-items:center;
+    padding:clamp(1.1rem,2.6vw,2rem);border:1px solid rgba(255,255,255,.10);
+    clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px);
+    background:linear-gradient(155deg,color-mix(in srgb,var(--th-accent) 8%,transparent),transparent 55%),rgba(255,255,255,.02);scroll-margin-top:90px;}
+  .pr-hit__shot{margin:0;overflow:hidden;border:1px solid rgba(255,255,255,.08);}
+  .pr-hit__shot img{display:block;width:100%;height:auto;}
+  .pr-hit__txt{display:flex;flex-direction:column;gap:.8rem;min-width:0;}
+  .pr-hit__h{margin:0;display:flex;align-items:center;gap:.9rem;font-size:var(--t-m);line-height:1;font-weight:400;letter-spacing:-.02em;}
+  .pr-hit__h b{font-weight:800;color:var(--th-accent);}
+  .pr-hit__ik{width:1.4em;height:1.4em;flex:none;}
+  .pr-hit__lista{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.3rem;font-size:var(--t-ui);color:var(--muted-dark);}
+  .pr-hit__akcje{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin-top:.3rem;}
+  .pr-meta{margin:0;display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;font-size:var(--t-label);}
+  .pr-meta div{display:flex;gap:.45rem;}
+  .pr-meta dt{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--th-label);}
+  .pr-meta dd{margin:0;color:var(--muted-dark);}
+  .pr-info{font-size:var(--t-ui);color:var(--muted-dark);border-top:1px solid rgba(255,255,255,.08);padding-top:.7rem;}
+  .pr-info summary{cursor:pointer;color:inherit;font-weight:600;}
+  .pr-info summary:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .pr-info p{margin:.6rem 0 0;line-height:var(--lh-text);}
+  .pr-info code{font-family:var(--mono);font-size:var(--t-instrument);}
+  .pr-sha{display:block;margin-top:.4rem;padding:.55rem .7rem;background:rgba(255,255,255,.04);overflow-wrap:anywhere;user-select:all;}
+  .pr-filtry{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem;}
+  .pr-filtry button{font:inherit;font-size:var(--t-ui);color:var(--muted-dark);background:transparent;border:1px solid rgba(255,255,255,.14);padding:.45rem .95rem;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
+  .pr-filtry button:hover{color:#f6f2f3;border-color:rgba(255,255,255,.3);}
+  .pr-filtry button[aria-pressed="true"]{color:#f6f2f3;border-color:var(--th-accent);background:color-mix(in srgb,var(--th-accent) 12%,transparent);}
+  .pr-filtry button:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .pr-siatka{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:1rem;}
+  .pr-k{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:1fr auto;gap:.9rem 1.1rem;padding:1.2rem;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.015);transition:border-color .25s,background .25s;}
+  .pr-k:hover{border-color:color-mix(in srgb,var(--th-accent) 55%,transparent);background:rgba(255,255,255,.03);}
+  .pr-k[hidden]{display:none;}
+  .pr-ik{width:76px;height:76px;display:block;}
+  .pr-k__txt{display:flex;flex-direction:column;gap:.35rem;min-width:0;}
+  .pr-k__h{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;}
+  .pr-k__txt p{margin:.15rem 0 0;font-size:var(--t-ui);line-height:var(--lh-text);color:var(--muted-dark);}
+  .pr-k__dol{grid-column:1/-1;display:flex;justify-content:flex-end;align-items:center;border-top:1px solid rgba(255,255,255,.08);padding-top:.7rem;}
+  .pr-k__dol .card__go{margin:0;padding:0;}
+  .pr-k__wkr{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-dark);}
+  .pr-k--soon .pr-ik{opacity:.55;}
+  .pr-k--zam{border-style:dashed;}
+  @media (max-width:860px){ .pr-hit{grid-template-columns:1fr;} .pr-hit__shot{order:-1;} }
+  @media (max-width:480px){ .pr-ik{width:60px;height:60px;} }
 </style>
 </head>
 <body>
@@ -3269,6 +3314,7 @@
           <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jesteśmy i co robimy, w skrócie.</span></a>
           <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Programy, aplikacje, strony i darmowy skan widoczności w Google.</span></a>
           <a class="nav__tile" href="#marketplace" data-nav="marketplace"><b>Marketplace</b><span>Gotowe usługi z ceną z góry: skrypty, boty, aplikacje, widoczność w Google.</span></a>
+          <a class="nav__tile" href="#products" data-nav="products"><b>Produkty</b><span>Nasze programy do pobrania za darmo: SoraFlux, Pycodemath, gra DancyCloud.</span></a>
           <a class="nav__tile" href="#somi" data-nav="somi"><b>SOMI</b><span>Nasza asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
           <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasza asystentka SOMI. Szukamy też partnerów do projektów.</span></a>
           <a class="nav__tile" href="#rnd" data-nav="rnd"><b>Sadzonki</b><span>Projekty, nad którymi teraz pracujemy, zanim trafią do oferty.</span></a>
@@ -3858,7 +3904,7 @@ def save_state(state: Dict[str, Any])</code></pre>
                   <h3>MoonSora</h3>
                   <p data-pole="krotko">Terminal do pracy z agentami AI</p>
                   <p data-pole="lead">Terminal na Windows, w którym pracujemy z agentami AI na co dzień: karty, podgląd przeglądarki, tryb telefon/komputer.</p>
-                  <figure data-pole="zrzut"></figure>
+                  <figure data-pole="zrzut"><img src="zrzuty_projektow/moonsora.png" alt="MoonSora: asystent przy błędzie testu" width="1600" height="1000" loading="lazy" decoding="async"></figure>
                   <pre data-pole="kod" data-zrodlo="src-tauri/src"><code>pub fn new(app: &amp;AppHandle, root: PathBuf)
 pub fn dir_for(&amp;self, profile: &amp;str, keep: bool)
 fn free_port()</code></pre>
@@ -3913,11 +3959,11 @@ generuj_kod(wzor)</code></pre>
                   <a href="#contact" data-nav="contact" data-konf="skrypt">Zamów podobne</a>
                 </article>
               </li>
-              <li data-id="soraflux" data-plik="soraflux.exe" data-usluga="app" data-znacznik="w testach">
+              <li data-id="soraflux" data-plik="soraflux.exe" data-usluga="app" data-znacznik="za darmo">
                 <article data-roboczy>
                   <h3>SoraFlux</h3>
                   <p data-pole="krotko">Konwerter wideo, audio i obrazów na komputer</p>
-                  <p data-pole="lead">Zamienia wideo, dźwięk i obrazy na potrzebny format: MP4 na telefon, MP3 z filmu, GIF z klipu. Sam pilnuje rozmiaru pliku i działa w całości na Twoim komputerze. Będzie za darmo, teraz w testach.</p>
+                  <p data-pole="lead">Zamienia wideo, dźwięk i obrazy na potrzebny format: MP4 na telefon, MP3 z filmu, GIF z klipu. Sam pilnuje rozmiaru pliku i działa w całości na Twoim komputerze. Za darmo, do pobrania w zakładce Produkty.</p>
                   <figure data-pole="zrzut"><img src="zrzuty_projektow/soraflux.png" alt="SoraFlux: zakładka Konwertuj z gotowymi ustawieniami i przewidywanym rozmiarem wyniku" width="1280" height="860" loading="lazy" decoding="async"></figure>
                   <pre data-pole="kod" data-zrodlo="src-tauri/src/"><code>plan(media, profil, wejscie, wyjscie)
 bitrate_z_rozmiaru(mb, czas_s, kbps_audio)
@@ -4027,618 +4073,125 @@ def fetch_offer_detail(url)</code></pre>
   </section>
 
   <!-- PRODUKTY -->
+  <!-- PRODUKTY (08.10 v2, uklad A z makiety AxXf6iGjBMQM6UGiZGGztx, znaki z cybersora-assets/logo/produkty,
+       generator gen_znaki.py — tu tylko <symbol>-e z tych samych bryl). Polka: jeden produkt na scenie
+       (nowa premiera = podmiana .pr-hit), pod nim filtry i siatka kafli (nowy produkt = jeden kafel).
+       Instalator lezy w pobierz/ (cybersora-pages); przy nowej wersji zmienic: href (2x), wersje, rozmiar i SHA-256.
+       SoraSub NIE ma kafla: to tryb "Napisy" w SoraFluxie (ADR-08 Rodziny Sora). Platne = przez Kontakt. -->
   <section class="view" data-view="products" aria-label="Produkty" hidden>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="zn-soraflux" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 26H38L72 60L38 94H18L52 60Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M48 26H68L102 60L68 94H48L82 60Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorafoto" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M34 18H102V86L86 102H18V34ZM38.6 29H91V81.4L81.4 91H29V38.6Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M31 88L51 58L63 73L71 63L84 88Z" fill="#e11d33" fill-rule="evenodd"/><path d="M76 34L83 41L76 48L69 41Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorashot" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 48V30L30 18H48V30H35L30 35V48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M72 18H90L102 30V48H90V35L85 30H72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M102 72V90L90 102H72V90H85L90 85V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M48 102H30L18 90V72H30V85L35 90H48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M40 51H90L80 69H30Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorapdf" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M28 14H54V52H92V106H28ZM40 62V70H80V62ZM40 76V84H80V76ZM40 90V98H64V90Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 14L92 46H60Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-dancycloud" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 72V60L28 50H36V46L48 34H58L66 26H80L92 38V48L102 58V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 80L76 100H65L60 93L55 100H44Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-pycodemath" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><g transform="translate(6.6 26.7) scale(.57)"><g fill="none" stroke-linecap="round" stroke-width="12"><path d="M68,20 C69,11 57,12 55,23 C51,40 54,50 46,62 C38,74 41,82 36,94 C33,105 22,105 20,95" stroke="#e11d33"/><path d="M96,44 L120,63 L96,82" stroke="#f6f2f3" stroke-linejoin="round"/></g><rect x="138" y="76" width="30" height="12" fill="#e11d33"/></g></symbol></svg>
     <div class="hero">
       <div class="overlay">
-        <div class="eyebrow">sklep &middot; produkty</div>
-        <h1 class="slogan">GOTOWE NARZĘDZIA<span class="thin">kupujesz, wdrażasz, działa</span></h1>
-        <p class="stub">To, co budujemy dla klientów, budujemy też dla siebie — i sprzedajemy dalej. Realny kod, nie obietnice na slajdzie.</p>
-        <a class="cta-big" href="#contact" data-nav="contact" data-topic="Projekt na zamówienie">Zamów własny projekt z AI &rarr;</a>
+        <div class="eyebrow">produkty &middot; do pobrania</div>
+        <h1 class="slogan">NASZE PROGRAMY<span class="thin">pobierasz i używasz, bez konta</span></h1>
+        <p class="stub">To, co zbudowaliśmy dla siebie, oddajemy dalej. Pobierasz prosto z tej strony.</p>
+        <a class="cta-big" href="#products" data-pr-przewin="pr-soraflux">Pobierz SoraFlux &darr;</a>
       </div>
     </div>
 
-    <section class="services">
+    <section class="services pr" aria-label="Nasze programy">
       <div class="services__inner">
-        <div class="services__head">
-          <div class="services__eyebrow" data-hex="0x9E22">sklep</div>
-          <h2 class="services__title">Wszystkie produkty</h2>
-        </div>
-        <div class="catgrid" role="tablist" aria-label="Filtruj kategorie">
-          <button class="catcard is-active" type="button" data-filter="all" role="tab" aria-selected="true">
-            <span class="card__tag">katalog</span>
-            <div class="catcard__top">
-              <div class="catcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-              <h3 class="catcard__title">Wszystkie<span class="catcard__count"></span></h3>
+        <article class="pr-hit" id="pr-soraflux" aria-labelledby="pr-soraflux-h">
+          <div class="pr-hit__txt">
+            <span class="card__tag">nowość &middot; Windows &middot; za darmo</span>
+            <h2 class="pr-hit__h" id="pr-soraflux-h"><svg class="pr-hit__ik" aria-hidden="true" focusable="false"><use href="#zn-soraflux"/></svg><span>Sora<b>Flux</b></span></h2>
+            <p class="card__body">Konwerter wideo, dźwięku i obrazów. MP4 na telefon, MP3 z filmu, GIF z klipu, plik „zmniejsz do 25 MB” jednym kliknięciem. Pobiera też filmy i muzykę z większości popularnych serwisów. Wszystko dzieje się na Twoim komputerze: bez wysyłania plików, limitów i reklam.</p>
+            <ul class="pr-hit__lista">
+              <li>szybkie akcje: na telefon, wyciągnij MP3, zrób GIF, wytnij fragment</li>
+              <li>podgląd przed i po, zanim zaczniesz</li>
+              <li>nigdy nie nadpisuje oryginału, zero telemetrii</li>
+            </ul>
+            <div class="pr-hit__akcje">
+              <a class="cta-big" href="pobierz/SoraFlux_1.2.1_x64-setup.exe" download data-pr-pobierz="soraflux">Pobierz SoraFlux 1.2.1 &darr;</a>
             </div>
-            <p class="catcard__sub">Cały katalog produktów</p>
-          </button>
-          <button class="catcard" type="button" data-filter="vinted" role="tab" aria-selected="false">
-            <span class="card__tag">reselling</span>
-            <div class="catcard__top">
-              <div class="catcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-              <h3 class="catcard__title">Vinted &amp; Reselling<span class="catcard__count"></span></h3>
-            </div>
-            <p class="catcard__sub">10 narzędzi dla resellerów</p>
-          </button>
-          <button class="catcard" type="button" data-filter="firma" role="tab" aria-selected="false">
-            <span class="card__tag">b2b</span>
-            <div class="catcard__top">
-              <div class="catcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-              <h3 class="catcard__title">Firma &amp; Klienci<span class="catcard__count"></span></h3>
-            </div>
-            <p class="catcard__sub">11 narzędzi dla firm i freelancerów</p>
-          </button>
-          <button class="catcard" type="button" data-filter="marketplace" role="tab" aria-selected="false">
-            <span class="card__tag">freelance</span>
-            <div class="catcard__top">
-              <div class="catcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-market"/></svg></div>
-              <h3 class="catcard__title">Marketplace<span class="catcard__count"></span></h3>
-            </div>
-            <p class="catcard__sub">6 narzędzi dla sprzedających na Allegro/OLX</p>
-          </button>
-          <button class="catcard" type="button" data-filter="dev" role="tab" aria-selected="false">
-            <span class="card__tag">open source</span>
-            <div class="catcard__top">
-              <div class="catcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-              <h3 class="catcard__title">Dla deweloperów<span class="catcard__count"></span></h3>
-            </div>
-            <p class="catcard__sub">7 narzędzi + Pycodemath, bot Discord</p>
-          </button>
-          <button class="catcard" type="button" data-filter="windows" role="tab" aria-selected="false">
-            <span class="card__tag">narzędzia</span>
-            <div class="catcard__top">
-              <div class="catcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-files"/></svg></div>
-              <h3 class="catcard__title">Windows &amp; Pliki<span class="catcard__count"></span></h3>
-            </div>
-            <p class="catcard__sub">6 małych, konkretnych programów</p>
-          </button>
-        </div>
-        <div class="cards">
-          <article class="card card--featured" data-category="vinted">
-            <div class="spotlight">
-              <div class="spotlight__media">
-                <div class="spotlight__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-                <h3 class="card__title">Vinted Profit Tracker</h3>
-                <p class="card__body">Liczy realny zysk z każdej sprzedaży — wpisujesz cenę zakupu i sprzedaży, resztę (zysk, marżę, pełne podsumowanie) liczy arkusz sam. Gotowy plik Excel, zero instalacji, działa od razu po pobraniu.</p>
-                <div class="spotlight__price">19 zł</div>
-                <div class="spotlight__actions">
-                  <!-- data-gumroad-single-product="true" włącza checkout w okienku na tej stronie (overlay) — kupujący nigdy nie wychodzi z cybersory,
-                       płaci i od razu dostaje link do pobrania w tym samym okienku (plus mailem). Wymaga skryptu gumroad.js (dodany przed </body>). -->
-                  <a class="cta-big js-gumroad-link" href="https://wojtekzi.gumroad.com/l/vinted-profit-tracker" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-                  <button class="cta-outline prod__addcart" type="button" data-product="Vinted Profit Tracker" data-price="19">Dodaj do koszyka</button>
-                </div>
-              </div>
-              <div class="demo demo--profit">
-                <span class="demo__eyebrow">wypróbuj na żywo</span>
-                <h3 class="demo__title">Tak liczy Twój zysk</h3>
-                <div class="demo__grid">
-                  <label class="demo__field"><span>Cena zakupu</span><input type="number" class="js-pt-buy" value="25" min="0" step="0.01"></label>
-                  <label class="demo__field"><span>Cena sprzedaży</span><input type="number" class="js-pt-sell" value="60" min="0" step="0.01"></label>
-                  <label class="demo__field"><span>Opłaty + wysyłka</span><input type="number" class="js-pt-fees" value="5" min="0" step="0.01"></label>
-                </div>
-                <div class="demo__result">
-                  <div class="demo__stat"><span>Zysk</span><b class="js-pt-profit">0,00 zł</b></div>
-                  <div class="demo__stat"><span>Marża</span><b class="js-pt-margin">0,0%</b></div>
-                </div>
-              </div>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Panel Zapasów</h3>
-            <p class="card__body">Prosty inwentarz Twoich sztuk na sprzedaż — dodajesz przedmiot raz, arkusz sam pilnuje zysku i czasu sprzedaży każdej sztuki.</p>
-            <div class="prod__actions">
-              <div class="prod__price">19 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/panel-zapasow" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Panel Zapasów" data-price="19">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Kalkulator</span>
-            <h3 class="card__title">Kurier czy paczkomat?</h3>
-            <p class="card__body">Wpisujesz swoje stawki wysyłki, arkusz sam liczy, która opcja zostawia Ci więcej zysku z każdej sprzedaży.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/kalkulator-kurier-vs-paczkomat" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Kalkulator kurier vs paczkomat" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Przychody i limit</h3>
-            <p class="card__body">Miesięczna ewidencja sprzedaży, która sama rozbija Twój przychód na miesiące i pilnuje limitu działalności nierejestrowanej.</p>
-            <div class="prod__actions">
-              <div class="prod__price">25 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/przychody-i-limit" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Przychody i limit" data-price="25">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Lista</span>
-            <h3 class="card__title">100 fraz SEO do tytułów</h3>
-            <p class="card__body">100 gotowych tytułów ogłoszeń pod 5 najczęstszych kategorii na Vinted — wklej wprost albo zainspiruj się.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/100-fraz-seo-tytuly" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="100 fraz SEO do tytułów" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Ściąga</span>
-            <h3 class="card__title">Kiedy wystawiać</h3>
-            <p class="card__body">Najlepsze pory dnia, dni tygodnia i miesiące na wystawianie ogłoszeń — jednym spojrzeniem, plus kalendarz sezonowy.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/kiedy-wystawiac-sciaga" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Kiedy wystawiać — ściąga" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Szablony</span>
-            <h3 class="card__title">Szablony wiadomości</h3>
-            <p class="card__body">Gotowe teksty na każdą rozmowę z kupującym — negocjacje, wysyłka, reklamacje. Kopiuj, wklej, koniec zastanawiania się.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/szablony-wiadomosci" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Szablony wiadomości" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Checklist</span>
-            <h3 class="card__title">Zwroty i reklamacje</h3>
-            <p class="card__body">Krok po kroku, co robić, gdy kupujący zgłasza problem z przedmiotem — z miejscem na odhaczanie postępów.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/checklist-zwrotow" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Checklist zwrotów i reklamacji" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Plan</span>
-            <h3 class="card__title">Harmonogram Bumpowania</h3>
-            <p class="card__body">Legalny plan tygodniowy na odświeżanie widoczności ogłoszeń — zero botów klikających za Ciebie, zero ryzyka bana konta.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/harmonogram-bumpowania" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Harmonogram Bumpowania" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="vinted">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#profit-logo"/></svg></div>
-            <span class="card__tag">Szablony</span>
-            <h3 class="card__title">Szablony Opisów</h3>
-            <p class="card__body">Gotowe wzory opisów ogłoszeń do wypełnienia własnymi danymi — bez AI, bez kosztów API, działają od razu po pobraniu.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/szablony-opisow" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Szablony Opisów" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card card--featured" data-category="firma">
-            <div class="spotlight">
-              <div class="spotlight__media">
-                <div class="spotlight__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-                <h3 class="card__title">Kalkulator rentowności</h3>
-                <p class="card__body">Ile musisz sprzedać, żeby wyjść na zero — i ile, żeby dobić do swojego celu zysku. Wpisujesz koszty stałe, koszt zmienny i cenę, resztę liczy arkusz.</p>
-                <div class="spotlight__price">19 zł</div>
-                <div class="spotlight__actions">
-                  <a class="cta-big js-gumroad-link" href="https://wojtekzi.gumroad.com/l/kalkulator-rentownosci" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-                  <button class="cta-outline prod__addcart" type="button" data-product="Kalkulator rentowności" data-price="19">Dodaj do koszyka</button>
-                </div>
-              </div>
-              <div class="demo demo--bep">
-                <span class="demo__eyebrow">wypróbuj na żywo</span>
-                <h3 class="demo__title">Twój próg rentowności</h3>
-                <div class="demo__grid">
-                  <label class="demo__field"><span>Koszty stałe / mies.</span><input type="number" class="js-bep-fixed" value="2000" min="0" step="1"></label>
-                  <label class="demo__field"><span>Koszt zmienny / szt.</span><input type="number" class="js-bep-var" value="15" min="0" step="0.01"></label>
-                  <label class="demo__field"><span>Cena sprzedaży / szt.</span><input type="number" class="js-bep-price" value="45" min="0" step="0.01"></label>
-                </div>
-                <div class="demo__result">
-                  <div class="demo__stat"><span>Próg rentowności</span><b class="js-bep-units">0 szt.</b></div>
-                  <div class="demo__stat"><span>Przychód na zero</span><b class="js-bep-revenue">0,00 zł</b></div>
-                </div>
-              </div>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <span class="card__tag">Kalkulator</span>
-            <h3 class="card__title">Rachmistrz + Blackwall</h3>
-            <p class="card__body">Kalkulator RRSO z wbudowanym DRM (licencjonowanie offline Ed25519/AES-GCM) — gotowy do wydania, na sztuki albo subskrypcję.</p>
-            <a class="card__go" href="#contact" data-nav="contact">Zapytaj o licencję &rarr;</a>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Szablon faktury / rachunku</h3>
-            <p class="card__body">Numer faktury liczy się sam z daty, sumy netto/brutto też — wpisujesz tylko pozycje i dane stron.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/szablon-faktury" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Szablon faktury / rachunku" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Mini-CRM klientów</h3>
-            <p class="card__body">Jeden wiersz na klienta — status, źródło i wartość projektu wybierasz z listy, kolory same pokazują co gorące, co stracone.</p>
-            <div class="prod__actions">
-              <div class="prod__price">25 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/mini-crm-klientow" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Mini-CRM klientów" data-price="25">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Kalkulator</span>
-            <h3 class="card__title">Kalkulator ZUS / podatek</h3>
-            <p class="card__body">Ile realnie zostaje na rękę po podatku i ZUS-ie — dla działalności nierejestrowanej i JDG, wpisujesz swoje aktualne stawki.</p>
-            <div class="prod__actions">
-              <div class="prod__price">19 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/kalkulator-zus-podatek" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Kalkulator ZUS / podatek" data-price="19">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Szablon oferty / wyceny</h3>
-            <p class="card__body">Wypełniasz zakres i pozycje, suma i termin ważności oferty liczą się same — gotowe do wysłania klientowi.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/szablon-oferty-wyceny" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Szablon oferty / wyceny" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Kalendarz treści social media</h3>
-            <p class="card__body">Planer postów na miesiąc — platforma, format i status z listy, żeby nie zgadywać co jeszcze trzeba nagrać.</p>
-            <div class="prod__actions">
-              <div class="prod__price">25 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/kalendarz-tresci-social-media" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Kalendarz treści social media" data-price="25">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Wzór</span>
-            <h3 class="card__title">Wzór umowy zlecenie / o dzieło</h3>
-            <p class="card__body">Gotowy szkielet umowy z klientem — wynagrodzenie, prawa autorskie, poufność, wypowiedzenie. Wypełniasz, drukujesz, podpisujecie.</p>
-            <div class="prod__actions">
-              <div class="prod__price">19 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/wzor-umowy-zlecenie" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Wzór umowy zlecenie / o dzieło" data-price="19">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Checklist</span>
-            <h3 class="card__title">Onboarding checklist klienta</h3>
-            <p class="card__body">Od pierwszej rozmowy do startu projektu, krok po kroku — żeby żadne ustalenie nie zginęło po drodze.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/onboarding-checklist-klienta" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Onboarding checklist klienta" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Time tracker z auto-raportem</h3>
-            <p class="card__body">Logujesz sesje pracy, arkusz sam liczy godziny i wartość — z automatycznym podsumowaniem per klient na osobnej zakładce.</p>
-            <div class="prod__actions">
-              <div class="prod__price">19 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/time-tracker-auto-raport" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Time tracker z auto-raportem" data-price="19">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="firma">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-firma"/></svg></div>
-            <span class="card__tag">Wzór</span>
-            <h3 class="card__title">Mini-regulamin + polityka prywatności</h3>
-            <p class="card__body">Szkielet pod prosty sklep/usługę online — uzupełniasz swoimi danymi, gotowe do wklejenia na stronę.</p>
-            <div class="prod__actions">
-              <div class="prod__price">25 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/mini-regulamin-polityka-prywatnosci" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Mini-regulamin + polityka prywatności" data-price="25">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card card--featured" data-category="marketplace">
-            <div class="spotlight">
-              <div class="spotlight__media">
-                <div class="spotlight__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-market"/></svg></div>
-                <h3 class="card__title">Kalkulator marży Allegro</h3>
-                <p class="card__body">Ile realnie zostaje po prowizji Allegro i Allegro Ads — wpisujesz cenę zakupu, sprzedaży i swoje stawki, resztę liczy arkusz.</p>
-                <div class="spotlight__price">19 zł</div>
-                <div class="spotlight__actions">
-                  <a class="cta-big js-gumroad-link" href="https://wojtekzi.gumroad.com/l/kalkulator-marzy-allegro" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-                  <button class="cta-outline prod__addcart" type="button" data-product="Kalkulator marży Allegro" data-price="19">Dodaj do koszyka</button>
-                </div>
-              </div>
-              <div class="demo demo--allegro">
-                <span class="demo__eyebrow">wypróbuj na żywo</span>
-                <h3 class="demo__title">Tak liczy Twoją marżę</h3>
-                <div class="demo__grid">
-                  <label class="demo__field"><span>Cena zakupu</span><input type="number" class="js-al-buy" value="40" min="0" step="0.01"></label>
-                  <label class="demo__field"><span>Cena sprzedaży</span><input type="number" class="js-al-sell" value="89" min="0" step="0.01"></label>
-                  <label class="demo__field"><span>Prowizja Allegro %</span><input type="number" class="js-al-fee" value="10" min="0" step="0.1"></label>
-                </div>
-                <div class="demo__result">
-                  <div class="demo__stat"><span>Zysk</span><b class="js-al-profit">0,00 zł</b></div>
-                  <div class="demo__stat"><span>Marża</span><b class="js-al-margin">0,0%</b></div>
-                </div>
-              </div>
-            </div>
-          </article>
-          <article class="card" data-category="marketplace">
-            <span class="card__tag">Radar</span>
-            <h3 class="card__title">Radary ofert</h3>
-            <p class="card__body">Moje własne skanery Useme/Upwork — codziennie przeglądają rynek i zwracają tylko sensowne zlecenia, z oceną i uzasadnieniem.</p>
-            <a class="card__go" href="#contact" data-nav="contact">Zapytaj o dostęp &rarr;</a>
-          </article>
-          <article class="card" data-category="marketplace">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-market"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Szablon opisu aukcji</h3>
-            <p class="card__body">Struktura opisu pod SEO Allegro — wypełniasz sekcje, kopiujesz do edytora ofert.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/szablon-opisu-aukcji" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Szablon opisu aukcji" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="marketplace">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-market"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Tracker cen konkurencji</h3>
-            <p class="card__body">Ręczny monitoring — raz na tydzień wklejasz ceny rywali i widzisz, czy jesteś w widełkach rynku.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/tracker-cen-konkurencji" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Tracker cen konkurencji" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="marketplace">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-market"/></svg></div>
-            <span class="card__tag">Baza</span>
-            <h3 class="card__title">Baza sprawdzonych hurtowni PL</h3>
-            <p class="card__body">Startowa lista realnych hurtowni/dropshipperów w Polsce, po branżach — punkt startu do własnego researchu.</p>
-            <div class="prod__actions">
-              <div class="prod__price">29 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/baza-hurtowni-pl" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Baza sprawdzonych hurtowni PL" data-price="29">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="marketplace">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-market"/></svg></div>
-            <span class="card__tag">Wzór</span>
-            <h3 class="card__title">Szablon reklamacji sprzedawcy</h3>
-            <p class="card__body">Gotowe odpowiedzi na typowe reklamacje — kopiujesz, dopasowujesz szczegóły, wysyłasz.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/szablon-reklamacji-sprzedawcy" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Szablon reklamacji sprzedawcy" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card card--featured" data-category="dev">
-            <div class="spotlight">
-              <div class="spotlight__media">
-                <div class="spotlight__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-                <h3 class="card__title">Kalkulator wyceny strony</h3>
-                <p class="card__body">Ile powinieneś wziąć za projekt webowy jako freelancer — na podstawie realnego czasu pracy, nie zgadywania. Dolicza bufor na nieprzewidziane.</p>
-                <div class="spotlight__price">19 zł</div>
-                <div class="spotlight__actions">
-                  <a class="cta-big js-gumroad-link" href="https://wojtekzi.gumroad.com/l/kalkulator-wyceny-strony" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-                  <button class="cta-outline prod__addcart" type="button" data-product="Kalkulator wyceny strony" data-price="19">Dodaj do koszyka</button>
-                </div>
-              </div>
-              <div class="demo demo--wycena">
-                <span class="demo__eyebrow">wypróbuj na żywo</span>
-                <h3 class="demo__title">Tak liczy Twoją wycenę</h3>
-                <div class="demo__grid">
-                  <label class="demo__field"><span>Suma godzin pracy</span><input type="number" class="js-wy-hours" value="20" min="0" step="0.5"></label>
-                  <label class="demo__field"><span>Stawka godzinowa</span><input type="number" class="js-wy-rate" value="80" min="0" step="1"></label>
-                  <label class="demo__field"><span>Bufor na niespodzianki %</span><input type="number" class="js-wy-buffer" value="20" min="0" step="1"></label>
-                </div>
-                <div class="demo__result">
-                  <div class="demo__stat"><span>Koszt bazowy</span><b class="js-wy-base">0 zł</b></div>
-                  <div class="demo__stat"><span>Rekomendowana wycena</span><b class="js-wy-total">0 zł</b></div>
-                </div>
-              </div>
-            </div>
-          </article>
-          <article class="card" data-category="dev">
-            <span class="card__tag">Open source</span>
-            <h3 class="card__title">Pycodemath</h3>
-            <p class="card__body">Silnik matematyczny dla agentów AI (SymPy + NumPy) — pochodne, całki, układy równań, generowanie kodu. Publiczny, MIT, na PyPI, z własnym serwerem MCP.</p>
-            <a class="card__go" href="#contact" data-nav="contact">Zapytaj / wdróż &rarr;</a>
-          </article>
-          <article class="card" data-category="dev">
-            <span class="card__tag">Bot</span>
-            <h3 class="card__title">Bot Discord dla społeczności</h3>
-            <p class="card__body">Rangi, playlisty, emoji, animowane powitania — działa 24/7 na żywym serwerze. Wdrażamy taki sam u Ciebie, dopasowany do Twojej społeczności.</p>
-            <a class="card__go" href="#contact" data-nav="contact">Zapytaj o wdrożenie &rarr;</a>
-          </article>
-          <article class="card" data-category="dev">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-            <span class="card__tag">Markdown</span>
-            <h3 class="card__title">Pakiet promptów Claude/Cursor PL</h3>
-            <p class="card__body">Gotowe do wklejenia prompty pod codzienne zadania dev — debug, refaktor, review, testy, commity.</p>
-            <div class="prod__actions">
-              <div class="prod__price">29 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/pakiet-promptow-dev" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Pakiet promptów Claude/Cursor PL" data-price="29">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="dev">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Cheat sheet: skróty VS Code/Cursor</h3>
-            <p class="card__body">Skróty klawiszowe PL na jedną stronę — do druku albo na drugi monitor.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/cheatsheet-vscode-cursor" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Cheat sheet: skróty VS Code/Cursor" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="dev">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-            <span class="card__tag">Kod</span>
-            <h3 class="card__title">Boilerplate landing page</h3>
-            <p class="card__body">Startowy HTML/CSS/JS bez frameworka, zero zależności — otwierasz i działa, gotowy do odsprzedania klientom.</p>
-            <div class="prod__actions">
-              <div class="prod__price">39 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/boilerplate-landing-page" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Boilerplate landing page" data-price="39">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="dev">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-            <span class="card__tag">Markdown</span>
-            <h3 class="card__title">Szablon README/dokumentacji</h3>
-            <p class="card__body">Gotowa struktura do wklejenia w każdy nowy projekt — sekcje, których naprawdę potrzebujesz.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/szablon-readme" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Szablon README/dokumentacji" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="dev">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-            <span class="card__tag">Kod</span>
-            <h3 class="card__title">.gitignore + config starter</h3>
-            <p class="card__body">Gotowe .gitignore pod Node i Python plus .editorconfig — koniec kopiowania tego samego za każdym razem.</p>
-            <div class="prod__actions">
-              <div class="prod__price">9 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/gitignore-config-starter" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product=".gitignore + config starter" data-price="9">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="dev">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-dev"/></svg></div>
-            <span class="card__tag">Skrypt</span>
-            <h3 class="card__title">Skrypt auto-backupu projektu</h3>
-            <p class="card__body">Zero zależności — pilnuje projektu i sam robi kopię .zip przy każdej zmianie, prosto do Twojego Google Drive/OneDrive.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/skrypt-auto-backupu" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Skrypt auto-backupu projektu" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card card--featured" data-category="windows">
-            <div class="spotlight">
-              <div class="spotlight__media">
-                <div class="spotlight__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-files"/></svg></div>
-                <h3 class="card__title">Generator + menedżer haseł</h3>
-                <p class="card__body">Szyfrowany skarbiec haseł offline (PBKDF2 + Fernet) — bez konta w chmurze, bez wysyłania czegokolwiek do internetu.</p>
-                <div class="spotlight__price">19 zł</div>
-                <div class="spotlight__actions">
-                  <a class="cta-big js-gumroad-link" href="https://wojtekzi.gumroad.com/l/generator-menedzer-hasel" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-                  <button class="cta-outline prod__addcart" type="button" data-product="Generator + menedżer haseł" data-price="19">Dodaj do koszyka</button>
-                </div>
-              </div>
-              <div class="demo demo--pwgen">
-                <span class="demo__eyebrow">wypróbuj na żywo</span>
-                <h3 class="demo__title">Wygeneruj mocne hasło</h3>
-                <div class="demo__grid">
-                  <label class="demo__field"><span>Długość</span><input type="number" class="js-pw-length" value="16" min="6" max="64" step="1"></label>
-                </div>
-                <div class="demo__checks">
-                  <label><input type="checkbox" class="js-pw-upper" checked> Wielkie litery</label>
-                  <label><input type="checkbox" class="js-pw-digits" checked> Cyfry</label>
-                  <label><input type="checkbox" class="js-pw-symbols" checked> Symbole</label>
-                </div>
-                <div class="demo__pwout js-pw-output">&nbsp;</div>
-                <div class="demo__actions">
-                  <button class="cta-outline js-pw-generate" type="button">Wygeneruj nowe &#8635;</button>
-                </div>
-              </div>
-            </div>
-          </article>
-          <article class="card" data-category="windows">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-files"/></svg></div>
-            <span class="card__tag">GUI</span>
-            <h3 class="card__title">Batch Rename z GUI</h3>
-            <p class="card__body">Masowa zmiana nazw plików — przedrostek, przyrostek, znajdź i zamień albo numeracja — bez linii komend.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/batch-rename-gui" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Batch Rename z GUI" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="windows">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-files"/></svg></div>
-            <span class="card__tag">GUI</span>
-            <h3 class="card__title">Auto-organizator zrzutów ekranu</h3>
-            <p class="card__body">Sam sortuje zrzuty ekranu do podfolderów po dacie — jeden zapchany folder robi się czytelny jednym kliknięciem.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/auto-organizator-screenshotow" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Auto-organizator zrzutów ekranu" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="windows">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-files"/></svg></div>
-            <span class="card__tag">GUI</span>
-            <h3 class="card__title">PDF merger/splitter offline</h3>
-            <p class="card__body">Łączy i dzieli PDF-y lokalnie na Twoim komputerze — żadna strona online nie widzi Twoich dokumentów.</p>
-            <div class="prod__actions">
-              <div class="prod__price">19 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/pdf-merger-splitter" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="PDF merger/splitter offline" data-price="19">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="windows">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-files"/></svg></div>
-            <span class="card__tag">GUI</span>
-            <h3 class="card__title">Posprzątaj Windows jednym klikiem</h3>
-            <p class="card__body">Czyści pliki tymczasowe i cache przeglądarek, odzyskuje miejsce na dysku — zawsze pokazuje podgląd, zanim cokolwiek usunie.</p>
-            <div class="prod__actions">
-              <div class="prod__price">15 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/posprzataj-windows" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Posprzątaj Windows jednym klikiem" data-price="15">Dodaj do koszyka</button>
-            </div>
-          </article>
-          <article class="card" data-category="windows">
-            <div class="prod__logo" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#cat-files"/></svg></div>
-            <span class="card__tag">Excel</span>
-            <h3 class="card__title">Makro auto-raportów Excel</h3>
-            <p class="card__body">Z surowych danych robi gotowy raport z tabelami i wykresami — jednym przyciskiem, zamiast ręcznie co miesiąc.</p>
-            <div class="prod__actions">
-              <div class="prod__price">25 zł</div>
-              <a class="prod__buy js-gumroad-link" href="https://wojtekzi.gumroad.com/l/makro-auto-raporty-excel" data-gumroad-single-product="true">Kup na Gumroad &rarr;</a>
-              <button class="cta-outline prod__addcart" type="button" data-product="Makro auto-raportów Excel" data-price="25">Dodaj do koszyka</button>
-            </div>
-          </article>
-        </div>
-        <p class="cards__empty" hidden>Nic tu jeszcze nie ma — <a href="#contact" data-nav="contact">napisz, czego potrzebujesz</a>.</p>
-      </div>
-    </section>
+            <dl class="pr-meta">
+              <div><dt>wersja</dt><dd>1.2.1</dd></div>
+              <div><dt>system</dt><dd>Windows 10 i 11, 64-bit</dd></div>
+              <div><dt>plik</dt><dd>3,5 MB, instalator .exe</dd></div>
+            </dl>
+            <details class="pr-info">
+              <summary>Windows pokazuje „System Windows ochronił ten komputer”?</summary>
+              <p>To normalne dla nowych programów bez płatnego podpisu cyfrowego. Kliknij <b>Więcej informacji</b>, a potem <b>Uruchom mimo to</b>. Przy pierwszym uruchomieniu SoraFlux zaproponuje pobranie ffmpeg (silnika konwersji) z oficjalnego źródła.</p>
+              <p>Chcesz sprawdzić, czy plik jest nasz? W PowerShellu wpisz <code>Get-FileHash .\SoraFlux_1.2.1_x64-setup.exe</code>. Wynik powinien być taki:</p>
+              <code class="pr-sha">8CD7D7A1C529E6145C20F274B5C8639FA73FC1688F428AC2546889DA74C6A7C6</code>
+            </details>
+          </div>
+          <figure class="pr-hit__shot">
+            <img src="zrzuty_projektow/soraflux.png" alt="SoraFlux: zakładka Konwertuj z gotowymi ustawieniami i przewidywanym rozmiarem wyniku" width="1280" height="860" loading="lazy" decoding="async">
+          </figure>
+        </article>
 
-    <section class="proof reveal" aria-label="Konkrety produktowe">
-      <div class="proof__inner">
-        <span class="proof__item"><b>Pycodemath</b> publiczny na PyPI, MIT</span>
-        <span class="proof__item">bot Discord <b>24/7</b> na żywym serwerze</span>
-        <span class="proof__item">radar ofert: <b>156 leadów</b> z jednego skanu</span>
-      </div>
-    </section>
-
-    <section class="steps reveal" aria-label="CTA">
-      <div class="steps__inner">
-        <div class="overlay overlay--band">
-          <p class="stub">Płatności online podłączę niedługo — na razie napisz, czego potrzebujesz, i dogadamy warunki bezpośrednio.</p>
-          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Zakup gotowego produktu">Zapytaj o produkt &rarr;</a>
+        <div class="pr-filtry" role="group" aria-label="Pokaż programy">
+          <button type="button" data-pr-f="all" aria-pressed="true">Wszystkie</button>
+          <button type="button" data-pr-f="win" aria-pressed="false">Na Windows</button>
+          <button type="button" data-pr-f="web" aria-pressed="false">W przeglądarce</button>
+          <button type="button" data-pr-f="dev" aria-pressed="false">Dla programistów</button>
+          <button type="button" data-pr-f="soon" aria-pressed="false">Wkrótce</button>
+        </div>
+        <div class="pr-siatka">
+          <article class="pr-k" data-pr-typ="win">
+            <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-soraflux"/></svg>
+            <div class="pr-k__txt">
+              <h3 class="pr-k__h">SoraFlux</h3>
+              <span class="card__tag">Windows &middot; za darmo</span>
+              <p>Konwerter wideo, dźwięku i obrazów. MP4 na telefon, MP3 z filmu, GIF z klipu.</p>
+            </div>
+            <div class="pr-k__dol"><a class="card__go" href="pobierz/SoraFlux_1.2.1_x64-setup.exe" download>Pobierz 1.2.1 &darr;</a></div>
+          </article>
+          <article class="pr-k" data-pr-typ="web">
+            <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-dancycloud"/></svg>
+            <div class="pr-k__txt">
+              <h3 class="pr-k__h">DancyCloud</h3>
+              <span class="card__tag">gra &middot; online</span>
+              <p>Strzelanka, w której unikasz linijek naszego kodu. Bossowie, sklep i ranking.</p>
+            </div>
+            <div class="pr-k__dol"><a class="card__go" href="#marketplace" data-pr-graj>Graj teraz &rarr;</a></div>
+          </article>
+          <article class="pr-k" data-pr-typ="dev">
+            <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-pycodemath"/></svg>
+            <div class="pr-k__txt">
+              <h3 class="pr-k__h">Pycodemath</h3>
+              <span class="card__tag">Python &middot; MIT</span>
+              <p>Matematyka dla programistów i agentów AI: wzór zamienia w sprawdzony kod.</p>
+            </div>
+            <div class="pr-k__dol"><a class="card__go" href="https://pypi.org/project/pycodemath/" target="_blank" rel="noopener">Zobacz na PyPI &#8599;</a></div>
+          </article>
+          <article class="pr-k pr-k--soon" data-pr-typ="soon">
+            <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-sorafoto"/></svg>
+            <div class="pr-k__txt">
+              <h3 class="pr-k__h">SoraFoto</h3>
+              <span class="card__tag">Windows &middot; wkrótce</span>
+              <p>Usuwa lokalizację GPS ze zdjęć, porządkuje nazwy i sortuje po dacie.</p>
+            </div>
+            <div class="pr-k__dol"><span class="pr-k__wkr">w budowie</span></div>
+          </article>
+          <article class="pr-k pr-k--soon" data-pr-typ="soon">
+            <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-sorashot"/></svg>
+            <div class="pr-k__txt">
+              <h3 class="pr-k__h">SoraShot</h3>
+              <span class="card__tag">Windows &middot; wkrótce</span>
+              <p>Sam zamazuje maile, numery i nazwiska na zrzutach ekranu, zanim je wyślesz.</p>
+            </div>
+            <div class="pr-k__dol"><span class="pr-k__wkr">w budowie</span></div>
+          </article>
+          <article class="pr-k pr-k--soon" data-pr-typ="soon">
+            <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-sorapdf"/></svg>
+            <div class="pr-k__txt">
+              <h3 class="pr-k__h">SoraPDF</h3>
+              <span class="card__tag">Windows &middot; wkrótce</span>
+              <p>Łączy, dzieli, obraca i zmniejsza PDF-y. Prościej niż w kombajnach.</p>
+            </div>
+            <div class="pr-k__dol"><span class="pr-k__wkr">w budowie</span></div>
+          </article>
+          <article class="pr-k pr-k--zam" data-pr-typ="all">
+            <svg class="pr-ik" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M51 30H69V51H90V69H69V90H51V69H30V51H51Z" fill="#e11d33"/></svg>
+            <div class="pr-k__txt">
+              <h3 class="pr-k__h">Twój program</h3>
+              <span class="card__tag">na zamówienie</span>
+              <p>Potrzebujesz programu pod swoją firmę? Napisz, co ma robić. Cenę podajemy z góry.</p>
+            </div>
+            <div class="pr-k__dol"><a class="card__go" href="#contact" data-nav="contact" data-konf="app" data-topic="Aplikacja na zamówienie">Zamów program &rarr;</a></div>
+          </article>
         </div>
       </div>
     </section>
@@ -5183,7 +4736,7 @@ kolejka.dodaj(zadanie)
             </svg></span>
             <div class="seed__scrim" aria-hidden="true"></div>
             <div class="seed__content">
-              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> testy <span class="seed__br" aria-hidden="true">]</span></span>
+              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> do pobrania <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">SoraFlux</h3>
               <p class="seed__body">Konwerter wideo, audio i obrazów.</p>
               <span class="seed__hint">▸ otwórz</span>
