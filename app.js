@@ -3487,7 +3487,7 @@
         lead: 'Nasz konwerter na komputer. Zamienia wideo, dźwięk i obrazy na potrzebny format, pokazuje rozmiar wyniku przed startem i robi wszystko lokalnie, bez wysyłania plików do sieci.',
         fakty: [
           ['zakres', 'Wideo · audio · obrazy · GIF'],
-          ['wersja', '1.2.1 · Windows 10 i 11'],
+          ['wersja', '1.2.2 · Windows 10 i 11'],
           ['silnik', 'Rust · Tauri 2 · ffmpeg'],
           ['cena', 'Za darmo, do pobrania w Produktach'],
         ],
@@ -3498,7 +3498,7 @@
         },
         pytania: [
           { q: 'Co potrafi?', a: 'Zmienia format wideo i dźwięku (MP4, MKV, WEBM, MP3, AAC, FLAC i inne), robi GIF-y z klipów i zmniejsza obrazy. Ustawisz rozdzielczość, liczbę klatek, jakość i bitrate, a gotowe zestawy, np. „Telefon 480p 25 fps” czy „Discord 10 MB”, robią to jednym kliknięciem.' },
-          { q: 'Kiedy i za ile?', a: 'Już teraz, za darmo: wersję 1.2.1 pobierzesz z zakładki Produkty na tej stronie. Pliki nie wychodzą z Twojego komputera i program nie zbiera żadnej telemetrii.' },
+          { q: 'Kiedy i za ile?', a: 'Już teraz, za darmo: wersję 1.2.2 pobierzesz z zakładki Produkty na tej stronie. Pliki nie wychodzą z Twojego komputera i program nie zbiera żadnej telemetrii.' },
         ],
       },
       frostwall: {
