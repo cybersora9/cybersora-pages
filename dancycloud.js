@@ -8968,6 +8968,10 @@
     function go(s) {
       state = s;
       root2.setAttribute("data-st", s);
+      if (s !== "play" && doc.pointerLockElement === cv) try {
+        doc.exitPointerLock();
+      } catch (e) {
+      }
     }
     function tag() {
       root2.setAttribute("data-boss", BO.on ? BN[BO.type] : "");
@@ -9365,7 +9369,7 @@
       };
       ic.krY = iconCanvas("kr", 14, C.ally);
       ic.bombY = iconCanvas("bomb", 18, C.ally);
-      ic.bombE = iconCanvas("bomb", 18, C.line);
+      ic.bombE = iconCanvas("bomb", 18, C.muted);
       ic.shieldY = iconCanvas("shield", 20, C.ally);
       ic.u = {};
       for (k = 0; k < UKEYS.length; k++) ic.u[UKEYS[k]] = iconCanvas(UPS[UKEYS[k]].i, 20, C.ally);
@@ -12287,6 +12291,11 @@
       c.fillText("BOMBY", 24, y + 13);
       ls(c, 0);
       n = Math.max(bombMax, bombs);
+      c.font = "700 14px " + MONO;
+      c.textAlign = "right";
+      c.fillStyle = bombs > 0 ? C.bone : C.hot;
+      c.fillText(bombs + " / " + bombMax, 12 + w - 10, y + 15);
+      c.textAlign = "left";
       for (j = 0; j < n; j++) c.drawImage(j < bombs ? ic.bombY : ic.bombE, 24 + j * 22, y + 22, 18, 18);
       fr = BO.on && mode2 === "unik" ? Math.min(1, bmeter) : bombs >= bombMax ? 1 : clamp2(1 - (nextBomb - score) / step, 0, 1);
       x = 24 + n * 22 + 4;
