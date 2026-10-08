@@ -2156,7 +2156,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261007m';
+  const SORAOS_V = '20261008a';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
