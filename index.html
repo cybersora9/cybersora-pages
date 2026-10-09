@@ -164,6 +164,7 @@
     --ease-soft:cubic-bezier(.22,1,.36,1); /* fast start, long gentle brake — no overshoot */
     --th-accent:#e11d33;
     --th-hot:#ff3a52;
+    --th-split:rgba(80,220,255,.85);   /* drugi kanał rozszczepienia CRT (glitch), tylko w efektach */
     /* tekst etykiet: akcent rozjasniony o 1/4 (#ff3a52 -> ~#ff6b7d, 7:1 na --ink).
        Czysty karmazyn przy 13 px „drga” na ciemnym tle. */
     --th-label:color-mix(in srgb, var(--th-hot) 75%, #fff);
@@ -595,13 +596,15 @@
     border-radius:999px;
     background:linear-gradient(180deg,rgba(255,58,82,.16),rgba(225,29,51,.08));
     border:1px solid rgba(255,58,82,.28);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 18px -6px rgba(225,29,51,.55);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
     opacity:0;
     transform:translate(0,-50%);
     pointer-events:none;
     will-change:transform,width;
     transition:transform .24s var(--ease-soft),width .24s var(--ease-soft),opacity .16s ease;
   }
+  /* S0: pigulka pod SOMI i SORA//OS: wyzsza i chlodniejsza (kosc na ciemnym, krew tylko w obrysie), zeby nie zlewala sie z krwawa pigulka reszty menu */
+  .nav__magic.is-duo{height:42px;background:linear-gradient(180deg,rgba(246,242,243,.12),rgba(246,242,243,.05));border-color:rgba(255,58,82,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);}
   .nav__link.is-active::before{
     content:"";position:absolute;left:50%;bottom:2px;width:18px;height:2px;margin-left:-9px;
     border-radius:2px;background:var(--th-accent);pointer-events:none;
@@ -648,7 +651,7 @@
   .nav__burger{
     position:relative;z-index:2;
     display:none;
-    width:42px;height:42px;
+    width:44px;height:44px;
     align-items:center;justify-content:center;
     flex-direction:column;
     gap:5px;
@@ -701,6 +704,7 @@
   .nav__panel.open .nav__panelIn{opacity:1;transform:none;transition-delay:60ms;}
   .nav__panelH{margin:0 0 10px;font-family:var(--mono);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--th-label);}
   .nav__tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(13rem,1fr));gap:8px;}
+  .nav__tile--duo{order:-1;border-color:rgba(255,58,82,.5);background:rgba(225,29,51,.06);}
   .nav__tile{display:grid;gap:4px;padding:12px 14px;border-radius:12px;border:1px solid transparent;color:#fff;text-decoration:none;transition:background .18s ease,border-color .18s ease;}
   .nav__tile:hover,.nav__tile:focus-visible{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);}
   .nav__tile:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
@@ -807,9 +811,9 @@
   /* rare chromatic-split flicker — a wink of "screen breaking up", never full-time noise */
   @keyframes glitchFlick{
     0%,93%,100%{ text-shadow:none; transform:translate(0,0); }
-    93.4%{ text-shadow:-2px 0 var(--th-hot), 2px 0 rgba(80,220,255,.85); transform:translate(-1px,0); }
-    94%{ text-shadow:2px 0 var(--th-hot), -2px 0 rgba(80,220,255,.85); transform:translate(1px,0); }
-    94.6%{ text-shadow:-1px 0 var(--th-hot), 1px 0 rgba(80,220,255,.85); transform:translate(0,0); }
+    93.4%{ text-shadow:-2px 0 var(--th-hot), 2px 0 var(--th-split); transform:translate(-1px,0); }
+    94%{ text-shadow:2px 0 var(--th-hot), -2px 0 var(--th-split); transform:translate(1px,0); }
+    94.6%{ text-shadow:-1px 0 var(--th-hot), 1px 0 var(--th-split); transform:translate(0,0); }
     95.2%,100%{ text-shadow:none; transform:translate(0,0); }
   }
   /* ---------- GLITCH JEDNORAZOWY — naglowek "Sztuka" (PROPOZYCJA_WIZUAL.md sekcja 4) ----------
@@ -823,11 +827,11 @@
   .slogan.slogan--glitch-once{animation:sztukaGlitch 1s steps(1) both;}
   @keyframes sztukaGlitch{
     0%{ text-shadow:none; transform:translate(0,0); }
-    8%{ text-shadow:-3px 0 var(--th-hot), 3px 0 rgba(80,220,255,.85); transform:translate(-2px,0); }
-    16%{ text-shadow:3px 0 var(--th-hot), -3px 0 rgba(80,220,255,.85); transform:translate(2px,0); }
+    8%{ text-shadow:-3px 0 var(--th-hot), 3px 0 var(--th-split); transform:translate(-2px,0); }
+    16%{ text-shadow:3px 0 var(--th-hot), -3px 0 var(--th-split); transform:translate(2px,0); }
     24%{ text-shadow:none; transform:translate(0,0); }
-    32%{ text-shadow:-2px 0 var(--th-hot), 2px 0 rgba(80,220,255,.85); transform:translate(-1px,0); }
-    40%{ text-shadow:2px 0 var(--th-hot), -2px 0 rgba(80,220,255,.85); transform:translate(1px,0); }
+    32%{ text-shadow:-2px 0 var(--th-hot), 2px 0 var(--th-split); transform:translate(-1px,0); }
+    40%{ text-shadow:2px 0 var(--th-hot), -2px 0 var(--th-split); transform:translate(1px,0); }
     48%,100%{ text-shadow:none; transform:translate(0,0); }
   }
   .slogan .thin{
@@ -2900,8 +2904,8 @@
   }
   @keyframes vtGlitchFlash{
     0%{filter:none;}
-    30%{filter:drop-shadow(-3px 0 var(--th-hot)) drop-shadow(3px 0 rgba(80,220,255,.85));}
-    60%{filter:drop-shadow(3px 0 var(--th-hot)) drop-shadow(-3px 0 rgba(80,220,255,.85));}
+    30%{filter:drop-shadow(-3px 0 var(--th-hot)) drop-shadow(3px 0 var(--th-split));}
+    60%{filter:drop-shadow(3px 0 var(--th-hot)) drop-shadow(-3px 0 var(--th-split));}
     100%{filter:none;}
   }
   /* WPIECIE SORA//OS: od 07.10 (v2) cala animacje komputera prowadzi soraos.js; strona robi zwykly zygzak. */
@@ -3115,6 +3119,38 @@
   button.card:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
   .card--open .seed__hint{margin-top:auto;}
   .card--open:hover .seed__hint,.card--open:focus-visible .seed__hint{color:var(--th-hot);transform:translateX(4px);}
+  /* MENU (08.10): trzy gromadki w osi ekranu (1fr auto 1fr), srodek = SOMI + SORA//OS we wspolnej ramce */
+  .nav__links{display:grid;grid-template-columns:1fr auto 1fr;gap:1.1rem;align-items:center;}
+  @media (max-width:900px){.nav__links{display:none;}}   /* po regule grid wyzej, inaczej ona wygrywa kolejnoscia */
+  .nav__grp{display:flex;align-items:center;gap:.35rem;}
+  .nav__grp--l{justify-content:flex-end;}
+  .nav__grp--r{justify-content:flex-start;}
+  /* SOMI i SORA//OS (S0, 08.10): bez ramki, sam napis. Wiekszy od sasiednich linkow (podium), na srodku, cienka kreska pod aktywnym,
+     glitch kanalow (czerwien/cyjan) tylko na tekscie: stale lekki rozjazd + krotkie szarpniecie co ~3,4 s, przy zmianie trasy i po najechaniu. */
+  .nav__duo{display:flex;align-items:center;gap:1.5rem;padding:0 .3rem;}
+  .nav__link--duo{--sp:-1px 0 rgba(255,58,82,.9),1px 0 rgba(80,220,255,.7);position:relative;font-family:var(--mono);font-weight:600;font-size:calc(var(--t-ui) * 1.08);letter-spacing:.09em;color:rgba(255,255,255,.82);padding:.55rem .15rem .6rem;border-radius:0;display:inline-flex;align-items:center;white-space:nowrap;}
+  .nav__link--duo:hover,.nav__link--duo.is-active{color:#fff;}
+  .nav__link--duo i{font-style:normal;color:var(--th-hot);}
+  .nav__link--duo .t{position:relative;display:inline-block;}
+  .nav__link--duo.is-active::before{display:none;}
+  .nav__link--duo::after{content:"";position:absolute;left:50%;bottom:0;width:24px;margin-left:-12px;height:2px;background:var(--th-solid,#e11d33);opacity:0;transition:opacity .15s;}
+  .nav__link--duo.is-active::after{opacity:1;}
+  .nav__link--duo.is-active .t{text-shadow:var(--sp);animation:duoGl 3.4s steps(1) infinite;}
+  .nav__link--duo:hover .t,.nav__link--duo.is-glitch .t{animation:duoGlh .3s steps(1) 1;}
+  .nav__os-cur{color:var(--th-hot);margin-left:.05em;animation:osCur 1.1s steps(1) infinite;}
+  @keyframes osCur{50%{opacity:0;}}
+  @keyframes duoGl{0%,86%,100%{transform:none;text-shadow:var(--sp)}88%{transform:translate(-2px,0);text-shadow:3px 0 var(--th-hot),-3px 0 var(--th-split)}91%{transform:translate(2px,-1px);text-shadow:-3px 0 var(--th-hot),3px 0 var(--th-split)}94%{transform:translate(0,1px);text-shadow:2px 0 var(--th-hot),-2px 0 var(--th-split)}}
+  @keyframes duoGlh{0%,100%{transform:none}30%{transform:translate(-2px,0);text-shadow:2px 0 var(--th-hot),-2px 0 var(--th-split)}60%{transform:translate(2px,0);text-shadow:-2px 0 var(--th-hot),2px 0 var(--th-split)}}
+  @media (prefers-reduced-motion:reduce){.nav__os-cur{animation:none;}.nav__link--duo .t{animation:none!important;}}
+  #cennik{scroll-margin-top:90px;}
+  /* przelacznik dwoch stron jednej pozycji menu (Oferta/Cennik, Gotowe/W budowie) */
+  .vswitch{display:inline-flex;gap:2px;padding:3px;margin:0 0 1.1rem;border:1px solid var(--th-line,rgba(255,255,255,.18));font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;}
+  .vswitch a{padding:.55rem .9rem;color:var(--muted-dark,#9a9098);text-decoration:none;}
+  .vswitch a:hover{color:#fff;}
+  .vswitch a[aria-current="page"]{color:#fff;background:var(--th-solid,#e11d33);}
+  .vswitch a:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  /* Uslugi: lista bez okna terminala (gra mieszka w SORA//OS) */
+  .view[data-view="oferta"] [data-soraos-app="terminal"]{display:none;}
   /* SORA//OS L2 (06.10): "zwykla lista" Marketplace = jedno zrodlo tresci. Bez JS (i dla Google/czytnika)
      to jest caly widok; modul soraos.js czyta ja z DOM i buduje nad nia komputer. Tylko typografia z tokenow,
      zero ozdob: ozdoba to komputer. */
@@ -3281,16 +3317,22 @@
     </div>
 
     <div class="nav__links" id="navlinks">
-      <a href="#start"     class="nav__link is-active" data-nav="start">Start</a>
-      <a href="#oferta"    class="nav__link"           data-nav="oferta">Oferta</a>
-      <a href="#marketplace" class="nav__link"         data-nav="marketplace">Marketplace</a>
-      <a href="#products"  class="nav__link"           data-nav="products">Produkty</a>
-      <a href="#somi"      class="nav__link"           data-nav="somi">SOMI</a>
-      <a href="#onas"      class="nav__link"           data-nav="onas">O nas</a>
+      <!-- 08.10: porzadek menu. Lewo: Oferta (+ Uslugi) i Projekty (+ Sadzonki), srodek: dwa nasze „byty” SOMI i SORA//OS
+           we wspolnej ramce, prawo: O nas i Kontakt. Start = logo po lewej (i stopka). data-also = trasy obslugiwane przez ten sam link. -->
+      <div class="nav__grp nav__grp--l">
+        <a href="#oferta"    class="nav__link" data-nav="oferta">Oferta</a>
+        <a href="#products"  class="nav__link" data-nav="products" data-also="rnd">Projekty</a>
+      </div>
+      <div class="nav__duo" id="navDuo">
+        <a href="#somi"      class="nav__link nav__link--duo nav__link--somi" data-nav="somi"><span class="t" data-t="SOMI">SOMI</span></a>
+        <a href="#soraos"    class="nav__link nav__link--duo nav__link--os" data-nav="soraos" aria-label="SORA//OS, nasz pulpit z grą"><span class="t" data-t="SORA//OS">SORA<i>//</i>OS</span><span class="nav__os-cur" aria-hidden="true">_</span></a>
+      </div>
+      <div class="nav__grp nav__grp--r">
+        <a href="#onas"      class="nav__link" data-nav="onas">O nas</a>
+        <a href="#contact"   class="nav__link" data-nav="contact">Kontakt</a>
+      </div>
       <!-- Sztuka ukryta z menu na prosbe maisy, 22.09, tymczasowo ("poki co") —
            <a href="#sztuka" class="nav__link" data-nav="sztuka">Sztuka</a> -->
-      <a href="#rnd"       class="nav__link"           data-nav="rnd">Sadzonki</a>
-      <a href="#contact"   class="nav__link"           data-nav="contact">Kontakt</a>
       <span class="nav__magic" aria-hidden="true"></span>
     </div>
 
@@ -3311,13 +3353,12 @@
       <div>
         <h2 class="nav__panelH">Co jest gdzie</h2>
         <div class="nav__tiles">
+          <a class="nav__tile nav__tile--duo" href="#somi" data-nav="somi"><b>SOMI</b><span>Nasza asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
+          <a class="nav__tile nav__tile--duo" href="#soraos" data-nav="soraos"><b>SORA//OS</b><span>Nasz pulpit jak z gry: projekty, terminy, terminal i DancyCloud.</span></a>
           <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jesteśmy i co robimy, w skrócie.</span></a>
-          <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Programy, aplikacje, strony i darmowy skan widoczności w Google.</span></a>
-          <a class="nav__tile" href="#marketplace" data-nav="marketplace"><b>Marketplace</b><span>Gotowe usługi z ceną z góry: skrypty, boty, aplikacje, widoczność w Google.</span></a>
-          <a class="nav__tile" href="#products" data-nav="products"><b>Produkty</b><span>Nasze programy do pobrania za darmo: SoraFlux, Pycodemath, gra DancyCloud.</span></a>
-          <a class="nav__tile" href="#somi" data-nav="somi"><b>SOMI</b><span>Nasza asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
+          <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Programy, aplikacje, strony i darmowy skan widoczności. Cennik usług z ceną z góry jest na drugiej karcie.</span></a>
+          <a class="nav__tile" href="#products" data-nav="products"><b>Projekty</b><span>Nasze programy do pobrania za darmo oraz to, co dopiero rośnie w Sadzonkach.</span></a>
           <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasza asystentka SOMI. Szukamy też partnerów do projektów.</span></a>
-          <a class="nav__tile" href="#rnd" data-nav="rnd"><b>Sadzonki</b><span>Projekty, nad którymi teraz pracujemy, zanim trafią do oferty.</span></a>
           <a class="nav__tile" href="#contact" data-nav="contact"><b>Kontakt</b><span>Napisz, czego potrzebujesz. Na żywo widzisz, co do nas trafi.</span></a>
         </div>
       </div>
@@ -3578,6 +3619,7 @@
   <section class="view" data-view="oferta" aria-label="Oferta" hidden>
     <div class="hero">
       <div class="overlay">
+        <nav class="vswitch" aria-label="Na tej stronie"><a href="#oferta" data-nav="oferta">Opis i proces</a><a href="#cennik" data-nav="cennik">Cennik i usługi</a></nav>
         <div class="eyebrow">oferta</div>
         <h1 class="slogan">Oferta<span class="thin">programy, aplikacje, strony</span></h1>
         <p class="stub">Piszemy skrypty, boty i aplikacje pod jedną konkretną firmę. Cenę „od” podajemy z góry, dokładną po rozmowie. Jeśli najpierw chcesz wiedzieć, jak widzi Cię Google, zaczynamy od darmowego skanu.</p>
@@ -3585,7 +3627,7 @@
           <a class="cta-big" href="#contact" data-nav="contact" data-topic="Software na zamówienie">Opisz, co ma robić &rarr;</a>
           <a class="cta-outline" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Darmowy skan strony</a>
         </div>
-        <p class="hero__mini"><a class="card__go" href="#contact" data-nav="contact" data-konf="mikro" data-topic="Skrypt lub automatyzacja">Małe zadanie? Mikro-skrypt od 150 zł &rarr;</a> <a class="card__go" href="#marketplace" data-nav="marketplace">Zobacz Marketplace &rarr;</a></p>
+        <p class="hero__mini"><a class="card__go" href="#contact" data-nav="contact" data-konf="mikro" data-topic="Skrypt lub automatyzacja">Małe zadanie? Mikro-skrypt od 150 zł &rarr;</a> <a class="card__go" href="#cennik" data-nav="cennik">Zobacz cennik &rarr;</a></p>
       </div>
     </div>
 
@@ -3685,34 +3727,8 @@
       </div>
     </section>
 
-    <section class="steps reveal" aria-label="CTA">
-      <div class="steps__inner">
-        <div class="overlay overlay--band">
-          <p class="stub">Nie wiesz, od czego zacząć? Napisz w dwóch zdaniach, co Cię dziś spowalnia. Odpiszemy zwykle w ciągu 24 godzin, najdalej w 2 dni robocze: co da się z tym zrobić i ile to kosztuje.</p>
-          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Projekt na zamówienie">Napisz do nas &rarr;</a>
-        </div>
-      </div>
-    </section>
-  </section>
-
-  <!-- MARKETPLACE (S1, 06.10): sam szkielet trasy. Kategorie, pas "Najbliższy wolny start" i FAQ wchodza w S3-S5
-       wg makiety MK1; plan i decyzje: PLAN_OFERTA_MARKETPLACE_KALENDARZ.md sekcja 7. -->
-  <section class="view" data-view="marketplace" aria-label="Marketplace" hidden>
-    <div class="hero">
-      <div class="overlay">
-        <div class="eyebrow">marketplace</div>
-        <h1 class="slogan">Marketplace<span class="thin">gotowe skrypty i usługi cybersory, cena z góry</span></h1>
-        <p class="stub">Skrypty, boty, aplikacje i widoczność w Google w jednym miejscu. Wybierasz rodzaj, kalkulator pokazuje cenę orientacyjną, a my odpisujemy zwykle w ciągu 24 godzin, najdalej w 2 dni robocze.</p>
-        <div class="hero__cta-row">
-          <a class="cta-big" href="#contact" data-nav="contact" data-konf="skrypt" data-topic="Skrypt lub automatyzacja">Skonfiguruj zlecenie &rarr;</a>
-          <a class="cta-outline" href="#oferta" data-nav="oferta">Co robimy</a>
-        </div>
-      </div>
-    </div>
-    <!-- SORA//OS L2 (06.10): jedno zrodlo tresci Marketplace. Bez JS to jest caly widok (Google, czytnik ekranu);
-         soraos.js czyta to z DOM (data-*) i buduje nad tym komputer. Wzorzec: soraos_chmura/wzorce/tresc.html (generowany z MK5).
-         Teksty ROBOCZE (data-roboczy) czekaja na akceptacje. data-linie = narzedzia/soraos_dane.py, modul bierze aktualne z dane/soraos.json. -->
-    <section class="services soraos-lista" aria-label="Usługi i projekty">
+    <!-- CENNIK (S0, 08.10): Usługi scalone z Ofertą. Jednocześnie źródło treści dla SORA//OS (app.js klonuje [data-soraos-tresc]). -->
+    <section class="services soraos-lista" id="cennik" aria-label="Cennik i usługi">
       <div class="services__inner">
         <div class="soraos-tresc" data-soraos-tresc>
           <section data-soraos-app="uslugi" aria-labelledby="sx-uslugi">
@@ -4070,6 +4086,34 @@ def fetch_offer_detail(url)</code></pre>
         </div>
       </div>
     </section>
+
+    <section class="steps reveal" aria-label="CTA">
+      <div class="steps__inner">
+        <div class="overlay overlay--band">
+          <p class="stub">Nie wiesz, od czego zacząć? Napisz w dwóch zdaniach, co Cię dziś spowalnia. Odpiszemy zwykle w ciągu 24 godzin, najdalej w 2 dni robocze: co da się z tym zrobić i ile to kosztuje.</p>
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Projekt na zamówienie">Napisz do nas &rarr;</a>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- SORA//OS (08.10): osobna kategoria. Komputer (soraos.js) montuje sie tu; tresc bierze z listy w widoku Uslugi
+       (app.js klonuje ja do [data-soraos-miejsce]). Bez JS zostaje hero z linkami do zwyklych tresci. -->
+  <section class="view" data-view="soraos" aria-label="SORA//OS" hidden>
+    <div class="hero">
+      <div class="overlay">
+        <div class="eyebrow">sora//os</div>
+        <h1 class="slogan">SORA//OS<span class="thin">nasz pulpit: projekty, terminy i gra</span></h1>
+        <p class="stub">To nasz komputer jak z gry. Przeglądasz na nim usługi, projekty i terminy, a w terminalu zagrasz w DancyCloud. Ten ekran potrzebuje włączonego JavaScriptu; to samo w zwykłej liście znajdziesz w Ofercie.</p>
+        <div class="hero__cta-row">
+          <a class="cta-big" href="#cennik" data-nav="cennik">Zobacz cennik &rarr;</a>
+          <a class="cta-outline" href="#products" data-nav="products">Nasze programy</a>
+        </div>
+      </div>
+    </div>
+    <section class="services soraos-lista" aria-label="Pulpit SORA//OS">
+      <div class="services__inner" data-soraos-miejsce></div>
+    </section>
   </section>
 
   <!-- PRODUKTY -->
@@ -4082,6 +4126,7 @@ def fetch_offer_detail(url)</code></pre>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="zn-soraflux" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 26H38L72 60L38 94H18L52 60Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M48 26H68L102 60L68 94H48L82 60Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorafoto" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M34 18H102V86L86 102H18V34ZM38.6 29H91V81.4L81.4 91H29V38.6Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M31 88L51 58L63 73L71 63L84 88Z" fill="#e11d33" fill-rule="evenodd"/><path d="M76 34L83 41L76 48L69 41Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorashot" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 48V30L30 18H48V30H35L30 35V48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M72 18H90L102 30V48H90V35L85 30H72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M102 72V90L90 102H72V90H85L90 85V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M48 102H30L18 90V72H30V85L35 90H48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M40 51H90L80 69H30Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorapdf" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M28 14H54V52H92V106H28ZM40 62V70H80V62ZM40 76V84H80V76ZM40 90V98H64V90Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 14L92 46H60Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-dancycloud" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 72V60L28 50H36V46L48 34H58L66 26H80L92 38V48L102 58V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 80L76 100H65L60 93L55 100H44Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-pycodemath" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><g transform="translate(6.6 26.7) scale(.57)"><g fill="none" stroke-linecap="round" stroke-width="12"><path d="M68,20 C69,11 57,12 55,23 C51,40 54,50 46,62 C38,74 41,82 36,94 C33,105 22,105 20,95" stroke="#e11d33"/><path d="M96,44 L120,63 L96,82" stroke="#f6f2f3" stroke-linejoin="round"/></g><rect x="138" y="76" width="30" height="12" fill="#e11d33"/></g></symbol></svg>
     <div class="hero">
       <div class="overlay">
+        <nav class="vswitch" aria-label="Projekty"><a href="#products" data-nav="products">Gotowe, do pobrania</a><a href="#rnd" data-nav="rnd">W budowie</a></nav>
         <div class="eyebrow">produkty &middot; do pobrania</div>
         <h1 class="slogan">NASZE PROGRAMY<span class="thin">pobierasz i używasz, bez konta</span></h1>
         <p class="stub">To, co zbudowaliśmy dla siebie, oddajemy dalej. Pobierasz prosto z tej strony.</p>
@@ -4146,7 +4191,7 @@ def fetch_offer_detail(url)</code></pre>
               <span class="card__tag">gra &middot; online</span>
               <p>Strzelanka, w której unikasz linijek naszego kodu. Bossowie, sklep i ranking.</p>
             </div>
-            <div class="pr-k__dol"><a class="card__go" href="#marketplace" data-pr-graj>Graj teraz &rarr;</a></div>
+            <div class="pr-k__dol"><a class="card__go" href="#soraos" data-pr-graj>Graj teraz &rarr;</a></div>
           </article>
           <article class="pr-k" data-pr-typ="dev">
             <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-pycodemath"/></svg>
@@ -4627,6 +4672,7 @@ def fetch_offer_detail(url)</code></pre>
   <section class="view" data-view="rnd" aria-label="Sadzonki — R&amp;D" hidden>
     <div class="hero">
       <div class="overlay">
+        <nav class="vswitch" aria-label="Projekty"><a href="#products" data-nav="products">Gotowe, do pobrania</a><a href="#rnd" data-nav="rnd">W budowie</a></nav>
         <div class="eyebrow">przyszłość &middot; R&amp;D</div>
         <h1 class="slogan">SADZONKI<span class="thin">to, co dopiero kiełkuje</span></h1>
         <p class="stub">Projekty, nad którymi pracujemy: część działa już na co dzień, część dopiero rośnie. Dopisujemy je tu na bieżąco, żeby było widać, co naprawdę dzieje się w tle.</p>
@@ -5068,7 +5114,7 @@ fingerprint(maszyna)</div>
       <nav class="footer__nav" aria-label="Stopka">
         <a href="#start" data-nav="start">Start</a>
         <a href="#oferta" data-nav="oferta">Oferta</a>
-        <a href="#marketplace" data-nav="marketplace">Marketplace</a>
+        <a href="#cennik" data-nav="cennik">Cennik i usługi</a>
         <a href="#products" data-nav="products">Produkty</a>
         <a href="#somi" data-nav="somi">SOMI</a>
         <a href="#onas" data-nav="onas">O nas</a>
@@ -5076,6 +5122,7 @@ fingerprint(maszyna)</div>
              <a href="#sztuka" data-nav="sztuka">Sztuka</a> -->
         <a href="#rnd" data-nav="rnd">Sadzonki</a>
         <a href="#contact" data-nav="contact">Kontakt</a>
+        <a href="#soraos" data-nav="soraos">SORA//OS</a>
         <a href="#polityka" data-nav="polityka">Polityka prywatności</a>
       </nav>
       <a class="footer__mail" href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>
@@ -5187,7 +5234,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261009a"></script>
+<script src="app.js?v=20261009b"></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly

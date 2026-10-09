@@ -61,6 +61,7 @@
     start:     { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
     oferta:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'oferta' },
     marketplace: { a: [225, 29, 51], hot: [255, 58, 82], layers: { spark: 1, net: 0, chips: 0, bg: 0 } },
+    soraos:    { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 0 } },
     products:  { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 0, chips: 1, bg: 0 } },
     somi:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 1, net: 1, chips: 0, bg: 0 }, bg: 'm1' },
     onas:      { a: [225, 29, 51],  hot: [255, 58, 82],   layers: { spark: 0, net: 0, chips: 0, bg: 1 }, bg: 'onas' },
@@ -1914,7 +1915,7 @@
     /* SORA//OS (L3, 06.10): na trasie Marketplace komputer zakrywa hero, wiec mapa stoi
        (jedyna stala petla zostaje kula w pasku; animacje modulu sa krotkie, rAF tylko na ich czas) */
     const maBiec = (tloWidoczne || sekcjeWKadrze > 0) && !document.hidden && !popupZakrywa
-      && document.documentElement.dataset.route !== 'marketplace';
+      && document.documentElement.dataset.route !== 'soraos';
     if (maBiec && !rafOn) { rafOn = true; lastT = performance.now(); requestAnimationFrame(frame); }
     else if (!maBiec) { rafOn = false; }
     /* PASEK 03.10: nad pracujaca mapa szklo paska przeliczaloby rozmycie w kazdej klatce
@@ -1963,7 +1964,7 @@
   const burger = document.querySelector('.nav__burger');
   const links = [...bar.querySelectorAll('.nav__link')];
   const views = [...document.querySelectorAll('.view')];
-  const NAMES = ['start', 'oferta', 'marketplace', 'products', 'somi', 'onas', 'sztuka', 'rnd', 'contact', 'polityka'];
+  const NAMES = ['start', 'oferta', 'soraos', 'products', 'somi', 'onas', 'sztuka', 'rnd', 'contact', 'polityka'];
 
   /* PRODUKTY SCHOWANE (11.09, prosba maisy: "schowalbym te produkty poki co").
      Nic nie jest kasowane: sekcja, karty, trasa i przyciski zostaja w kodzie —
@@ -2022,6 +2023,19 @@
     el.removeAttribute('title');
   });
 
+  /* SOMI + SORA//OS (S0, 08.10): bez ramki. Przy zmianie aktywnej pozycji srodka krotki glitch kanalow na samym napisie (0,3 s);
+     stala kreska i stale lekkie rozdwojenie robi CSS (.is-active). */
+  const duo = document.getElementById('navDuo');
+  let duoPoprzedni = null, duoT = 0;
+  function duoUstaw(flash) {
+    if (!duo) return;
+    const a = duo.querySelector('.nav__link.is-active');
+    if (flash && a && duoPoprzedni !== a && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      a.classList.remove('is-glitch'); void a.offsetWidth; a.classList.add('is-glitch');
+      clearTimeout(duoT); duoT = setTimeout(() => a.classList.remove('is-glitch'), 340);
+    }
+    duoPoprzedni = a || null;
+  }
   function activeLink() { return links.find(l => l.classList.contains('is-active')); }
 
   /* PIGULKA (03.10): pokazuje TYLKO najechanie. Aktywna zakladka ma stala kreske w CSS, wiec po zjechaniu
@@ -2034,8 +2048,11 @@
     const cr = linksWrap.getBoundingClientRect();
     const r = el.getBoundingClientRect();
     if (!magicWidac) magic.style.transition = 'opacity .16s ease';
-    magic.style.width = (r.width - 2) + 'px';
-    magic.style.transform = 'translate(' + (r.left - cr.left + 1) + 'px,-50%)';
+    /* S0: SOMI i SORA//OS maja wieksza pigulke (wystaje 12 px z kazdej strony slowa) w innym kolorze (.is-duo) */
+    const duoLink = el.classList.contains('nav__link--duo'), pad = duoLink ? 12 : 0;
+    magic.classList.toggle('is-duo', duoLink);
+    magic.style.width = (r.width - 2 + pad * 2) + 'px';
+    magic.style.transform = 'translate(' + (r.left - cr.left + 1 - pad) + 'px,-50%)';
     if (!magicWidac) { void magic.offsetWidth; magic.style.transition = ''; }
     magic.style.opacity = '1';
     magicWidac = true;
@@ -2067,6 +2084,10 @@
 
   function go(view, push) {
     const apply = () => {
+      /* S0: Uslugi scalone z Oferta. #marketplace = #oferta, #cennik = Oferta przewinieta do cennika */
+      let kotwica = '';
+      if (view === 'marketplace') view = 'oferta';
+      else if (view === 'cennik') { view = 'oferta'; kotwica = 'cennik'; }
       if (!NAMES.includes(view)) view = 'start';
       if (view === 'products' && !PRODUKTY_WIDOCZNE) view = 'start';   // patrz PRODUKTY_WIDOCZNE
       /* hCaptcha (07.10, faza B P19): tylko pierwszy fokus/dotyk w formularzu (wyzej). Timer 1,5 s po wejsciu
@@ -2078,11 +2099,13 @@
       ustawPetleMapy();   // SORA//OS: na Marketplace mapa stoi, po wyjsciu wraca
       themeTarget = THEMES[view] || THEMES.start;
       views.forEach(v => { v.hidden = (v.dataset.view !== view); });
+      document.querySelectorAll('.vswitch a').forEach(a => { if (a.dataset.nav === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
       links.forEach(l => {
-        const on = l.dataset.nav === view;
+        const on = l.dataset.nav === view || (l.dataset.also || '').split(' ').includes(view);
         l.classList.toggle('is-active', on);
         if (on) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current');
       });
+      duoUstaw(true);   // po ustawieniu .is-active, inaczej wskaznik spoznia sie o jedna nawigacje
       const deadSwitch = document.querySelector('.brand__second');
       if (deadSwitch) deadSwitch.setAttribute('aria-pressed', view === 'sztuka' ? 'true' : 'false');
       /* zmiana trasy = "coś się dzieje": kula rozbłyska i sama wraca do spokoju.
@@ -2094,6 +2117,7 @@
       moveMagic(null);
       zamknijPrzewodnik();
       window.scrollTo(0, 0);
+      if (kotwica) requestAnimationFrame(() => { const k = document.getElementById(kotwica); if (k) window.scrollTo({ top: Math.max(0, k.getBoundingClientRect().top + window.scrollY - 80), behavior: 'instant' }); });
       /* M4.1: kazdy widok ma wlasne hero i wlasna jego wysokosc — tlo i mapa
          musza sie do niego przemierzyc po podmianie widoku, nie przed.
          Mierzymy dwa razy: OD RAZU, zeby wysokosc byla dobra nawet gdyby klatka
@@ -2106,8 +2130,8 @@
         buildSparks();
         buildChips();
       });
-      if (push !== false && ('#' + view) !== location.hash) {
-        history.replaceState(null, '', '#' + view);
+      if (push !== false && ('#' + (kotwica || view)) !== location.hash) {
+        history.replaceState(null, '', '#' + (kotwica || view));
       }
     };
 
@@ -2119,8 +2143,10 @@
     /* SORA//OS: wejscie w Marketplace z innej trasy = modul dostaje wejdz(). 07.10 (wpiecie v2): strona robi
        zwykly zygzak, a CALA animacje komputera prowadzi modul (jedna sekwencja, start 300 ms po kliku, gdy
        zygzak jest w polowie). PIERWSZE w sesji (i nie na telefonie) = pelna wersja, kolejne = skrot. */
-    const wOS = view === 'marketplace' && document.documentElement.dataset.route !== 'marketplace';
-    const pierwszeOS = wOS && !soraosWidziany() && !reduceMotion && !matchMedia('(max-width:760px)').matches;
+    const wOS = view === 'soraos' && document.documentElement.dataset.route !== 'soraos';
+    /* 09.10 (maisa: „za kazdym razem, jak wychodzisz z tej karty, niech komputer laduje sie na nowo”): pelna animacja
+       uruchamiania przy KAZDYM wejsciu w #soraos, nie tylko pierwszym w sesji. Bez ruchu / na telefonie nadal skrot. */
+    const pierwszeOS = wOS && !reduceMotion && !matchMedia('(max-width:760px)').matches;
     if (document.startViewTransition && !reduceMotion) {
       /* .ready odrzuca sie z InvalidStateError, gdy karta jest w tle w
          momencie klikniecia (np. alt-tab) — apply() i tak sie wykonuje,
@@ -2136,7 +2162,7 @@
         if (!wOS) return undefined;
         const czeka = new Promise(r => setTimeout(r, 900));
         return Promise.race([soraosZaladuj().then((os) => {
-          if (os && document.documentElement.dataset.route === 'marketplace') { soraosWejdzTeraz(os, pierwszeOS, 300); wszedl = true; }
+          if (os && document.documentElement.dataset.route === 'soraos') { soraosWejdzTeraz(os, pierwszeOS, 300); wszedl = true; }
         }), czeka]);
       };
       const vt = document.startViewTransition(aplikuj);
@@ -2155,7 +2181,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261008c';
+  const SORAOS_V = '20261009b';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2198,14 +2224,25 @@
     soraosLaduje = Promise.all([
       soraosZasob('link', { rel: 'stylesheet', href: 'soraos.css' + v }),
       soraosZasob('script', { src: 'soraos.js' + v, async: true }),
+      soraosZasob('script', { src: 'soraos-tlo.js' + v, async: true }).catch(() => null),   // tapeta i animacja uruchamiania; bez niej komputer dziala jak dotad
       soraosJson('dane/soraos.json'),
       soraosJson('dane/dostepnosc.json'),
-    ]).then(([, , dane, dost]) => {
-      const tresc = document.querySelector('[data-soraos-tresc]');
-      const root = tresc && tresc.closest('[data-view="marketplace"]');
-      if (!window.SoraOS || !root) return null;
+    ]).then(([, , , dane, dost]) => {
+      /* 08.10: SORA//OS ma wlasny widok (#soraos). Zrodlem tresci zostaje lista w Uslugach; modul dostaje jej klon
+         (bez id, zeby nie dublowac), a oryginal zostaje widoczny jako zwykla lista. */
+      const zrodlo = document.querySelector('[data-view="oferta"] [data-soraos-tresc]');
+      const root = document.querySelector('[data-view="soraos"]');
+      const miejsce = root && root.querySelector('[data-soraos-miejsce]');
+      if (!window.SoraOS || !zrodlo || !miejsce) return null;
+      if (!miejsce.firstElementChild) {
+        const k = zrodlo.cloneNode(true);
+        k.removeAttribute('id'); k.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+        miejsce.appendChild(k);
+      }
+      const tresc = miejsce.firstElementChild;
       soraosOS = window.SoraOS.mount(root, {
         tresc, dane, dostepnosc: soraosSwieza(dost),
+        tlo: window.SoraOSTlo, bezOkna: true, tytul: 'Pulpit',
         onOrder: soraosZamow,
         onNav: (widok) => go(widok),
         loadGame: () => (window.DancyCloud ? Promise.resolve(window.DancyCloud)
@@ -2214,9 +2251,6 @@
         naglowek: 'B',
       });
       soraosKafelGry(root);
-      /* 07.10 (faza B P9): nazwa Marketplace zostaje, podtytul mowi wprost, ze to oferta jednej firmy */
-      const podtytul = [...root.querySelectorAll('h1 > span')].find((s) => !s.closest('.hero'));
-      if (podtytul) podtytul.textContent = 'gotowe skrypty i usługi cybersory, cena z góry';
       return soraosOS;
     }).catch(() => null);   // atrapa: brak modulu = zwykla lista, bez bledu w konsoli
     return soraosLaduje;
@@ -2231,7 +2265,7 @@
     k.setAttribute('data-gra-kafel', ''); k.setAttribute('aria-pressed', 'false');
     k.querySelector('svg').innerHTML = '<path d="M4 10h24v13H4z"></path><path d="M9 14v5M6.5 16.5h5M21 15h1M24 18h1"></path>';
     const t = k.querySelectorAll('span');
-    t[0].textContent = 'DancyCloud'; t[1].textContent = 'Gra · jedno kliknięcie';
+    t[0].textContent = 'Gry'; t[1].textContent = 'DancyCloud · jedno kliknięcie';
     k.addEventListener('click', () => {
       term.click();
       const start = (n) => {
@@ -2240,7 +2274,7 @@
       };
       start(0);
     });
-    term.after(k);
+    term.parentNode.insertBefore(k, term.parentNode.firstElementChild);   // S0: Gry pierwsze w docku/na pulpicie
     /* powiekszanie gry (07.10): przycisk w rogu okna gry; pelny ekran = nakladka (+ Fullscreen API, jesli wolno).
        Gra sama skaluje plotno przez ResizeObserver. Esc zostaje pauza gry; wyjscie: ten przycisk albo Esc przegladarki. */
     /* 07.10 wieczor (feedback maisy): stan przycisku liczony z jednego miejsca. Wczesniej wyjscie z pelnego ekranu
@@ -2286,12 +2320,12 @@
   }
   function soraosWejdz(pierwsze) {
     soraosZaladuj().then((os) => {
-      if (!os || document.documentElement.dataset.route !== 'marketplace') return;
+      if (!os || document.documentElement.dataset.route !== 'soraos') return;
       soraosWejdzTeraz(os, pierwsze, 0);
     });
   }
-  // ladowanie modulu rusza przy najechaniu / dotknieciu "Marketplace", zanim padnie klik
-  document.querySelectorAll('[data-nav="marketplace"]').forEach(el => {
+  // ladowanie modulu rusza przy najechaniu / dotknieciu "SORA//OS", zanim padnie klik
+  document.querySelectorAll('[data-nav="soraos"]').forEach(el => {
     ['pointerenter', 'touchstart', 'focus'].forEach(ev => el.addEventListener(ev, () => { soraosZaladuj(); }, { once: true, passive: true }));
   });
   // wpiecie trwa ~1 s: Esc albo klik je przeskakuje
@@ -2436,12 +2470,12 @@
   document.querySelectorAll('[data-pr-graj]').forEach(el => {
     el.addEventListener('click', (e) => {
       e.preventDefault();
-      go('marketplace');
+      go('soraos');
       soraosZaladuj().then((os) => {
         if (!os) return;
         const klik = (n) => {
-          const k = document.querySelector('[data-view="marketplace"] [data-gra-kafel]');
-          if (k && document.documentElement.dataset.route === 'marketplace') { if (soraosPomin) soraosPomin(); k.click(); }
+          const k = document.querySelector('[data-view="soraos"] [data-gra-kafel]');
+          if (k && document.documentElement.dataset.route === 'soraos') { if (soraosPomin) soraosPomin(); k.click(); }
           else if (n < 40) setTimeout(() => klik(n + 1), 50);
         };
         setTimeout(() => klik(0), 350);
