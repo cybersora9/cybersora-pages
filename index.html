@@ -3184,6 +3184,285 @@
   .soraos-tresc figure img{display:block;width:100%;max-width:100%;height:auto;border:1px solid var(--th-line,rgba(255,255,255,.14));}
   .soraos-tresc a{color:var(--th-label);font-weight:600;}
   .soraos-tresc li[data-linie]::after{content:attr(data-linie) " linii";display:block;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);}
+  /* CENNIK jako KONTRAKTY / AKTA (17.10, kierunek B z RESEARCH_OFERTA_CYBERPUNK_17-10.md).
+     Tylko #cennik w widoku Oferta. Markup i data-* bez zmian (SORA//OS klonuje te sama liste
+     i ma wlasny wyglad). Zero nowego tekstu: kody z licznikow CSS, pieczatka z data-znacznik,
+     linie kodu z data-linie. Jeden kolor (krwisty), bez petli animacji, bez reakcji na kursor. */
+  #cennik{
+    --kt-panel:#141419;
+    --kt-deep:#0b0b0e;
+    --kt-line:rgba(255,255,255,.12);
+    --kt-cut:18px;
+    --kt-r:14px;
+    --kt-pad:clamp(14px,2vw,20px);
+    counter-reset:kt akta sek;
+  }
+  #cennik .soraos-tresc{gap:clamp(3.5rem,7vw,5.5rem);}
+
+  /* ---------- naglowek sekcji jak naglowek akt ---------- */
+  #cennik .soraos-tresc > section{counter-increment:sek;}
+  #cennik .soraos-tresc > section > h2{position:relative;padding-bottom:1.1rem;margin-bottom:.4rem;}
+  #cennik .soraos-tresc > section > h2::before{
+    content:"// " counter(sek,decimal-leading-zero);
+    display:block;margin-bottom:.7rem;
+    font:600 var(--t-tag)/1 var(--mono);letter-spacing:var(--ls-eyebrow);color:var(--th-label);
+  }
+  #cennik .soraos-tresc > section > h2::after{   /* podwojna linia z krwistym odcinkiem */
+    content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+    background:
+      linear-gradient(var(--crimson),var(--crimson)) left top / 64px 1px no-repeat,
+      linear-gradient(var(--kt-line),var(--kt-line)) left top / 100% 1px no-repeat,
+      linear-gradient(var(--kt-line),var(--kt-line)) left bottom / 100% 1px no-repeat;
+  }
+  /* grupa (Software / Widocznosc w Google): podpis + perforacja teczki */
+  #cennik h3[data-soraos-grupa]{display:flex;align-items:center;gap:1rem;margin:2.4rem 0 1.1rem;}
+  #cennik h3[data-soraos-grupa]::after{
+    content:"";flex:1;height:1px;
+    background:repeating-linear-gradient(90deg,var(--kt-line) 0 6px,transparent 6px 10px);
+  }
+
+  /* ---------- wspolna rama: sciety jeden rog, obrys = warstwa pod spodem ---------- */
+  #cennik [data-soraos-app="uslugi"] > ul > li,
+  #cennik [data-soraos-app="projekty"] > ul > li{
+    position:relative;
+    padding:1px;
+    border-radius:var(--kt-r);            /* 17.10: trzy rogi zaokraglone jak .card (14px), sciety zostaje tylko prawy gorny */
+    background:var(--kt-line);
+    clip-path:polygon(0 0,calc(100% - var(--kt-cut)) 0,100% var(--kt-cut),100% 100%,0 100%);
+    transition:background-color .14s ease;
+  }
+  #cennik [data-soraos-app="uslugi"] > ul > li:hover,
+  #cennik [data-soraos-app="uslugi"] > ul > li:focus-within,
+  #cennik [data-soraos-app="projekty"] > ul > li:hover,
+  #cennik [data-soraos-app="projekty"] > ul > li:focus-within{background:var(--th-hot);}
+  #cennik [data-soraos-app="uslugi"] > ul > li > article,
+  #cennik [data-soraos-app="projekty"] > ul > li > article{
+    position:relative;height:100%;
+    border-radius:calc(var(--kt-r) - 1px);
+    background:var(--kt-panel);
+    clip-path:polygon(0 0,calc(100% - var(--kt-cut) + .4px) 0,100% calc(var(--kt-cut) - .4px),100% 100%,0 100%);
+  }
+  #cennik li,#cennik article p{max-width:none;}   /* baza .soraos-tresc li ma --measure: tu karty, nie proza */
+
+  /* ---------- KONTRAKT (usluga) ---------- */
+  #cennik [data-soraos-app="uslugi"] > ul{
+    display:grid;gap:14px;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,232px),1fr));
+  }
+  #cennik [data-soraos-app="uslugi"] > ul > li{counter-increment:kt;}
+  #cennik [data-soraos-app="uslugi"] article{
+    display:grid;
+    grid-template-rows:auto auto auto auto auto auto 1fr auto;
+    padding-bottom:var(--kt-pad);
+  }
+  #cennik [data-soraos-app="uslugi"] article > *{margin:0;padding-inline:var(--kt-pad);}
+  #cennik [data-soraos-app="uslugi"] article::before{        /* KT-01 + klasa zlecenia */
+    content:"KT-" counter(kt,decimal-leading-zero);
+    padding:var(--kt-pad) var(--kt-pad) .9rem;
+    font:600 var(--t-label)/1 var(--mono);letter-spacing:var(--ls-eyebrow);color:var(--th-label);
+  }
+  #cennik [data-soraos-app="uslugi"] > ul > li{--lvl:1;}
+  #cennik [data-soraos-app="uslugi"] > ul > li:is([data-id="skrypt"],[data-id="start"]){--lvl:2;}
+  #cennik [data-soraos-app="uslugi"] > ul > li:is([data-id="bot"],[data-id="pelny"]){--lvl:3;}
+  #cennik [data-soraos-app="uslugi"] > ul > li[data-id="app"]{--lvl:4;}
+  #cennik [data-soraos-app="uslugi"] article::after{           /* KLASA ▮▮□□ jako segmenty */
+    content:"";position:absolute;top:var(--kt-pad);right:calc(var(--kt-pad) + 8px);
+    width:43px;height:10px;
+    background:
+      repeating-linear-gradient(90deg,var(--th-hot) 0 8px,transparent 8px 11px) left / calc(var(--lvl) * 11px) 100% no-repeat,
+      repeating-linear-gradient(90deg,rgba(255,255,255,.16) 0 8px,transparent 8px 11px);
+  }
+  #cennik [data-soraos-app="uslugi"] h4{
+    font-size:1.4rem;font-weight:800;letter-spacing:var(--ls-title);line-height:var(--lh-title);color:#fff;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="krotko"]{
+    margin-top:.25rem;padding-bottom:var(--kt-pad);
+    font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="cena"]{
+    grid-row:4;
+    padding-block:1rem .2rem;border-top:1px solid var(--kt-line);
+    font:800 clamp(1.7rem,3vw,2.1rem)/1.05 var(--f-sans);letter-spacing:var(--ls-title);color:#fff;
+    white-space:nowrap;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="czas"]{
+    grid-row:5;
+    padding-bottom:1rem;border-bottom:1px solid var(--kt-line);
+    color:var(--th-label);font-size:var(--t-label);
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="lead"]{
+    grid-row:6;padding-top:1rem;
+    font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="przyklady"]{
+    grid-row:7;list-style:none;padding-block:1rem 1.2rem;display:flex;flex-direction:column;gap:.45rem;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="przyklady"] li{
+    position:relative;padding-left:1.3rem;font-size:var(--t-ui);line-height:var(--lh-ui);color:#d8d2d5;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="przyklady"] li::before{
+    content:"—";position:absolute;left:0;color:var(--th-hot);
+  }
+
+  /* CTA: jedyny wypelniony i sciety element na karcie */
+  #cennik article > a{
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    min-height:46px;padding:.8rem 1rem;
+    background:var(--crimson-solid);color:#fff;text-decoration:none;
+    font:600 var(--t-ui)/1 var(--mono);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
+    border-radius:9px;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);
+    transition:background-color .14s ease;
+  }
+  #cennik [data-soraos-app="uslugi"] article > a{margin-inline:var(--kt-pad);padding-inline:1rem;}
+  #cennik article > a::after{content:"→";font-family:var(--f-sans);transition:transform .14s ease;}
+  #cennik article > a:hover{background:var(--crimson);}
+  #cennik article > a:hover::after{transform:translateX(4px);}
+  #cennik article > a:focus-visible{outline:2px solid #fff;outline-offset:-5px;}
+
+  /* ---------- AKTA (projekt) ---------- */
+  #cennik [data-soraos-app="projekty"] > ul{display:grid;gap:22px;}
+  #cennik [data-soraos-app="projekty"] > ul > li{counter-increment:akta;}
+  #cennik [data-soraos-app="projekty"] article{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
+    grid-template-areas:
+      "kod  fig"
+      "name fig"
+      "sub  fig"
+      "lead fig"
+      "ext  fig"
+      "pre  fig"
+      "kh   kh"
+      "kl   kl"
+      "cta  cta";
+    grid-template-rows:auto auto auto auto auto 1fr auto auto auto;
+    column-gap:clamp(1.2rem,3vw,2.4rem);
+    padding:var(--kt-pad) clamp(16px,2.6vw,28px) clamp(16px,2.6vw,28px);
+  }
+  #cennik [data-soraos-app="projekty"] article:not(:has(figure img)){
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"kod" "name" "sub" "lead" "ext" "pre" "kh" "kl" "cta";
+  }
+  #cennik [data-soraos-app="projekty"] article > *{margin:0;}
+  #cennik [data-soraos-app="projekty"] article::before{
+    grid-area:kod;
+    content:"AKTA " counter(akta,decimal-leading-zero);
+    margin-bottom:1rem;
+    font:600 var(--t-label)/1 var(--mono);letter-spacing:var(--ls-eyebrow);color:var(--th-label);
+  }
+  /* pieczatka ze statusem projektu (istniejace data-znacznik) */
+  #cennik [data-soraos-app="projekty"] > ul > li[data-znacznik]::after{
+    content:attr(data-znacznik);
+    position:absolute;z-index:2;top:calc(var(--kt-pad) - 4px);
+    left:calc(clamp(16px,2.6vw,28px) + 5.2rem);
+    padding:4px 8px;
+    font:700 var(--t-label)/1 var(--mono);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
+    color:var(--ink);background:var(--th-hot);
+    border-radius:5px;
+    transform:rotate(-3deg);
+  }
+  #cennik [data-soraos-app="projekty"] h3{
+    grid-area:name;margin:0;
+    font-size:var(--t-m);letter-spacing:var(--ls-m);line-height:var(--lh-display);color:#fff;
+  }
+  #cennik [data-soraos-app="projekty"] [data-pole="krotko"]{
+    grid-area:sub;margin-top:.5rem;
+    font:600 var(--t-tag)/1.3 var(--mono);letter-spacing:.02em;color:var(--th-label);
+  }
+  #cennik [data-soraos-app="projekty"] [data-pole="lead"]{grid-area:lead;margin-top:.9rem;}
+  #cennik [data-soraos-app="projekty"] [data-pole="extra"]{
+    grid-area:ext;margin-top:.9rem;
+    font:800 var(--t-s)/1 var(--f-sans);color:#fff;
+  }
+  #cennik [data-soraos-app="projekty"] [data-pole="extra"]::after{
+    content:" " attr(data-etykieta);
+    font:600 var(--t-label)/1 var(--mono);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--muted-dark);
+  }
+  #cennik [data-soraos-app="projekty"] figure{
+    grid-area:fig;align-self:start;margin:0;position:relative;
+  }
+  #cennik [data-soraos-app="projekty"] figure img{
+    border:1px solid var(--kt-line);
+    border-radius:10px;
+    clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);
+  }
+  /* katowniki na rogach zrzutu, jak spinacz w aktach */
+  #cennik [data-soraos-app="projekty"] figure:has(img)::before,
+  #cennik [data-soraos-app="projekty"] figure:has(img)::after{
+    content:"";position:absolute;width:20px;height:20px;pointer-events:none;
+    border:0 solid var(--th-hot);
+  }
+  #cennik [data-soraos-app="projekty"] figure:has(img)::before{top:-6px;left:-6px;border-top-width:1.5px;border-left-width:1.5px;border-top-left-radius:14px;}
+  #cennik [data-soraos-app="projekty"] figure:has(img)::after{bottom:-6px;right:-6px;border-bottom-width:1.5px;border-right-width:1.5px;border-bottom-right-radius:14px;}
+  #cennik [data-soraos-app="projekty"] pre{
+    grid-area:pre;align-self:end;
+    margin:1.2rem 0 0;padding:.8rem 1rem;
+    background:var(--kt-deep);border-left:2px solid var(--crimson);
+    border-radius:4px 10px 10px 4px;
+    color:#cfc8cb;
+  }
+  #cennik [data-soraos-app="projekty"] article > h4{
+    grid-area:kh;display:flex;align-items:center;gap:1rem;
+    margin:1.8rem 0 .9rem;
+    font:600 var(--t-tag)/1 var(--mono);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label);
+  }
+  #cennik [data-soraos-app="projekty"] article > h4::after{
+    content:"";flex:1;height:1px;
+    background:repeating-linear-gradient(90deg,var(--kt-line) 0 6px,transparent 6px 10px);
+  }
+  /* gotowe klocki: siatka specyfikacji, linie 1 px z przerwy */
+  #cennik ul[data-pole="klocki"]{
+    grid-area:kl;
+    display:grid;gap:1px;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
+    background:var(--kt-line);border:1px solid var(--kt-line);
+    border-radius:12px;overflow:hidden;
+  }
+  #cennik ul[data-pole="klocki"] > li{
+    display:flex;flex-direction:column;gap:.45rem;
+    padding:1rem 1rem .9rem;background:var(--kt-deep);
+  }
+  #cennik ul[data-pole="klocki"] h5{margin:0;font-size:var(--t-body);font-weight:600;color:#fff;}
+  #cennik ul[data-pole="klocki"] [data-pole="co"]{margin:0;font-size:var(--t-ui);line-height:var(--lh-ui);}
+  #cennik ul[data-pole="klocki"] [data-pole="dla"]{margin:0;font-size:var(--t-ui);line-height:var(--lh-ui);color:#e6e0e2;}
+  #cennik ul[data-pole="klocki"] li[data-linie]::after{
+    margin-top:auto;padding-top:.5rem;text-align:right;color:var(--th-label);
+  }
+  /* Rodzina Sora: klocki = programy ze znakami */
+  #cennik ul[data-rodzina] > li{display:grid;grid-template-columns:52px 1fr;column-gap:.9rem;row-gap:.35rem;align-items:start;}
+  #cennik ul[data-rodzina] > li > .rd-zn{grid-row:1 / span 2;width:52px;height:52px;}
+  #cennik ul[data-rodzina] > li > h5{align-self:center;}
+  #cennik ul[data-rodzina] > li[data-linie]::after{grid-column:1 / -1;}
+  #cennik [data-soraos-app="projekty"] article > a{grid-area:cta;justify-self:start;margin-top:1.2rem;min-width:220px;}
+
+  /* ---------- patch notes jako dziennik ---------- */
+  #cennik [data-soraos-app="terminy"] > ul{list-style:none;padding:0;display:flex;flex-direction:column;}
+  #cennik [data-soraos-app="terminy"] > ul > li{
+    display:grid;grid-template-columns:4.5rem 1fr;gap:1rem;align-items:baseline;
+    padding:.85rem 0;border-bottom:1px solid var(--kt-line);color:#d8d2d5;
+  }
+  #cennik [data-soraos-app="terminy"] li > b{font:600 var(--t-instrument)/1 var(--mono);letter-spacing:var(--ls-instrument);color:var(--th-label);}
+
+  /* ---------- telefon ---------- */
+  /* karty obok siebie: podtytul zawsze na 2 linie, zeby ceny staly w jednej linii */
+  @media (min-width:761px){
+    #cennik [data-soraos-app="uslugi"] [data-pole="krotko"]{min-height:calc(2lh + var(--kt-pad));}
+  }
+  @media (max-width:760px){
+    #cennik{--kt-cut:14px;--kt-r:12px;}
+    #cennik [data-soraos-app="projekty"] article,
+    #cennik [data-soraos-app="projekty"] article:not(:has(figure img)){
+      grid-template-columns:minmax(0,1fr);
+      grid-template-areas:"kod" "name" "sub" "lead" "ext" "fig" "pre" "kh" "kl" "cta";
+      grid-template-rows:none;
+    }
+    #cennik [data-soraos-app="projekty"] figure{margin-top:1.2rem;}
+    #cennik [data-soraos-app="projekty"] article > a{justify-self:stretch;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #cennik *{transition:none !important;}
+  }
 
   /* ---- PRODUKTY (08.10 v2, uklad A): wyroznik + filtry + siatka kafli ze znakami ---- */
   .pr .services__inner{display:flex;flex-direction:column;gap:1.5rem;}
@@ -4003,6 +4282,43 @@ kolejka.dodaj(nowe_zadanie)</code></pre>
                     </li>
                   </ul>
                   <a href="#contact" data-nav="contact" data-konf="app">Zamów podobne</a>
+                </article>
+              </li>
+              <!-- RODZINA SORA (17.10, teksty zaakceptowane przez maise): opisy Foto/Shot/PDF z kafli w Produktach; linie = git ls-files sora-rodzina 5dc16f7 bez testow. Przy wydaniu apki zmienic data-znacznik i link. -->
+              <li data-id="rodzina" data-plik="sora-rodzina/" data-usluga="app" data-znacznik="wkrótce">
+                <article data-roboczy>
+                  <h3>Rodzina Sora</h3>
+                  <p data-pole="krotko">Darmowe programy na Windows</p>
+                  <p data-pole="lead">Cztery małe programy na jednym wspólnym rdzeniu. Każdy robi jedną rzecz i działa w całości na Twoim komputerze.</p>
+                  <p data-pole="extra" data-etykieta="linii wspólnego rdzenia">9 603</p>
+                  <figure data-pole="zrzut"></figure>
+                  <pre data-pole="kod" data-zrodlo="sora-rdzen"><code>pub fn oczysc_nazwe(nazwa: &amp;str) -&gt; String
+pub fn suma_sha256(sciezka: &amp;Path) -&gt; io::Result&lt;String&gt;
+pub fn sprzataj(folder: &amp;Path)</code></pre>
+                  <h4>W rodzinie</h4>
+                  <ul data-pole="klocki" data-rodzina>
+                    <li data-sciezka="apps/sorafoto" data-linie="17539" data-uslugi="app">
+                      <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#zn-sorafoto"/></svg>
+                      <h5>SoraFoto</h5>
+                      <p data-pole="co">Usuwa lokalizację GPS ze zdjęć, porządkuje nazwy i sortuje po dacie.</p>
+                    </li>
+                    <li data-sciezka="apps/sorashot" data-linie="23514" data-uslugi="app">
+                      <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#zn-sorashot"/></svg>
+                      <h5>SoraShot</h5>
+                      <p data-pole="co">Sam zamazuje maile, numery i nazwiska na zrzutach ekranu, zanim je wyślesz.</p>
+                    </li>
+                    <li data-sciezka="apps/sorapdf" data-linie="24213" data-uslugi="app">
+                      <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#zn-sorapdf"/></svg>
+                      <h5>SoraPDF</h5>
+                      <p data-pole="co">Łączy, dzieli, obraca i zmniejsza PDF-y. Prościej niż w kombajnach.</p>
+                    </li>
+                    <li data-sciezka="apps/soraczytnik" data-linie="15746" data-uslugi="app">
+                      <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><path d="M18 0H120V102L102 120H0V18Z" fill="#0e0e12"/><path d="M26 22H44V102H26Z" fill="#e11d33"/><path d="M50 22H98V80H50Z" fill="#f6f2f3"/><path d="M56 86H92L98 92V102H56Z" fill="#f6f2f3"/><path d="M66 14H86V56L76 46L66 56Z" fill="#e11d33"/></svg>
+                      <h5>SoraCzytnik</h5>
+                      <p data-pole="co">Czyta e-booki i komiksy: EPUB, CBZ, także pismo pionowe.</p>
+                    </li>
+                  </ul>
+                  <a href="#products" data-nav="products">Zobacz w Produktach</a>
                 </article>
               </li>
               <li data-id="oracle" data-plik="oracle.sys" data-usluga="app" data-znacznik="wczesny etap">
