@@ -3121,6 +3121,55 @@
   button.card:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
   .card--open .seed__hint{margin-top:auto;}
   .card--open:hover .seed__hint,.card--open:focus-visible .seed__hint{color:var(--th-hot);transform:translateX(4px);}
+
+  /* ---------- KAFELKI SOMI W STYLU BLACKWALLA (22.10) ----------
+     Blackwall z Cyberpunka 2077: czerwona sciana danych NetWatch, za ktora siedza AI.
+     Plasko, bez poswiaty i rozmycia (zasada marki): scieta fazka w dwoch rogach, pionowe
+     prazki danych, czerwona krawedz z lewej, znacznik BW·nn. Ruch tylko na hover i tylko
+     transition (wylaczany przy prefers-reduced-motion). */
+  .somi-bw .cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;}
+  @media (max-width:980px){.somi-bw .cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media (max-width:620px){.somi-bw .cards{grid-template-columns:minmax(0,1fr);}}
+  .somi-bw .bw{
+    --bw-cut:18px;
+    --bw-line:rgba(225,29,51,.34);
+    position:relative;width:100%;min-height:15rem;text-align:left;color:inherit;font:inherit;cursor:default;
+    padding:1.45rem 1.4rem 1.5rem 1.75rem;gap:.65rem;
+    border:1px solid var(--bw-line);border-radius:0;
+    background:
+      repeating-linear-gradient(90deg,rgba(225,29,51,.055) 0 1px,transparent 1px 22px),
+      linear-gradient(180deg,#130609 0%,#0b0709 100%);
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+    clip-path:polygon(0 0,calc(100% - var(--bw-cut)) 0,100% var(--bw-cut),100% 100%,var(--bw-cut) 100%,0 calc(100% - var(--bw-cut)));
+    transition:border-color .25s ease,background-color .25s ease;
+  }
+  .somi-bw .bw.card--open{cursor:pointer;}
+  /* czerwona krawedz z lewej (zastepuje gorna kreske .card::before) */
+  .somi-bw .bw::before{
+    inset:auto;left:0;top:1.4rem;width:3px;height:2.4rem;opacity:1;
+    background:var(--th-hot);transition:height .3s ease;
+  }
+  /* skosy w rogach: narysowane linia, bo clip-path obcina ramke */
+  .somi-bw .bw::after{
+    inset:0;border:0;border-radius:0;opacity:1;transform:none;pointer-events:none;
+    background:
+      linear-gradient(to bottom left,transparent calc(50% - .7px),var(--bw-line) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) top right / var(--bw-cut) var(--bw-cut) no-repeat,
+      linear-gradient(to bottom left,transparent calc(50% - .7px),var(--bw-line) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) bottom left / var(--bw-cut) var(--bw-cut) no-repeat;
+  }
+  .somi-bw .bw:hover,.somi-bw .bw:focus-within{
+    transform:none;box-shadow:none;--bw-line:rgba(255,58,82,.7);
+    background:
+      repeating-linear-gradient(90deg,rgba(225,29,51,.085) 0 1px,transparent 1px 22px),
+      linear-gradient(180deg,#1a070c 0%,#0d070a 100%);
+  }
+  .somi-bw .bw:hover::before,.somi-bw .bw:focus-within::before{height:5.2rem;}
+  .somi-bw .bw:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .somi-bw .bw__top{display:flex;align-items:center;justify-content:space-between;gap:.8rem;}
+  .somi-bw .bw__id{font-family:var(--mono,ui-monospace,Consolas,monospace);font-size:var(--t-tag);letter-spacing:.14em;color:rgba(255,255,255,.34);}
+  .somi-bw .bw .card__title{color:#f6f2f3;}
+  .somi-bw .bw .card__body{color:rgba(255,255,255,.66);}
+  .somi-bw .bw .seed__hint{margin-top:auto;}
+  @media (prefers-reduced-motion:reduce){.somi-bw .bw,.somi-bw .bw::before{transition:none;}}
   /* MENU (08.10): trzy gromadki w osi ekranu (1fr auto 1fr), srodek = SOMI + SORA//OS we wspolnej ramce */
   .nav__links{display:grid;grid-template-columns:1fr auto 1fr;gap:1.1rem;align-items:center;}
   @media (max-width:900px){.nav__links{display:none;}}   /* po regule grid wyzej, inaczej ona wygrywa kolejnoscia */
@@ -3996,6 +4045,22 @@
                   <a href="#contact" data-nav="contact" data-topic="Audyt widoczności">Zamów</a>
                 </article>
               </li>
+              <li data-id="meta" data-cena="od 390 zł" data-czas="termin po wycenie" data-topic="Audyt Meta (Facebook i Instagram)">
+                <article data-roboczy>
+                  <h4>Audyt Meta</h4>
+                  <p data-pole="krotko">Facebook i Instagram pod lupą</p>
+                  <p data-pole="lead">Sprawdzamy, jak działa Twój profil na Facebooku i Instagramie: kto go ogląda, które posty trafiają do ludzi i co poprawić, żeby klienci Cię znajdowali. Opieramy się na statystykach profilu (Meta Insights), do których sam nadajesz nam wgląd. Niczego u Ciebie nie zmieniamy.</p>
+                  <p data-pole="cena">od 390 zł</p>
+                  <p data-pole="czas">termin po wycenie</p>
+                  <ul data-pole="przyklady">
+                    <li>zasięg i zaangażowanie postów</li>
+                    <li>kim są Twoi obserwujący i kiedy są online</li>
+                    <li>co poprawić w profilu: opis, przyciski, zdjęcia</li>
+                    <li>plan, co publikować i kiedy</li>
+                  </ul>
+                  <a href="#contact" data-nav="contact" data-topic="Audyt Meta (Facebook i Instagram)">Zamów</a>
+                </article>
+              </li>
               <li data-id="start" data-cena="490 zł" data-czas="do 7 dni" data-topic="Pakiet Start (490 zł)">
                 <article data-roboczy>
                   <h4>Pakiet Start</h4>
@@ -4614,31 +4679,78 @@ def fetch_offer_detail(url)</code></pre>
       </div>
     </section>
 
-    <section class="services">
+    <!-- 22.10: kafelki w stylu Blackwalla (czerwona sciana danych z Cyberpunka 2077, plasko, bez poswiaty), 12 modulow SOMI opisanych tym, co robia, nie jak. Trzy pierwsze otwieraja okno (data-somi), reszta to zwykle karty. -->
+    <section class="services somi-bw">
       <div class="services__inner">
         <div class="services__head">
           <div class="services__eyebrow" data-hex="0x4B6D">somi krok po kroku</div>
-          <h2 class="services__title">Co już umie, co dochodzi</h2>
+          <h2 class="services__title">Co SOMI już umie</h2>
+          <p class="stub" style="margin:0;max-width:var(--measure);text-align:left">Dwanaście rzeczy, które robi u nas na co dzień. Bez żargonu: co to jest i do czego się przydaje.</p>
         </div>
         <div class="cards">
-          <button type="button" class="card card--open" data-somi="rozmowa" aria-label="Przykładowa rozmowa — zobacz więcej">
-            <span class="card__tag">Już teraz</span>
-            <h3 class="card__title">Przykładowa rozmowa</h3>
-            <p class="card__body">Tu trzy gotowe pytania. Na co dzień rozmawiamy z SOMI w terminalu, na Discordzie i głosem, a ona potrafi z tego coś dla nas stworzyć.</p>
+          <button type="button" class="card card--open bw" data-somi="rozmowa" aria-label="Rozmowa — zobacz więcej">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·01</span></span>
+            <h3 class="card__title">Rozmowa</h3>
+            <p class="card__body">Piszesz do niej albo mówisz, tak jak do człowieka: w terminalu, na Discordzie, głosem. Prosisz o coś, a ona to robi i odpowiada po ludzku.</p>
             <span class="seed__hint">▸ otwórz</span>
           </button>
-          <button type="button" class="card card--open" data-somi="research" aria-label="Deep research — zobacz więcej">
-            <span class="card__tag">W budowie</span>
-            <h3 class="card__title">Deep research</h3>
-            <p class="card__body">Nasze radary przeglądają setki ofert i zwracają tylko te, które mają sens. W historii jest już ponad 360 ofert i 12 wysłanych zgłoszeń. To działa dziś, tylko jeszcze nie z poziomu czatu SOMI.</p>
+          <button type="button" class="card card--open bw" data-somi="agent" aria-label="Agent — zobacz więcej">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·02</span></span>
+            <h3 class="card__title">Agent, który pracuje</h3>
+            <p class="card__body">Czyta pliki, pisze i poprawia kod, uruchamia programy. Zanim zrobi coś ryzykownego, pyta Cię o zgodę, więc nic nie dzieje się za Twoimi plecami.</p>
             <span class="seed__hint">▸ otwórz</span>
           </button>
-          <button type="button" class="card card--open" data-somi="agent" aria-label="Agent, który działa — zobacz więcej">
-            <span class="card__tag">Działa w terminalu</span>
-            <h3 class="card__title">Agent, który działa</h3>
-            <p class="card__body">Pętla narzędzi (function-calling): czyta pliki, pisze kod i uruchamia skrypty — z bramką akceptacji, więc nic ryzykownego nie dzieje się bez naszej zgody. Sprawdzony na 10-modułowej serii testów parity z Claude Code, zamkniętej 29.07.2026.</p>
+          <button type="button" class="card card--open bw" data-somi="research" aria-label="Radar ofert — zobacz więcej">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·03</span></span>
+            <h3 class="card__title">Radar zleceń</h3>
+            <p class="card__body">Przegląda oferty z Useme i Upwork, odrzuca stare i słabe, a zostawia te, które pasują do naszych umiejętności. W historii ma już ponad 360 ofert i 12 wysłanych zgłoszeń.</p>
             <span class="seed__hint">▸ otwórz</span>
           </button>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·04</span></span>
+            <h3 class="card__title">Pamięć</h3>
+            <p class="card__body">Pamięta, co razem robiliśmy. Pytasz „jak to rozwiązaliśmy ostatnio?” i dostajesz odpowiedź z datą i miejscem, zamiast przekopywać pliki.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·05</span></span>
+            <h3 class="card__title">Research z dowodem</h3>
+            <p class="card__body">Naprawdę otwiera strony i czyta je, zanim cokolwiek o nich powie. Źródło się liczy tylko wtedy, gdy je otworzyła, a nie gdy „jakoś pamięta”.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·06</span></span>
+            <h3 class="card__title">Mądry dobór mocy</h3>
+            <p class="card__body">Proste sprawy załatwia lżejszym modelem, trudne dostają mocniejszy. Koszty mają twardy limit, więc rachunek nigdy nie zaskakuje.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·07</span></span>
+            <h3 class="card__title">Jedna historia</h3>
+            <p class="card__body">Terminal, Discord i narzędzia zapisują się w jednym dzienniku. Nic się nie gubi i nie dubluje, niezależnie od tego, skąd do niej piszesz.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·08</span></span>
+            <h3 class="card__title">Szybkość</h3>
+            <p class="card__body">Robi kilka rzeczy naraz, więc zamiast czekać po kolei, dostajesz wynik kilka razy szybciej. Inne aplikacje dowiadują się o zmianach od razu.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·09</span></span>
+            <h3 class="card__title">AstralHeart: sama się naprawia</h3>
+            <p class="card__body">Gdy w jej własnym kodzie pojawi się błąd, szuka przyczyny i go naprawia, a naprawę zapamiętuje. Ten sam błąd drugi raz jej nie zaskoczy. Dostaje teraz dużą aktualizację.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·10</span></span>
+            <h3 class="card__title">Dojo snu</h3>
+            <p class="card__body">W nocy ćwiczy na własnych błędach, a rano wie więcej. Dzienne dane zostają nietknięte, bo trening idzie osobno, z limitem czasu.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·11</span></span>
+            <h3 class="card__title">Tryb bezpieczny</h3>
+            <p class="card__body">Zauważa, gdy dzieje się coś dziwnego, i potrafi się zatrzymać. W naszej próbie nic nie wyciekło. Ile wolno jej robić samej, ustawiamy my, nie ona.</p>
+          </article>
+          <article class="card bw">
+            <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·12</span></span>
+            <h3 class="card__title">Kokpit z faktami</h3>
+            <p class="card__body">Jedna strona i komenda na Discordzie pokazują, co SOMI naprawdę zrobiła. Bez ozdobników i wymyślonych wskaźników: same fakty z jej dziennika.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -5210,6 +5322,7 @@ fingerprint(maszyna)</div>
                 <option value="Narzędzie z AI">Narzędzie z AI</option>
                 <option value="Strona internetowa">Strona internetowa</option>
                 <option value="Audyt widoczności">Chcę darmowy skan widoczności</option>
+                <option value="Audyt Meta (Facebook i Instagram)">Audyt profilu na Facebooku i Instagramie (Meta)</option>
                 <option value="Pakiet Start (490 zł)">Wizytówka Google + poprawki strony (Start, 490 zł)</option>
                 <option value="Pakiet Pełny (990 zł)">Pełna widoczność (Pełny, 990 zł)</option>
                 <option value="Zakup gotowego produktu">Interesuje mnie gotowy produkt (radar, bot, skrypt…)</option>
