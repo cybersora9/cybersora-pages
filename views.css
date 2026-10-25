@@ -1,0 +1,1233 @@
+/* views.css — reguly pasujace WYLACZNIE do zakladek innych niz pierwszy ekran #start.
+   Wydzielone z <style> w index.html (SZYBKOSC S3, 26.10) narzedziem
+   SoraWebsite/narzedzia/szybkosc/podziel_css.py. Laduje sie bez blokowania
+   renderu (preload + app.js), zakladki czekaja na html.css-ok.
+   Regula, ktora dotyka czegokolwiek na pierwszym ekranie, idzie do <style>. */
+  .view[hidden]{display:none;}
+  @keyframes viewIn{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:none;}
+  }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:var(--t-tag);
+    letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;
+    font-weight:600;
+    padding-left:var(--ls-eyebrow); /* rownowazy tracking za ostatnia litera */
+    color:var(--th-label);
+    display:flex;
+    align-items:center;
+    gap:.85em;
+  }
+  .eyebrow::before,.eyebrow::after{
+    content:"";
+    width:34px;height:1px;
+    background:var(--th-hot);
+    opacity:.55;
+  }
+  /* ---------- GLITCH JEDNORAZOWY — naglowek "Sztuka" (PROPOZYCJA_WIZUAL.md sekcja 4) ----------
+     Echo "can u still hear me?" z deadsory — TECHNIKA (blad druku jako
+     zdarzenie), nie kopia tekstu. Rozni sie od sitewide .slogan (glitchFlick,
+     rzadki tik co 7s w petli): tu jedno mocne drzenie i cisza, "uzyte raz, nie
+     wszedzie" — jedyny SMIALY moment na cala strone (sekcja 0 planu). Odpala
+     sie na kazdym wejsciu w widok Sztuki, bo .view resetuje animacje przy
+     kazdym przelaczeniu z display:none (ten sam mechanizm co .view{animation:
+     viewIn}) — nie trzeba osobnego JS ani IntersectionObserver. */
+  .slogan.slogan--glitch-once{animation:sztukaGlitch 1s steps(1) both;}
+  @keyframes sztukaGlitch{
+    0%{ text-shadow:none; transform:translate(0,0); }
+    8%{ text-shadow:-3px 0 var(--th-hot), 3px 0 var(--th-split); transform:translate(-2px,0); }
+    16%{ text-shadow:3px 0 var(--th-hot), -3px 0 var(--th-split); transform:translate(2px,0); }
+    24%{ text-shadow:none; transform:translate(0,0); }
+    32%{ text-shadow:-2px 0 var(--th-hot), 2px 0 var(--th-split); transform:translate(-1px,0); }
+    40%{ text-shadow:2px 0 var(--th-hot), -2px 0 var(--th-split); transform:translate(1px,0); }
+    48%,100%{ text-shadow:none; transform:translate(0,0); }
+  }
+
+  /* ---- polityka prywatnosci: proza, nie karty (M4, 19.09) ---- */
+  .policy{display:flex;flex-direction:column;gap:2.2rem;max-width:var(--measure);}
+  .policy__item{display:flex;flex-direction:column;gap:.5rem;}
+  .policy__title{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);}
+  .policy__body{margin:0;font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
+  .policy__body a{color:var(--th-hot);}
+  .policy__list{margin:.2rem 0 0;padding-left:1.2rem;display:flex;flex-direction:column;gap:.35rem;font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
+  /* ---------- SADZONKI: ŚCIEŻKA WZROSTU (sesja 1, 20.09) ----------
+     Karty "Nad czym teraz pracujemy" dostały WŁASNE klasy (.growth/.seed),
+     NIE .cards/.card — te są dzielone z całym katalogiem produktów
+     (siatka równych kolumn, mały goły znak) i nie mają udźwignąć innego
+     kontraktu wizualnego. Tu chodzi o dosłowne rozwinięcie metafory
+     "sadzonek": rozmiar i wysokość każdej karty rosną z zaawansowaniem
+     projektu, karty stoją po przekątnej zamiast w rzędzie. Kolejność
+     potwierdzona z maisą 20.09: SalonDesk (najdalej rozwinięty; UMOWY NIE MA — maisa 30.09: nie pisać o umowie ani kliencie, tylko o programie)
+     → Pycodemath (publiczny na PyPI) → Rachmistrz (działa, czeka na
+     decyzję o sprzedaży) → Frostwall (sama biblioteka, bez frontu).
+     Popup po kliknięciu to SESJA 2 (patrz PROMPT_KARTY_SADZONKI.md) —
+     tu tylko stan spoczynku; `.seed` jest już `<button>`, żeby druga
+     sesja dopisała tylko obsługę kliknięcia, nie przebudowywała znaczników. */
+  .growth{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .seed{
+    position:relative;
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    background:rgba(255,255,255,.015);
+    overflow:hidden;
+    isolation:isolate;
+    cursor:pointer;
+    font:inherit;
+    text-align:left;
+    color:inherit;
+    padding:0;
+    -webkit-appearance:none;
+    appearance:none;
+    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+  }
+  .seed:hover,.seed:focus-visible{
+    transform:translateY(-5px);
+    border-color:color-mix(in srgb, var(--th-hot) 45%, transparent);
+    box-shadow:0 16px 34px -12px rgba(0,0,0,.6);
+  }
+  .seed:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  /* rozmiar rosnie ze stopniem zaawansowania; suma szerokosci + odstepow
+     (07.10: 6 kart po dojsciu SoraFluxa, 196+184+172+164+156+148 + 5x12px = 1080px) miesci sie
+     w kontenerze 1080px (.services__inner) — powyzej 1100px viewportu rzad NIE zawija sie
+     przypadkowo w polowie, ponizej przechodzi w kolumne (patrz media query) */
+  .seed[data-stage="1"]{width:196px;min-height:320px;margin-top:0;}
+  .seed[data-stage="2"]{width:184px;min-height:304px;margin-top:16px;}
+  .seed[data-stage="3"]{width:172px;min-height:288px;margin-top:32px;}
+  .seed[data-stage="4"]{width:164px;min-height:272px;margin-top:48px;}
+  .seed[data-stage="5"]{width:156px;min-height:256px;margin-top:64px;}
+  .seed[data-stage="6"]{width:148px;min-height:240px;margin-top:80px;}
+  .seed__code{
+    position:absolute;inset:0;padding:18px;
+    font-family:var(--mono);font-size:11px;line-height:1.8;
+    color:rgba(225,29,51,.16);white-space:pre;pointer-events:none;
+  }
+  .seed__mark{position:absolute;color:#e11d33;pointer-events:none;}
+  .seed__mark svg{display:block;width:100%;height:auto;}
+  /* pozycja/procent kazdego znaku przeniesione wprost z zaakceptowanej
+     makiety (artifact YP37MwLwr8FgL2HHBZUZCK), przeliczone na % wzgledem
+     280x300px karty z makiety, zeby skalowaly sie z rozmiarem stopnia */
+  .seed[data-stage="1"] .seed__mark{width:78%;right:-9%;bottom:-9%;opacity:.10;}
+  .seed[data-stage="2"] .seed__mark{width:82%;right:-11%;bottom:-5%;opacity:.10;}
+  .seed[data-stage="3"] .seed__mark{width:68%;right:-6%;bottom:-6%;opacity:.11;}
+  .seed[data-stage="4"] .seed__mark{width:68%;right:-7%;bottom:-7%;opacity:.11;}
+  .seed[data-stage="5"] .seed__mark{width:64%;right:-6%;bottom:-6%;opacity:.12;}
+  .seed[data-stage="6"] .seed__mark{width:60%;right:-4%;bottom:-6%;opacity:.12;}
+  /* 07.10: dwie najwezsze karty (156/148px) z mniejszym wcieciem, zeby tag i slowa nie lamaly sie w pol */
+  .seed[data-stage="5"] .seed__content,.seed[data-stage="6"] .seed__content{padding-inline:1rem;}
+  .seed__scrim{
+    position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(135deg, var(--ink) 0%, var(--ink) 42%, color-mix(in srgb, var(--ink) 60%, transparent) 62%, transparent 90%);
+  }
+  .seed__content{
+    position:relative;z-index:2;flex-grow:1;
+    display:flex;flex-direction:column;gap:.6rem;
+    padding:1.4rem 1.3rem 1.5rem;
+  }
+  .seed__tag{
+    display:block;
+    font-family:var(--mono);font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:var(--th-label);
+  }
+  .seed__br{color:var(--th-hot);opacity:.8;}
+  .seed__title{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);color:#f6f2f3;}
+  .seed__body{margin:0;font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
+  .seed__hint{
+    margin-top:auto;padding-top:.4rem;
+    font-size:var(--t-ui);font-weight:600;letter-spacing:.02em;
+    color:rgba(246,242,243,.4);
+    transition:color .25s ease,transform .25s var(--ease-soft);
+  }
+  .seed:hover .seed__hint,.seed:focus-visible .seed__hint{color:var(--th-hot);transform:translateX(4px);}
+  
+  @media (max-width:1100px){
+    .growth{flex-direction:column;align-items:stretch;}
+    .seed[data-stage]{width:100%;min-height:0;margin-top:0;}
+  }
+  .sprout__chat .somi-demo__q{min-height:44px;}
+
+  /* ---- product tile extras: logo slot, price, add-to-cart ---- */
+  .prod__logo{
+    width:52px;height:52px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:var(--t-s);line-height:var(--lh-display);
+    border-radius:14px;
+    background:color-mix(in srgb, var(--cat, var(--th-accent)) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--cat, var(--th-accent)) 40%, transparent);
+    box-shadow:0 8px 18px -8px rgba(0,0,0,.6);
+  }
+  .prod__price{
+    margin-top:auto;padding-top:.3rem;
+    font-family:var(--mono,ui-monospace,'SFMono-Regular',Consolas,monospace);
+    font-size:var(--t-title);font-weight:800;letter-spacing:var(--ls-title);color:var(--cat, var(--th-hot));
+  }
+
+  /* ---- product tile with a real Gumroad purchase link alongside the wishlist button ---- */
+  .prod__actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:auto;padding-top:.3rem;}
+  .prod__actions .prod__price{margin-top:0;padding-top:0;flex-basis:100%;}
+  .prod__buy{
+    display:inline-flex;align-items:center;gap:.5em;
+    font:inherit;font-size:var(--t-ui);font-weight:600;color:var(--th-cta-text);
+    text-decoration:none;
+    padding:.62rem 1rem;
+    border-radius:999px;
+    background:var(--th-solid);
+    border:1px solid color-mix(in srgb, var(--th-hot) 50%, transparent);
+    transition:background .2s ease, transform .2s ease;
+  }
+  .prod__buy:hover{background:color-mix(in srgb, var(--th-solid) 88%, #fff);transform:translateY(-1px);}
+  .prod__buy:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .demo__actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.2rem;}
+  .demo__checks{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:var(--t-ui);color:var(--muted-dark);}
+  .demo__pwout{
+    font-family:var(--mono);
+    font-size:var(--t-title);font-weight:600;color:var(--cat, var(--th-hot));
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:10px;
+    padding:.7rem .9rem;word-break:break-all;
+  }
+
+  /* ---- order form (SOMI page): custom project request, submits as a formatted mailto ---- */
+  .orderform{display:flex;flex-direction:column;gap:1.1rem;max-width:640px;}
+  .orderform__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;}
+  .orderform__field{display:flex;flex-direction:column;gap:.4rem;font-size:var(--t-ui);color:var(--muted-dark);}
+  .orderform__field select,
+  .orderform__field input,
+  .orderform__field textarea{
+    font:inherit;font-size:var(--t-body);color:#fff;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:10px;
+    padding:.65rem .8rem;
+    width:100%;
+    resize:vertical;
+  }
+  .orderform__field select{ color-scheme:dark; }
+  .orderform__field select option{ background:#1a1a1f; color:#fff; }
+  .orderform__field select:focus-visible,
+  .orderform__field input:focus-visible,
+  .orderform__field textarea:focus-visible{outline:2px solid var(--th-hot);outline-offset:1px;border-color:var(--th-hot);}
+  .orderform button.cta-big{align-self:flex-start;border:none;}
+  .orderform__field i{color:var(--muted-dark);font-style:italic;opacity:.75;}
+  /* M5 (19.09, PROPOZYCJA_PRZEBUDOWY.md pkt 6, opcja B) — czas odpowiedzi
+     potwierdzony przez maise jako prawdziwy (24h), nie zmyslony. Ten sam mono
+     detal co reszta metadanych na stronie (hex-adresy, .demo__stat itp.). */
+  .orderform__eta{
+    margin:.6rem 0 0;
+    font-family:var(--mono,ui-monospace,'Cascadia Code','SFMono-Regular',Consolas,monospace);
+    font-size:var(--t-instrument);
+    letter-spacing:var(--ls-instrument);
+    color:var(--muted-dark);
+  }
+
+  /* link do polityki pod przyciskiem (27.09, DOPIESZCZENIE 2) — ta sama cicha
+     linijka co .orderform__eta, link w kolorze akcentu na tekst. */
+  .orderform__policy{
+    margin:.35rem 0 0;
+    font-size:var(--t-instrument);
+    color:var(--muted-dark);
+  }
+  .orderform__policy a{color:var(--crimson-hot);}
+
+  /* ---- kontakt: form + live "terminal" preview of what's about to be sent ---- */
+  .contact-wrap{
+    display:grid;grid-template-columns:minmax(280px,640px) minmax(280px,1fr);
+    gap:clamp(1.5rem,4vw,3rem);align-items:start;
+  }
+  
+  @media (max-width:900px){ .contact-wrap{grid-template-columns:1fr;}
+  }
+  .terminal__dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .terminal__dot--r{background:#ff5f56;}
+  .terminal__dot--y{background:#ffbd2e;}
+  .terminal__dot--g{background:#27c93f;}
+  .t-label{color:var(--th-hot);}
+  .t-muted{color:var(--muted-dark);}
+  .t-cursor{display:inline-block;width:.5em;height:1em;background:var(--th-hot);vertical-align:text-bottom;margin-left:1px;}
+  
+  @media (prefers-reduced-motion:no-preference){
+    .t-cursor{animation:t-blink 1s steps(1) infinite;}
+  }
+  @keyframes t-blink{50%{opacity:0;}}
+
+  /* ---- KONFIGURATOR ZLECENIA (MK3a, 06.10): przelacznik trybow + deck w Kontakcie ----
+     Jeden kolor akcentu (karmazyn), Sora + Geist Mono, wagi 400/600/800, rozmiary ze skali --t-*.
+     Rabaty = znak "−" i jasniejszy tekst, ostrzezenia = karmazyn. Zero nowej petli rAF:
+     animacje tylko CSS (przeplyw kresek w schemacie, krotki puls ceny). */
+  .konf-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 clamp(1.2rem,3vw,2rem);}
+  .konf-tab{
+    appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:.6em;
+    font:inherit;font-size:var(--t-ui);font-weight:600;color:var(--muted-dark);
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;padding:.7rem 1.3rem;min-height:44px;
+    transition:color .2s ease,border-color .2s ease,background-color .2s ease;
+  }
+  .konf-tab:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+  .konf-tab[aria-selected="true"]{
+    color:#fff;border-color:var(--th-hot);
+    background:color-mix(in srgb, var(--th-solid) 22%, transparent);
+  }
+  .konf-tab:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .konf-tab__new{
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:var(--th-label);
+  }
+  .konf-tab__new::after{content:" " attr(data-hex);content:" " attr(data-hex) / "";font-weight:400;opacity:.55;}
+
+  .contact-main{display:flex;flex-direction:column;gap:1.4rem;min-width:0;scroll-margin-top:96px;}
+  .contact-wrap[data-mode="quick"] [data-konf-only],
+  .contact-wrap[data-mode="konf"] [data-quick-only]{display:none;}
+  .contact-wrap[data-mode="quick"] .konf,
+  .contact-wrap[data-mode="quick"] .konf-nav{display:none;}
+  .contact-wrap[data-mode="konf"]:not([data-step="5"]) #contactForm{display:none;}
+  .contact-wrap[data-mode="konf"][data-step="5"] .konf-pane{display:none;}
+  .contact-wrap[data-mode="konf"][data-step="5"] .konf-btn--go{display:none;}
+
+  /* ramka: scięte narożniki (prawy górny, lewy dolny) + nawiasy w pozostałych dwóch */
+  .konf{
+    --kc:18px;
+    position:relative;max-width:640px;
+    padding:0 0 .4rem;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));
+    border:1px solid color-mix(in srgb, var(--th-accent) 40%, rgba(255,255,255,.12));
+    clip-path:polygon(0 0,calc(100% - var(--kc)) 0,100% var(--kc),100% 100%,var(--kc) 100%,0 calc(100% - var(--kc)));
+  }
+  .konf::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(var(--th-hot),var(--th-hot)) top left / 26px 2px no-repeat,
+      linear-gradient(var(--th-hot),var(--th-hot)) top left / 2px 26px no-repeat,
+      linear-gradient(var(--th-hot),var(--th-hot)) bottom right / 26px 2px no-repeat,
+      linear-gradient(var(--th-hot),var(--th-hot)) bottom right / 2px 26px no-repeat,
+      linear-gradient(to top right,transparent calc(50% - 1.5px),color-mix(in srgb, var(--th-accent) 55%, transparent) calc(50% - .5px),transparent 50%) top right / var(--kc) var(--kc) no-repeat,
+      linear-gradient(to top right,transparent 50%,color-mix(in srgb, var(--th-accent) 55%, transparent) calc(50% + .5px),transparent calc(50% + 1.5px)) bottom left / var(--kc) var(--kc) no-repeat;
+  }
+  .konf-hud{
+    display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap;
+    padding:.8rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--muted-dark);
+  }
+  .konf-hud b{color:var(--th-label);font-weight:600;}
+  .konf-saved{color:var(--th-label);opacity:0;transition:opacity .3s;margin-right:.9rem;}
+  .konf-saved.on{opacity:1;}
+  .konf-steps{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;padding:.9rem 1.2rem .2rem;}
+  .konf-seg{
+    appearance:none;background:none;border:0;padding:0;cursor:pointer;text-align:left;
+    display:grid;gap:.4rem;align-content:end;min-height:44px;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted-dark);
+  }
+  .konf-seg i{display:block;height:5px;background:rgba(255,255,255,.12);clip-path:polygon(0 0,calc(100% - 4px) 0,100% 100%,0 100%);}
+  .konf-seg.is-on i{background:var(--th-hot);}
+  .konf-seg.is-on{color:#fff;}
+  .konf-seg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .konf-seg:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  
+  @media (max-width:640px){.konf-seg span{display:none;}
+  }
+
+  .konf-scan{
+    display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:1rem 1.4rem;align-items:center;
+    margin:.9rem 1.2rem 0;padding:.9rem;background:rgba(0,0,0,.28);
+    border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  }
+  
+  @media (max-width:640px){.konf-scan{grid-template-columns:1fr;}
+  }
+  .konf-diagram svg{display:block;width:100%;height:auto;}
+  .konf-diagram .dg-line{stroke:rgba(255,255,255,.2);stroke-width:1;fill:none;}
+  .konf-diagram .dg-flow{stroke:var(--th-hot);stroke-width:1.5;fill:none;stroke-dasharray:3 9;animation:konf-flow 1.2s linear infinite;}
+  @keyframes konf-flow{to{stroke-dashoffset:-12;}}
+  .konf-diagram .dg-node{fill:#15151a;stroke:var(--th-hot);stroke-width:1;}
+  .konf-diagram .dg-node.dim{stroke:rgba(255,255,255,.22);}
+  .konf-diagram .dg-frame{fill:none;stroke:rgba(255,255,255,.2);stroke-width:1;stroke-dasharray:4 3;}
+  .konf-diagram text{font-family:var(--mono);font-size:11px;letter-spacing:.04em;fill:var(--muted-dark);}
+  .konf-diagram .dg-sep{stroke-dasharray:2 4;}
+  .konf-diagram .dg-shield{fill:none;stroke:rgba(255,255,255,.3);stroke-width:1.2;}
+  .konf-diagram .dg-shield.on{fill:color-mix(in srgb, var(--th-solid) 35%, transparent);stroke:var(--th-hot);}
+  .konf-diagram text.b{fill:#fff;}
+  .konf-diagram text.r{fill:var(--th-hot);}
+  .konf-diagram text.l{fill:var(--th-label);}
+  .konf-price small{
+    display:block;font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--muted-dark);
+  }
+  .konf-total{
+    font-size:var(--t-m);font-weight:800;line-height:1.05;letter-spacing:var(--ls-m);
+    font-variant-numeric:tabular-nums;margin:.2rem 0 0;
+  }
+  .konf-total.is-pulse{animation:konf-pulse .5s ease-out 1;}
+  @keyframes konf-pulse{0%{color:var(--th-hot);transform:translateY(3px);}100%{color:inherit;transform:none;}}
+  .konf-delta{
+    display:inline-block;min-height:1.4em;margin-top:.25rem;
+    font-family:var(--mono);font-size:var(--t-instrument);font-weight:600;color:var(--th-label);
+  }
+  .konf-upto{margin:.2rem 0 0;font-family:var(--mono);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .konf-lines{grid-column:1/-1;margin:0;}
+  .konf-lines summary{
+    cursor:pointer;font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--th-label);min-height:32px;display:flex;align-items:center;
+  }
+  .konf-lines summary:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-lines ul{list-style:none;margin:.4rem 0 0;padding:0;border-top:1px solid rgba(255,255,255,.08);}
+  .konf-lines li{
+    display:flex;justify-content:space-between;gap:1rem;padding:.4rem 0;
+    border-bottom:1px dashed rgba(255,255,255,.1);font-size:var(--t-label);color:var(--muted-dark);
+  }
+  .konf-lines li span:last-child{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;color:#fff;}
+  .konf-lines li.is-base span:first-child{color:#fff;}
+
+  .konf-pane{padding:1.3rem 1.2rem .4rem;}
+  .konf-pane[hidden]{display:none;}
+  .konf-pane h3{margin:0;font-size:var(--t-title);font-weight:800;letter-spacing:var(--ls-m);}
+  .konf-pane h3:focus{outline:none;}
+  .konf-sub{margin:.4rem 0 1rem;font-size:var(--t-ui);line-height:var(--lh-text);color:var(--muted-dark);max-width:62ch;}
+  .konf-q{
+    display:flex;align-items:center;gap:.7rem;margin:1.2rem 0 .6rem;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;color:var(--muted-dark);
+  }
+  .konf-q::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.1);}
+  .konf-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:.6rem;}
+  .konf-opts--2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+  .konf-opt{position:relative;display:block;cursor:pointer;}
+  .konf-opt input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1;}
+  .konf-opt input:disabled{cursor:not-allowed;}
+  .konf-opt__b{
+    position:relative;display:flex;flex-direction:column;gap:.3rem;height:100%;min-height:84px;
+    padding:.85rem .9rem .75rem;background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);border-radius:10px;
+    transition:border-color .2s ease,background-color .2s ease;
+  }
+  .konf-opt:hover .konf-opt__b{border-color:rgba(255,255,255,.32);}
+  .konf-opt__x{
+    position:absolute;top:.5rem;right:.7rem;font-family:var(--mono);font-size:var(--t-eyebrow);
+    color:var(--muted-dark);opacity:.6;
+  }
+  .konf-opt__k{font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:var(--th-label);}
+  .konf-opt__t{font-size:var(--t-ui);font-weight:600;line-height:1.25;color:#fff;padding-right:1.8rem;}
+  .konf-opt__d{font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .konf-opt__p{
+    margin-top:auto;padding-top:.45rem;display:flex;justify-content:space-between;gap:.5rem;
+    font-family:var(--mono);font-size:var(--t-label);color:var(--muted-dark);
+  }
+  .konf-opt__r{color:var(--th-label);}
+  .konf-opt.is-neg .konf-opt__p span:first-child{color:rgba(255,255,255,.78);}
+  .konf-opt input:checked + .konf-opt__b{
+    border-color:var(--th-hot);background:color-mix(in srgb, var(--th-solid) 20%, transparent);
+  }
+  .konf-opt input:checked + .konf-opt__b .konf-opt__t::before{content:"■ ";color:var(--th-hot);font-size:.7em;vertical-align:1px;}
+  .konf-opt input:focus-visible + .konf-opt__b{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-opt input:disabled + .konf-opt__b{opacity:.38;}
+  .konf-dep{
+    margin:.7rem 0 0;padding-left:.7rem;border-left:2px solid var(--th-hot);
+    font-family:var(--mono);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--th-label);
+  }
+  .konf-dep[hidden]{display:none;}
+  .konf-help{margin:.5rem 0 0;font-size:var(--t-label);color:var(--muted-dark);}
+  .konf-help summary{
+    cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;min-height:32px;list-style:none;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label);
+  }
+  .konf-help summary::-webkit-details-marker{display:none;}
+  .konf-help summary::before{
+    content:"?";display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;
+    border:1px solid var(--th-label);font-weight:600;
+  }
+  .konf-help summary:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-help p{margin:.3rem 0 0;padding:.6rem .8rem;border-left:2px solid var(--th-label);background:rgba(255,255,255,.04);max-width:64ch;line-height:var(--lh-text);}
+  .konf-unsure{
+    display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-top:1.3rem;
+    padding:.75rem .9rem;border:1px dashed rgba(255,255,255,.2);border-radius:10px;
+  }
+  .konf-unsure span{flex:1;min-width:200px;font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .konf-unsure button{
+    appearance:none;cursor:pointer;min-height:40px;padding:.5rem .9rem;border-radius:999px;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
+    color:#fff;background:none;border:1px solid rgba(255,255,255,.3);
+  }
+  .konf-unsure button:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+
+  .konf-nav{display:flex;justify-content:space-between;gap:.8rem;max-width:640px;}
+  .konf-btn{
+    appearance:none;cursor:pointer;font:inherit;font-size:var(--t-ui);font-weight:600;color:#fff;
+    min-height:44px;padding:.7rem 1.4rem;border-radius:999px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);
+    transition:background-color .2s ease,transform .2s ease;
+  }
+  .konf-btn:hover{background:rgba(255,255,255,.12);}
+  .konf-btn:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .konf-btn[hidden]{display:none;}
+  .konf-btn--go{background:var(--th-solid);border-color:color-mix(in srgb, var(--th-hot) 50%, transparent);margin-left:auto;}
+  .konf-btn--go:hover{background:color-mix(in srgb, var(--th-solid) 88%, #fff);transform:translateY(-2px);}
+  .konf-navprice{display:none;}
+  /* MK3b: na telefonie przyciski i cena przyklejone do dolu kolumny, cena widoczna na kazdym kroku */
+  
+  @media (max-width:900px){
+    .konf-nav{position:sticky;bottom:0;z-index:5;align-items:center;max-width:none;padding:.6rem 1.2rem calc(.6rem + env(safe-area-inset-bottom));background:rgba(8,8,10,.92);border-top:1px solid rgba(255,255,255,.12);}
+    .konf-navprice{display:block;flex:1;min-width:0;text-align:center;font-family:var(--mono);font-size:var(--t-instrument);font-weight:600;font-variant-numeric:tabular-nums;color:var(--th-label);white-space:nowrap;}
+    .konf-btn--go{margin-left:0;}
+  }
+  .konf-status{margin:0;font-family:var(--mono);font-size:var(--t-instrument);color:var(--th-label);}
+  .konf-status:not(:empty){padding:.8rem 1.2rem;border:1px solid var(--th-hot);border-radius:10px;margin:1rem 1.2rem;}
+  .konf-status:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .hero__mini{margin:1.1rem 0 0;display:flex;flex-wrap:wrap;gap:.4rem 1.6rem;}
+
+  /* krok 6: podsumowanie + co dalej, nad polami formularza */
+  .konf-recap{display:grid;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden;}
+  .konf-recap div{
+    display:grid;grid-template-columns:150px 1fr auto;gap:.7rem;align-items:center;
+    padding:.5rem .85rem;border-bottom:1px solid rgba(255,255,255,.08);font-size:var(--t-label);color:#fff;
+  }
+  .konf-recap div:last-child{border-bottom:0;}
+  .konf-recap span:first-child{font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--muted-dark);}
+  .konf-recap button{
+    appearance:none;background:none;border:0;cursor:pointer;min-height:32px;padding:0 .2rem;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label);
+  }
+  .konf-recap button:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  
+  @media (max-width:560px){.konf-recap div{grid-template-columns:1fr auto;}.konf-recap span:first-child{grid-column:1/-1;}
+  }
+  .konf-after{border:1px solid rgba(255,255,255,.1);border-radius:10px;}
+  .konf-after h4{
+    margin:0;padding:.6rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:var(--th-label);
+  }
+  .konf-after ol{list-style:none;margin:0;padding:.3rem .9rem .6rem;counter-reset:ka;}
+  .konf-after li{
+    counter-increment:ka;display:grid;grid-template-columns:24px 1fr;gap:.4rem;padding:.5rem 0;
+    border-bottom:1px dashed rgba(255,255,255,.1);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  .konf-after li:last-child{border-bottom:0;}
+  .konf-after li::before{content:counter(ka);font-family:var(--mono);font-weight:600;color:var(--th-label);}
+  .konf-after strong{color:#fff;font-weight:600;}
+  .konf-h5{margin:0;font-size:var(--t-title);font-weight:800;letter-spacing:var(--ls-m);}
+  .konf-h5:focus{outline:none;}
+
+
+  /* kalendarz terminu */
+  .konf-q__opt{text-transform:none;letter-spacing:0;font-family:inherit;opacity:.6;}
+  .konf-cal{
+    max-width:360px;padding:.8rem .9rem .7rem;background:rgba(0,0,0,.28);
+    border:1px solid rgba(255,255,255,.12);border-radius:10px;
+  }
+  .konf-cal__head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.5rem;}
+  .konf-cal__title{
+    font-family:var(--mono);font-size:var(--t-instrument);letter-spacing:var(--ls-eyebrow);
+    text-transform:uppercase;font-weight:600;color:#fff;
+  }
+  .konf-cal__nav{
+    appearance:none;cursor:pointer;width:36px;height:36px;border-radius:50%;
+    font-size:var(--t-body);line-height:1;color:#fff;background:none;border:1px solid rgba(255,255,255,.22);
+  }
+  .konf-cal__nav:hover:not(:disabled){border-color:var(--th-hot);color:var(--th-label);}
+  .konf-cal__nav:disabled{opacity:.3;cursor:not-allowed;}
+  .konf-cal__nav:focus-visible,.konf-day:focus-visible,.konf-cal__clear:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .konf-cal__dow,.konf-cal__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .konf-cal__dow span{
+    text-align:center;font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);
+    color:var(--muted-dark);padding:.2rem 0;
+  }
+  .konf-day{
+    appearance:none;cursor:pointer;aspect-ratio:1;min-height:36px;position:relative;
+    font-family:var(--mono);font-size:var(--t-instrument);font-variant-numeric:tabular-nums;color:#fff;
+    background:rgba(255,255,255,.04);border:1px solid transparent;border-radius:6px;
+    transition:border-color .15s ease,background-color .15s ease;
+  }
+  .konf-day:hover:not(:disabled){border-color:rgba(255,255,255,.35);}
+  .konf-day.is-wknd{color:var(--muted-dark);}
+  .konf-day:disabled{opacity:.25;cursor:not-allowed;background:none;}
+  .konf-day.is-today::after{
+    content:"";position:absolute;left:4px;right:4px;bottom:3px;height:2px;background:var(--th-label);opacity:.7;
+  }
+  .konf-day[aria-pressed="true"]{
+    color:#fff;font-weight:800;background:var(--th-solid);border-color:var(--th-hot);
+    clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));
+  }
+  .konf-cal__foot{
+    display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.6rem;
+    font-family:var(--mono);font-size:var(--t-label);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  .konf-cal__clear{
+    appearance:none;cursor:pointer;min-height:32px;padding:0 .2rem;background:none;border:0;
+    font-family:var(--mono);font-size:var(--t-eyebrow);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label);
+  }
+  .konf-cal__clear[hidden]{display:none;}
+  .t-ok{color:var(--th-label);}
+
+  
+  @media (prefers-reduced-motion:reduce){
+    .konf-diagram .dg-flow,.konf-total.is-pulse{animation:none;}
+    .konf-saved,.konf-opt__b,.konf-tab{transition:none;}
+  }
+
+  /* ---- SOMI z bliska (18.09): duza kula + demo rozmowy bez backendu ----
+     Reuzywa .terminal/.t-cursor/.t-muted z bloku wyzej — nowe klasy tylko
+     tam, gdzie uklad naprawde inny (kolumny, tagi, pytania). */
+  .somi-demo__layout{
+    display:grid;
+    grid-template-columns:minmax(280px,1fr) minmax(320px,1fr);
+    gap:clamp(1.5rem,4vw,3rem);
+    align-items:start;
+  }
+  
+  @media (max-width:900px){ .somi-demo__layout{grid-template-columns:1fr;}
+  }
+
+  /* Kula chowa sie DOMYSLNIE — pokazuje ja dopiero __somiOrbBoot, dokladnie
+     tak jak has-orb przy masktoce w pasku (M2). Brak WebGL/reduced-motion =
+     opis zostaje sam, na pelnej szerokosci kolumny. */
+  .somi-demo__orb-wrap{display:none;justify-content:center;margin-bottom:1.4rem;}
+  .somi-demo__orb-wrap.has-orb,.somi-demo__orb-wrap.has-plakat{display:flex;}
+  /* SZYBKOSC S1 (26.10): plakat = statyczna klatka kuli, dopoki three.js nie dojedzie
+     (przy reduced-motion i bez WebGL zostaje na stale). Przenikanie 200 ms do plotna.
+     Kula to samo swiatlo (shader pisze alfa 0, kolor sie DODAJE do tla), wiec plakat
+     to klatka na czerni nakladana addytywnie: czern znika, zostaje swiatlo jak z plotna. */
+  .somi-demo__orb-plakat{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;mix-blend-mode:screen;mix-blend-mode:plus-lighter;transition:opacity .2s ease;}
+  .somi-demo__orb-wrap.has-orb .somi-demo__orb-plakat{opacity:0;}
+  .somi-demo__orb-wrap.has-plakat canvas{opacity:0;transition:opacity .2s ease;}
+  .somi-demo__orb-wrap.has-plakat.has-orb canvas{opacity:1;}
+  .somi-demo__orb-slot{
+    position:relative;
+    height:clamp(150px,22vw,205px);
+    aspect-ratio:322/205;   /* ten sam ksztalt co pasek — patrz ORB_FRAME w JS */
+  }
+  .somi-demo__orb-slot canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  /* Aura kuli (blur 28px, kolor i krycie ustawia kula.js inline) WYLACZONA
+     23.09 — zamiast niej cienki, statyczny pierscien orbity z jednym lukiem
+     crimson (wariant 2). Element zostaje w DOM, bo kula.js go szuka. */
+  .somi-demo__orb-glow{display:none;}
+  .somi-demo__orb-slot::before,.somi-demo__orb-slot::after{
+    content:"";
+    position:absolute;
+    left:50%;top:50%;
+    height:86%;aspect-ratio:1;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .somi-demo__orb-slot::before{border:1px solid rgba(255,255,255,.14);transform:translate(-50%,-50%);}
+  .somi-demo__orb-slot::after{
+    border:1px solid transparent;
+    border-top-color:rgba(255,58,82,.8);
+    transform:translate(-50%,-50%) rotate(-30deg);
+  }
+
+  .somi-demo__lead{
+    font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);
+    max-width:var(--measure);margin:0 0 1.2rem;
+  }
+  .somi-demo__parts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.85rem;}
+  .somi-demo__parts li{display:flex;gap:.7rem;align-items:baseline;line-height:var(--lh-ui);}
+  /* Bez tego .somi-demo__text flex traktowalby caly akapit jak jeden
+     nie-kurczliwy blok (min-width:auto domyslne) i wypychal wiersz w bok
+     zamiast zawijac tekst normalnie w kolumnie. */
+  .somi-demo__text{flex:1 1 auto;min-width:0;}
+  .somi-demo__tag{
+    flex-shrink:0;
+    font-family:var(--mono);font-size:var(--t-label);font-weight:700;
+    letter-spacing:var(--ls-instrument);text-transform:uppercase;
+    padding:.15em .55em;border-radius:999px;
+    color:var(--muted-dark);border:1px solid rgba(255,255,255,.16);
+  }
+  .somi-demo__tag.is-live{color:var(--th-hot);border-color:color-mix(in srgb, var(--th-hot) 55%, transparent);}
+  /* Jezyk banera FB (decyzja 9, M4.5), druga runda: pająk i payload/mina jako
+     ciche PIECZATKI na koncu wlasciwych linijek (crawler przy radarze, uzbrojony
+     ladunek przy agencie) — nie kolejna siatka heksagonalna, ktora juz jest
+     na plytkach trzech projektow. Statyczne, jeden kolor, zero petli. */
+  .somi-demo__glyph{
+    flex-shrink:0;
+    align-self:center;
+    height:34px;width:auto;
+    color:var(--th-hot);
+    opacity:.5;
+  }
+  
+  @media (max-width:640px){ .somi-demo__glyph{display:none;}
+  }
+  .somi-demo__q{
+    font:inherit;font-size:var(--t-ui);font-weight:600;
+    padding:.6rem 1.1rem;border-radius:999px;cursor:pointer;
+    color:#fff;background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.16);
+    transition:border-color .2s ease,background .2s ease,transform .2s ease;
+  }
+  .somi-demo__q:hover{border-color:color-mix(in srgb, var(--th-hot) 55%, transparent);transform:translateY(-1px);}
+  .somi-demo__q:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  .somi-demo__q.is-active{
+    background:color-mix(in srgb, var(--th-accent) 16%, transparent);
+    border-color:color-mix(in srgb, var(--th-hot) 65%, transparent);
+  }
+  /* .terminal domyslnie jest position:sticky (patrz kontakt) — tu obie kolumny
+     nie roznia sie na tyle wysokoscia, zeby to mialo sens; wraca do statycznej. */
+  .somi-demo__chat .terminal{position:static;}
+  .somi-demo__chat .terminal__body{min-height:220px;}
+  .catcard.is-active .catcard__icon{
+    background:var(--th-solid);color:var(--th-cta-text);
+  }
+  .catcard__top{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;}
+  .catcard__icon{
+    width:46px;height:46px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:13px;color:var(--th-hot);
+    background:color-mix(in srgb, var(--th-accent) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--th-accent) 40%, transparent);
+    transition:background .25s ease,box-shadow .25s ease,color .25s ease;
+  }
+  .catcard__title{
+    margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);
+    display:flex;align-items:center;gap:.55em;flex-wrap:wrap;
+  }
+  .catcard__sub{margin:0;font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .catcard__sub--empty{font-style:italic;}
+  .catcard__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.3rem;}
+
+  /* ---- proof bar: thin strip of real numbers between sections ---- */
+  .proof{
+    position:relative;
+    padding:1.35rem 24px;
+  }
+  .proof__inner{
+    max-width:1080px;
+    margin:0 auto;
+    display:flex;flex-wrap:wrap;
+    justify-content:center;align-items:center;
+    gap:.6rem 1.4rem;
+    font-size:var(--t-body);color:var(--muted-dark);
+    text-align:center;
+  }
+  .proof__item{display:flex;align-items:center;gap:.55em;}
+  .proof__item b{color:#fff;font-weight:600;}
+  .proof__link{ color:#fff;text-decoration:underline;text-underline-offset:3px;transition:color .2s ease; }
+  .proof__link:hover{ color:var(--th-hot); }
+  .proof__link:focus-visible{ outline:2px solid var(--th-hot);outline-offset:3px; }
+  .proof__item + .proof__item::before{
+    content:"·";
+    color:var(--th-hot);
+    font-weight:800;
+    margin-right:.85em;
+  }
+  
+  @media (max-width:640px){
+    .proof__inner{flex-direction:column;gap:.55rem;}
+    .proof__item + .proof__item::before{display:none;}
+  }
+
+  /* ---------- OFERTA: pasy cennika (05.10, aspekt 3 B, makieta _makieta_oferta_software.html, wariant B) ----------
+     Reuzywa .pas / .pas__marka / .pas__tresc / .pas__co ze Startu (szew + .reveal). Tu tylko to, czego Start nie ma:
+     cena, lista przykladow, dowod i dopisek. Bez .pas__znak: pas Oferty nie ma sygnetu. */
+  .pas__cena{font-family:var(--mono);font-weight:800;color:var(--th-hot);font-size:clamp(1.6rem,4vw,2.6rem);letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .pas__lista{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.45rem;font-size:var(--t-body);line-height:var(--lh-ui);color:rgba(255,255,255,.78);}
+  .pas__lista li{display:grid;grid-template-columns:1.1em 1fr;gap:.5rem;}
+  .pas__lista li::before{content:">";font-family:var(--mono);color:var(--th-hot);font-weight:700;}
+  .pas__dowod{display:inline-flex;flex-wrap:wrap;gap:.35rem .6rem;align-items:baseline;margin:.2rem 0 0;font-size:var(--t-label);color:rgba(255,255,255,.55);border-top:1px solid rgba(255,255,255,.10);padding-top:.8rem;}
+  .pas__dowod-opis{margin:.45rem 0 0;font-size:var(--t-label);line-height:var(--lh-ui);color:rgba(255,255,255,.55);max-width:46ch;}
+  .pasy-dopisek{margin:1.4rem 0 0;font-size:var(--t-label);line-height:var(--lh-ui);color:rgba(255,255,255,.55);max-width:60ch;}
+  /* 18.10: notka „Od…” stoi teraz pod kontraktami w #cennik, gdzie style akt nadpisuja <p> */
+  #cennik p.pasy-dopisek{margin:2rem 0 0;font-size:var(--t-label);line-height:var(--lh-ui);color:rgba(255,255,255,.55);max-width:60ch;}
+  .hero__cta-row{display:flex;flex-wrap:wrap;gap:.7rem 1rem;justify-content:center;align-items:center;margin-top:1.1rem;}
+  
+  @media (max-width:640px){
+    .hero__cta-row{flex-direction:column;align-items:stretch;}
+    .hero__cta-row .cta-big,.hero__cta-row .cta-outline{justify-content:center;}
+  }
+  @media (max-width:900px){
+    .nav__lang{display:none;}
+  }
+
+  /* ---- Sztuka: galeria prac + lightbox (21.09) ---- */
+  .sztuka__grid{
+    display:grid;
+    gap:1.1rem;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  }
+  .sztuka__item{
+    font:inherit;
+    position:relative;
+    display:block;
+    width:100%;
+    aspect-ratio:1/1;
+    margin:0;padding:0;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    overflow:hidden;
+    background:rgba(255,255,255,.015);
+    cursor:pointer;
+    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+  }
+  /* narozniki HUD zamiast goliej ramki (PROPOZYCJA_WIZUAL.md sekcja 4) —
+     "jak reszta strony", czyli cichy, staly podpis, nie hover-reveal .card */
+  .sztuka__item::after{
+    content:"";
+    position:absolute;inset:9px;
+    pointer-events:none;
+    z-index:2;
+    background:
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) top left / 14px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) top left / 1.5px 14px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) bottom right / 14px 1.5px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--th-hot) 70%, transparent),color-mix(in srgb, var(--th-hot) 70%, transparent)) bottom right / 1.5px 14px no-repeat;
+    background-repeat:no-repeat;
+    opacity:.4;
+    transition:opacity .3s ease;
+  }
+  .sztuka__item:hover::after{opacity:.85;}
+  .sztuka__item img{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+    transition:transform .4s ease;
+  }
+  /* DUOTONE + HOVER-REVEAL ZDJETE 21.09 na prosbe maisy ("usunac ten cover
+     czerwony... i po prostu bordery ladnie zrobic") — grafiki pokazuja od razu
+     wlasny kolor, `.sztuka__color` i crossfade caly wylecial (nie bylo juz co
+     odkrywac). Narozniki HUD (`::after` wyzej) zostaja bez zmian — to one sa
+     "bordery ladnie zrobione", o ktore prosila. */
+  .sztuka__item:hover{
+    transform:translateY(-5px);
+    border-color:color-mix(in srgb, var(--th-hot) 55%, transparent);
+    box-shadow:0 16px 34px -12px rgba(0,0,0,.6);
+  }
+  .sztuka__item:hover img{transform:scale(1.05);}
+  .sztuka__item:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  @media (prefers-reduced-motion:reduce){
+    .slogan.slogan--glitch-once{animation:none;text-shadow:none;transform:none;}
+    .sztuka__item,.sztuka__item img{transition:none;}
+    .sztuka__item:hover{transform:none;}
+    .sztuka__item:hover img{transform:none;}
+  }
+  /* ---------- O NAS: DUET (05.10, wariant A „dwa pasy”, wybór maisy) ----------
+     Reużywa .pas ze Startu (szew + .reveal + płytka z celownikiem i przejazdem skanera). Własne tylko:
+     - monogram PG/WZ w kroju Geist Mono: każda litera ma tę samą szerokość, więc oba zajmują
+       identyczny prostokąt (width:2ch). Sora miała szersze W i Z i monogramy wychodziły nierówne.
+     - obrys zmiennego kroju pokazuje nakładające się kontury (ślady w „G”), więc obrys jest kryjący,
+       a wypełnienie --ink leży nad nim (paint-order:stroke fill) i zakrywa środek.
+     Zero nowych animacji. Kolejna osoba = kolejny <article class="pas reveal"> z następnym hex-adresem. */
+  .duet{--g:clamp(6rem,15vw,12rem);}
+  .duet .pas__marka{
+    position:relative;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    column-gap:1.1rem;row-gap:.2rem;
+    align-items:center;align-content:start;
+  }
+  .duet__mono{
+    position:absolute;top:0;left:-.04em;z-index:0;
+    width:2ch;white-space:nowrap;
+    font-family:var(--mono);font-weight:600;font-size:var(--g);line-height:.78;letter-spacing:0;
+    font-variant-ligatures:none;
+    color:var(--ink);
+    -webkit-text-stroke:2px color-mix(in srgb, var(--th-hot) 50%, var(--ink));
+    paint-order:stroke fill;
+    user-select:none;pointer-events:none;
+  }
+  .duet .pas__znak,.duet .pas__nazwa,.duet__rola{position:relative;z-index:1;}
+  .duet .pas__znak.duet__plytka{
+    grid-column:1;grid-row:1/3;
+    width:76px;height:76px;padding:0;
+    align-items:center;justify-content:center;
+    margin-top:calc(var(--g) * .78 + .6rem);
+    font-family:var(--mono);font-weight:600;font-size:1.35rem;letter-spacing:.04em;line-height:1;
+    color:#fff;
+  }
+  .duet .pas__nazwa{grid-column:2;grid-row:1;align-self:end;margin-top:calc(var(--g) * .78 + .6rem);}
+  .duet__rola{
+    grid-column:2;grid-row:2;align-self:start;margin:0;
+    font-family:var(--mono);font-size:var(--t-label);font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--th-label);
+  }
+  /* drugi pas: wszystko po prawej, jak w Starcie */
+  .duet .pas:nth-of-type(even) .pas__marka{grid-template-columns:minmax(0,1fr) auto;align-items:center;text-align:right;}
+  .duet .pas:nth-of-type(even) .duet__mono{left:auto;right:-.04em;}
+  .duet .pas:nth-of-type(even) .pas__znak.duet__plytka{grid-column:2;}
+  .duet .pas:nth-of-type(even) .pas__nazwa,.duet .pas:nth-of-type(even) .duet__rola{grid-column:1;}
+  .duet__rozwoj{
+    display:flex;align-items:center;gap:.9rem;margin:2.2rem 0 0;
+    font-family:var(--mono);font-size:var(--t-label);color:var(--muted-dark);letter-spacing:.04em;
+  }
+  .duet__rozwoj::before{content:"";flex:none;width:44px;height:2px;background:var(--th-hot);}
+  
+  @media (max-width:820px){
+    .duet{--g:clamp(5.2rem,26vw,8rem);}
+    .duet .pas__marka,.duet .pas:nth-of-type(even) .pas__marka{
+      display:grid;grid-template-columns:auto minmax(0,1fr);text-align:left;
+    }
+    .duet .pas:nth-of-type(even) .duet__mono{left:-.04em;right:auto;}
+    .duet .pas:nth-of-type(even) .pas__znak.duet__plytka{grid-column:1;}
+    .duet .pas:nth-of-type(even) .pas__nazwa,.duet .pas:nth-of-type(even) .duet__rola{grid-column:2;}
+  }
+  
+  @media (max-width:420px){
+    .duet .pas__znak.duet__plytka{width:62px;height:62px;font-size:1.1rem;}
+  }
+  /* ---------- SCENA KULI SOMI (30.09) ----------
+     Kula na srodku, stany po bokach (desktop) albo w dwoch rzedach pod nia (telefon).
+     Kolory kropek = MOOD_COLOR z kula.js (krew / bursztyn / zielen). */
+  .somi-stage{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:clamp(1rem,3vw,2.6rem);margin:0 0 clamp(1.6rem,4vw,3rem);}
+  .somi-stage__kula{display:flex;flex-direction:column;align-items:center;gap:.9rem;min-width:0;}
+  .somi-stage .somi-demo__orb-wrap{margin:0;}
+  .somi-stage .somi-demo__orb-slot{height:clamp(240px,34vw,420px);aspect-ratio:1;cursor:pointer;}
+  .somi-stage .somi-demo__orb-slot::before,.somi-stage .somi-demo__orb-slot::after{height:92%;}
+  .somi-stage .somi-demo__orb-slot:focus-visible{outline:2px solid var(--th-hot);outline-offset:4px;border-radius:50%;}
+  .somi-stage__hint{margin:-.3rem 0 0;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);opacity:.75;transition:opacity .5s var(--ease-soft);}
+  .somi-stage__hint.is-gone{opacity:0;}
+  .somi-stage__stany{display:flex;flex-direction:column;gap:.7rem;align-items:flex-end;}
+  .somi-stage__stany + .somi-stage__kula + .somi-stage__stany{align-items:flex-start;}
+  .somi-stage__btn{
+    font:inherit;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);
+    color:rgba(246,242,243,.82);background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.12);border-radius:999px;
+    padding:.55rem 1rem;display:inline-flex;align-items:center;gap:.55rem;cursor:pointer;
+    transition:border-color .2s var(--ease-soft),background .2s var(--ease-soft),color .2s var(--ease-soft);
+  }
+  .somi-stage__btn:hover{border-color:rgba(255,58,82,.55);color:#fff;}
+  .somi-stage__btn:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .somi-stage__btn[aria-pressed="true"]{border-color:var(--th-hot);background:rgba(255,58,82,.1);color:#fff;}
+  .somi-stage__dot{width:8px;height:8px;border-radius:50%;background:var(--th-accent);flex:none;}
+  .somi-stage__btn[data-mood="thinking"] .somi-stage__dot{background:#d9a441;}
+  .somi-stage__btn[data-mood="speaking"] .somi-stage__dot{background:#6fbf95;}
+  .somi-stage__btn[data-mood="wow"] .somi-stage__dot,.somi-stage__btn[data-mood="tool"] .somi-stage__dot{background:var(--th-hot);}
+  .somi-stage__btn[data-mood="error"] .somi-stage__dot{background:transparent;border:1.5px solid var(--th-hot);}
+  .somi-stage__status{margin:0;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);text-align:center;min-height:1.5em;}
+  .somi-stage__prompt{color:#6fbf95;}
+  .somi-stage__status b{color:#f6f2f3;font-weight:600;}
+  
+  @media (max-width:760px){
+    .somi-stage{grid-template-columns:minmax(0,1fr);}
+    .somi-stage__kula{order:-1;}
+    .somi-stage__stany,.somi-stage__stany + .somi-stage__kula + .somi-stage__stany{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;}
+  }
+  
+  @media (prefers-reduced-motion:reduce){ .somi-stage__btn{transition:none;}
+  }
+  /* brak WebGL albo reduced-motion = brak kuli: przyciski nie mialyby czym sterowac */
+  .somi-stage:not(:has(.has-orb, .kula-czeka)) .somi-stage__stany,.somi-stage:not(:has(.has-orb, .kula-czeka)) .somi-stage__status,.somi-stage:not(:has(.has-orb, .kula-czeka)) .somi-stage__hint{display:none;}
+  /* sam plakat (reduced-motion / bez WebGL): bez przyciskow po bokach, wiec jedna kolumna, kula na srodku */
+  .somi-stage:not(:has(.has-orb, .kula-czeka)){grid-template-columns:minmax(0,1fr);}
+  /* karty SOMI "Co juz umie" jako przyciski otwierajace okno (30.09) */
+  button.card{font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer;}
+  button.card:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .card--open .seed__hint{margin-top:auto;}
+  .card--open:hover .seed__hint,.card--open:focus-visible .seed__hint{color:var(--th-hot);transform:translateX(4px);}
+
+  /* ---------- KAFELKI SOMI W STYLU BLACKWALLA (22.10) ----------
+     Blackwall z Cyberpunka 2077: czerwona sciana danych NetWatch, za ktora siedza AI.
+     Plasko, bez poswiaty i rozmycia (zasada marki): scieta fazka w dwoch rogach, pionowe
+     prazki danych, czerwona krawedz z lewej, znacznik BW·nn. Ruch tylko na hover i tylko
+     transition (wylaczany przy prefers-reduced-motion). */
+  .somi-bw .cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;}
+  
+  @media (max-width:980px){.somi-bw .cards{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  
+  @media (max-width:620px){.somi-bw .cards{grid-template-columns:minmax(0,1fr);}
+  }
+  .somi-bw .bw{
+    --bw-cut:18px;
+    --bw-line:rgba(225,29,51,.34);
+    position:relative;width:100%;min-height:15rem;text-align:left;color:inherit;font:inherit;cursor:default;
+    padding:1.45rem 1.4rem 1.5rem 1.75rem;gap:.65rem;
+    border:1px solid var(--bw-line);border-radius:0;
+    background:
+      repeating-linear-gradient(90deg,rgba(225,29,51,.055) 0 1px,transparent 1px 22px),
+      linear-gradient(180deg,#130609 0%,#0b0709 100%);
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+    clip-path:polygon(0 0,calc(100% - var(--bw-cut)) 0,100% var(--bw-cut),100% 100%,var(--bw-cut) 100%,0 calc(100% - var(--bw-cut)));
+    transition:border-color .25s ease,background-color .25s ease;
+  }
+  .somi-bw .bw.card--open{cursor:pointer;}
+  /* czerwona krawedz z lewej (zastepuje gorna kreske .card::before) */
+  .somi-bw .bw::before{
+    inset:auto;left:0;top:1.4rem;width:3px;height:2.4rem;opacity:1;
+    background:var(--th-hot);transition:height .3s ease;
+  }
+  /* skosy w rogach: narysowane linia, bo clip-path obcina ramke */
+  .somi-bw .bw::after{
+    inset:0;border:0;border-radius:0;opacity:1;transform:none;pointer-events:none;
+    background:
+      linear-gradient(to bottom left,transparent calc(50% - .7px),var(--bw-line) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) top right / var(--bw-cut) var(--bw-cut) no-repeat,
+      linear-gradient(to bottom left,transparent calc(50% - .7px),var(--bw-line) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) bottom left / var(--bw-cut) var(--bw-cut) no-repeat;
+  }
+  .somi-bw .bw:hover,.somi-bw .bw:focus-within{
+    transform:none;box-shadow:none;--bw-line:rgba(255,58,82,.7);
+    background:
+      repeating-linear-gradient(90deg,rgba(225,29,51,.085) 0 1px,transparent 1px 22px),
+      linear-gradient(180deg,#1a070c 0%,#0d070a 100%);
+  }
+  .somi-bw .bw:hover::before,.somi-bw .bw:focus-within::before{height:5.2rem;}
+  .somi-bw .bw:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .somi-bw .bw__top{display:flex;align-items:center;justify-content:space-between;gap:.8rem;}
+  .somi-bw .bw__id{font-family:var(--mono,ui-monospace,Consolas,monospace);font-size:var(--t-tag);letter-spacing:.14em;color:rgba(255,255,255,.34);}
+  .somi-bw .bw .card__title{color:#f6f2f3;}
+  .somi-bw .bw .card__body{color:rgba(255,255,255,.66);}
+  .somi-bw .bw .seed__hint{margin-top:auto;}
+  
+  @media (prefers-reduced-motion:reduce){.somi-bw .bw,.somi-bw .bw::before{transition:none;}
+  }
+  #cennik{scroll-margin-top:90px;}
+  /* przelacznik dwoch stron jednej pozycji menu (Oferta/Cennik, Gotowe/W budowie) */
+  .vswitch{display:inline-flex;gap:2px;padding:3px;margin:0 0 1.1rem;border:1px solid var(--th-line,rgba(255,255,255,.18));font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;}
+  .vswitch a{padding:.55rem .9rem;color:var(--muted-dark,#9a9098);text-decoration:none;}
+  .vswitch a:hover{color:#fff;}
+  .vswitch a:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;}
+  /* Uslugi: lista bez okna terminala (gra mieszka w SORA//OS) */
+  .view[data-view="oferta"] [data-soraos-app="terminal"]{display:none;}
+  .view.soraos:has(> .soraos-lista [data-soraos-tresc][hidden]){padding-top:65px;}
+  .view.soraos > .soraos-lista:has([data-soraos-tresc][hidden]){padding:0;}
+  .soraos-tresc{display:flex;flex-direction:column;gap:clamp(2.5rem,5vw,4rem);max-width:100%;}
+  .soraos-tresc h2{margin:0;font-size:var(--t-m);letter-spacing:var(--ls-m);line-height:var(--lh-display);font-weight:800;}
+  .soraos-tresc h3{margin:1.6rem 0 .6rem;font-size:var(--t-title);letter-spacing:var(--ls-title);line-height:var(--lh-title);font-weight:800;}
+  .soraos-tresc h3[data-soraos-grupa]{font-family:var(--mono);font-size:var(--t-tag);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;font-weight:600;color:var(--th-label);}
+  .soraos-tresc h4,.soraos-tresc h5{margin:.9rem 0 .3rem;font-size:var(--t-body);line-height:var(--lh-title);font-weight:600;}
+  .soraos-tresc p,.soraos-tresc li{font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);max-width:var(--measure);}
+  .soraos-tresc p{margin:.2rem 0;}
+  .soraos-tresc ul{margin:0;padding-left:1.1rem;}
+  .soraos-tresc > section > ul,.soraos-tresc ul[data-pole="klocki"]{list-style:none;padding:0;display:grid;gap:1.2rem;}
+  .soraos-tresc [data-pole="cena"]{color:#fff;font-weight:600;}
+  .soraos-tresc [data-pole="cena"],.soraos-tresc [data-pole="czas"]{font-family:var(--mono);font-size:var(--t-instrument);letter-spacing:var(--ls-instrument);}
+  .soraos-tresc pre{margin:.6rem 0;overflow-x:auto;max-width:100%;font-family:var(--mono);font-size:var(--t-instrument);line-height:var(--lh-ui);color:var(--muted-dark);}
+  .soraos-tresc figure:empty{display:none;}
+  .soraos-tresc figure img{display:block;width:100%;max-width:100%;height:auto;border:1px solid var(--th-line,rgba(255,255,255,.14));}
+  .soraos-tresc a{color:var(--th-label);font-weight:600;}
+  .soraos-tresc li[data-linie]::after{content:attr(data-linie) " linii";display:block;font-family:var(--mono);font-size:var(--t-label);letter-spacing:var(--ls-instrument);color:var(--muted-dark);}
+  /* CENNIK jako KONTRAKTY / AKTA (17.10, kierunek B z RESEARCH_OFERTA_CYBERPUNK_17-10.md).
+     Tylko #cennik w widoku Oferta. Markup i data-* bez zmian (SORA//OS klonuje te sama liste
+     i ma wlasny wyglad). Zero nowego tekstu: kody z licznikow CSS, pieczatka z data-znacznik,
+     linie kodu z data-linie. Jeden kolor (krwisty), bez petli animacji, bez reakcji na kursor. */
+  #cennik{
+    --kt-panel:#141419;
+    --kt-deep:#0b0b0e;
+    --kt-line:rgba(255,255,255,.12);
+    --kt-cut:18px;
+    --kt-r:14px;
+    --kt-pad:clamp(14px,2vw,20px);
+    counter-reset:kt akta sek;
+  }
+  #cennik .soraos-tresc{gap:clamp(3.5rem,7vw,5.5rem);}
+  /* grupa (Software / Widocznosc w Google): podpis + perforacja teczki */
+  #cennik h3[data-soraos-grupa]{display:flex;align-items:center;gap:1rem;margin:2.4rem 0 1.1rem;}
+  #cennik h3[data-soraos-grupa]::after{
+    content:"";flex:1;height:1px;
+    background:repeating-linear-gradient(90deg,var(--kt-line) 0 6px,transparent 6px 10px);
+  }
+  #cennik li,#cennik article p{max-width:none;}   /* baza .soraos-tresc li ma --measure: tu karty, nie proza */
+
+  /* ---------- KONTRAKT (usluga) ---------- */
+  #cennik [data-soraos-app="uslugi"] > ul{
+    display:grid;gap:14px;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,232px),1fr));
+  }
+  #cennik [data-soraos-app="uslugi"] article{
+    display:grid;
+    grid-template-rows:auto auto auto auto auto auto 1fr auto;
+    padding-bottom:var(--kt-pad);
+  }
+  #cennik [data-soraos-app="uslugi"] article::before{        /* KT-01 + klasa zlecenia */
+    content:"KT-" counter(kt,decimal-leading-zero);
+    padding:var(--kt-pad) var(--kt-pad) .9rem;
+    font:600 var(--t-label)/1 var(--mono);letter-spacing:var(--ls-eyebrow);color:var(--th-label);
+  }
+  #cennik [data-soraos-app="uslugi"] article::after{           /* KLASA ▮▮□□ jako segmenty */
+    content:"";position:absolute;top:var(--kt-pad);right:calc(var(--kt-pad) + 8px);
+    width:43px;height:10px;
+    background:
+      repeating-linear-gradient(90deg,var(--th-hot) 0 8px,transparent 8px 11px) left / calc(var(--lvl) * 11px) 100% no-repeat,
+      repeating-linear-gradient(90deg,rgba(255,255,255,.16) 0 8px,transparent 8px 11px);
+  }
+  #cennik [data-soraos-app="uslugi"] h4{
+    font-size:1.4rem;font-weight:800;letter-spacing:var(--ls-title);line-height:var(--lh-title);color:#fff;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="krotko"]{
+    margin-top:.25rem;padding-bottom:var(--kt-pad);
+    font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="cena"]{
+    grid-row:4;
+    padding-block:1rem .2rem;border-top:1px solid var(--kt-line);
+    font:800 clamp(1.7rem,3vw,2.1rem)/1.05 var(--f-sans);letter-spacing:var(--ls-title);color:#fff;
+    white-space:nowrap;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="czas"]{
+    grid-row:5;
+    padding-bottom:1rem;border-bottom:1px solid var(--kt-line);
+    color:var(--th-label);font-size:var(--t-label);
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="lead"]{
+    grid-row:6;padding-top:1rem;
+    font-size:var(--t-ui);line-height:var(--lh-ui);color:var(--muted-dark);
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="przyklady"]{
+    grid-row:7;list-style:none;padding-block:1rem 1.2rem;display:flex;flex-direction:column;gap:.45rem;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="przyklady"] li{
+    position:relative;padding-left:1.3rem;font-size:var(--t-ui);line-height:var(--lh-ui);color:#d8d2d5;
+  }
+  #cennik [data-soraos-app="uslugi"] [data-pole="przyklady"] li::before{
+    content:"—";position:absolute;left:0;color:var(--th-hot);
+  }
+
+  /* ---------- AKTA (projekt) ---------- */
+  #cennik [data-soraos-app="projekty"] > ul{display:grid;gap:22px;}
+  #cennik [data-soraos-app="projekty"] article{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
+    grid-template-areas:
+      "kod  fig"
+      "name fig"
+      "sub  fig"
+      "lead fig"
+      "ext  fig"
+      "pre  fig"
+      "kh   kh"
+      "kl   kl"
+      "cta  cta";
+    grid-template-rows:auto auto auto auto auto 1fr auto auto auto;
+    column-gap:clamp(1.2rem,3vw,2.4rem);
+    padding:var(--kt-pad) clamp(16px,2.6vw,28px) clamp(16px,2.6vw,28px);
+  }
+  #cennik [data-soraos-app="projekty"] article:not(:has(figure img)){
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"kod" "name" "sub" "lead" "ext" "pre" "kh" "kl" "cta";
+  }
+  #cennik [data-soraos-app="projekty"] article > *{margin:0;}
+  #cennik [data-soraos-app="projekty"] article::before{
+    grid-area:kod;
+    content:"AKTA " counter(akta,decimal-leading-zero);
+    margin-bottom:1rem;
+    font:600 var(--t-label)/1 var(--mono);letter-spacing:var(--ls-eyebrow);color:var(--th-label);
+  }
+  #cennik [data-soraos-app="projekty"] h3{
+    grid-area:name;margin:0;
+    font-size:var(--t-m);letter-spacing:var(--ls-m);line-height:var(--lh-display);color:#fff;
+  }
+  #cennik [data-soraos-app="projekty"] [data-pole="krotko"]{
+    grid-area:sub;margin-top:.5rem;
+    font:600 var(--t-tag)/1.3 var(--mono);letter-spacing:.02em;color:var(--th-label);
+  }
+  #cennik [data-soraos-app="projekty"] [data-pole="lead"]{grid-area:lead;margin-top:.9rem;}
+  #cennik [data-soraos-app="projekty"] [data-pole="extra"]{
+    grid-area:ext;margin-top:.9rem;
+    font:800 var(--t-s)/1 var(--f-sans);color:#fff;
+  }
+  #cennik [data-soraos-app="projekty"] [data-pole="extra"]::after{
+    content:" " attr(data-etykieta);
+    font:600 var(--t-label)/1 var(--mono);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--muted-dark);
+  }
+  #cennik [data-soraos-app="projekty"] figure{
+    grid-area:fig;align-self:start;margin:0;position:relative;
+  }
+  #cennik [data-soraos-app="projekty"] figure img{
+    border:1px solid var(--kt-line);
+    border-radius:10px;
+    clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);
+  }
+  /* katowniki na rogach zrzutu, jak spinacz w aktach */
+  #cennik [data-soraos-app="projekty"] figure:has(img)::before,
+  #cennik [data-soraos-app="projekty"] figure:has(img)::after{
+    content:"";position:absolute;width:20px;height:20px;pointer-events:none;
+    border:0 solid var(--th-hot);
+  }
+  #cennik [data-soraos-app="projekty"] figure:has(img)::before{top:-6px;left:-6px;border-top-width:1.5px;border-left-width:1.5px;border-top-left-radius:14px;}
+  #cennik [data-soraos-app="projekty"] figure:has(img)::after{bottom:-6px;right:-6px;border-bottom-width:1.5px;border-right-width:1.5px;border-bottom-right-radius:14px;}
+  #cennik [data-soraos-app="projekty"] pre{
+    grid-area:pre;align-self:end;
+    margin:1.2rem 0 0;padding:.8rem 1rem;
+    background:var(--kt-deep);border-left:2px solid var(--crimson);
+    border-radius:4px 10px 10px 4px;
+    color:#cfc8cb;
+  }
+  /* gotowe klocki: siatka specyfikacji, linie 1 px z przerwy */
+  #cennik ul[data-pole="klocki"]{
+    grid-area:kl;
+    display:grid;gap:1px;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
+    background:var(--kt-line);border:1px solid var(--kt-line);
+    border-radius:12px;overflow:hidden;
+  }
+  #cennik ul[data-pole="klocki"] h5{margin:0;font-size:var(--t-body);font-weight:600;color:#fff;}
+  #cennik ul[data-pole="klocki"] [data-pole="co"]{margin:0;font-size:var(--t-ui);line-height:var(--lh-ui);}
+  #cennik ul[data-pole="klocki"] [data-pole="dla"]{margin:0;font-size:var(--t-ui);line-height:var(--lh-ui);color:#e6e0e2;}
+  #cennik ul[data-pole="klocki"] li[data-linie]::after{
+    margin-top:auto;padding-top:.5rem;text-align:right;color:var(--th-label);
+  }
+  #cennik ul[data-rodzina] > li > .rd-zn{grid-row:1 / span 2;width:52px;height:52px;}
+
+  /* ---------- telefon ---------- */
+  /* karty obok siebie: podtytul zawsze na 2 linie, zeby ceny staly w jednej linii */
+  
+  @media (min-width:761px){
+    #cennik [data-soraos-app="uslugi"] [data-pole="krotko"]{min-height:calc(2lh + var(--kt-pad));}
+  }
+  @media (max-width:760px){
+    #cennik{--kt-cut:14px;--kt-r:12px;}
+    #cennik [data-soraos-app="projekty"] article,
+    #cennik [data-soraos-app="projekty"] article:not(:has(figure img)){
+      grid-template-columns:minmax(0,1fr);
+      grid-template-areas:"kod" "name" "sub" "lead" "ext" "fig" "pre" "kh" "kl" "cta";
+      grid-template-rows:none;
+    }
+    #cennik [data-soraos-app="projekty"] figure{margin-top:1.2rem;}
+  }
+  
+  @media (prefers-reduced-motion:reduce){
+    #cennik *{transition:none !important;}
+  }
+
+  /* ---- PRODUKTY (08.10 v2, uklad A): wyroznik + filtry + siatka kafli ze znakami ---- */
+  .pr .services__inner{display:flex;flex-direction:column;gap:1.5rem;}
+  .pr-hit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(1.2rem,3vw,2.6rem);align-items:center;
+    padding:clamp(1.1rem,2.6vw,2rem);border:1px solid rgba(255,255,255,.10);
+    clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px);
+    background:linear-gradient(155deg,color-mix(in srgb,var(--th-accent) 8%,transparent),transparent 55%),rgba(255,255,255,.02);scroll-margin-top:90px;}
+  .pr-hit__shot{margin:0;overflow:hidden;border:1px solid rgba(255,255,255,.08);}
+  .pr-hit__shot img{display:block;width:100%;height:auto;}
+  .pr-hit__txt{display:flex;flex-direction:column;gap:.8rem;min-width:0;}
+  .pr-hit__h{margin:0;display:flex;align-items:center;gap:.9rem;font-size:var(--t-m);line-height:1;font-weight:400;letter-spacing:-.02em;}
+  .pr-hit__h b{font-weight:800;color:var(--th-accent);}
+  .pr-hit__ik{width:1.4em;height:1.4em;flex:none;}
+  .pr-hit__lista{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.3rem;font-size:var(--t-ui);color:var(--muted-dark);}
+  .pr-hit__akcje{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin-top:.3rem;}
+  .pr-meta{margin:0;display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;font-size:var(--t-label);}
+  .pr-meta div{display:flex;gap:.45rem;}
+  .pr-meta dt{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--th-label);}
+  .pr-meta dd{margin:0;color:var(--muted-dark);}
+  .pr-info{font-size:var(--t-ui);color:var(--muted-dark);border-top:1px solid rgba(255,255,255,.08);padding-top:.7rem;}
+  .pr-info summary{cursor:pointer;color:inherit;font-weight:600;}
+  .pr-info summary:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .pr-info p{margin:.6rem 0 0;line-height:var(--lh-text);}
+  .pr-info code{font-family:var(--mono);font-size:var(--t-instrument);}
+  .pr-sha{display:block;margin-top:.4rem;padding:.55rem .7rem;background:rgba(255,255,255,.04);overflow-wrap:anywhere;user-select:all;}
+  .pr-filtry{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem;}
+  .pr-filtry button{font:inherit;font-size:var(--t-ui);color:var(--muted-dark);background:transparent;border:1px solid rgba(255,255,255,.14);padding:.45rem .95rem;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
+  .pr-filtry button:hover{color:#f6f2f3;border-color:rgba(255,255,255,.3);}
+  .pr-filtry button[aria-pressed="true"]{color:#f6f2f3;border-color:var(--th-accent);background:color-mix(in srgb,var(--th-accent) 12%,transparent);}
+  .pr-filtry button:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .pr-siatka{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:1rem;}
+  .pr-k{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:1fr auto;gap:.9rem 1.1rem;padding:1.2rem;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.015);transition:border-color .25s,background .25s;}
+  .pr-k:hover{border-color:color-mix(in srgb,var(--th-accent) 55%,transparent);background:rgba(255,255,255,.03);}
+  .pr-k[hidden]{display:none;}
+  .pr-ik{width:76px;height:76px;display:block;}
+  .pr-k__txt{display:flex;flex-direction:column;gap:.35rem;min-width:0;}
+  .pr-k__h{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;}
+  .pr-k__txt p{margin:.15rem 0 0;font-size:var(--t-ui);line-height:var(--lh-text);color:var(--muted-dark);}
+  .pr-k__dol{grid-column:1/-1;display:flex;justify-content:flex-end;align-items:center;border-top:1px solid rgba(255,255,255,.08);padding-top:.7rem;}
+  .pr-k__dol .card__go{margin:0;padding:0;}
+  .pr-k__wkr{font-family:var(--mono);font-size:var(--t-label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-dark);}
+  .pr-k--soon .pr-ik{opacity:.55;}
+  .pr-k--zam{border-style:dashed;}
+  
+  @media (max-width:860px){ .pr-hit{grid-template-columns:1fr;} .pr-hit__shot{order:-1;}
+  }
+  
+  @media (max-width:480px){ .pr-ik{width:60px;height:60px;}
+  }

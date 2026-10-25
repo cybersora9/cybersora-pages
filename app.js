@@ -2,6 +2,24 @@
    Dawny blok 1: mapa czastek, nawigacja/widoki (NAMES, go()), formularze, Web3Forms.
    Laduje sie zwyklym <script src> w tym samym miejscu co dawny blok inline — kolejnosc wykonania bez zmian. */
 (() => {
+  /* SZYBKOSC S3 (26.10): reguly pozostalych zakladek sa w views.css. <link rel="preload"> w <head>
+     pobiera go od poczatku, tu staje sie arkuszem. Wstawiony ZARAZ za preloadem, czyli za <style>
+     i przed soraos.css (ten dokleja sie na koniec <head>), wiec kolejnosc kaskady jest ta sama
+     co przed podzialem. Arkusz wstawiony skryptem nie blokuje renderu. go() do zakladki innej niz
+     Start czeka na niego (widokiCss), zeby widok i pomiary tla nie trafily na niepelny styl. */
+  let cssOk = false;
+  const widokiCss = new Promise((ok) => {
+    const pre = document.getElementById('views-css');
+    const gotowe = () => { cssOk = true; document.documentElement.classList.add('css-ok'); ok(); };
+    if (!pre) { gotowe(); return; }
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = pre.getAttribute('href');
+    l.addEventListener('load', gotowe);
+    l.addEventListener('error', gotowe);   // bez arkusza zakladki i tak maja sie pokazac
+    pre.after(l);
+  });
+
   /* ===================== particle map (unchanged geometry) ===================== */
   const stage = document.getElementById('stage');
   const canvas = document.getElementById('map');
@@ -2082,7 +2100,17 @@
     f.addEventListener('pointerdown', ladujCaptche, { once: true });
   });
 
+  let goCzeka = null;
   function go(view, push) {
+    /* S3: zakladka inna niz Start czeka na views.css; liczy sie ostatnie klikniecie.
+       Kontakt budujemy od razu, bo wolajacy zaraz po go() wysylaja konf:* i ustawiaja pola. */
+    if (!cssOk && view && view !== 'start') {
+      if (view === 'contact') kontaktInit();
+      const ja = goCzeka = {};
+      widokiCss.then(() => { if (goCzeka === ja) go(view, push); });
+      return;
+    }
+    goCzeka = null;
     /* S2: Kontakt budujemy przy pierwszym wejsciu, synchronicznie i PRZED przejsciem, wiec nowy widok
        od pierwszej klatki wyglada jak dawniej (a zdarzenia konf:* wyslane zaraz po go() maja juz nasluch) */
     if (view === 'contact') kontaktInit();
