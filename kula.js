@@ -5,6 +5,26 @@
   'use strict';
   var canvas = document.getElementById('somiDemoOrb');
   if(!canvas) return;
+  var slot = canvas.parentNode;
+  var wrap = canvas.closest('.somi-demo__orb-wrap');
+
+  /* SZYBKOSC S1 (26.10): PLAKAT. Statyczna klatka kuli pod plotnem — widac ja od
+     razu po wejsciu w SOMI, zanim three.js dojedzie, a przy reduced-motion i bez
+     WebGL-a zostaje na stale (do 26.10 bylo wtedy pusto: cala scena znikala).
+     loading=lazy: obrazek w schowanej zakladce nie sciaga sie wcale. */
+  if(wrap && slot){
+    var plakat = document.createElement('img');
+    plakat.className = 'somi-demo__orb-plakat';
+    plakat.src = 'assety/kula-plakat.webp';
+    plakat.alt = '';
+    plakat.setAttribute('aria-hidden', 'true');
+    plakat.loading = 'lazy';
+    plakat.decoding = 'async';
+    plakat.width = 480; plakat.height = 480;
+    slot.insertBefore(plakat, canvas);
+    wrap.classList.add('has-plakat');
+  }
+
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   /* Sprawdzenie WebGL-a PRZED pobraniem: na sprzęcie bez sterownika kula i tak
@@ -14,14 +34,59 @@
     if(!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) return;
   } catch(e){ return; }
 
-  window.addEventListener('load', function(){
+  /* kula-czeka: kula jest w drodze, wiec przyciski stanow stoja od razu
+     (bez skoku ukladu, kiedy kula wstanie). Zdejmowane, gdy sie nie uda. */
+  if(wrap) wrap.classList.add('kula-czeka');
+  function nieWyszlo(){ if(wrap && !wrap.classList.contains('has-orb')) wrap.classList.remove('kula-czeka'); }
+
+  /* SZYBKOSC S1 (26.10): three.js NA ZADANIE, nie po kazdym `load`. Do 26.10
+     590 KB + dlugie zadanie ~2 s na telefonie szly przy kazdym wejsciu, takze
+     na #start, gdzie kuli w ogole nie widac. Teraz ladujemy tylko, gdy SOMI
+     jest blisko: obserwator sceny, przejscie na #somi albo najechanie/fokus
+     na link do #somi (rozgrzewka). Nadal nigdy przed `load`. */
+  var zamowiona = false;
+  function wstrzyknij(){
     var tag = document.createElement('script');
     tag.src = 'vendor/three.min.js';
     tag.onload = function(){
       try { window.__somiOrbBoot(); } catch(e){}
+      nieWyszlo();
     };
+    tag.onerror = nieWyszlo;
     document.head.appendChild(tag);
-  });
+  }
+  function zaladuj(){
+    if(zamowiona) return;
+    zamowiona = true;
+    if(document.readyState === 'complete') wstrzyknij();
+    else window.addEventListener('load', wstrzyknij);
+  }
+  function naSomi(){ return location.hash === '#somi' || location.hash.indexOf('#somi?') === 0 || location.hash.indexOf('#somi/') === 0; }
+  function linkSomi(e){
+    var a = e.target && e.target.closest ? e.target.closest('a[href="#somi"]') : null;
+    if(a) zaladuj();
+  }
+
+  /* (a) obserwator: scena, nie plotno — plotno ma [hidden], a opakowanie
+     display:none az do has-plakat, wiec na nich IO nigdy by nie odpalil. */
+  var cel = canvas.closest('.somi-stage') || wrap || slot;
+  if(typeof IntersectionObserver === 'function' && cel){
+    var io = new IntersectionObserver(function(entries){
+      for(var i = 0; i < entries.length; i++){
+        if(entries[i].isIntersecting){ io.disconnect(); zaladuj(); return; }
+      }
+    }, {rootMargin: '600px'});
+    io.observe(cel);
+  } else {
+    zaladuj();
+  }
+  /* (b) przejscie na #somi i wejscie wprost na cybersora.pl/#somi */
+  if(naSomi()) zaladuj();
+  window.addEventListener('hashchange', function(){ if(naSomi()) zaladuj(); });
+  document.addEventListener('click', linkSomi, true);
+  /* (c) rozgrzewka: pointerenter nie bablesuje, wiec pointerover/focusin */
+  document.addEventListener('pointerover', linkSomi, {passive: true});
+  document.addEventListener('focusin', linkSomi);
 })();
 
 window.__somiOrbBoot = function(){

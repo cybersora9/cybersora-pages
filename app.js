@@ -3845,4 +3845,12 @@
   requestAnimationFrame(frame);
   // settle the magic-line once fonts/layout are final
   window.addEventListener('load', () => requestAnimationFrame(() => moveMagic(activeLink())));
+  /* SZYBKOSC S1 (26.10): sonda FPS dociaga sie TYLKO z #sonda-fps w adresie (do 26.10 byl
+     to zwykly <script> przy kazdym wejsciu). Sama sonda czeka na `load`, wiec pozne
+     wstrzykniecie niczego nie zmienia w pomiarze. */
+  if (location.hash.indexOf('sonda-fps') > -1) {
+    const s = document.createElement('script');
+    s.src = 'sonda.js?v=20260927b';
+    document.body.appendChild(s);
+  }
 })();

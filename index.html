@@ -2056,7 +2056,15 @@
      tak jak has-orb przy masktoce w pasku (M2). Brak WebGL/reduced-motion =
      opis zostaje sam, na pelnej szerokosci kolumny. */
   .somi-demo__orb-wrap{display:none;justify-content:center;margin-bottom:1.4rem;}
-  .somi-demo__orb-wrap.has-orb{display:flex;}
+  .somi-demo__orb-wrap.has-orb,.somi-demo__orb-wrap.has-plakat{display:flex;}
+  /* SZYBKOSC S1 (26.10): plakat = statyczna klatka kuli, dopoki three.js nie dojedzie
+     (przy reduced-motion i bez WebGL zostaje na stale). Przenikanie 200 ms do plotna.
+     Kula to samo swiatlo (shader pisze alfa 0, kolor sie DODAJE do tla), wiec plakat
+     to klatka na czerni nakladana addytywnie: czern znika, zostaje swiatlo jak z plotna. */
+  .somi-demo__orb-plakat{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;mix-blend-mode:screen;mix-blend-mode:plus-lighter;transition:opacity .2s ease;}
+  .somi-demo__orb-wrap.has-orb .somi-demo__orb-plakat{opacity:0;}
+  .somi-demo__orb-wrap.has-plakat canvas{opacity:0;transition:opacity .2s ease;}
+  .somi-demo__orb-wrap.has-plakat.has-orb canvas{opacity:1;}
   .somi-demo__orb-slot{
     position:relative;
     height:clamp(150px,22vw,205px);
@@ -3115,7 +3123,9 @@
   }
   @media (prefers-reduced-motion:reduce){ .somi-stage__btn{transition:none;} }
   /* brak WebGL albo reduced-motion = brak kuli: przyciski nie mialyby czym sterowac */
-  .somi-stage:not(:has(.has-orb)) .somi-stage__stany,.somi-stage:not(:has(.has-orb)) .somi-stage__status{display:none;}
+  .somi-stage:not(:has(.has-orb, .kula-czeka)) .somi-stage__stany,.somi-stage:not(:has(.has-orb, .kula-czeka)) .somi-stage__status,.somi-stage:not(:has(.has-orb, .kula-czeka)) .somi-stage__hint{display:none;}
+  /* sam plakat (reduced-motion / bez WebGL): bez przyciskow po bokach, wiec jedna kolumna, kula na srodku */
+  .somi-stage:not(:has(.has-orb, .kula-czeka)){grid-template-columns:minmax(0,1fr);}
   /* karty SOMI "Co juz umie" jako przyciski otwierajace okno (30.09) */
   button.card{font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer;}
   button.card:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
@@ -5571,7 +5581,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261009c"></script>
+<script src="app.js?v=20261026a" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -5589,8 +5599,10 @@ fingerprint(maszyna)</div>
      590 KB, czyli trzy i pół raza więcej niż cała strona; wpięta normalnie
      opóźniałaby pierwsze malowanie o tyle, ile trwa jej pobranie — a to ozdoba
      strony SOMI, nie treść.
+     SZYBKOSC S1 (26.10): i to nie po kazdym `load`, tylko gdy SOMI jest blisko
+     (obserwator sceny / #somi / najechanie na link). Do tego czasu plakat.
      ============================================================ -->
-<script src="kula.js?v=20261007d"></script>
+<script src="kula.js?v=20261026a" defer></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.
@@ -5610,8 +5622,9 @@ fingerprint(maszyna)</div>
      DWA PRZEBIEGI: #sonda-fps (z kulą) i #sonda-fps-bezkuli (kula wyłączona
      w swoim ładowaczu, w pasku zostaje maskotka). Sam jeden FPS nic nie mówi;
      dopiero różnica między przebiegami mówi, ile kula naprawdę kosztuje.
+     SZYBKOSC S1 (26.10): tagu juz tu nie ma — sonde dociaga app.js, tylko gdy
+     w adresie jest #sonda-fps (patrz koniec app.js).
      ============================================================ -->
-<script src="sonda.js?v=20260927b"></script>
 <!-- hCaptcha (Moduł 1, PROMPT_BEZPIECZENSTWO.md): renderuje widget .h-captcha
      i wypełnia ukryte textarea[name=h-captcha-response], które czytamy
      ręcznie w wyslijDoWeb3Forms zamiast używać ich natywnego <form>.
