@@ -2083,6 +2083,9 @@
   });
 
   function go(view, push) {
+    /* S2: Kontakt budujemy przy pierwszym wejsciu, synchronicznie i PRZED przejsciem, wiec nowy widok
+       od pierwszej klatki wyglada jak dawniej (a zdarzenia konf:* wyslane zaraz po go() maja juz nasluch) */
+    if (view === 'contact') kontaktInit();
     const apply = () => {
       /* S0: Uslugi scalone z Oferta. #marketplace = #oferta, #cennik = Oferta przewinieta do cennika */
       let kotwica = '';
@@ -2570,7 +2573,19 @@
   });
 
   /* ===================== Kontakt — form + live terminal preview, hands off to a formatted mailto ===================== */
-  (function () {
+  /* SZYBKOSC S2 (26.10): Kontakt i konfigurator nie startuja juz przy ladowaniu strony, tylko przy
+     pierwszym wejsciu w #contact (kontaktInit w go(), przed przejsciem) albo wczesniej, gdy kursor
+     lub fokus trafi na link do Kontaktu. Konfigurator byl polowa calego initu app.js (~110 z ~220 ms
+     przy 4x CPU). Kolejnosc wewnatrz bez zmian: najpierw formularz, potem konfigurator. */
+  let kontaktGotowy = false;
+  let konfUstawTryb = null;
+  function kontaktInit() {
+    if (kontaktGotowy) return;
+    kontaktGotowy = true;
+    kontaktFormularz();
+    kontaktKonfigurator();
+  }
+  function kontaktFormularz() {
     const scrollCta = document.getElementById('contactScrollCta');
     const target = document.getElementById('kontakt-formularz');
     if (scrollCta && target) {
@@ -2710,7 +2725,7 @@
           '<a class="proof__link" href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.';
       }
     });
-  })();
+  }
 
   /* ===================== Konfigurator zlecenia w Kontakcie (MK3a, 06.10) =====================
      Lewa kolumna Kontaktu ma dwa tryby: "Konfigurator zlecenia" (kroki 1-5 + krok 6 = ten sam
@@ -2719,7 +2734,7 @@
      selecty (ctopic, cbudget, ctimeline), a terminal po prawej drukuje je jako instalacje.
      Model cen i teksty: PROMPT_MARKETPLACE_SKRYPTY.md (korekty 1 i 2). Wszystko, co dotyczy
      cen, terminu odpowiedzi i kryteriow odmowy, jest szkicem do potwierdzenia przez maise. */
-  (function () {
+  function kontaktKonfigurator() {
     const wrap = document.getElementById('contactWrap');
     const konf = document.getElementById('konf');
     const form = document.getElementById('contactForm');
@@ -3084,12 +3099,9 @@
       });
     });
 
-    /* "Zapytaj o audyt / o SOMI..." (data-topic) ma lądować w szybkim zgloszeniu, a software na zamowienie w konfiguratorze;
-       ten listener jest dopisany po handlerze [data-nav], wiec wygrywa przy ctopic */
-    const TEMATY_KONF = ['Software na zamówienie', 'Skrypt lub automatyzacja', 'Aplikacja na zamówienie'];
-    document.querySelectorAll('[data-nav][data-topic]').forEach((el) => {
-      el.addEventListener('click', () => setMode(TEMATY_KONF.includes(el.dataset.topic) ? 'konf' : 'quick', false));
-    });
+    /* nasluch [data-nav][data-topic] stoi pod ta funkcja (rejestrowany przy starcie, zeby dzialal juz przy
+       pierwszym kliku, ktory dopiero odpala ten init); tu tylko oddajemy mu setMode */
+    konfUstawTryb = setMode;
 
     /* ---------- zdarzenia konfiguratora ---------- */
     konf.addEventListener('change', (e) => {
@@ -3170,7 +3182,38 @@
     render();
     go(step, false);
     setMode('konf', false);
-  })();
+  }
+
+  /* "Zapytaj o audyt / o SOMI..." (data-topic) ma lądować w szybkim zgloszeniu, a software na zamowienie w konfiguratorze;
+     ten listener jest dopisany po handlerze [data-nav], wiec wygrywa przy ctopic. Handler [data-nav] woła go('contact'),
+     a go() robi kontaktInit(), wiec konfUstawTryb jest juz ustawione, zanim ten nasluch sie odpali. */
+  const TEMATY_KONF = ['Software na zamówienie', 'Skrypt lub automatyzacja', 'Aplikacja na zamówienie'];
+  document.querySelectorAll('[data-nav][data-topic]').forEach((el) => {
+    el.addEventListener('click', () => {
+      kontaktInit();
+      if (konfUstawTryb) konfUstawTryb(TEMATY_KONF.includes(el.dataset.topic) ? 'konf' : 'quick', false);
+    });
+  });
+  /* konf:data / konf:rodzaj przed pierwszym wejsciem w Kontakt (np. zamowienie z SORA//OS): init + ponowne
+     wyslanie, bo nasluchy dodane w trakcie obslugi zdarzenia nie dostaja juz tego samego zdarzenia */
+  ['konf:data', 'konf:rodzaj'].forEach((n) => {
+    window.addEventListener(n, (e) => {
+      if (kontaktGotowy) return;
+      kontaktInit();
+      window.dispatchEvent(new CustomEvent(n, { detail: e.detail }));
+    });
+  });
+  /* rozgrzewka: najechanie albo fokus na link do Kontaktu buduje formularz i konfigurator w wolnej chwili,
+     zanim padnie klik (jak kula w S1) */
+  const kontaktRozgrzej = () => {
+    if (kontaktGotowy) return;
+    if ('requestIdleCallback' in window) requestIdleCallback(kontaktInit, { timeout: 300 });
+    else setTimeout(kontaktInit, 0);
+  };
+  document.querySelectorAll('[data-nav="contact"]').forEach((el) => {
+    el.addEventListener('pointerover', kontaktRozgrzej, { once: true });
+    el.addEventListener('focusin', kontaktRozgrzej, { once: true });
+  });
 
   /* ===================== SOMI z bliska — demo rozmowy BEZ backendu (18.09) =====================
      Zero tokenow, zero API: trzy pytania i trzy odpowiedzi ze skryptu w tym pliku.
@@ -3296,7 +3339,12 @@
       profitEl.style.color = profit < 0 ? '#ff3a52' : '';
     }
     [buy, sell, fees].forEach(inp => inp.addEventListener('input', calc));
-    calc();
+    /* S2 (26.10): pierwsze toLocaleString('pl-PL') na stronie to rozruch danych ICU, ~80 ms przy 4x CPU.
+       Demo stoi w bloku [data-produkty], schowanym na stale, wiec liczymy dopiero, gdy wejdzie w kadr. */
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((w) => { if (w.some(e => e.isIntersecting)) { io.disconnect(); calc(); } });
+      io.observe(demo);
+    } else calc();
   });
 
   /* ===================== Kalkulator rentowności — live demo (próg rentowności / BEP) ===================== */
@@ -3836,13 +3884,20 @@
     }, 160);
   });
 
-  dopasujTloDoHero();
-  buildParticles();
-  buildSparks();
-  buildChips();
-  go(location.hash.slice(1) || 'start', false);
-  sekcjeStart();
-  requestAnimationFrame(frame);
+  /* S2 (26.10): start w dwoch zadaniach zamiast jednego (developer.chrome.com/blog/use-scheduler-yield).
+     Pierwsze = definicje i nasluchy wyzej, drugie = budowa tla i go(). Kolejnosc wywolan bez zmian;
+     go() z przejsciem i tak wykonywal apply() dopiero po kula.js, wiec SOMI_MOOD trafia tam, gdzie dawniej. */
+  const ustap = () => (window.scheduler && typeof scheduler.yield === 'function')
+    ? scheduler.yield() : new Promise((r) => setTimeout(r, 0));
+  ustap().then(() => {
+    dopasujTloDoHero();
+    buildParticles();
+    buildSparks();
+    buildChips();
+    go(location.hash.slice(1) || 'start', false);
+    sekcjeStart();
+    requestAnimationFrame(frame);
+  });
   // settle the magic-line once fonts/layout are final
   window.addEventListener('load', () => requestAnimationFrame(() => moveMagic(activeLink())));
   /* SZYBKOSC S1 (26.10): sonda FPS dociaga sie TYLKO z #sonda-fps w adresie (do 26.10 byl
