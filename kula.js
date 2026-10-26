@@ -26,6 +26,9 @@
   }
 
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  /* SZYBKOSC S4: tryb LITE (slaby telefon / oszczedzanie danych, klasa html.lite z app.js, ktory
+     wykonuje sie wczesniej): zostaje plakat, bez 590 KB three.js i ~2 s dlugiego zadania. */
+  if(document.documentElement.classList.contains('lite')) return;
 
   /* Sprawdzenie WebGL-a PRZED pobraniem: na sprzęcie bez sterownika kula i tak
      by nie ruszyła, więc ściąganie 590 KB byłoby czystą stratą transferu. */

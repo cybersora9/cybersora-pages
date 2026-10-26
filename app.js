@@ -64,6 +64,21 @@
   for (let i = 0; i < 1024; i++) DRYF[i] = Math.sin(i / DRYF_K) * 1.6;
   let PN = 0, PX = new Float32Array(0), PY = PX, PVX = PX, PVY = PX, PHX = PX, PHY = PX, PPH = PX, PSP = PX, PR = PX, PCD = PX;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* SZYBKOSC S4 (krok 7): tryb LITE dla slabego telefonu (dotyk i <= 4 rdzenie albo <= 4 GB RAM) albo
+     oszczedzania danych. Tla tras i sekcji jak przy "ogranicz ruch" (jedna statyczna klatka), bez iskier
+     i czipow; mapa sklada sie normalnie i ~2,5 s po wejsciu petla zasypia na ostatniej klatce (budzi ja
+     zmiana trasy, dotyk/kursor, zmiana rozmiaru). Do testow: ?lite=1 wymusza, ?lite=0 wylacza. */
+  const LITE = (() => {
+    const q = /[?&]lite=([01])\b/.exec(location.search);
+    if (q) return q[1] === '1';
+    if (reduce) return false;
+    const n = navigator;
+    if (n.connection && n.connection.saveData) return true;
+    return matchMedia('(pointer: coarse)').matches && ((n.hardwareConcurrency || 8) <= 4 || (n.deviceMemory || 8) <= 4);
+  })();
+  const stoi = reduce || LITE;   // tla bez ruchu: statyczna klatka zamiast animacji
+  let liteSpi = false, liteOd = 0;   // LITE: petla uspiona / ostatnia pobudka (liteBudz, liteUspij przy frame)
+  if (LITE) document.documentElement.classList.add('lite');
 
   const mouse = { x: -9999, y: -9999, active: false };
 
@@ -116,6 +131,7 @@
      dzien jako kolejna niedoprawiona zgadywanka. Nie zastepowac tego nowym
      ksztaltem bez jej wyraznej decyzji. */
   function buildParticles() {
+    if (LITE) liteBudz();   // nowy rozmiar plotna czysci obraz: petla musi narysowac mape od nowa
     const rect = stage.getBoundingClientRect();
     W = rect.width; H = rect.height;
     canvas.width = Math.floor(W * dpr);
@@ -227,7 +243,7 @@
 
   function buildSparks() {
     sparks = [];
-    if (reduce) return;
+    if (stoi) return;
     for (let i = 0; i < SPARK_N; i++) sparks.push(newSpark({}, true));
   }
 
@@ -251,7 +267,7 @@
   }
   function buildChips() {
     chips = [];
-    if (reduce) return;
+    if (stoi) return;
     for (let i = 0; i < CHIP_N; i++) chips.push(newChip());
   }
 
@@ -489,7 +505,7 @@
     const p = BG[bgId];
     if (p && bgOn) {
       const s = bgCur; bgCur = bgPrev; bgPrev = s;
-      bgPrevA = reduce ? 0 : 1; bgPrevComp = p.comp;
+      bgPrevA = stoi ? 0 : 1; bgPrevComp = p.comp;
     }
     bgId = ''; bgOn = false;
   }
@@ -505,15 +521,15 @@
     const w = themeState.layers[p.layer || 'bg'];
     if (w <= 0.02) { bgOn = false; return; }
     if (!bgOn) { bgOn = true; bgT0 = time; bgT = -1; }   // wejscie na widok: tlo sklada sie od nowa
-    const age = reduce ? 99 : time - bgT0;
-    // przy reduced motion przerysowanie tylko gdy zmienia sie krycie warstwy
-    const due = bgT < 0 || time < bgT || (reduce ? w < 0.999 : p.fps > 0 && time - bgT >= 1 / p.fps - 0.004);   // P1: tolerancja jak w tempoPetli, inaczej co druga klatka petli 24/s gubila przerysowanie
+    const age = stoi ? 99 : time - bgT0;
+    // przy reduced motion (i w LITE) przerysowanie tylko gdy zmienia sie krycie warstwy
+    const due = bgT < 0 || time < bgT || (stoi ? w < 0.999 : p.fps > 0 && time - bgT >= 1 / p.fps - 0.004);   // P1: tolerancja jak w tempoPetli, inaczej co druga klatka petli 24/s gubila przerysowanie
     if (due) { bgT = time; p.paint(bgCur.cx, time, age, p.fps ? w : 1); }
     ctx.globalCompositeOperation = p.comp;
     if (!p.fps) ctx.globalAlpha = w;
     ctx.drawImage(bgCur.cv, 0, 0, W, H);
     ctx.globalAlpha = 1;
-    if (p.live && !reduce) p.live(ctx, dt, time, w);
+    if (p.live && !stoi) p.live(ctx, dt, time, w);
   }
 
   /* ===================== rejestr SEKCJE (ZYWA STRONA sesja 1, 04.10) =====================
@@ -531,7 +547,7 @@
   const MALARZE = {};
   const SEKCJE = [];
   let sekcjeWKadrze = 0, przewinT = -1e9;
-  const sekcjaStatyczna = (S) => reduce || (!S.m.fps && !S.m.przypiety);
+  const sekcjaStatyczna = (S) => stoi || (!S.m.fps && !S.m.przypiety);
   function sekcjaPolozenie(S) {
     const r = S.el.getBoundingClientRect();
     S.H = r.height;
@@ -544,7 +560,7 @@
     S.yM = S.y0;
     S.cx.setTransform(dpr, 0, 0, dpr, 0, 0);
     S.cx.clearRect(0, 0, S.w, S.h);
-    S.m.paint(S.cx, S, time, reduce ? 99 : time - S.t0);
+    S.m.paint(S.cx, S, time, stoi ? 99 : time - S.t0);
   }
   function sekcjaBuduj(S) {
     S.zly = false;
@@ -720,7 +736,7 @@
     const c3 = Math.ceil(cell * dpr), gain = M1_CODE_OP * op * Math.min(1, age / 0.9);
     for (let c = 0; c < CODE.cols; c++) {
       if (!CODE.on[c]) continue;
-      if (!reduce) {
+      if (!stoi) {
         CODE.head[c] += CODE.speed[c] * dt;
         if (CODE.head[c] - CODE.len[c] > CODE.rows) m1Spawn(c, false);
       }
@@ -990,7 +1006,7 @@
     if (!TXT.ok && bgTextMeasure(OF_SEL)) bgMaskBuild();   // naglowek mogl nie miec jeszcze ukladu przy budowie
     // czas od wejscia na widok dzielony na kroki; ostatni poziom trzyma 2 kroki; reduced motion stoi na x4
     let lv = 1, which = 0, since = 1;
-    if (!reduce) {
+    if (!stoi) {
       const step = Math.floor(age / OF_T);
       which = Math.floor(step / 4); lv = Math.min(2, step % 4); since = age - step * OF_T;
     }
@@ -1078,7 +1094,7 @@
     if (!TXT.ok && bgTextMeasure(ON_SEL)) bgMaskBuild();
     // reduced motion: stoi w zgodzie (jedna linia, 100 %)
     let lock = true, phi = 0, pre = 0, since = 9, th = 1.1;
-    if (!reduce) {
+    if (!stoi) {
       const cyc = Math.floor(age / ON_P), u = age - cyc * ON_P, drift = ON_P - ON_H;
       th = age * 6.2832 * 0.22;
       if (u >= drift) { since = u - drift; pre = onPhi(cyc, 0.999); }
@@ -1590,8 +1606,8 @@
     RN.u = reduce ? RN_G + 1 : RN.u + dt;
     // jedno drzewo na wejscie (maisa: „raz sie wygeneruja i bedzie git”); reduced motion: od razu cale
     if (!RN.items && !RN.job && !RN.pend) RN.job = rnGen(RN.gen);
-    if (RN.job) rnStep(reduce ? 1e9 : RN_BUDGET);
-    if (RN.pend) { rnSwap(); if (reduce) RN.u = RN_G + 1; }
+    if (RN.job) rnStep(stoi ? 1e9 : RN_BUDGET);
+    if (RN.pend) { rnSwap(); if (stoi) RN.u = RN_G + 1; }
     const it = RN.items;
     wc.globalAlpha = op;
     if (it) {
@@ -1745,7 +1761,7 @@
 
     // pulse wave: every ~9s a soft front expands from the map centroid and fades out
     let waveR = -1, waveGain = 0;
-    if (!reduce) {
+    if (!stoi) {
       const ph = (time % 9) / 9;
       if (ph < 0.5) {
         const q = ph / 0.5;
@@ -1763,7 +1779,7 @@
     const mA = mouse.active, mx = mouse.x, my = mouse.y;
     for (let i = 0; i < PN; i++) {
       let tx = PHX[i], ty = PHY[i];
-      if (!reduce) {
+      if (!stoi) {
         // C (07.10): sinus z tablicy (1024 probki, blad ~0,01 px); Math.sin/cos byly 80% tej petli
         const sp = PSP[i], ph = PPH[i];
         tx += DRYF[((time * sp + ph) * DRYF_K | 0) & 1023];
@@ -1914,7 +1930,18 @@
 
     ctx.globalCompositeOperation = 'source-over';
     sekcjeDraw(time);
+    if (LITE) liteUspij(t);
     klatkaKoniec(t0p);
+  }
+  /* LITE: mapa ulozona, przejscie warstw skonczone, nikt nie dotyka -> petla staje, na plotnie zostaje
+     ostatnia klatka. liteSpi trzyma ja zatrzymana takze wtedy, gdy ustawPetleMapy chcialby ja wznowic. */
+  function liteBudz() {
+    liteOd = performance.now();
+    if (liteSpi) { liteSpi = false; ustawPetleMapy(); }
+  }
+  function liteUspij(t) {
+    if (t - liteOd < 2500 || t - mouseT < 1500 || mouse.active || bgPrevA > 0 || tempoMapy(t) === 0) return;
+    liteSpi = true; rafOn = false;
   }
   function klatkaKoniec(t0p) {
     pracaMs += (performance.now() - t0p - pracaMs) * 0.05;
@@ -1934,7 +1961,8 @@
        (jedyna stala petla zostaje kula w pasku; animacje modulu sa krotkie, rAF tylko na ich czas) */
     const maBiec = (tloWidoczne || sekcjeWKadrze > 0) && !document.hidden && !popupZakrywa
       && document.documentElement.dataset.route !== 'soraos';
-    if (maBiec && !rafOn) { rafOn = true; lastT = performance.now(); requestAnimationFrame(frame); }
+    // LITE: uspiona petla zostaje uspiona (klasa mapa-biegnie bez zmian, zeby pasek nie zmienial wygladu)
+    if (maBiec && !rafOn && !liteSpi) { rafOn = true; lastT = performance.now(); requestAnimationFrame(frame); }
     else if (!maBiec) { rafOn = false; }
     /* PASEK 03.10: nad pracujaca mapa szklo paska przeliczaloby rozmycie w kazdej klatce
        (zmierzone 4x CPU: 6-7 przycietych klatek na Starcie, bez tego 0) — wtedy pasek jest pelny */
@@ -1944,6 +1972,9 @@
   if ('IntersectionObserver' in window) {
     new IntersectionObserver((wpisy) => {
       tloWidoczne = wpisy.some(w => w.isIntersecting);
+      /* SZYBKOSC S4: glitchFlick na h1 hero mrugal dalej poza ekranem (CSS na watku glownym, zmierzone
+         29 ms CPU/s na telefonie pod hero, gdy nic innego nie pracuje). Hero poza kadrem = animacja stoi. */
+      document.documentElement.classList.toggle('hero-poza', !tloWidoczne);
       ustawPetleMapy();
     }, { threshold: 0 }).observe(stage);
   }
@@ -1967,6 +1998,7 @@
     mouse.y = src.clientY - r.top;
     mouse.active = true;
     mouseT = performance.now();   // P1: pelne tempo petli tylko chwile po ruchu kursora
+    if (LITE) liteBudz();
   }
   window.addEventListener('mousemove', setMouse);
   window.addEventListener('touchmove', setMouse, { passive: true });
@@ -2127,6 +2159,7 @@
       if (document.documentElement.dataset.route !== view) bgLeave();
       // route theme: CSS switches via data-route, both canvases via themeTarget
       document.documentElement.dataset.route = view;
+      if (LITE) liteBudz();
       ustawPetleMapy();   // SORA//OS: na Marketplace mapa stoi, po wyjsciu wraca
       themeTarget = THEMES[view] || THEMES.start;
       views.forEach(v => { v.hidden = (v.dataset.view !== view); });
@@ -2363,10 +2396,22 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && soraosPomin) soraosPomin(); }, true);
   document.addEventListener('pointerdown', () => { if (soraosPomin) soraosPomin(); }, true);
 
+  /* SZYBKOSC S4 (krok 8): mysz przelacza zakladke juz na wcisnieciu (pointerdown), nie na puszczeniu:
+     zysk = czas trzymania przycisku (~80-120 ms). Tylko lewy przycisk myszy bez modyfikatorow. Dotyk zostaje
+     na click (pointerdown na palcu to tez poczatek przewijania), klawiatura tez (Enter/Spacja = click).
+     Click po takim wcisnieciu nie wola go() drugi raz, ale reszta handlera (temat, konfigurator) bez zmian. */
+  let navWcisniety = null, navWcisnietyT = 0;
   document.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+      navWcisniety = el; navWcisnietyT = performance.now();
+      go(el.dataset.nav);
+    });
     el.addEventListener('click', (e) => {
       e.preventDefault();
-      go(el.dataset.nav);
+      const juz = navWcisniety === el && performance.now() - navWcisnietyT < 1500;
+      navWcisniety = null;
+      if (!juz) go(el.dataset.nav);
       /* TEMAT Z GORY (27.09): "Zapytaj o darmowy audyt / o wycene / o SOMI"
          od razu wybiera temat w Kontakcie; change odswieza terminal podgladu. */
       const topic = el.dataset.topic;

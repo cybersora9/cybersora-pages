@@ -735,8 +735,10 @@
   /* ---------- swappable views over the fixed background (SPA) ---------- */
   main{position:relative;z-index:10;}
   .view{animation:viewIn .45s ease both;}
+  /* S4: od .01, nie od 0. Element malowany z opacity 0 Chrome pomija jako kandydata LCP, wiec h1 Startu
+     zglaszal sie dopiero przy pierwszym mrugnieciu glitchFlick (~7 s). Z .01 LCP = pierwsze malowanie (~1 s). */
   @keyframes viewIn{
-    from{opacity:0;transform:translateY(10px);}
+    from{opacity:.01;transform:translateY(10px);}
     to{opacity:1;transform:none;}
   }
 
@@ -767,6 +769,7 @@
     text-wrap:balance;
     animation:glitchFlick 7s steps(1) infinite;
   }
+  .hero-poza .slogan{animation-play-state:paused;}   /* S4: hero poza kadrem, mrugniecia i tak nie widac */
   /* rare chromatic-split flicker — a wink of "screen breaking up", never full-time noise */
   @keyframes glitchFlick{
     0%,93%,100%{ text-shadow:none; transform:translate(0,0); }
@@ -2396,8 +2399,8 @@
     .view[data-view="start"] > .steps ~ .steps{contain-intrinsic-size:auto 570px;}
   }
 </style>
-<link rel="preload" href="views.css?v=20261027a" as="style" id="views-css">
-<noscript><link rel="stylesheet" href="views.css?v=20261027a"></noscript>
+<link rel="preload" href="views.css?v=20261028a" as="style" id="views-css">
+<noscript><link rel="stylesheet" href="views.css?v=20261028a"></noscript>
 </head>
 <body>
 
@@ -4409,7 +4412,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261027a" defer></script>
+<script src="app.js?v=20261028a" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -4430,7 +4433,7 @@ fingerprint(maszyna)</div>
      SZYBKOSC S1 (26.10): i to nie po kazdym `load`, tylko gdy SOMI jest blisko
      (obserwator sceny / #somi / najechanie na link). Do tego czasu plakat.
      ============================================================ -->
-<script src="kula.js?v=20261026a" defer></script>
+<script src="kula.js?v=20261028a" defer></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.

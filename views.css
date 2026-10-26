@@ -5,7 +5,7 @@
    Regula, ktora dotyka czegokolwiek na pierwszym ekranie, idzie do <style>. */
   .view[hidden]{display:none;}
   @keyframes viewIn{
-    from{opacity:0;transform:translateY(10px);}
+    from{opacity:.01;transform:translateY(10px);}   /* S4: .01 jak w index.html (LCP) */
     to{opacity:1;transform:none;}
   }
 
