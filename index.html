@@ -2093,33 +2093,47 @@
     animation:none;
     mix-blend-mode:normal;
   }
+  /* S6 (26.10): do tej pory zygzaka nie bylo widac. Start mial 4 punkty, koniec 16, a polygon()
+     o roznej liczbie punktow nie przechodzi plynnie, tylko przeskakuje w polowie (przy ease-soft
+     po ~60 ms). Teraz obie klatki maja te same 16 punktow (2 rogi + 14 na krawedzi), krawedz jedzie
+     od -10% do 110% szerokosci. 300 ms zamiast 600 (wariant E, filmy w zrzuty-testy/szybkosc-s6).
+     Pasek stoi w miejscu: ma wlasna migawke bez animacji, wiec zygzak idzie tylko pod nim. */
+  .nav{view-transition-name:pasek;}
+  ::view-transition-group(pasek),
+  ::view-transition-old(pasek),
+  ::view-transition-new(pasek){animation:none;}
+  /* stara migawka paska precz: na telefonie niesie otwarte menu, ktore inaczej wisialoby
+     pod zamknietym paskiem przez cale przejscie (zlapane na filmie 375) */
+  ::view-transition-old(pasek){display:none;}
   ::view-transition-group(root){
-    animation-duration:.6s;
+    animation-duration:.3s;
   }
   ::view-transition-old(root){
-    animation:tornWipeOut .6s var(--ease-soft) both;
+    animation:tornWipeOut .3s var(--ease-soft) both;
   }
   ::view-transition-new(root){
-    animation:tornWipeIn .6s var(--ease-soft) both,
-              vtGlitchFlash .22s steps(1) both;
+    animation:tornWipeIn .3s var(--ease-soft) both,
+              vtGlitchFlash .15s steps(1) both;
   }
   @keyframes tornWipeOut{
-    0%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
-    100%{clip-path:polygon(
-      130% 0,170% 0,
-      138% 7%,170% 14%,134% 21%,170% 29%,140% 37%,170% 45%,
-      136% 53%,170% 61%,142% 68%,170% 76%,136% 84%,170% 92%,
-      140% 100%,130% 100%
-    );}
+    0%{clip-path:polygon(200% 0,
+      -10% 0,-2% 7%,-10% 14%,-4% 21%,-10% 29%,-2% 37%,-10% 45%,
+      -4% 53%,-10% 61%,-2% 68%,-10% 76%,-4% 84%,-10% 92%,-2% 100%,
+      200% 100%);}
+    100%{clip-path:polygon(200% 0,
+      110% 0,118% 7%,110% 14%,116% 21%,110% 29%,118% 37%,110% 45%,
+      116% 53%,110% 61%,118% 68%,110% 76%,116% 84%,110% 92%,118% 100%,
+      200% 100%);}
   }
   @keyframes tornWipeIn{
-    0%{clip-path:polygon(
-      -70% 0,-30% 0,
-      -38% 7%,-70% 14%,-34% 21%,-70% 29%,-40% 37%,-70% 45%,
-      -36% 53%,-70% 61%,-42% 68%,-70% 76%,-36% 84%,-70% 92%,
-      -40% 100%,-30% 100%
-    );}
-    100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
+    0%{clip-path:polygon(-100% 0,
+      -10% 0,-2% 7%,-10% 14%,-4% 21%,-10% 29%,-2% 37%,-10% 45%,
+      -4% 53%,-10% 61%,-2% 68%,-10% 76%,-4% 84%,-10% 92%,-2% 100%,
+      -100% 100%);}
+    100%{clip-path:polygon(-100% 0,
+      110% 0,118% 7%,110% 14%,116% 21%,110% 29%,118% 37%,110% 45%,
+      116% 53%,110% 61%,118% 68%,110% 76%,116% 84%,110% 92%,118% 100%,
+      -100% 100%);}
   }
   @keyframes vtGlitchFlash{
     0%{filter:none;}
