@@ -1,0 +1,10 @@
+{
+  "name": "cybersora-buduj",
+  "private": true,
+  "type": "module",
+  "description": "Wydanie cybersora.pl ze zminifikowanymi plikami (SZYBKOSC S5)",
+  "dependencies": {
+    "esbuild": "0.25.10",
+    "lightningcss": "1.30.1"
+  }
+}
