@@ -3538,6 +3538,7 @@
     if (!items.length) return;
     const lb = document.getElementById('sztukaLightbox');
     const lbImg = document.getElementById('sztukaLbImg');
+    const lbSrc = document.getElementById('sztukaLbSrc');
     const btnClose = document.getElementById('sztukaLbClose');
     const btnPrev = document.getElementById('sztukaLbPrev');
     const btnNext = document.getElementById('sztukaLbNext');
@@ -3547,6 +3548,9 @@
     function show(i) {
       idx = (i + items.length) % items.length;
       lb.classList.remove('is-ready');
+      // S8: AVIF przez <source>, JPG zapasowo. srcset przed src, żeby przeglądarka wybrała od razu właściwy plik.
+      const avif = items[idx].dataset.fullAvif;
+      if (lbSrc) { if (avif) lbSrc.srcset = avif; else lbSrc.removeAttribute('srcset'); }
       lbImg.src = items[idx].dataset.full;
       lbImg.alt = items[idx].getAttribute('aria-label') || '';
       requestAnimationFrame(() => lb.classList.add('is-ready'));

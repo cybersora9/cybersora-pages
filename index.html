@@ -2096,6 +2096,7 @@
     padding:4vh 4vw;
     backdrop-filter:blur(4px);
   }
+  .sztuka__lb-pic{display:contents;}  /* S8: <picture> dla AVIF, img zostaje elementem flex jak dotąd */
   .sztuka__lb-img{
     max-width:min(90vw,900px);
     max-height:88vh;
@@ -3899,12 +3900,13 @@ def fetch_offer_detail(url)</code></pre>
     <section class="services" aria-label="Galeria prac">
       <div class="services__inner">
         <div class="sztuka__grid">
-          <button class="sztuka__item" type="button" data-full="sztuka/full/01.jpg" aria-label="Powiększ grafikę 1 z 6"><img src="sztuka/thumb/01.jpg" alt="" loading="lazy" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/02.jpg" aria-label="Powiększ grafikę 2 z 6"><img src="sztuka/thumb/02.jpg" alt="" loading="lazy" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/03.jpg" aria-label="Powiększ grafikę 3 z 6"><img src="sztuka/thumb/03.jpg" alt="" loading="lazy" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/04.jpg" aria-label="Powiększ grafikę 4 z 6"><img src="sztuka/thumb/04.jpg" alt="" loading="lazy" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/05.jpg" aria-label="Powiększ grafikę 5 z 6"><img src="sztuka/thumb/05.jpg" alt="" loading="lazy" width="480" height="480"></button>
-          <button class="sztuka__item" type="button" data-full="sztuka/full/06.jpg" aria-label="Powiększ grafikę 6 z 6"><img src="sztuka/thumb/06.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <!-- S8 (26.10): AVIF obok JPG (JPG zostaje zapasowo). Miniatury 01 i 03 bez AVIF: wychodził większy albo zysk < 10%. -->
+          <button class="sztuka__item" type="button" data-full="sztuka/full/01.jpg" data-full-avif="sztuka/full/01.avif" aria-label="Powiększ grafikę 1 z 6"><img src="sztuka/thumb/01.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/02.jpg" data-full-avif="sztuka/full/02.avif" aria-label="Powiększ grafikę 2 z 6"><picture><source srcset="sztuka/thumb/02.avif" type="image/avif"><img src="sztuka/thumb/02.jpg" alt="" loading="lazy" width="480" height="480"></picture></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/03.jpg" data-full-avif="sztuka/full/03.avif" aria-label="Powiększ grafikę 3 z 6"><img src="sztuka/thumb/03.jpg" alt="" loading="lazy" width="480" height="480"></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/04.jpg" data-full-avif="sztuka/full/04.avif" aria-label="Powiększ grafikę 4 z 6"><picture><source srcset="sztuka/thumb/04.avif" type="image/avif"><img src="sztuka/thumb/04.jpg" alt="" loading="lazy" width="480" height="480"></picture></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/05.jpg" data-full-avif="sztuka/full/05.avif" aria-label="Powiększ grafikę 5 z 6"><picture><source srcset="sztuka/thumb/05.avif" type="image/avif"><img src="sztuka/thumb/05.jpg" alt="" loading="lazy" width="480" height="480"></picture></button>
+          <button class="sztuka__item" type="button" data-full="sztuka/full/06.jpg" data-full-avif="sztuka/full/06.avif" aria-label="Powiększ grafikę 6 z 6"><picture><source srcset="sztuka/thumb/06.avif" type="image/avif"><img src="sztuka/thumb/06.jpg" alt="" loading="lazy" width="480" height="480"></picture></button>
         </div>
       </div>
     </section>
@@ -4414,7 +4416,7 @@ fingerprint(maszyna)</div>
 <div class="sztuka__lightbox" id="sztukaLightbox" hidden role="dialog" aria-modal="true" aria-label="Podgląd grafiki">
   <button class="sztuka__lb-close" type="button" id="sztukaLbClose" aria-label="Zamknij podgląd">&times;</button>
   <button class="sztuka__lb-prev" type="button" id="sztukaLbPrev" aria-label="Poprzednia grafika">&larr;</button>
-  <img class="sztuka__lb-img" id="sztukaLbImg" src="" alt="">
+  <picture class="sztuka__lb-pic"><source id="sztukaLbSrc" type="image/avif"><img class="sztuka__lb-img" id="sztukaLbImg" src="" alt=""></picture>
   <button class="sztuka__lb-next" type="button" id="sztukaLbNext" aria-label="Następna grafika">&rarr;</button>
 </div>
 
@@ -4477,7 +4479,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261029a" defer></script>
+<script src="app.js?v=20261031a" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
