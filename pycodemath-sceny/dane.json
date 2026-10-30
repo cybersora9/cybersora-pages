@@ -1,0 +1,1424 @@
+{
+ "cena": {
+  "wzor_zysku": "(p-5)*(200-8*p)",
+  "wywolanie": "minimize(-(p-5)*(200-8*p), p, start, max_iter=k)",
+  "krzywa": [
+   {
+    "cena": 5.0,
+    "zysk": -0.0
+   },
+   {
+    "cena": 5.5,
+    "zysk": 78.0
+   },
+   {
+    "cena": 6.0,
+    "zysk": 152.0
+   },
+   {
+    "cena": 6.5,
+    "zysk": 222.0
+   },
+   {
+    "cena": 7.0,
+    "zysk": 288.0
+   },
+   {
+    "cena": 7.5,
+    "zysk": 350.0
+   },
+   {
+    "cena": 8.0,
+    "zysk": 408.0
+   },
+   {
+    "cena": 8.5,
+    "zysk": 462.0
+   },
+   {
+    "cena": 9.0,
+    "zysk": 512.0
+   },
+   {
+    "cena": 9.5,
+    "zysk": 558.0
+   },
+   {
+    "cena": 10.0,
+    "zysk": 600.0
+   },
+   {
+    "cena": 10.5,
+    "zysk": 638.0
+   },
+   {
+    "cena": 11.0,
+    "zysk": 672.0
+   },
+   {
+    "cena": 11.5,
+    "zysk": 702.0
+   },
+   {
+    "cena": 12.0,
+    "zysk": 728.0
+   },
+   {
+    "cena": 12.5,
+    "zysk": 750.0
+   },
+   {
+    "cena": 13.0,
+    "zysk": 768.0
+   },
+   {
+    "cena": 13.5,
+    "zysk": 782.0
+   },
+   {
+    "cena": 14.0,
+    "zysk": 792.0
+   },
+   {
+    "cena": 14.5,
+    "zysk": 798.0
+   },
+   {
+    "cena": 15.0,
+    "zysk": 800.0
+   },
+   {
+    "cena": 15.5,
+    "zysk": 798.0
+   },
+   {
+    "cena": 16.0,
+    "zysk": 792.0
+   },
+   {
+    "cena": 16.5,
+    "zysk": 782.0
+   },
+   {
+    "cena": 17.0,
+    "zysk": 768.0
+   },
+   {
+    "cena": 17.5,
+    "zysk": 750.0
+   },
+   {
+    "cena": 18.0,
+    "zysk": 728.0
+   },
+   {
+    "cena": 18.5,
+    "zysk": 702.0
+   },
+   {
+    "cena": 19.0,
+    "zysk": 672.0
+   },
+   {
+    "cena": 19.5,
+    "zysk": 638.0
+   },
+   {
+    "cena": 20.0,
+    "zysk": 600.0
+   },
+   {
+    "cena": 20.5,
+    "zysk": 558.0
+   },
+   {
+    "cena": 21.0,
+    "zysk": 512.0
+   },
+   {
+    "cena": 21.5,
+    "zysk": 462.0
+   },
+   {
+    "cena": 22.0,
+    "zysk": 408.0
+   },
+   {
+    "cena": 22.5,
+    "zysk": 350.0
+   },
+   {
+    "cena": 23.0,
+    "zysk": 288.0
+   },
+   {
+    "cena": 23.5,
+    "zysk": 222.0
+   },
+   {
+    "cena": 24.0,
+    "zysk": 152.0
+   },
+   {
+    "cena": 24.5,
+    "zysk": 78.0
+   },
+   {
+    "cena": 25.0,
+    "zysk": -0.0
+   }
+  ],
+  "przebiegi": [
+   {
+    "start": 8.0,
+    "kroki": [
+     {
+      "k": 0,
+      "cena": 8.0,
+      "zysk": 408.0,
+      "nachylenie": 112.0
+     },
+     {
+      "k": 1,
+      "cena": 19.200000000000003,
+      "zysk": 658.8799999999998,
+      "nachylenie": -67.20000000000005,
+      "status": "not_converged"
+     },
+     {
+      "k": 2,
+      "cena": 12.479999999999997,
+      "zysk": 749.1967999999998,
+      "nachylenie": 40.32000000000005,
+      "status": "not_converged"
+     },
+     {
+      "k": 3,
+      "cena": 16.512,
+      "zysk": 781.7108479999999,
+      "nachylenie": -24.192000000000007,
+      "status": "not_converged"
+     },
+     {
+      "k": 4,
+      "cena": 14.0928,
+      "zysk": 793.4159052800001,
+      "nachylenie": 14.515199999999993,
+      "status": "not_converged"
+     },
+     {
+      "k": 5,
+      "cena": 15.544319999999999,
+      "zysk": 797.6297259008,
+      "nachylenie": -8.709119999999984,
+      "status": "not_converged"
+     },
+     {
+      "k": 6,
+      "cena": 14.673408,
+      "zysk": 799.146701324288,
+      "nachylenie": 5.225471999999996,
+      "status": "not_converged"
+     },
+     {
+      "k": 7,
+      "cena": 15.1959552,
+      "zysk": 799.6928124767437,
+      "nachylenie": -3.1352832000000035,
+      "status": "not_converged"
+     },
+     {
+      "k": 8,
+      "cena": 14.88242688,
+      "zysk": 799.8894124916277,
+      "nachylenie": 1.8811699199999907,
+      "status": "not_converged"
+     },
+     {
+      "k": 9,
+      "cena": 15.070543872,
+      "zysk": 799.960188496986,
+      "nachylenie": -1.1287019520000001,
+      "status": "not_converged"
+     },
+     {
+      "k": 10,
+      "cena": 14.9576736768,
+      "zysk": 799.985667858915,
+      "nachylenie": 0.6772211711999887,
+      "status": "not_converged"
+     },
+     {
+      "k": 11,
+      "cena": 15.02539579392,
+      "zysk": 799.9948404292094,
+      "nachylenie": -0.4063327027199932,
+      "status": "not_converged"
+     },
+     {
+      "k": 12,
+      "cena": 14.984762523648,
+      "zysk": 799.9981425545154,
+      "nachylenie": 0.2437996216320073,
+      "status": "not_converged"
+     },
+     {
+      "k": 13,
+      "cena": 15.0091424858112,
+      "zysk": 799.9993313196255,
+      "nachylenie": -0.1462797729791987,
+      "status": "not_converged"
+     },
+     {
+      "k": 14,
+      "cena": 14.99451450851328,
+      "zysk": 799.9997592750652,
+      "nachylenie": 0.08776786378751922,
+      "status": "not_converged"
+     },
+     {
+      "k": 15,
+      "cena": 15.003291294892032,
+      "zysk": 799.9999133390235,
+      "nachylenie": -0.052660718272505846,
+      "status": "not_converged"
+     },
+     {
+      "k": 16,
+      "cena": 14.998025223064781,
+      "zysk": 799.9999688020484,
+      "nachylenie": 0.03159643096350351,
+      "status": "not_converged"
+     },
+     {
+      "k": 17,
+      "cena": 15.00118486616113,
+      "zysk": 799.9999887687375,
+      "nachylenie": -0.018957858578090736,
+      "status": "not_converged"
+     },
+     {
+      "k": 18,
+      "cena": 14.999289080303322,
+      "zysk": 799.9999959567455,
+      "nachylenie": 0.011374715146843073,
+      "status": "not_converged"
+     },
+     {
+      "k": 19,
+      "cena": 15.000426551818007,
+      "zysk": 799.9999985444284,
+      "nachylenie": -0.0068248290881172125,
+      "status": "not_converged"
+     },
+     {
+      "k": 20,
+      "cena": 14.999744068909196,
+      "zysk": 799.9999994759942,
+      "nachylenie": 0.004094897452858959,
+      "status": "not_converged"
+     },
+     {
+      "k": 21,
+      "cena": 15.000153558654482,
+      "zysk": 799.999999811358,
+      "nachylenie": -0.002456938471709691,
+      "status": "not_converged"
+     },
+     {
+      "k": 22,
+      "cena": 14.99990786480731,
+      "zysk": 799.9999999320888,
+      "nachylenie": 0.001474163083031499,
+      "status": "not_converged"
+     },
+     {
+      "k": 23,
+      "cena": 15.000055281115614,
+      "zysk": 799.999999975552,
+      "nachylenie": -0.0008844978498245837,
+      "status": "not_converged"
+     },
+     {
+      "k": 24,
+      "cena": 14.999966831330632,
+      "zysk": 799.9999999911987,
+      "nachylenie": 0.0005306987098947502,
+      "status": "not_converged"
+     },
+     {
+      "k": 25,
+      "cena": 15.000019901201622,
+      "zysk": 799.9999999968315,
+      "nachylenie": -0.0003184192259482188,
+      "status": "not_converged"
+     },
+     {
+      "k": 26,
+      "cena": 14.999988059279026,
+      "zysk": 799.9999999988594,
+      "nachylenie": 0.00019105153558029997,
+      "status": "not_converged"
+     },
+     {
+      "k": 27,
+      "cena": 15.000007164432585,
+      "zysk": 799.9999999995894,
+      "nachylenie": -0.00011463092135954867,
+      "status": "not_converged"
+     },
+     {
+      "k": 28,
+      "cena": 14.999995701340449,
+      "zysk": 799.9999999998522,
+      "nachylenie": 6.87785528157292e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 29,
+      "cena": 15.00000257919573,
+      "zysk": 799.9999999999468,
+      "nachylenie": -4.1267131678068836e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 30,
+      "cena": 14.999998452482561,
+      "zysk": 799.9999999999808,
+      "nachylenie": 2.4760279018209985e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 31,
+      "cena": 15.000000928510463,
+      "zysk": 799.9999999999931,
+      "nachylenie": -1.4856167410925991e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 32,
+      "cena": 14.999999442893722,
+      "zysk": 799.9999999999975,
+      "nachylenie": 8.913700440871253e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 33,
+      "cena": 15.000000334263767,
+      "zysk": 799.9999999999991,
+      "nachylenie": -5.3482202702070936e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 34,
+      "cena": 14.99999979944174,
+      "zysk": 799.9999999999997,
+      "nachylenie": 3.2089321564399143e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 35,
+      "cena": 15.000000120334956,
+      "zysk": 799.9999999999999,
+      "nachylenie": -1.9253592995482904e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 36,
+      "cena": 14.999999927799026,
+      "zysk": 800.0,
+      "nachylenie": 1.1552155854133161e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 37,
+      "cena": 15.000000043320584,
+      "zysk": 800.0,
+      "nachylenie": -6.931293512479897e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 38,
+      "cena": 14.999999974007649,
+      "zysk": 800.0,
+      "nachylenie": 4.158776221174776e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 39,
+      "cena": 15.000000015595411,
+      "zysk": 800.0,
+      "nachylenie": -2.4952657895482844e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 40,
+      "cena": 14.999999990642753,
+      "zysk": 800.0,
+      "nachylenie": 1.4971595874158083e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 41,
+      "cena": 15.000000005614348,
+      "zysk": 800.0,
+      "nachylenie": -8.982956956060661e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 42,
+      "cena": 14.999999996631391,
+      "zysk": 800.0,
+      "nachylenie": 5.389773605202208e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 43,
+      "cena": 15.000000002021165,
+      "zysk": 800.0,
+      "nachylenie": -3.2338647315555136e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 44,
+      "cena": 14.9999999987873,
+      "zysk": 800.0,
+      "nachylenie": 1.940318838933308e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 45,
+      "cena": 15.000000000727619,
+      "zysk": 800.0,
+      "nachylenie": -1.1641901664916077e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 46,
+      "cena": 14.999999999563428,
+      "zysk": 800.0,
+      "nachylenie": 6.985146683291532e-09,
+      "status": "not_converged"
+     },
+     {
+      "k": 47,
+      "cena": 15.000000000261943,
+      "zysk": 800.0,
+      "nachylenie": -4.191093694316805e-09,
+      "status": "converged"
+     }
+    ],
+    "wynik": {
+     "cena": 15.000000000261943,
+     "iteracje": 47,
+     "status": "converged",
+     "zbiezny": true,
+     "zysk": 800.0
+    }
+   },
+   {
+    "start": 22.0,
+    "kroki": [
+     {
+      "k": 0,
+      "cena": 22.0,
+      "zysk": 408.0,
+      "nachylenie": -112.0
+     },
+     {
+      "k": 1,
+      "cena": 10.799999999999999,
+      "zysk": 658.8799999999999,
+      "nachylenie": 67.20000000000002,
+      "status": "not_converged"
+     },
+     {
+      "k": 2,
+      "cena": 17.520000000000003,
+      "zysk": 749.1967999999998,
+      "nachylenie": -40.32000000000005,
+      "status": "not_converged"
+     },
+     {
+      "k": 3,
+      "cena": 13.487999999999998,
+      "zysk": 781.7108479999999,
+      "nachylenie": 24.192000000000036,
+      "status": "not_converged"
+     },
+     {
+      "k": 4,
+      "cena": 15.907200000000001,
+      "zysk": 793.41590528,
+      "nachylenie": -14.515200000000021,
+      "status": "not_converged"
+     },
+     {
+      "k": 5,
+      "cena": 14.45568,
+      "zysk": 797.6297259007999,
+      "nachylenie": 8.709120000000013,
+      "status": "not_converged"
+     },
+     {
+      "k": 6,
+      "cena": 15.326592,
+      "zysk": 799.146701324288,
+      "nachylenie": -5.225471999999996,
+      "status": "not_converged"
+     },
+     {
+      "k": 7,
+      "cena": 14.8040448,
+      "zysk": 799.6928124767437,
+      "nachylenie": 3.1352832000000035,
+      "status": "not_converged"
+     },
+     {
+      "k": 8,
+      "cena": 15.11757312,
+      "zysk": 799.8894124916277,
+      "nachylenie": -1.8811699199999907,
+      "status": "not_converged"
+     },
+     {
+      "k": 9,
+      "cena": 14.929456128,
+      "zysk": 799.960188496986,
+      "nachylenie": 1.1287019520000001,
+      "status": "not_converged"
+     },
+     {
+      "k": 10,
+      "cena": 15.0423263232,
+      "zysk": 799.985667858915,
+      "nachylenie": -0.6772211711999887,
+      "status": "not_converged"
+     },
+     {
+      "k": 11,
+      "cena": 14.97460420608,
+      "zysk": 799.9948404292094,
+      "nachylenie": 0.4063327027199932,
+      "status": "not_converged"
+     },
+     {
+      "k": 12,
+      "cena": 15.015237476352,
+      "zysk": 799.9981425545154,
+      "nachylenie": -0.2437996216320073,
+      "status": "not_converged"
+     },
+     {
+      "k": 13,
+      "cena": 14.9908575141888,
+      "zysk": 799.9993313196255,
+      "nachylenie": 0.1462797729791987,
+      "status": "not_converged"
+     },
+     {
+      "k": 14,
+      "cena": 15.00548549148672,
+      "zysk": 799.9997592750652,
+      "nachylenie": -0.08776786378751922,
+      "status": "not_converged"
+     },
+     {
+      "k": 15,
+      "cena": 14.996708705107968,
+      "zysk": 799.9999133390235,
+      "nachylenie": 0.052660718272505846,
+      "status": "not_converged"
+     },
+     {
+      "k": 16,
+      "cena": 15.001974776935219,
+      "zysk": 799.9999688020484,
+      "nachylenie": -0.03159643096350351,
+      "status": "not_converged"
+     },
+     {
+      "k": 17,
+      "cena": 14.99881513383887,
+      "zysk": 799.9999887687375,
+      "nachylenie": 0.018957858578090736,
+      "status": "not_converged"
+     },
+     {
+      "k": 18,
+      "cena": 15.000710919696678,
+      "zysk": 799.9999959567455,
+      "nachylenie": -0.011374715146843073,
+      "status": "not_converged"
+     },
+     {
+      "k": 19,
+      "cena": 14.999573448181993,
+      "zysk": 799.9999985444284,
+      "nachylenie": 0.0068248290881172125,
+      "status": "not_converged"
+     },
+     {
+      "k": 20,
+      "cena": 15.000255931090804,
+      "zysk": 799.9999994759942,
+      "nachylenie": -0.004094897452858959,
+      "status": "not_converged"
+     },
+     {
+      "k": 21,
+      "cena": 14.999846441345518,
+      "zysk": 799.999999811358,
+      "nachylenie": 0.002456938471709691,
+      "status": "not_converged"
+     },
+     {
+      "k": 22,
+      "cena": 15.00009213519269,
+      "zysk": 799.9999999320888,
+      "nachylenie": -0.001474163083031499,
+      "status": "not_converged"
+     },
+     {
+      "k": 23,
+      "cena": 14.999944718884386,
+      "zysk": 799.999999975552,
+      "nachylenie": 0.0008844978498245837,
+      "status": "not_converged"
+     },
+     {
+      "k": 24,
+      "cena": 15.000033168669368,
+      "zysk": 799.9999999911987,
+      "nachylenie": -0.0005306987098947502,
+      "status": "not_converged"
+     },
+     {
+      "k": 25,
+      "cena": 14.999980098798378,
+      "zysk": 799.9999999968315,
+      "nachylenie": 0.0003184192259482188,
+      "status": "not_converged"
+     },
+     {
+      "k": 26,
+      "cena": 15.000011940720974,
+      "zysk": 799.9999999988594,
+      "nachylenie": -0.00019105153558029997,
+      "status": "not_converged"
+     },
+     {
+      "k": 27,
+      "cena": 14.999992835567415,
+      "zysk": 799.9999999995894,
+      "nachylenie": 0.00011463092135954867,
+      "status": "not_converged"
+     },
+     {
+      "k": 28,
+      "cena": 15.000004298659551,
+      "zysk": 799.9999999998522,
+      "nachylenie": -6.87785528157292e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 29,
+      "cena": 14.99999742080427,
+      "zysk": 799.9999999999468,
+      "nachylenie": 4.1267131678068836e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 30,
+      "cena": 15.000001547517439,
+      "zysk": 799.9999999999808,
+      "nachylenie": -2.4760279018209985e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 31,
+      "cena": 14.999999071489537,
+      "zysk": 799.9999999999931,
+      "nachylenie": 1.4856167410925991e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 32,
+      "cena": 15.000000557106278,
+      "zysk": 799.9999999999975,
+      "nachylenie": -8.913700440871253e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 33,
+      "cena": 14.999999665736233,
+      "zysk": 799.9999999999991,
+      "nachylenie": 5.3482202702070936e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 34,
+      "cena": 15.00000020055826,
+      "zysk": 799.9999999999997,
+      "nachylenie": -3.2089321564399143e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 35,
+      "cena": 14.999999879665044,
+      "zysk": 799.9999999999999,
+      "nachylenie": 1.9253592995482904e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 36,
+      "cena": 15.000000072200974,
+      "zysk": 800.0,
+      "nachylenie": -1.1552155854133161e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 37,
+      "cena": 14.999999956679416,
+      "zysk": 800.0,
+      "nachylenie": 6.931293512479897e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 38,
+      "cena": 15.000000025992351,
+      "zysk": 800.0,
+      "nachylenie": -4.158776221174776e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 39,
+      "cena": 14.999999984404589,
+      "zysk": 800.0,
+      "nachylenie": 2.4952657895482844e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 40,
+      "cena": 15.000000009357247,
+      "zysk": 800.0,
+      "nachylenie": -1.4971595874158083e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 41,
+      "cena": 14.999999994385652,
+      "zysk": 800.0,
+      "nachylenie": 8.982956956060661e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 42,
+      "cena": 15.000000003368609,
+      "zysk": 800.0,
+      "nachylenie": -5.389773605202208e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 43,
+      "cena": 14.999999997978835,
+      "zysk": 800.0,
+      "nachylenie": 3.2338647315555136e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 44,
+      "cena": 15.0000000012127,
+      "zysk": 800.0,
+      "nachylenie": -1.940318838933308e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 45,
+      "cena": 14.999999999272381,
+      "zysk": 800.0,
+      "nachylenie": 1.1641901664916077e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 46,
+      "cena": 15.000000000436572,
+      "zysk": 800.0,
+      "nachylenie": -6.985146683291532e-09,
+      "status": "not_converged"
+     },
+     {
+      "k": 47,
+      "cena": 14.999999999738057,
+      "zysk": 800.0,
+      "nachylenie": 4.191093694316805e-09,
+      "status": "converged"
+     }
+    ],
+    "wynik": {
+     "cena": 14.999999999738057,
+     "iteracje": 47,
+     "status": "converged",
+     "zbiezny": true,
+     "zysk": 800.0
+    }
+   },
+   {
+    "start": 12.0,
+    "kroki": [
+     {
+      "k": 0,
+      "cena": 12.0,
+      "zysk": 728.0,
+      "nachylenie": 48.0
+     },
+     {
+      "k": 1,
+      "cena": 16.8,
+      "zysk": 774.0799999999999,
+      "nachylenie": -28.80000000000001,
+      "status": "not_converged"
+     },
+     {
+      "k": 2,
+      "cena": 13.92,
+      "zysk": 790.6688,
+      "nachylenie": 17.28,
+      "status": "not_converged"
+     },
+     {
+      "k": 3,
+      "cena": 15.648,
+      "zysk": 796.640768,
+      "nachylenie": -10.367999999999995,
+      "status": "not_converged"
+     },
+     {
+      "k": 4,
+      "cena": 14.6112,
+      "zysk": 798.79067648,
+      "nachylenie": 6.220799999999997,
+      "status": "not_converged"
+     },
+     {
+      "k": 5,
+      "cena": 15.23328,
+      "zysk": 799.5646435328,
+      "nachylenie": -3.7324800000000096,
+      "status": "not_converged"
+     },
+     {
+      "k": 6,
+      "cena": 14.860032,
+      "zysk": 799.843271671808,
+      "nachylenie": 2.2394879999999944,
+      "status": "not_converged"
+     },
+     {
+      "k": 7,
+      "cena": 15.083980799999999,
+      "zysk": 799.9435778018509,
+      "nachylenie": -1.3436927999999853,
+      "status": "not_converged"
+     },
+     {
+      "k": 8,
+      "cena": 14.949611520000001,
+      "zysk": 799.9796880086664,
+      "nachylenie": 0.8062156799999798,
+      "status": "not_converged"
+     },
+     {
+      "k": 9,
+      "cena": 15.030233088,
+      "zysk": 799.9926876831199,
+      "nachylenie": -0.48372940799998787,
+      "status": "not_converged"
+     },
+     {
+      "k": 10,
+      "cena": 14.9818601472,
+      "zysk": 799.9973675659231,
+      "nachylenie": 0.29023764479998704,
+      "status": "not_converged"
+     },
+     {
+      "k": 11,
+      "cena": 15.010883911679999,
+      "zysk": 799.9990523237324,
+      "nachylenie": -0.17414258687998085,
+      "status": "not_converged"
+     },
+     {
+      "k": 12,
+      "cena": 14.993469652992001,
+      "zysk": 799.9996588365436,
+      "nachylenie": 0.10448555212798283,
+      "status": "not_converged"
+     },
+     {
+      "k": 13,
+      "cena": 15.0039182082048,
+      "zysk": 799.9998771811557,
+      "nachylenie": -0.06269133127679538,
+      "status": "not_converged"
+     },
+     {
+      "k": 14,
+      "cena": 14.99764907507712,
+      "zysk": 799.999955785216,
+      "nachylenie": 0.037614798766071544,
+      "status": "not_converged"
+     },
+     {
+      "k": 15,
+      "cena": 15.001410554953727,
+      "zysk": 799.9999840826778,
+      "nachylenie": -0.022568879259637242,
+      "status": "not_converged"
+     },
+     {
+      "k": 16,
+      "cena": 14.999153667027764,
+      "zysk": 799.999994269764,
+      "nachylenie": 0.013541327555770977,
+      "status": "not_converged"
+     },
+     {
+      "k": 17,
+      "cena": 15.00050779978334,
+      "zysk": 799.999997937115,
+      "nachylenie": -0.008124796533451217,
+      "status": "not_converged"
+     },
+     {
+      "k": 18,
+      "cena": 14.999695320129996,
+      "zysk": 799.9999992573614,
+      "nachylenie": 0.004874877920059362,
+      "status": "not_converged"
+     },
+     {
+      "k": 19,
+      "cena": 15.000182807922002,
+      "zysk": 799.99999973265,
+      "nachylenie": -0.0029249267520299327,
+      "status": "not_converged"
+     },
+     {
+      "k": 20,
+      "cena": 14.999890315246798,
+      "zysk": 799.9999999037541,
+      "nachylenie": 0.0017549560512293283,
+      "status": "not_converged"
+     },
+     {
+      "k": 21,
+      "cena": 15.000065810851922,
+      "zysk": 799.9999999653514,
+      "nachylenie": -0.0010529736307489657,
+      "status": "not_converged"
+     },
+     {
+      "k": 22,
+      "cena": 14.999960513488848,
+      "zysk": 799.9999999875265,
+      "nachylenie": 0.0006317841784380107,
+      "status": "not_converged"
+     },
+     {
+      "k": 23,
+      "cena": 15.00002369190669,
+      "zysk": 799.9999999955096,
+      "nachylenie": -0.00037907050705143774,
+      "status": "not_converged"
+     },
+     {
+      "k": 24,
+      "cena": 14.999985784855985,
+      "zysk": 799.9999999983835,
+      "nachylenie": 0.000227442304236547,
+      "status": "not_converged"
+     },
+     {
+      "k": 25,
+      "cena": 15.00000852908641,
+      "zysk": 799.999999999418,
+      "nachylenie": -0.00013646538255329688,
+      "status": "not_converged"
+     },
+     {
+      "k": 26,
+      "cena": 14.999994882548155,
+      "zysk": 799.9999999997905,
+      "nachylenie": 8.187922952629378e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 27,
+      "cena": 15.000003070471108,
+      "zysk": 799.9999999999246,
+      "nachylenie": -4.912753772146061e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 28,
+      "cena": 14.999998157717336,
+      "zysk": 799.9999999999728,
+      "nachylenie": 2.9476522627192026e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 29,
+      "cena": 15.000001105369599,
+      "zysk": 799.9999999999902,
+      "nachylenie": -1.7685913576315215e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 30,
+      "cena": 14.999999336778242,
+      "zysk": 799.9999999999965,
+      "nachylenie": 1.0611548134420445e-05,
+      "status": "not_converged"
+     },
+     {
+      "k": 31,
+      "cena": 15.000000397933055,
+      "zysk": 799.9999999999987,
+      "nachylenie": -6.366928886336609e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 32,
+      "cena": 14.999999761240167,
+      "zysk": 799.9999999999995,
+      "nachylenie": 3.8201573318019655e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 33,
+      "cena": 15.0000001432559,
+      "zysk": 799.9999999999999,
+      "nachylenie": -2.2920943933968374e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 34,
+      "cena": 14.99999991404646,
+      "zysk": 799.9999999999999,
+      "nachylenie": 1.3752566303537606e-06,
+      "status": "not_converged"
+     },
+     {
+      "k": 35,
+      "cena": 15.000000051572124,
+      "zysk": 800.0,
+      "nachylenie": -8.251539895809401e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 36,
+      "cena": 14.999999969056725,
+      "zysk": 800.0,
+      "nachylenie": 4.950923937485641e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 37,
+      "cena": 15.000000018565965,
+      "zysk": 800.0,
+      "nachylenie": -2.9705543624913844e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 38,
+      "cena": 14.999999988860422,
+      "zysk": 800.0,
+      "nachylenie": 1.782332503807993e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 39,
+      "cena": 15.000000006683747,
+      "zysk": 800.0,
+      "nachylenie": -1.0693995022847957e-07,
+      "status": "not_converged"
+     },
+     {
+      "k": 40,
+      "cena": 14.999999995989752,
+      "zysk": 800.0,
+      "nachylenie": 6.416397013708774e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 41,
+      "cena": 15.000000002406148,
+      "zysk": 800.0,
+      "nachylenie": -3.8498370713568875e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 42,
+      "cena": 14.99999999855631,
+      "zysk": 800.0,
+      "nachylenie": 2.3099033796825097e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 43,
+      "cena": 15.000000000866214,
+      "zysk": 800.0,
+      "nachylenie": -1.3859420278095058e-08,
+      "status": "not_converged"
+     },
+     {
+      "k": 44,
+      "cena": 14.999999999480272,
+      "zysk": 800.0,
+      "nachylenie": 8.315652166857035e-09,
+      "status": "not_converged"
+     },
+     {
+      "k": 45,
+      "cena": 15.000000000311838,
+      "zysk": 800.0,
+      "nachylenie": -4.989402668797993e-09,
+      "status": "converged"
+     }
+    ],
+    "wynik": {
+     "cena": 15.000000000311838,
+     "iteracje": 45,
+     "status": "converged",
+     "zbiezny": true,
+     "zysk": 800.0
+    }
+   }
+  ]
+ },
+ "faktura": {
+  "wywolanie": "float_money_hazard(\"round(x*1.23, 2)\") + round_money(..., \"PLN\", \"HALF_UP\")",
+  "wiersze": [
+   {
+    "netto": "0.50",
+    "float": "0.61",
+    "dokladnie": "0.62",
+    "rozjazd_gr": 1,
+    "hazard": true,
+    "suma_float": "0.61",
+    "suma_dokladnie": "0.62",
+    "brakuje_gr": 1
+   },
+   {
+    "netto": "12.40",
+    "float": "15.25",
+    "dokladnie": "15.25",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "15.86",
+    "suma_dokladnie": "15.87",
+    "brakuje_gr": 1
+   },
+   {
+    "netto": "8.50",
+    "float": "10.46",
+    "dokladnie": "10.46",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "26.32",
+    "suma_dokladnie": "26.33",
+    "brakuje_gr": 1
+   },
+   {
+    "netto": "19.90",
+    "float": "24.48",
+    "dokladnie": "24.48",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "50.80",
+    "suma_dokladnie": "50.81",
+    "brakuje_gr": 1
+   },
+   {
+    "netto": "2.50",
+    "float": "3.08",
+    "dokladnie": "3.08",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "53.88",
+    "suma_dokladnie": "53.89",
+    "brakuje_gr": 1
+   },
+   {
+    "netto": "33.50",
+    "float": "41.2",
+    "dokladnie": "41.21",
+    "rozjazd_gr": 1,
+    "hazard": false,
+    "suma_float": "95.08",
+    "suma_dokladnie": "95.10",
+    "brakuje_gr": 2
+   },
+   {
+    "netto": "4.50",
+    "float": "5.54",
+    "dokladnie": "5.54",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "100.62",
+    "suma_dokladnie": "100.64",
+    "brakuje_gr": 2
+   },
+   {
+    "netto": "15.00",
+    "float": "18.45",
+    "dokladnie": "18.45",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "119.07",
+    "suma_dokladnie": "119.09",
+    "brakuje_gr": 2
+   },
+   {
+    "netto": "24.50",
+    "float": "30.13",
+    "dokladnie": "30.14",
+    "rozjazd_gr": 1,
+    "hazard": true,
+    "suma_float": "149.20",
+    "suma_dokladnie": "149.23",
+    "brakuje_gr": 3
+   },
+   {
+    "netto": "7.90",
+    "float": "9.72",
+    "dokladnie": "9.72",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "158.92",
+    "suma_dokladnie": "158.95",
+    "brakuje_gr": 3
+   },
+   {
+    "netto": "1.15",
+    "float": "1.41",
+    "dokladnie": "1.41",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "160.33",
+    "suma_dokladnie": "160.36",
+    "brakuje_gr": 3
+   },
+   {
+    "netto": "49.90",
+    "float": "61.38",
+    "dokladnie": "61.38",
+    "rozjazd_gr": 0,
+    "hazard": false,
+    "suma_float": "221.71",
+    "suma_dokladnie": "221.74",
+    "brakuje_gr": 3
+   }
+  ],
+  "przyczyna": {
+   "literal": "1.23",
+   "zapisane_jako": "1.229999999999999982236431605997495353221893310546875",
+   "wyjasnienie": "float gives 0.61 where exact decimal arithmetic gives 0.62; e.g. the literal 1.23 is stored as 1.229999999999999982236431605997495353221893310546875",
+   "swiadek": {
+    "x": "0.50"
+   },
+   "float": "0.61",
+   "dokladnie": "0.62"
+  },
+  "wynik": {
+   "suma_float": "221.71",
+   "suma_dokladnie": "221.74",
+   "brakuje_gr": 3
+  }
+ },
+ "regulamin": {
+  "wzor": "(n//5)*10",
+  "kod_bledny": "def rabat(n: int) -> int:\n    if n > 5:\n        return (n // 5) * 10\n    return 0\n",
+  "kod_poprawny": "def rabat(n: int) -> int:\n    if n >= 5:\n        return (n // 5) * 10\n    return 0\n",
+  "werdykt_bledny": {
+   "verdict": "refuted",
+   "powod": "rabat(n=5) returns 0, the formula gives 10 — confirmed by executing the function and evaluating the formula exactly",
+   "kontrprzyklad": "rabat(n=5)"
+  },
+  "werdykt_poprawny": {
+   "verdict": "verified",
+   "powod": "exact quasi-polynomial certificate: every residue class agrees as a polynomial, and every value below the threshold was checked"
+  },
+  "wiersze": [
+   {
+    "n": 0,
+    "regulamin": 0,
+    "kod": 0,
+    "po_poprawce": 0
+   },
+   {
+    "n": 1,
+    "regulamin": 0,
+    "kod": 0,
+    "po_poprawce": 0
+   },
+   {
+    "n": 2,
+    "regulamin": 0,
+    "kod": 0,
+    "po_poprawce": 0
+   },
+   {
+    "n": 3,
+    "regulamin": 0,
+    "kod": 0,
+    "po_poprawce": 0
+   },
+   {
+    "n": 4,
+    "regulamin": 0,
+    "kod": 0,
+    "po_poprawce": 0
+   },
+   {
+    "n": 5,
+    "regulamin": 10,
+    "kod": 0,
+    "po_poprawce": 10
+   },
+   {
+    "n": 6,
+    "regulamin": 10,
+    "kod": 10,
+    "po_poprawce": 10
+   },
+   {
+    "n": 7,
+    "regulamin": 10,
+    "kod": 10,
+    "po_poprawce": 10
+   },
+   {
+    "n": 8,
+    "regulamin": 10,
+    "kod": 10,
+    "po_poprawce": 10
+   },
+   {
+    "n": 9,
+    "regulamin": 10,
+    "kod": 10,
+    "po_poprawce": 10
+   },
+   {
+    "n": 10,
+    "regulamin": 20,
+    "kod": 20,
+    "po_poprawce": 20
+   }
+  ],
+  "wygenerowany_test": "\"\"\"Regression test generated by pycodemath (C1, check_code) on 2026-10-30.\n\nrabat is meant to compute: (n//5)*10\nCounterexample: rabat(n=5) returned 0; the formula gives 10.\n\"\"\"\n\nimport pytest\n\nfrom rabat import rabat\n\n\ndef test_rabat_matches_formula_at_counterexample():\n    # formula: (n//5)*10\n    assert rabat(n=5) == 10\n"
+ }
+}
