@@ -2838,7 +2838,7 @@
     };
     const GROUPS = ['zrodla', 'gdzie', 'ui', 'termin', 'dane', 'zab', 'testy'];
     const SERWIS = [
-      { id: 'brak', t: 'Bez serwisu', d: 'Gwarancja z ceny i koniec. Zmiany później według cennika.', pct: 0, min: 0 },
+      { id: 'brak', t: 'Bez serwisu', d: 'Poprawki z ceny i koniec. Zmiany później według cennika.', pct: 0, min: 0 },
       { id: 'pod', t: 'Serwis Podstawowy', d: 'Naprawiamy błędy i dopasowujemy skrypt, gdy zmieni się źródło danych. Reakcja do 3 dni roboczych.', pct: 0.04, min: 39, rec: 1 },
       { id: 'stal', t: 'Serwis Stały', d: 'To co Podstawowy, szybsza reakcja, miesięczny przegląd zabezpieczeń i jedna drobna zmiana w miesiącu.', pct: 0.08, min: 79 }
     ];
@@ -3020,7 +3020,7 @@
       o += tx(292, 40, st.data ? st.data.slice(8) + '.' + st.data.slice(5, 7) : { luz: '30 DNI', std: '14 DNI', szyb: '5 DNI', pilny: '48 H' }[st.termin], st.termin === 'pilny' || st.termin === 'szyb' ? 'r' : '');
       const sv = c.sv;
       o += '<path class="dg-line dg-sep" d="M18 130H348"/>';
-      o += tx(18, 146, sv.pct ? 'SERWIS: ' + sv.t.replace('Serwis ', '').toUpperCase() + ' · ' + (c.months > 1 ? c.months + ' MIES.' : 'MIES.') : 'BEZ SERWISU · GWARANCJA ' + (c.rod.id === 'mikro' ? 7 : 14) + ' DNI', sv.pct ? 'l' : '');
+      o += tx(18, 146, sv.pct ? 'SERWIS: ' + sv.t.replace('Serwis ', '').toUpperCase() + ' · ' + (c.months > 1 ? c.months + ' MIES.' : 'MIES.') : 'BEZ SERWISU · POPRAWKI ' + (c.rod.id === 'mikro' ? 7 : 14) + ' DNI', sv.pct ? 'l' : '');
       $('konfDiagram').innerHTML = '<svg viewBox="0 0 366 154" aria-hidden="true" focusable="false">' + o + '</svg>';
       $('konfDiagram').setAttribute('aria-label', 'Schemat: ' + n + (n === 1 ? ' źródło' : ' źródeł') + ' danych, ' + c.rod.t + ', ' + (srv ? 'serwer' : 'komputer zamawiającego') + ', wynik: ' + outLbl.toLowerCase());
     }
