@@ -2245,7 +2245,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261009b';
+  const SORAOS_V = '20261102b';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2288,10 +2288,13 @@
     soraosLaduje = Promise.all([
       soraosZasob('link', { rel: 'stylesheet', href: 'soraos.css' + v }),
       soraosZasob('script', { src: 'soraos.js' + v, async: true }),
-      soraosZasob('script', { src: 'soraos-tlo.js' + v, async: true }).catch(() => null),   // tapeta i animacja uruchamiania; bez niej komputer dziala jak dotad
+      /* 02.11: stara tapeta (miasto + CYBERSORA, soraos-tlo.js) zdjeta; nowy pulpit = glitchujace C·S, kursor Grot,
+         okno Laboratorium (wybor maisy z makiety PTZu6hj2xtDpW7kiW6UE6n). Brak plikow = pusty pulpit, bez bledu. */
+      soraosZasob('link', { rel: 'stylesheet', href: 'soraos-pulpit.css' + v }).catch(() => null),
+      soraosZasob('script', { src: 'soraos-pulpit.js' + v, async: true }).catch(() => null),
       soraosJson('dane/soraos.json'),
       soraosJson('dane/dostepnosc.json'),
-    ]).then(([, , , dane, dost]) => {
+    ]).then(([, , , , dane, dost]) => {
       /* 08.10: SORA//OS ma wlasny widok (#soraos). Zrodlem tresci zostaje lista w Uslugach; modul dostaje jej klon
          (bez id, zeby nie dublowac), a oryginal zostaje widoczny jako zwykla lista. */
       const zrodlo = document.querySelector('[data-view="oferta"] [data-soraos-tresc]');
@@ -2304,9 +2307,11 @@
         miejsce.appendChild(k);
       }
       const tresc = miejsce.firstElementChild;
+      const pulpit = window.SoraOSPulpit || null;
+      if (pulpit) { try { window.SoraOS.registerApp(pulpit.laboratorium(go)); } catch (e) {} }
       soraosOS = window.SoraOS.mount(root, {
         tresc, dane, dostepnosc: soraosSwieza(dost),
-        tlo: window.SoraOSTlo, bezOkna: true, tytul: 'Pulpit',
+        tlo: pulpit, bezOkna: true, tytul: 'Pulpit',
         onOrder: soraosZamow,
         onNav: (widok) => go(widok),
         loadGame: () => (window.DancyCloud ? Promise.resolve(window.DancyCloud)
@@ -2315,12 +2320,24 @@
         naglowek: 'B',
       });
       soraosKafelGry(root);
+      soraosLaboratorium(root);
       return soraosOS;
     }).catch(() => null);   // atrapa: brak modulu = zwykla lista, bez bledu w konsoli
     return soraosLaduje;
   }
   /* kafel gry na pulpicie (07.10): DancyCloud byl tylko wpisem w oknie Terminal. Kafel klonuje przycisk Terminal
      (te same klasy = ten sam wyglad), klik otwiera Terminal i od razu wybiera gre. Selektory tylko po data-*. */
+  /* 02.11 (maisa): „Co zrobiliśmy” dubluje Start i Oferte, wiec na pulpicie jego miejsce zajmuje Laboratorium.
+     Kafel projektow tylko chowamy (hidden): okno projektow dalej otwiera sie z linkow w „Co zrobimy”. */
+  function soraosLaboratorium(root) {
+    const lab = root.querySelector('[data-a="otworz"][data-w="lab"]');
+    const proj = root.querySelector('[data-a="otworz"][data-w="projekty"]');
+    if (!lab || !proj) return;
+    proj.parentNode.insertBefore(lab, proj);
+    proj.hidden = true;
+    const pod = root.querySelector('.sx-14');   // .sx-thin (dist/klasy.json): podtytul paska „co zrobimy, co zrobiliśmy, ...”
+    if (pod) pod.textContent = pod.textContent.replace(/co zrobiliśmy/i, 'laboratorium');
+  }
   function soraosKafelGry(root) {
     const term = root.querySelector('[data-a="otworz"][data-w="terminal"]');
     if (!term || root.querySelector('[data-gra-kafel]')) return;

@@ -1,0 +1,62 @@
+/* SORA//OS — pulpit (02.11.2026): tapeta C·S, kursor „Grot”, okno Laboratorium, płaskie tło.
+   Klasy modułu są zminifikowane (mapa: soraos_chmura/dist/klasy.json): .sx-1a = .sx-desk, .sx-1b = .sx-dock. */
+
+/* „tego blooma z góry bym wyjebał” (maisa 02.11): pulpit bez radialnej poświaty, płaski ink */
+.soraos .sx-1a{background:var(--ink)}
+
+/* Tapeta: warstwa pod oknami, obok kolumny ikon */
+.sxp{position:absolute;inset:0 0 0 100px;z-index:-1;display:grid;place-items:center;pointer-events:none;background:var(--ink);overflow:hidden}
+.sxp svg{width:min(56%,600px);height:auto;overflow:visible}
+.sxp .sxp-duch{opacity:0}
+.sxp .is-split .sxp-duch,.sxp .is-blink .sxp-duch:first-of-type{opacity:1}
+/* najdłuższa nazwa w kolumnie ikon (100 px): ciaśniej, żeby nie dotykała linii */
+.soraos .sx-1b [data-w="lab"]{letter-spacing:0}
+@container sx (max-width:900px){
+  /* telefon/tablet: ikony to kafle u góry pulpitu, logo pod nimi; kolumna ikon bez tła, inaczej zakrywa tapetę */
+  .soraos .sx-1b{background:transparent}
+  .sxp{inset:0;place-items:end center;padding-bottom:clamp(20px,6cqi,48px)}
+  .sxp svg{width:min(78%,420px)}
+}
+
+/* Kursor „Grot”: tylko mysz. Obrazek systemowy, więc zero opóźnienia względem prawdziwego wskaźnika. */
+@media (hover:hover) and (pointer:fine){
+  [data-view="soraos"].soraos{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M3 3 L27 12 L16 15 L13 27 Z' fill='%23e11d33' stroke='%23f6f2f3' stroke-width='1.6' stroke-linejoin='miter'/%3E%3C/svg%3E") 3 3,auto}
+  [data-view="soraos"].soraos :is(button,a,[role="option"],[role="tab"],label,summary){cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M3 3 L27 12 L16 15 L13 27 Z' fill='%23ff3a52' stroke='%23f6f2f3' stroke-width='1.6' stroke-linejoin='miter'/%3E%3C/svg%3E") 3 3,pointer}
+  [data-view="soraos"].soraos :is(input,textarea,[contenteditable="true"]){cursor:text}
+  [data-view="soraos"].soraos :is(button:disabled,[aria-disabled="true"]){cursor:not-allowed}
+}
+
+/* Okno „Laboratorium” (zmienne --f/--m/--l/--p/--h z modułu) */
+.sxl{padding:22px 28px 28px;display:grid;gap:18px;align-content:start}
+.sxl-lead{margin:0;max-width:var(--measure,62ch);font:var(--t-ui)/var(--lh-text) var(--f-sans);color:var(--m)}
+.sxl-lista{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--l);border:1px solid var(--l)}
+.sxl-it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;width:100%;padding:14px 16px;background:var(--p);text-align:left}
+.sxl-it:hover,.sxl-it:focus-visible{background:var(--h)}
+.sxl-tag{grid-column:1;font:600 var(--t-eyebrow)/var(--lh-ui) var(--mono);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;color:var(--th-label)}
+.sxl-t{grid-column:1;font:600 var(--t-title)/var(--lh-title) var(--f-sans);color:var(--f)}
+.sxl-b{grid-column:1;font:var(--t-ui)/var(--lh-ui) var(--f-sans);color:var(--m)}
+.sxl-go{grid-area:1/2/4;align-self:center;font:600 var(--t-instrument)/1 var(--mono);color:var(--th-hot);white-space:nowrap}
+.sxl-all{justify-self:start;font:600 var(--t-ui)/1 var(--f-sans);padding:.8rem 1.6rem;border-radius:999px;color:var(--th-hot);border:1px solid color-mix(in srgb,var(--th-hot) 50%,transparent)}
+.sxl-all:hover{background:color-mix(in srgb,var(--th-accent) 12%,transparent)}
+@container sx (max-width:900px){.sxl{padding:16px}}
+
+/* Rozruch A „Rozruch z logiem” (02.11.2026, makieta DRoBCrZ2gBSXLnjnCQVhke): nakładka na ekran komputera.
+   Ruch prowadzi soraos-pulpit.js (WAAPI); tu tylko układ. Bez poświaty, kolory marki. */
+.sxb{position:absolute;left:0;right:0;z-index:9;overflow:hidden;background:var(--ink,#0e0e12);color:rgba(246,242,243,.62);font:400 13px/1.55 var(--mono,ui-monospace,monospace);cursor:default}
+.sxb-crt{position:absolute;left:50%;top:50%;width:100%;height:2px;background:#f6f2f3;transform:translate(-50%,-50%) scaleX(0)}
+.sxb-ekr{position:absolute;inset:0;background:color-mix(in srgb,#f6f2f3 3%,#0e0e12);opacity:0}
+.sxb-log{position:absolute;left:clamp(16px,4%,40px);right:clamp(16px,4%,40px);top:clamp(16px,5%,36px);display:grid;gap:2px}
+.sxb-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:#f6f2f3;font-weight:600;letter-spacing:.08em;opacity:0}
+.sxb-hd svg{width:28px;height:auto}
+.sxb-ln{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;white-space:nowrap;overflow:hidden;opacity:0}
+.sxb-ln span{overflow:hidden;text-overflow:ellipsis}
+.sxb-ln b{color:#f6f2f3;font-weight:600}
+.sxb-ln em{font-style:normal;font-weight:600;color:#ff3a52}
+.sxb-blk{position:absolute;left:clamp(16px,4%,40px);right:clamp(16px,4%,40px);bottom:clamp(64px,12%,96px);display:grid;grid-template-columns:repeat(24,minmax(0,1fr)) auto;gap:4px;align-items:center;opacity:0}
+.sxb-blk i{height:10px;background:rgba(246,242,243,.12)}
+.sxb-blk b{min-width:5ch;text-align:right;color:#f6f2f3;font-weight:600}
+.sxb-blk small{grid-column:1/-1;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.sxb-znak{position:absolute;inset:0;opacity:0}
+.sxb-znak svg{position:absolute;left:50%;top:50%;width:min(56%,600px);height:auto;transform:translate(-50%,-50%);overflow:visible}
+.sxb-znak .sxp-duch{display:none}
+@media (max-width:760px){.sxb{font-size:11px}.sxb-blk{grid-template-columns:repeat(24,minmax(0,1fr))}.sxb-blk b{grid-column:1/-1;text-align:left}}
