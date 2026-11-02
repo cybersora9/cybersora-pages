@@ -381,6 +381,9 @@
             mask-image:linear-gradient(to right, transparent 4%, #000 26% 74%, transparent 96%);
   }
   html[data-route="somi"] .bg__smear{opacity:1;}
+  /* 02.11 (maisa): pulpit SORA//OS ma byc plaski, bez blooma. Szara poswiata hero prześwitywala
+     w pierwszym ulamku wejscia, wiec na tej trasie warstwa tla to sam --ink. Reszta stron bez zmian. */
+  html[data-route="soraos"] .bg{background:var(--ink);}
   @media (prefers-reduced-motion:reduce){ .bg__smear{transition:none;} }
   canvas#map{
     position:absolute;
@@ -4059,7 +4062,7 @@ generuj_kod(wzor)</div>
             <div class="seed__content">
               <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> Na PyPI <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">Pycodemath</h3>
-              <p class="seed__body">Dokładna matematyka dla agentów AI. Wersja 0.4.</p>
+              <p class="seed__body">Dokładna matematyka dla agentów AI. Wersja 0.5.0.</p>
               <span class="seed__hint">▸ otwórz</span>
             </div>
           </button>
@@ -4529,7 +4532,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261102a" defer></script>
+<script src="app.js?v=20261102d" defer></script>
 <script src="pycodemath-sceny/pcm-sceny.js?v=20261031a" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI

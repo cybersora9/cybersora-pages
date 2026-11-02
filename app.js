@@ -2245,7 +2245,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261102b';
+  const SORAOS_V = '20261102c';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2321,6 +2321,7 @@
       });
       soraosKafelGry(root);
       soraosLaboratorium(root);
+      soraosKafelPulpit(root);
       return soraosOS;
     }).catch(() => null);   // atrapa: brak modulu = zwykla lista, bez bledu w konsoli
     return soraosLaduje;
@@ -2329,6 +2330,39 @@
      (te same klasy = ten sam wyglad), klik otwiera Terminal i od razu wybiera gre. Selektory tylko po data-*. */
   /* 02.11 (maisa): „Co zrobiliśmy” dubluje Start i Oferte, wiec na pulpicie jego miejsce zajmuje Laboratorium.
      Kafel projektow tylko chowamy (hidden): okno projektow dalej otwiera sie z linkow w „Co zrobimy”. */
+  /* 02.11 (maisa): „Pulpit” na gorze paska, zeby jednym kliknieciem wrocic do pustego ekranu z glitchem.
+     Klon kafla Laboratorium (ten sam wyglad), bez data-a, wiec modul go nie obsluguje. Zamyka okna po kolei
+     od wierzchu, bo okna pod spodem sa inert. Podswietlony (aria-pressed), gdy zadne okno nie jest otwarte.
+     Na waskim ukladzie ukryty w soraos-pulpit.css: tam okno zaslania pasek i ma wlasne „wstecz”. */
+  function soraosKafelPulpit(root) {
+    const wzor = root.querySelector('[data-a="otworz"][data-w="lab"]');
+    if (!wzor || root.querySelector('[data-pulpit-kafel]')) return;
+    const k = wzor.cloneNode(true);
+    k.removeAttribute('data-w'); k.removeAttribute('data-a');
+    k.setAttribute('data-pulpit-kafel', '');
+    k.querySelector('svg').innerHTML = '<path d="M4 6h24v16H4z"></path><path d="M11 27h10M16 22v5"></path>';
+    const licznik = k.querySelector('.sx-1u');   // licznik „6” Laboratorium; zdjety PRZED szukaniem napisow
+    if (licznik) licznik.remove();
+    const t = k.querySelectorAll('span');
+    if (t[0]) t[0].textContent = 'Pulpit';
+    if (t[1]) t[1].textContent = 'Zamyka okna';
+    const otwarte = () => [...root.querySelectorAll('.sx-e:not([hidden])')];
+    const stan = () => k.setAttribute('aria-pressed', String(!otwarte().length));
+    k.addEventListener('click', () => {
+      const zamknij = (n) => {
+        const wierzch = otwarte().find((o) => !o.dataset.depth);
+        const x = wierzch && wierzch.querySelector('[data-a="zamknij"]');
+        if (!x) return;
+        x.click();
+        if (n < 8) setTimeout(() => zamknij(n + 1), 30);
+      };
+      zamknij(0);
+    });
+    const pasek = wzor.parentNode;
+    pasek.insertBefore(k, pasek.firstElementChild);
+    new MutationObserver(stan).observe(root, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+    stan();
+  }
   function soraosLaboratorium(root) {
     const lab = root.querySelector('[data-a="otworz"][data-w="lab"]');
     const proj = root.querySelector('[data-a="otworz"][data-w="projekty"]');
@@ -3647,15 +3681,15 @@
         nazwa: 'Pycodemath',
         lead: 'Silnik dokładnej matematyki dla agentów AI. Zamiast zgadywać wynik, agent zleca obliczenie i dostaje odpowiedź policzoną symbolicznie, w kilku znakach.',
         fakty: [
-          ['status', 'Publiczny na PyPI · wersja 0.4.0'],
+          ['status', 'Publiczny na PyPI · wersja 0.5.0'],
           ['licencja', 'MIT · Python 3.11+'],
           ['dostęp', 'Serwer MCP · REPL · wiersz poleceń'],
-          ['nowość', '0.4.0 sprawdza wyniki'],
+          ['nowość', '0.5.0 sprawdza matematykę w kodzie'],
         ],
         zrzut: null,
         pytania: [
           { q: 'Co potrafi policzyć?', a: 'Pochodne, całki, granice, szeregi i sumy, także nieskończone. Rozwiązuje równania i układy, liczy wartości własne macierzy, szuka minimów funkcji i rozwiązuje równania różniczkowe, symbolicznie i numerycznie. Ze wzoru potrafi wygenerować gotowy kod NumPy.' },
-          { q: 'Gdzie go wziąć?', a: 'Z PyPI: pip install pycodemath (wersja 0.4.0, Python 3.11 lub nowszy). Kod jest otwarty, na licencji MIT: github.com/cybersora9/pycodemath. Od wersji 0.4.0 umie sprawdzić wynik i odpowiedzieć: potwierdzony, obalony z kontrprzykładem albo nierozstrzygnięty.' },
+          { q: 'Gdzie go wziąć?', a: 'Z PyPI: pip install pycodemath (wersja 0.5.0, Python 3.11 lub nowszy). Kod jest otwarty, na licencji MIT: github.com/cybersora9/pycodemath. Od wersji 0.4.0 umie sprawdzić wynik i odpowiedzieć: potwierdzony, obalony z kontrprzykładem albo nierozstrzygnięty. Od 0.5.0 sprawdza też matematykę w kodzie: daje dowód albo przykład błędu.' },
         ],
       },
       soraflux: {
@@ -3937,6 +3971,11 @@
     }));
     btnClose.addEventListener('click', close);
     $('sproutBackdrop').addEventListener('click', close);
+    /* 02.11: „wstecz” zamyka karte. Strona zapisuje historie przez replaceState, wiec cofniecie
+       nie zawsze zmienia hash; stad tez popstate i powrot z pamieci przegladarki (pageshow). */
+    window.addEventListener('hashchange', close);
+    window.addEventListener('popstate', close);
+    window.addEventListener('pageshow', (e) => { if (e.persisted) close(); });
     btnPrev.addEventListener('click', () => render(idx - 1));
     btnNext.addEventListener('click', () => render(idx + 1));
 

@@ -59,4 +59,6 @@
 .sxb-znak{position:absolute;inset:0;opacity:0}
 .sxb-znak svg{position:absolute;left:50%;top:50%;width:min(56%,600px);height:auto;transform:translate(-50%,-50%);overflow:visible}
 .sxb-znak .sxp-duch{display:none}
+/* 02.11: kafel „Pulpit” tylko w szerokim pasku; na waskim ukladzie modulu (900 px kontenera) okno ma wlasne „wstecz” */
+@container sx (max-width:900px){[data-pulpit-kafel]{display:none!important}}
 @media (max-width:760px){.sxb{font-size:11px}.sxb-blk{grid-template-columns:repeat(24,minmax(0,1fr))}.sxb-blk b{grid-column:1/-1;text-align:left}}
