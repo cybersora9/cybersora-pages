@@ -9,8 +9,10 @@
   'use strict';
   if (window.__kotCzat) return; window.__kotCzat = 1;
 
-  // adres z Documents\Meshuga\GOTOWE_DLA_STRONY.md (03.11: artefakt makiety); na żywo docelowo cybersora.pl/meshuga
-  var APP = window.MESHUGA_APP != null ? window.MESHUGA_APP : 'https://claude.ai/artifact/WNnVCAxaRz3AVA7HJa58oR';
+  // Na żywo pusto = „Czatuj · wkrótce”: aplikacja Meshugi stoi na razie w prywatnym artefakcie claude.ai
+  // (w artefakcie strony adres to https://claude.ai/artifact/WNnVCAxaRz3AVA7HJa58oR); docelowo cybersora.pl/meshuga.
+  // Nie przez <script> w index.html: CSP strony (Cloudflare) nie wpuszcza skryptów wpisanych w HTML.
+  var APP = window.MESHUGA_APP != null ? window.MESHUGA_APP : '';
 
   var LS = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
