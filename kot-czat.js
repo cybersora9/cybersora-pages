@@ -12,7 +12,7 @@
   // Na żywo pusto = „Czatuj · wkrótce”: aplikacja Meshugi stoi na razie w prywatnym artefakcie claude.ai
   // (w artefakcie strony adres to https://claude.ai/artifact/WNnVCAxaRz3AVA7HJa58oR); docelowo cybersora.pl/meshuga.
   // Nie przez <script> w index.html: CSP strony (Cloudflare) nie wpuszcza skryptów wpisanych w HTML.
-  var APP = window.MESHUGA_APP != null ? window.MESHUGA_APP : '';
+  var APP = window.MESHUGA_APP != null ? window.MESHUGA_APP : '/meshuga/';
 
   var LS = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },

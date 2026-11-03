@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meshuga · AI Chatbot cybersory</title>
+<meta name="description" content="Meshuga, AI Chatbot cybersory: wycena programu, bota albo skryptu, brief w 5 pytaniach, darmowy skan widoczności i nasze projekty.">
+<link rel="canonical" href="https://cybersora.pl/meshuga/">
+<meta name="theme-color" content="#0e0e12">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/sora-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+<body>
+<style>
+@font-face{font-family:"Sora";src:url(/fonts/sora-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap;}@font-face{font-family:"Geist Mono";src:url(/fonts/geist-mono-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap;}
+/* Układ: lewy pasek (historia, Co umiem) + środek; pusty stan = kot w kółku, powitanie, pole-pigułka, karty startowe.
+   Cyberpunk wygładzony: miękkie rogi, kątowniki krew jako znaczniki, etykiety Geist Mono, bez poświaty. */
+:root {
+  --ink:#0e0e12; --krew:#e11d33; --hot:#ff3a52; --kosc:#f6f2f3;
+  --bg:var(--ink);
+  --surf:color-mix(in oklab, var(--ink) 93%, var(--kosc));
+  --surf2:color-mix(in oklab, var(--ink) 88%, var(--kosc));
+  --line:color-mix(in oklab, var(--ink) 80%, var(--kosc));
+  --fg:var(--kosc);
+  --fg2:color-mix(in oklab, var(--kosc) 70%, var(--ink));
+  --acc:var(--hot);
+  --kat:var(--krew);
+  --kod:color-mix(in oklab, var(--ink) 90%, var(--kosc));
+  --mk-futro:var(--ink); --mk-obrys:var(--kosc); --mk-disk:color-mix(in oklab, var(--ink) 90%, var(--kosc));
+  --f-sans:"Sora", "Segoe UI", system-ui, sans-serif;
+  --mono:"Geist Mono", ui-monospace, Consolas, monospace;
+  --r-l:22px; --r-m:14px; --r-s:10px;
+  --ease:cubic-bezier(.22,.8,.24,1);
+  color-scheme:dark;
+}
+:root[data-theme="light"] {
+  --bg:var(--kosc);
+  --surf:color-mix(in oklab, var(--kosc) 94%, var(--ink));
+  --surf2:color-mix(in oklab, var(--kosc) 89%, var(--ink));
+  --line:color-mix(in oklab, var(--kosc) 80%, var(--ink));
+  --fg:var(--ink);
+  --fg2:color-mix(in oklab, var(--ink) 72%, var(--kosc));
+  --acc:var(--krew);
+  --kod:color-mix(in oklab, var(--kosc) 90%, var(--ink));
+  --mk-disk:color-mix(in oklab, var(--kosc) 86%, var(--ink));
+  color-scheme:light;
+}
+html, body { height:100%; }
+body { margin:0; background:var(--bg); color:var(--fg); font:400 15px/1.55 var(--f-sans); -webkit-font-smoothing:antialiased; overflow:hidden; }
+button, input, textarea, select { font:inherit; color:inherit; }
+button { cursor:pointer; }
+:focus-visible { outline:2px solid var(--acc); outline-offset:2px; }
+.mono { font-family:var(--mono); letter-spacing:.04em; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* kątowniki: znaczniki w rogach zaokrąglonego kafla */
+.kat { position:relative; }
+.kat::after { content:""; position:absolute; inset:6px; pointer-events:none; --k:10px; --g:1.5px;
+  background:
+    linear-gradient(var(--kat),var(--kat)) top left/var(--k) var(--g) no-repeat,
+    linear-gradient(var(--kat),var(--kat)) top left/var(--g) var(--k) no-repeat,
+    linear-gradient(var(--kat),var(--kat)) top right/var(--k) var(--g) no-repeat,
+    linear-gradient(var(--kat),var(--kat)) top right/var(--g) var(--k) no-repeat,
+    linear-gradient(var(--kat),var(--kat)) bottom left/var(--k) var(--g) no-repeat,
+    linear-gradient(var(--kat),var(--kat)) bottom left/var(--g) var(--k) no-repeat,
+    linear-gradient(var(--kat),var(--kat)) bottom right/var(--k) var(--g) no-repeat,
+    linear-gradient(var(--kat),var(--kat)) bottom right/var(--g) var(--k) no-repeat;
+  opacity:.9; transition:inset .3s var(--ease); }
+
+/* ---------- kot (moduł meshuga-kot.js) ---------- */
+.mk { position:relative; aspect-ratio:1; display:grid; place-items:center; }
+.mk-ring-slot { position:absolute; inset:0; }
+.mk-ring { width:100%; height:100%; display:block; overflow:visible; }
+.mk-disk { position:absolute; inset:0; border-radius:50%; overflow:hidden; background:var(--mk-disk); }
+.mk-has-ring .mk-disk { inset:12%; }
+.mk-kot { position:absolute; left:4%; width:92%; bottom:0; overflow:visible; }
+.mk-obrys { stroke:var(--mk-obrys); opacity:.9; }
+.mk-wasy { stroke:var(--mk-obrys); opacity:.45; }
+.mk-futro { fill:var(--mk-futro); }
+.mk-oko { fill:var(--hot); transform-box:fill-box; transform-origin:center; transition:transform .25s var(--ease); }
+.mk-squint .mk-oko { transform:scaleY(.42); }
+.mk-blysk { fill:var(--kosc); opacity:0; }
+.mk-oczy { transition:transform .18s linear; }
+.mk-ucho-p { transform-box:fill-box; transform-origin:20% 100%; }
+.mk-krew { stroke:var(--krew); } .mk-kosc { stroke:var(--fg); } .mk-hot-f { fill:var(--hot); }
+
+/* ---------- szkielet ---------- */
+.app { height:100%; display:grid; grid-template-columns:272px 1fr; transition:grid-template-columns .35s var(--ease); }
+.app.zwiniety { grid-template-columns:76px 1fr; }
+
+/* lewy pasek */
+.pasek { background:var(--surf); display:flex; flex-direction:column; gap:6px; min-width:0; overflow:hidden; overflow:clip;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px)) max(12px, env(safe-area-inset-left,0px)); border-right:1px solid var(--line); }
+.pasek-gora { display:flex; align-items:center; gap:8px; min-height:48px; padding-left:4px; }
+.pasek-gora .mk { width:40px; flex:none; }
+.imie { font-weight:600; font-size:17px; letter-spacing:-.01em; white-space:nowrap; }
+.imie small { display:block; font:500 11px/1.2 var(--mono); color:var(--fg2); letter-spacing:.04em; text-transform:uppercase; }
+.ikonka { width:44px; height:44px; flex:none; display:grid; place-items:center; border-radius:12px; border:0; background:transparent; color:var(--fg2); transition:background .2s, color .2s; }
+.ikonka:hover { background:var(--surf2); color:var(--fg); }
+.ikonka svg { width:20px; height:20px; }
+.ikonka[hidden] { display:none; }
+.pasek-gora .zwin { margin-left:auto; }
+.poz { display:flex; align-items:center; gap:12px; min-height:44px; padding:0 12px 0 15.5px; border-radius:12px; border:0; background:transparent; color:var(--fg); text-align:left; width:100%; white-space:nowrap; transition:background .2s; }
+.poz:hover { background:var(--surf2); }
+.poz svg { width:20px; height:20px; flex:none; color:var(--fg2); }
+.poz.aktywna { background:var(--surf2); }
+.nowy { background:var(--bg); border:1px solid var(--line); margin-block:6px 2px; font-weight:600; padding-left:14.5px; }
+.nowy svg { color:var(--acc); }
+.szukaj { display:flex; align-items:center; gap:10px; min-height:44px; padding:0 12px 0 15.5px; border-radius:12px; background:var(--bg); border:1px solid var(--line); }
+.szukaj svg { width:18px; height:18px; color:var(--fg2); flex:none; }
+.szukaj input { border:0; background:transparent; outline:none; width:100%; min-width:0; font-size:14px; }
+.etyk { font:500 13px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--fg2); padding:16px 12px 6px; white-space:nowrap; }
+.historia { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:2px; min-height:0; scrollbar-width:thin; }
+.historia .poz { font-size:14px; color:var(--fg2); }
+.historia .poz.aktywna, .historia .poz:hover { color:var(--fg); }
+.historia .poz span { overflow:hidden; text-overflow:ellipsis; }
+.historia .tag { font:500 13px var(--mono); color:var(--acc); margin-left:auto; flex:none; }
+.pusto { font-size:13px; color:var(--fg2); padding:4px 12px; white-space:normal; }
+.pasek-dol { display:flex; flex-direction:column; gap:2px; border-top:1px solid var(--line); padding-top:8px; }
+.pasek-dol a.poz { text-decoration:none; color:var(--fg2); font-size:14px; }
+/* zwijanie paska (uwaga maisy 03.11: płynniej): animuje się tylko szerokość kolumny, ikony stoją w tym samym miejscu
+   (środek ikony = środek wąskiej kolumny, 37,5 px), napisy gasną, kot w pasku chowa się szerokością, szukajka zostaje jako ikona */
+.pasek .ukr, .szukaj input { transition:opacity .2s var(--ease); }
+.pasek-gora .mk-mini { transition:width .35s var(--ease), opacity .2s; }
+.zwiniety .pasek .ukr, .zwiniety .szukaj input { opacity:0; pointer-events:none; }
+.pasek-gora { transition:padding .35s var(--ease); }
+.zwiniety .pasek-gora { gap:0; padding-left:0; }
+.zwiniety .pasek-gora .zwin { margin-left:3.5px; }
+.zwiniety .pasek-gora .mk-mini { width:0 !important; opacity:0; }
+.pasek-gora .imie { max-width:180px; min-width:0; overflow:hidden; transition:max-width .35s var(--ease), opacity .2s; }
+.zwiniety .pasek-gora .imie { max-width:0; }
+.zwiniety .szukaj { cursor:pointer; }
+.zwiniety .historia { visibility:hidden; }
+
+/* środek */
+.glowny { position:relative; display:flex; flex-direction:column; min-width:0; height:100%; overflow:hidden; }
+.tlo { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.tlo canvas, .tlo svg { position:absolute; inset:0; width:100%; height:100%; }
+.tlo-kod { -webkit-mask-image:linear-gradient(to top, #000 10%, transparent 85%); mask-image:linear-gradient(to top, #000 10%, transparent 85%); }
+.app:not(.pusty) .tlo-kod { opacity:0; transition:opacity .6s; }
+.gorny { position:relative; z-index:3; display:flex; align-items:center; gap:10px; min-height:60px; padding:env(safe-area-inset-top,0px) max(16px, env(safe-area-inset-right,0px)) 0 max(16px, env(safe-area-inset-left,0px)); }
+.menu-tel { display:none; }
+.tryb-info { font:500 13px var(--mono); color:var(--fg2); letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
+.seg { display:flex; flex:none; background:var(--surf); border:1px solid var(--line); border-radius:999px; padding:3px; gap:2px; align-items:center; }
+.seg > span { font:500 13px var(--mono); color:var(--fg2); padding:0 6px 0 8px; letter-spacing:.06em; }
+.seg button { border:0; background:transparent; min-width:34px; min-height:34px; border-radius:999px; font:500 13px var(--mono); color:var(--fg2); padding:0 10px; }
+.seg button[aria-pressed="true"] { background:var(--fg); color:var(--bg); }
+.kontakt-btn { flex:none; margin-left:auto; min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--line); background:var(--surf); font-weight:600; font-size:14px; }
+.kontakt-btn:hover { border-color:var(--fg2); }
+
+.cialo { position:relative; z-index:2; flex:1; display:flex; flex-direction:column; min-height:0; }
+.przewijak { flex:1; overflow-y:auto; min-height:0; scrollbar-width:thin; }
+.kolumna { width:min(760px, 100%); margin-inline:auto; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); box-sizing:border-box; }
+
+/* pusty stan */
+.hero { display:none; flex-direction:column; align-items:center; text-align:center; gap:18px; padding-block:24px 22px; }
+.pusty .hero { display:flex; }
+.pusty .przewijak { flex:0 1 auto; margin-top:auto; }
+.pusty .karty-wrap { margin-bottom:auto; }
+.hero .mk { width:min(188px, 44vw); }
+.brw { font:500 13px var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--fg2); display:flex; gap:10px; align-items:center; }
+.brw b { color:var(--acc); font-weight:600; }
+.hero h1 { margin:0; font-weight:600; font-size:clamp(30px, 5.4vw, 48px); line-height:1.08; letter-spacing:-.03em; text-wrap:balance; }
+.hero h1 em { font-style:normal; color:var(--acc); }
+/* święta (1.11–6.01): choinka z kodu obok kota, śnieg z kodu w tle, napis pod powitaniem; bez poświaty */
+.kot-scena { position:relative; display:grid; place-items:center; }
+.choinka { position:absolute; bottom:0; margin:0; font:500 12px/1.15 var(--mono); color:var(--fg2); white-space:pre; text-align:left; pointer-events:none; user-select:none; }
+.choinka.p { left:calc(100% + 22px); }
+.choinka i { font-style:normal; color:var(--krew); }
+.choinka i.hot, .choinka .gw { color:var(--hot); }
+.choinka i:nth-of-type(3n) { animation:migaj 2.6s steps(1) infinite; }
+.choinka i:nth-of-type(3n+1) { animation:migaj 3.4s steps(1) .9s infinite; }
+@keyframes migaj { 50% { opacity:.3; } }
+.bez-ruchu .choinka i { animation:none; }
+.swieta-napis { margin:-6px 0 0; font-size:16px; color:var(--fg2); }
+.swieta-napis em { font-style:normal; color:var(--acc); }
+.swieta-napis[hidden] { display:none; }
+.tlo-snieg { -webkit-mask-image:linear-gradient(to bottom, #000 55%, transparent 100%); mask-image:linear-gradient(to bottom, #000 55%, transparent 100%); }
+.app:not(.pusty) .tlo-snieg { opacity:0; transition:opacity .6s; }
+/* latające płatki (święta, prośba maisy 03.11): warstwa za treścią, cały ekran, 4 kolory; w rozmowie gasną jak śnieg z kodu */
+.platki-lot { position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden; transition:opacity .6s; }
+.app:not(.pusty) .platki-lot { opacity:0; }
+.platek-lot { position:absolute; left:0; top:0; overflow:visible; will-change:transform; }
+.k-czerw { --p-ram:var(--krew); --p-kon:var(--hot); --p-hex:var(--krew); --p-sr:var(--hot); --p-orb:var(--krew); }
+.k-bialy { --p-ram:var(--fg); --p-kon:var(--fg); --p-hex:var(--fg); --p-sr:var(--krew); --p-orb:var(--fg2); }
+.k-czb { --p-ram:var(--krew); --p-kon:var(--fg); --p-hex:var(--fg); --p-sr:var(--krew); --p-orb:var(--fg2); }
+.k-bcz { --p-ram:var(--fg); --p-kon:var(--krew); --p-hex:var(--krew); --p-sr:var(--hot); --p-orb:var(--krew); }
+
+/* pole-pigułka */
+.pole-wrap { padding-block:6px 4px; }
+.pole { background:var(--surf); border:1px solid var(--line); border-radius:28px; padding:10px 10px 8px 18px; display:flex; flex-direction:column; gap:6px; transition:border-color .2s; }
+.pole:focus-within { border-color:color-mix(in oklab, var(--line) 40%, var(--fg2)); }
+.pole textarea { resize:none; border:0; outline:0; background:transparent; font-size:16px; line-height:1.5; max-height:200px; min-height:26px; padding:6px 4px 2px 0; }
+.pole textarea::placeholder { color:var(--fg2); }
+.pole-dol { display:flex; align-items:center; gap:6px; }
+.pole-dol .ikonka { width:44px; height:44px; border-radius:50%; }
+.tryb { position:relative; margin-left:auto; }
+.tryb > button { min-height:44px; display:flex; align-items:center; gap:6px; padding:0 14px; border-radius:999px; border:0; background:transparent; color:var(--fg2); font-size:14px; font-weight:500; }
+.tryb > button:hover { background:var(--surf2); color:var(--fg); }
+.tryb > button svg { width:14px; height:14px; }
+.menu { position:absolute; right:0; bottom:calc(100% + 8px); min-width:250px; background:var(--surf); border:1px solid var(--line); border-radius:var(--r-m); padding:6px; z-index:20; box-shadow:0 18px 40px -18px rgb(0 0 0 / .6); }
+.menu button { display:grid; grid-template-columns:1fr auto; gap:2px 10px; width:100%; text-align:left; border:0; background:transparent; padding:10px 12px; border-radius:10px; min-height:44px; }
+.menu button:hover { background:var(--surf2); }
+.menu b { font-weight:600; font-size:14px; }
+.menu small { grid-column:1; font-size:13px; color:var(--fg2); }
+.menu .ok { grid-row:1 / span 2; grid-column:2; align-self:center; color:var(--acc); visibility:hidden; font-family:var(--mono); }
+.menu button[aria-checked="true"] .ok { visibility:visible; }
+.wyslij { width:44px; height:44px; border-radius:50%; border:0; display:grid; place-items:center; background:var(--fg); color:var(--bg); transition:opacity .2s, transform .2s var(--ease); }
+.wyslij:disabled { opacity:.35; cursor:default; }
+.wyslij svg { width:18px; height:18px; }
+.stopka { text-align:center; font-size:13px; color:var(--fg2); padding:6px 0 12px; }
+.stopka .demo { color:var(--acc); font-family:var(--mono); font-size:13px; letter-spacing:.06em; }
+/* zrzut do oceny: chip nad polem, upuszczanie */
+.zal { display:flex; align-items:center; gap:10px; align-self:flex-start; max-width:100%; background:var(--bg); border:1px solid var(--line); border-radius:var(--r-s); padding:6px 6px 6px 6px; margin-top:2px; }
+.zal img { width:44px; height:44px; object-fit:cover; border-radius:6px; flex:none; background:var(--surf2); }
+.zal-opis { min-width:0; display:flex; flex-direction:column; }
+.zal-opis b { font-weight:500; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.zal-opis span { font:500 13px var(--mono); color:var(--fg2); letter-spacing:.04em; }
+.zal .ikonka { width:36px; height:36px; }
+.zal[hidden] { display:none; }
+.pusty.ma-zal .karty-wrap { display:none; }
+.pole.upuszczam { border-color:var(--acc); border-style:dashed; }
+.msg-u .zrzut-et { display:block; font:500 13px var(--mono); letter-spacing:.06em; color:var(--fg2); margin-top:6px; }
+
+/* karty startowe */
+.karty-wrap { display:none; padding-block:10px 24px; }
+.pusty .karty-wrap { display:block; }
+.karty { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; }
+.karta { background:var(--surf); border:1px solid var(--line); border-radius:var(--r-m); padding:16px 16px 14px; text-align:left; display:flex; flex-direction:column; gap:10px; min-height:118px; transition:border-color .2s, transform .25s var(--ease), background .2s; }
+.karta:hover { border-color:color-mix(in oklab, var(--line) 30%, var(--fg2)); transform:translateY(-2px); }
+.karta:hover::after { inset:4px; }
+.karta .kod { font:500 13px var(--mono); letter-spacing:.1em; color:var(--acc); }
+.karta .q { font-size:15px; font-weight:500; line-height:1.35; }
+.karta:active { transform:scale(.97); transition:transform .1s ease-out; }
+/* karta-widget (wybór maisy 03.11: wariant 2); cień neutralny, bez poświaty */
+.karty .karta { --cien:0 1px 0 rgb(255 255 255 / .06) inset, 0 12px 28px -18px rgb(0 0 0 / .75); }
+:root[data-theme="light"] .karty .karta { --cien:0 1px 0 rgb(255 255 255 / .7) inset, 0 10px 24px -16px rgb(14 14 18 / .28); }
+.karty .karta { border-radius:22px; border:0; background:linear-gradient(180deg, var(--surf2), var(--surf)); box-shadow:0 0 0 1px color-mix(in oklab, var(--fg) 8%, transparent), var(--cien); padding:16px 16px 16px; min-height:150px; position:relative; transition:transform .35s cubic-bezier(.2,.9,.3,1.15), box-shadow .2s; }
+.karty .karta:hover { transform:translateY(-3px); box-shadow:0 0 0 1px color-mix(in oklab, var(--krew) 45%, transparent), var(--cien); }
+.karty .karta .ik { display:block; color:var(--krew); width:34px; height:34px; }
+.karty .karta .ik svg { width:34px; height:34px; }
+.karty .karta .gora { display:flex; align-items:flex-start; justify-content:space-between; }
+.karty .karta .nr { display:block; font:500 13px var(--mono); color:var(--fg2); letter-spacing:.08em; }
+.karty .karta .kod { margin-top:auto; font-size:13px; }
+.karty .karta .q { font-size:15px; }
+.karty .karta .str { display:block; position:absolute; right:16px; top:16px; color:var(--acc); opacity:0; transform:translate(-4px, 4px); transition:opacity .2s, transform .3s var(--ease); }
+.karty .karta .str svg { width:18px; height:18px; }
+.karty .karta .nr { transition:opacity .2s; }
+.karty .karta:hover .str { opacity:1; transform:none; }
+.karty .karta:hover .nr { opacity:0; }
+.karty { grid-auto-rows:1fr; }
+/* do 860 px (tablet i telefon) albo niskie okno: karty zwarte, bez rzędu z ikoną, żeby powitanie się mieściło */
+@media (max-width: 860px), (max-height: 720px) {
+  .karty .karta { min-height:0; gap:8px; padding:14px; }
+  .karty .karta .gora, .karty .karta .str { display:none; }
+  .karty .karta .kod { margin-top:0; }
+}
+.karty .karta.kat::after { --k:10px; background:linear-gradient(var(--kat),var(--kat)) top right/var(--k) var(--g) no-repeat, linear-gradient(var(--kat),var(--kat)) top right/var(--g) var(--k) no-repeat; inset:10px; opacity:0; }
+
+/* rozmowa */
+.feed { display:flex; flex-direction:column; gap:22px; padding-block:18px 12px; }
+.pusty .feed { display:none; }
+.msg-u { align-self:flex-end; max-width:min(560px, 86%); background:var(--surf2); padding:12px 16px; border-radius:20px 20px 6px 20px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.msg-m { display:grid; grid-template-columns:40px minmax(0,1fr); gap:14px; align-items:start; }
+.msg-m .mk { width:40px; }
+.msg-m .tekst { padding-top:6px; overflow-wrap:anywhere; }
+.tekst p { margin:0 0 10px; } .tekst p:last-child { margin-bottom:0; }
+.tekst ul { margin:0 0 10px; padding-left:20px; } .tekst li { margin:2px 0; } .tekst li::marker { color:var(--acc); }
+.tekst strong { font-weight:600; }
+.myśli, .mysli { color:var(--fg2); font:500 13px var(--mono); letter-spacing:.08em; display:flex; align-items:center; gap:8px; padding-top:9px; }
+.mysli i { width:6px; height:6px; border-radius:2px; background:var(--acc); display:inline-block; animation:puls 1s infinite ease-in-out; }
+.mysli i:nth-child(2) { animation-delay:.15s; } .mysli i:nth-child(3) { animation-delay:.3s; }
+@keyframes puls { 0%,100% { opacity:.25; transform:scale(.8);} 50% { opacity:1; transform:scale(1);} }
+.akcje { display:flex; gap:4px; margin-top:8px; }
+.akcje .ikonka { width:40px; height:40px; }
+.akcje .ikonka svg { width:17px; height:17px; }
+.blad { color:var(--fg2); font-size:14px; border-left:2px solid var(--acc); padding-left:10px; margin-top:8px; }
+
+/* karty akcji w odpowiedzi */
+.ak-karty { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:10px; margin-top:14px; }
+.ak { background:var(--surf); border:1px solid var(--line); border-radius:var(--r-m); padding:16px 18px; display:flex; flex-direction:column; gap:6px; }
+.ak .kod { font:500 13px var(--mono); letter-spacing:.1em; color:var(--acc); }
+.ak h3 { margin:0; font-size:16px; font-weight:600; }
+.ak p { margin:0; font-size:14px; color:var(--fg2); }
+.ak .cena { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-top:4px; }
+.ak .cena b { font-size:22px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.ak .cena span { font:500 13px var(--mono); color:var(--fg2); }
+.ak .fakty { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:13px; margin-top:4px; }
+.ak .fakty dt { font-family:var(--mono); color:var(--fg2); text-transform:uppercase; letter-spacing:.06em; font-size:13px; padding-top:1px; }
+.ak .fakty dd { margin:0; }
+.ak .rzad { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.btn { min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--line); background:var(--bg); font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--fg); }
+.btn.pelny { background:var(--fg); color:var(--bg); border-color:var(--fg); }
+.ak textarea { width:100%; box-sizing:border-box; min-height:88px; resize:vertical; background:var(--bg); border:1px solid var(--line); border-radius:var(--r-s); padding:10px 12px; font-size:14px; }
+.ak .adres { font-family:var(--mono); font-size:14px; user-select:all; }
+
+/* log kroków (prawdziwe kroki strony, nie udawane myślenie) */
+.log { font:500 13px/1.55 var(--mono); color:var(--fg2); }
+.log:empty { display:none; }
+.log ol { list-style:none; margin:0; padding:0; }
+.log li { display:flex; gap:8px; }
+.log li::before { content:'>'; color:var(--acc); }
+.log li.ok::after { content:'✓'; color:var(--acc); margin-left:auto; padding-left:12px; }
+.log .zyw { padding-top:9px; }
+.log .zyw li:last-child:not(.ok) span::after { content:'_'; animation:kursor 1s steps(1) infinite; }
+@keyframes kursor { 50% { opacity:0; } }
+.log details { margin-bottom:6px; }
+.log summary { cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:8px; min-height:32px; letter-spacing:.08em; border-radius:999px; padding:0 12px 0 10px; border:1px solid var(--line); }
+.log summary::-webkit-details-marker { display:none; }
+.log summary::before { content:''; width:6px; height:6px; border-radius:2px; background:var(--acc); }
+.log summary:hover { color:var(--fg); }
+.log details[open] summary { margin-bottom:8px; }
+.log details ol { padding-left:4px; max-width:46ch; }
+
+/* kalkulator wyceny */
+.kalk { grid-column:1 / -1; gap:12px; }
+.kalk .gr { display:flex; flex-direction:column; gap:8px; }
+.kalk .et { font:500 13px var(--mono); letter-spacing:.1em; color:var(--fg2); }
+.kalk .opcje { display:flex; flex-wrap:wrap; gap:6px; }
+.kalk .opcje button { min-height:40px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--fg); font-size:14px; font-weight:500; display:inline-flex; align-items:center; gap:8px; transition:background .15s, border-color .15s; }
+.kalk .opcje button small { font:500 13px var(--mono); color:var(--fg2); }
+.kalk .opcje button[aria-pressed="true"] { border-color:var(--krew); background:color-mix(in srgb, var(--krew) 14%, var(--bg)); }
+.kalk .opcje button[aria-pressed="true"] small { color:var(--fg); }
+.kalk .suma { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:12px; }
+.kalk .suma b { font-size:28px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.kalk .suma span { font:500 13px var(--mono); color:var(--fg2); }
+.kalk .uwaga { font-size:13px; }
+@media (max-width: 560px) {
+  /* telefon: 2 pozycje w wierszu, cena pod nazwą */
+  .kalk .opcje { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .kalk .opcje button { flex-direction:column; align-items:flex-start; justify-content:center; gap:1px; min-height:48px; padding:6px 12px; border-radius:var(--r-s); text-align:left; line-height:1.25; }
+  .kalk .opcje button span { font-size:13.5px; }
+  .kalk .opcje button small { font-size:12px; }
+  .kalk .suma b { font-size:24px; }
+  .kalk .uwaga { font-size:12.5px; }
+  /* karty w odpowiedzi na całą szerokość, pod awatarem (40 px + 14 px odstępu) */
+  .msg-m .ak-karty { margin-left:-54px; }
+}
+
+/* brief w 5 pytaniach */
+.krok-brief { font:500 13px var(--mono); letter-spacing:.1em; color:var(--acc); margin-bottom:4px; }
+.brief .pola { display:grid; gap:8px; margin-top:4px; }
+.brief label { display:grid; gap:4px; }
+.brief label span { font:500 13px var(--mono); letter-spacing:.08em; color:var(--fg2); text-transform:uppercase; }
+.brief textarea { min-height:0; }
+
+/* komendy „/” nad polem */
+.pole { position:relative; }
+.slash { position:absolute; left:0; right:0; bottom:calc(100% + 8px); background:var(--surf); border:1px solid var(--line); border-radius:var(--r-m); padding:6px; z-index:25; box-shadow:0 18px 40px -18px rgb(0 0 0 / .6); }
+.slash button { display:grid; grid-template-columns:7.5em 1fr; align-items:center; gap:10px; width:100%; min-height:44px; padding:0 12px; border:0; border-radius:10px; background:transparent; text-align:left; }
+.slash button b { font:600 14px var(--mono); color:var(--acc); letter-spacing:.02em; }
+.slash button span { font-size:14px; color:var(--fg2); }
+.slash button[aria-selected="true"] { background:var(--surf2); }
+.slash button[aria-selected="true"] span { color:var(--fg); }
+.slash .skrot { font:500 12px var(--mono); color:var(--fg2); padding:6px 12px 2px; letter-spacing:.06em; }
+
+/* mikrofon */
+#mikro[aria-pressed="true"] { background:var(--acc); color:var(--bg); }
+#mikro.brak, #plus.brak { opacity:.4; }
+.oglad { color:var(--fg2); font:500 13px var(--mono); letter-spacing:.06em; }
+
+/* Co umiem */
+.umiem { display:none; padding-block:24px 40px; }
+.app.widok-umiem .umiem { display:block; }
+.app.widok-umiem .hero, .app.widok-umiem .feed, .app.widok-umiem .karty-wrap, .app.widok-umiem .pole-wrap { display:none; }
+.umiem h2 { font-size:28px; letter-spacing:-.02em; margin:6px 0 18px; font-weight:600; }
+.umiem-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; }
+.umiem .ak p { color:var(--fg); }
+/* płatek: canvas pod kartami, slot trzyma miejsce, więc nic na siebie nie nachodzi */
+.umiem-scena { position:relative; }
+.umiem-scena > canvas { position:absolute; left:0; top:-40px; width:100%; height:calc(100% + 80px); pointer-events:none; z-index:0; }
+.umiem-scena .ak { position:relative; z-index:1; background:var(--surf); }
+.platek-slot { min-height:200px; }
+.umiem-scena .umiem-grid { grid-template-columns:minmax(0,1fr) 196px minmax(0,1fr); }
+.umiem-scena .platek-slot { grid-column:2; grid-row:1 / span 2; }
+.umiem-scena .ak:nth-of-type(odd) { grid-column:1; }
+.umiem-scena .ak:nth-of-type(even) { grid-column:3; }
+.umiem .nie { margin-top:22px; color:var(--fg2); font-size:14px; }
+.umiem .nie ul { padding-left:20px; }
+
+/* panele: kontakt, ustawienia */
+.panel { box-sizing:border-box; position:absolute; z-index:30; background:var(--surf); border:1px solid var(--line); border-radius:var(--r-l); padding:20px; width:min(340px, calc(100vw - 32px)); box-shadow:0 24px 60px -24px rgb(0 0 0 / .7); }
+.panel h3 { margin:0 0 4px; font-size:17px; }
+.panel p { margin:0 0 12px; color:var(--fg2); font-size:14px; }
+.panel-kontakt { top:calc(64px + env(safe-area-inset-top,0px)); right:max(16px, env(safe-area-inset-right,0px)); }
+.panel-ust { left:12px; bottom:calc(60px + env(safe-area-inset-bottom,0px)); }
+.wiersz { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; border-top:1px solid var(--line); font-size:14px; }
+.wiersz:first-of-type { border-top:0; }
+.wiersz .seg button { min-height:36px; font-family:var(--f-sans); font-size:13px; }
+.zaslona { display:none; }
+
+/* konto cybersory (decyzje maisy 03.11: jedno konto strona + gra + Meshuga, opcjonalne; profil na dole paska, wybór A) */
+.awatar { width:24px; height:24px; border-radius:50%; flex:none; display:grid; place-items:center; overflow:hidden; background:color-mix(in oklab, var(--krew) 26%, var(--surf2)); color:var(--fg); font:600 12px/1 var(--mono); text-transform:uppercase; }
+.awatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.awatar svg { width:62%; height:62%; }
+.awatar.gosc { background:var(--surf2); color:var(--fg2); }
+.konto-poz { padding-left:13.5px; }
+.konto-txt { display:flex; flex-direction:column; line-height:1.2; min-width:0; }
+.konto-txt b { font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; }
+.konto-txt small { font:500 11px var(--mono); color:var(--fg2); letter-spacing:.06em; text-transform:uppercase; }
+.panel-konto { left:12px; bottom:calc(112px + env(safe-area-inset-bottom,0px)); }
+.kp-gora { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+.kp-gora .awatar { width:44px; height:44px; font-size:18px; }
+.kp-gora h3 { margin:0; }
+.kp-gora p { margin:0; font:500 12px var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+.okno-tlo { position:fixed; inset:0; z-index:60; background:rgb(0 0 0 / .55); display:grid; place-items:center; padding:16px; }
+.okno-tlo[hidden] { display:none; }
+.okno { box-sizing:border-box; position:relative; width:min(400px, 100%); min-width:0; max-height:calc(100dvh - 32px); overflow:auto; background:var(--surf); border:1px solid var(--line); border-radius:var(--r-l); padding:22px; box-shadow:0 30px 80px -30px rgb(0 0 0 / .8); }
+.okno h3 { margin:0 0 4px; font-size:20px; letter-spacing:-.01em; }
+.okno p { margin:0 0 10px; font-size:14px; color:var(--fg2); }
+.zakladki { display:flex; gap:4px; background:var(--bg); border:1px solid var(--line); border-radius:999px; padding:3px; margin:14px 0; }
+.zakladki button { flex:1; min-height:38px; border:0; border-radius:999px; background:transparent; color:var(--fg2); font-weight:600; font-size:14px; }
+.zakladki button[aria-selected="true"] { background:var(--fg); color:var(--bg); }
+.zakladki[hidden] { display:none; }
+.pole-f { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; font-size:14px; font-weight:500; }
+.pole-f[hidden] { display:none; }
+.pole-f input { box-sizing:border-box; width:100%; min-width:0; min-height:44px; border-radius:12px; border:1px solid var(--line); background:var(--bg); padding:0 14px; font-size:16px; color:var(--fg); }
+.pole-f input:focus-visible { outline:2px solid var(--acc); outline-offset:1px; }
+.okno .blad { color:var(--hot); font-size:14px; min-height:20px; margin:0 0 8px; }
+.okno .blad:empty { border-left-color:transparent; }
+.okno .rzad { display:flex; gap:8px; flex-wrap:wrap; }
+.okno .linkowy { background:none; border:0; color:var(--fg2); text-decoration:underline; padding:0; margin-top:10px; font-size:13px; min-height:32px; }
+.okno .linkowy[hidden], .okno form[hidden], .okno #kKodEkran[hidden], .makieta-info[hidden] { display:none; }
+.kod-odz { font:600 20px var(--mono); letter-spacing:.12em; padding:14px; border:1px dashed var(--acc); border-radius:12px; text-align:center; margin:12px 0; user-select:all; color:var(--fg); }
+.makieta-info { font:500 12px var(--mono); color:var(--acc); letter-spacing:.06em; margin:20px 0 0; }
+
+/* telefon */
+@media (max-width: 860px) {
+  .app, .app.zwiniety { grid-template-columns:1fr; }
+  .pasek { position:fixed; inset:0 auto 0 0; width:min(300px, 86vw); z-index:40; transform:translateX(-102%); transition:transform .35s var(--ease); box-shadow:0 0 60px rgb(0 0 0 / .5); }
+  .app.szuflada .pasek { transform:none; }
+  .app.szuflada .zaslona { display:block; position:fixed; inset:0; background:rgb(0 0 0 / .5); z-index:35; }
+  .zwiniety .pasek .ukr, .zwiniety .szukaj input { opacity:1; pointer-events:auto; }
+  .zwiniety .pasek-gora { gap:10px; }
+  .zwiniety .pasek-gora .mk-mini { width:40px !important; opacity:1; }
+  .zwiniety .pasek-gora .imie { max-width:180px; }
+  .zwiniety .historia { visibility:visible; }
+  .pasek .zwin { display:none; }
+  .menu-tel { display:grid; }
+  .karty { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .umiem-grid, .umiem-scena .umiem-grid { grid-template-columns:1fr; }
+  .umiem-scena .platek-slot { grid-column:1 !important; grid-row:1 !important; min-height:180px; }
+  .umiem-scena .ak { grid-column:1 !important; }
+  .gorny .tryb-info { display:none; }
+  .kontakt-btn { padding:0 12px; }
+  .panel-ust { left:12px; }
+  /* szuflada paska ma z-index 40: panele otwierane z niej muszą leżeć wyżej, inaczej są pod spodem i nie da się w nie kliknąć */
+  .panel-ust, .panel-konto { z-index:45; }
+  .cialo { padding-bottom:var(--kb, 0px); }
+  .pusty .karty-wrap { order:1; margin-bottom:0; }
+  .pusty .pole-wrap { order:2; margin-top:auto; }
+  .pusty .przewijak { order:0; margin-top:0; flex:1 1 auto; }
+  .pusty .hero { padding-block:12px 4px; gap:12px; }
+  .karta { min-height:0; padding:12px 14px; }
+  .karta .q { font-size:14px; }
+  .pole-wrap { padding-bottom:max(6px, env(safe-area-inset-bottom,0px)); }
+  .stopka { padding-bottom:4px; }
+}
+@media (max-width: 420px) {
+  .hero .mk { width:120px; }
+  .hero h1 { font-size:28px; }
+  .choinka { font-size:9px; }
+  .choinka.p { left:calc(100% + 12px); }
+  .swieta-napis { font-size:14px; margin-top:-2px; }
+  .swieta.pusty .hero { gap:8px; padding-top:6px; }
+  .swieta .hero .mk { width:112px; }
+  .kontakt-btn .dl { display:none; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition:none !important; animation:none !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><g id="ikZestaw"><path fill="#fff" d="M 2811.45 2642.2 C 2822.46 2652.47 2837.92 2663.94 2850.72 2671.67 C 2847.56 2676.17 2844.48 2680.73 2841.29 2685.2 C 2800.13 2742.86 2776.22 2807.65 2776.69 2879 C 2777.19 2954.96 2802.51 3018.26 2854.87 3073.12 C 2862.95 3081.58 2871.41 3089.66 2879.46 3098.15 C 2899.75 3119.59 2917.11 3143.97 2929.32 3170.92 C 2943.99 3203.29 2946.57 3225.08 2948.5 3259.99 L 3035.43 3259.74 L 3034.79 3003.46 L 2966.84 2936.04 C 2954.9 2941.35 2942.46 2945.88 2929.57 2940.73 C 2882.14 2921.77 2900.4 2854.86 2948 2859.57 C 2973.6 2862.1 2994.82 2894.66 2981.25 2918.03 C 2980.38 2919.54 2979.39 2920.98 2978.44 2922.44 C 2998.3 2934.09 3012.48 2953.21 3030.38 2967.7 C 3047.56 2955.22 3062.97 2940.25 3075.8 2923.32 C 3071.21 2914.07 3067.42 2906.57 3069.15 2896 C 3075.62 2856.62 3125.63 2847.18 3146.46 2881.15 C 3157.71 2899.49 3151.76 2914.94 3138.76 2929.93 C 3141.34 2932 3144.07 2933.9 3146.41 2936.24 C 3146.42 2936.25 3148.07 2937.93 3148.08 2937.94 C 3158.17 2948.52 3167.87 2959.22 3178.36 2969.44 C 3194.57 2951.32 3213.56 2935.93 3232.65 2920.88 C 3232.27 2919.82 3231.89 2918.77 3231.52 2917.72 C 3223.61 2895.15 3231.68 2871.64 3254.5 2862.03 C 3277.24 2852.45 3304.71 2866.06 3309.82 2890 C 3316.22 2919.93 3295.3 2944.51 3264.5 2941.08 C 3254.61 2939.98 3252.48 2937.9 3244.19 2934.44 L 3173.79 2999.85 L 3174.29 3260.05 L 3261.15 3260.49 C 3260.94 3205.24 3286.49 3144.06 3323.27 3103.59 C 3334.73 3090.98 3347.25 3079.37 3358.84 3066.87 C 3422.34 2998.39 3443.57 2900.53 3423.64 2810 C 3421.71 2801.25 3419.5 2792.56 3417.26 2783.88 L 3462.38 2762.42 C 3464.02 2767.36 3465.91 2772.21 3467.47 2777.18 C 3481.27 2821.13 3484.35 2869.36 3478.97 2915 C 3470.69 2985.18 3445.61 3048.87 3397.46 3101.45 C 3397.45 3101.45 3395.09 3104.05 3395.09 3104.05 C 3382.43 3118.07 3368.74 3131.07 3356.05 3145.02 C 3356.05 3145.03 3354.45 3146.82 3354.45 3146.82 C 3324.77 3180.97 3312.93 3225.86 3309.66 3270.02 C 3305.81 3269.18 3301.96 3268.31 3298.06 3267.71 C 3296.99 3268.45 3295.95 3269.25 3294.81 3269.87 C 3292.35 3271.21 3291.52 3273.13 3293.39 3275.5 C 3294.69 3277.15 3295.15 3278.7 3295.9 3280.66 C 3296.34 3281.33 3296.73 3281.83 3297.31 3282.4 C 3311.87 3296.66 3316.21 3314.04 3315.96 3334 C 3315.74 3351.48 3312.71 3362.28 3299.61 3373.87 C 3307.64 3381.89 3311.15 3387.6 3313.23 3399 C 3317.61 3422.9 3314.3 3450.98 3295.94 3468.48 C 3280.88 3482.84 3263.31 3487.15 3243.08 3486.75 C 3242.59 3489.83 3242.2 3492.92 3241.69 3496 C 3233.42 3545.91 3189.21 3589.05 3140.58 3600.38 C 3064.87 3618.02 2989.83 3578.24 2968.24 3502.49 C 2966.83 3497.54 2966.42 3492.85 2965.43 3487.91 C 2960.38 3487.73 2955.51 3487.6 2950.5 3486.96 C 2921.27 3483.23 2898.31 3459.28 2895.14 3430 C 2893.13 3411.41 2893.44 3390.55 2907.45 3376.46 C 2908.51 3375.39 2909.61 3374.35 2910.7 3373.3 C 2902.88 3365.08 2896.25 3357.16 2895.01 3345.5 C 2892.06 3317.94 2894.46 3295.3 2916.32 3276.32 C 2918.73 3274.23 2921.18 3272.18 2923.6 3270.11 L 2901.26 3267.6 C 2900.76 3264.06 2900.23 3260.56 2899.79 3257 C 2893.98 3209.91 2877.99 3172.54 2845.98 3137.51 C 2818.99 3107.98 2799.66 3093.13 2777.21 3056.95 C 2734.54 2988.19 2717.83 2912.09 2729.27 2832 C 2739.26 2762.13 2764.38 2695.78 2811.45 2642.2 z"/><path fill="#000" d="M 3274.57 3265.09 C 3282.42 3265.76 3290.31 3266.27 3298.06 3267.71 C 3296.99 3268.45 3295.95 3269.25 3294.81 3269.87 C 3292.35 3271.21 3291.52 3273.13 3293.39 3275.5 C 3294.69 3277.15 3295.15 3278.7 3295.9 3280.66 C 3293.91 3279.12 3291.97 3277.53 3289.99 3275.97 C 3285 3272.03 3279.87 3268.58 3274.57 3265.09 z"/><path fill="#000" d="M 3091.38 2936.29 C 3103.87 2944.17 3108.01 2942.35 3124.75 2940.88 C 3135.74 2955.98 3154.69 2972 3167.85 2983.3 C 3162.77 2986.25 3157.82 2989.42 3153.55 2993.45 C 3151.8 3009.22 3152.91 3027.86 3152.96 3043.5 C 3153.18 3115.56 3152.1 3187.7 3153.46 3259.74 L 3055.44 3260.03 C 3055.32 3176.02 3056.54 3092.01 3055.94 3008 C 3055.9 3002.62 3055.6 2997.24 3054.75 2991.92 L 3042.94 2984.59 C 3056.33 2971.86 3071.5 2960.87 3083.19 2946.57 C 3085.96 2943.18 3088.61 2939.69 3091.38 2936.29 z"/><path fill="#000" d="M 2963.77 3438.17 C 2955.4 3431.73 2950.3 3425.06 2952.33 3414.01 C 2954.69 3401.2 2964.28 3399.12 2975.5 3398.98 C 3006.98 3398.56 3038.51 3398.81 3070 3398.63 C 3123.31 3398.31 3176.7 3397.57 3230 3397.99 C 3233.69 3398.01 3237.38 3398.11 3241.05 3398.51 C 3251.14 3399.61 3258.97 3407.09 3259.32 3417.5 C 3259.41 3419.92 3258.91 3422.25 3258.04 3424.5 C 3253.41 3436.47 3248.26 3439.22 3236 3439.32 C 3186.68 3439.72 3137.32 3439.22 3088 3439.34 C 3051.86 3439.43 3015.65 3440 2979.51 3439.51 C 2974.24 3439.44 2969 3438.86 2963.77 3438.17 z"/><path fill="#000" d="M 2980.5 3309.35 C 3064 3309.37 3147.5 3309.05 3231 3309.52 C 3234 3309.53 3237.02 3309.56 3240.01 3309.85 C 3250.82 3310.88 3260.71 3322.32 3258.58 3333.42 C 3255.71 3348.33 3241.78 3348.88 3229.5 3349.04 C 3229.49 3349.04 3224.51 3349.09 3224.5 3349.09 C 3170.51 3349.43 3116.49 3349.18 3062.5 3349.19 C 3035.33 3349.19 3008.17 3349.33 2981 3349.11 C 2976.16 3349.08 2971.3 3349.02 2966.5 3348.35 C 2954.07 3346.62 2947.12 3334.98 2950.91 3323 C 2955.88 3307.28 2966.43 3309.35 2980.5 3309.35 z"/><path fill="#000" d="M 3012.2 3487.13 L 3194.07 3486.7 C 3191.28 3498.65 3186.51 3510.21 3179.1 3520 C 3158.17 3547.66 3123.77 3559.75 3090 3554.22 C 3044.33 3546.74 3030.87 3527.05 3012.2 3487.13 z"/><path fill="#000" d="M 3109.5 2878.32 C 3110.69 2878.31 3111.85 2878.48 3112.99 2878.82 C 3137.61 2886.06 3138.87 2921.67 3110.5 2922.01 C 3102.14 2922.11 3096.19 2918.89 3092.13 2911.45 C 3085.08 2898.52 3094.7 2878.46 3109.5 2878.32 z"/><path fill="#000" d="M 2942.5 2879.95 C 2954.19 2879.9 2963.69 2889.36 2963.69 2901.05 C 2963.69 2912.74 2954.19 2922.2 2942.5 2922.15 C 2930.88 2922.09 2921.5 2912.66 2921.5 2901.05 C 2921.5 2889.44 2930.89 2880.01 2942.5 2879.95 z"/><path fill="#000" d="M 3267.5 2879.17 C 3294.96 2878.61 3297.92 2922.42 3268.5 2921.81 C 3242.45 2921.26 3244.05 2879.65 3267.5 2879.17 z"/><path fill="#fff" d="M 2591.83 1207.72 C 2588.73 1186.89 2585.61 1166.02 2584.38 1145 C 2579.18 1055.58 2606.91 961.024 2664.46 891.831 C 2745.79 794.03 2860.74 742.899 2988 755.327 C 3061.21 762.476 3133.22 792.214 3188.3 841.404 C 3276.21 919.905 3321.54 1016.33 3318.75 1134.5 C 3317.01 1208.28 3291.12 1289.63 3244.51 1347.52 C 3235.77 1358.39 3227.12 1369.39 3217.16 1379.16 L 3280.03 1439.62 C 3285.64 1434.72 3290.98 1429.52 3296.29 1424.3 C 3304.06 1416.67 3310.82 1408.11 3318.04 1399.96 C 3321.26 1402.92 3324.33 1406.1 3327.45 1409.14 C 3391.96 1471.96 3456.58 1534.75 3520.42 1598.25 C 3520.42 1598.26 3523.41 1601.24 3523.42 1601.24 C 3531.29 1609.15 3539.07 1617.14 3546.83 1625.15 C 3564.16 1643.04 3582.22 1660.26 3599.42 1678.23 C 3605.28 1684.34 3610.43 1690.72 3613.79 1698.55 C 3628.77 1733.43 3615.26 1775.53 3582 1794.09 C 3549.88 1812.02 3521.17 1804.17 3495.58 1779.79 C 3495.57 1779.78 3493.87 1778.14 3493.87 1778.14 C 3471.59 1756.44 3449.41 1734.57 3427.35 1712.65 C 3363.64 1649.35 3299.91 1586.08 3234.95 1524.07 C 3228.95 1518.35 3222.67 1512.94 3216.36 1507.57 C 3226.87 1497.51 3238.43 1488.49 3247.69 1477.27 L 3184.6 1410.11 C 3181.85 1412.33 3179.12 1414.53 3176.43 1416.83 C 3119.18 1465.83 3044.3 1492.52 2969 1495.55 C 2842.72 1500.64 2723.48 1444.38 2650.8 1340.08 C 2630.09 1310.34 2618.98 1284.64 2605.54 1251.37 L 2652.14 1237.82 C 2656.09 1248.38 2660.92 1258.82 2665.78 1269 C 2704.5 1350.11 2789.39 1417.96 2877.36 1437.48 C 2939.32 1451.23 3006.28 1447.09 3065.63 1424.55 C 3120.26 1403.81 3169.6 1366.07 3204.57 1319.25 C 3250.07 1258.33 3271.47 1187.66 3270.27 1112 C 3268.59 1006.4 3204.1 902.868 3113.78 849.561 C 3057.28 816.209 3001.69 803.813 2936.5 805.7 C 2836.58 808.593 2749.77 859.13 2692.29 940.22 C 2639.33 1014.93 2622.69 1104.92 2638.89 1194.61 L 2591.83 1207.72 z"/><path fill="#000" d="M 3321.18 1447.19 C 3327.77 1455.71 3335.78 1463 3343.5 1470.5 C 3374.26 1500.41 3404.44 1530.88 3434.86 1561.13 C 3476.41 1602.43 3518.87 1642.88 3560.13 1684.46 C 3577.85 1702.31 3592.39 1714.23 3584.27 1740.53 C 3575.39 1769.3 3543.69 1779.32 3521.73 1758.28 C 3521.73 1758.27 3520.22 1756.79 3520.22 1756.79 C 3511.44 1747.96 3502.89 1739.13 3493.85 1730.55 C 3466.58 1704.66 3440.7 1677.46 3413.78 1651.23 C 3389.61 1627.66 3365.66 1603.8 3341.34 1580.39 C 3319.1 1558.97 3298.03 1536.59 3276.4 1514.6 C 3272.48 1510.62 3268.35 1506.86 3263.9 1503.49 L 3321.18 1447.19 z"/><path fill="#fff" d="M 3044.5 960.917 C 3071.5 960.915 3098.5 960.643 3125.5 961.036 C 3142.87 961.29 3144.13 964.54 3144.36 981 C 3144.36 981.008 3144.39 984.492 3144.39 984.5 C 3144.55 1024.16 3144.27 1063.83 3144.36 1103.5 C 3144.48 1153.3 3145.37 1203.2 3144.85 1253 C 3144.82 1256 3144.8 1259.02 3144.62 1262.01 C 3143.75 1276.87 3130.98 1276.66 3119 1276.83 C 3118.99 1276.83 3114.51 1276.87 3114.5 1276.87 C 3039.51 1277.3 2964.49 1277.02 2889.5 1277.04 C 2854.83 1277.05 2820.16 1277.23 2785.5 1276.9 C 2782.67 1276.87 2779.82 1276.84 2777 1276.66 C 2759.52 1275.53 2758.47 1271.91 2758.35 1255.5 C 2758.35 1255.49 2758.33 1249.51 2758.33 1249.5 C 2758.26 1176.5 2758.92 1103.5 2758.94 1030.5 C 2758.95 1012.85 2758.15 995.128 2758.37 977.497 C 2758.56 962.2 2772.35 961.46 2784.5 961.34 C 2871.16 960.488 2957.83 960.924 3044.5 960.917 z"/><path fill="#000" d="M 2783.44 987.809 L 3117.72 987.99 L 3118.87 1249.79 L 2783.43 1250.43 L 2783.44 987.809 z"/><path fill="#fff" d="M 2808.75 1099.15 L 3095.03 1098.61 L 3094.82 1123.92 L 2808.82 1124.03 L 2808.75 1099.15 z"/><path fill="#fff" d="M 2808.65 1147.55 L 3094.42 1148.01 L 3094.18 1172.83 L 2808.88 1172.99 L 2808.65 1147.55 z"/><path fill="#fff" d="M 2807.76 1196.4 L 3007.69 1197.93 L 3007.79 1223.72 L 2807.83 1223.05 L 2807.76 1196.4 z"/><path fill="#fff" d="M 2808.35 1020.01 L 2894.39 1019.97 L 2894.32 1060.37 L 2808.51 1060.18 L 2808.35 1020.01 z"/><path fill="#fff" d="M 2963.79 1012.26 L 2993.31 1012.36 L 2993.35 1069.27 L 2963.74 1069.27 L 2963.79 1012.26 z"/><path fill="#fff" d="M 3014.48 1012.15 L 3043.44 1012.71 L 3043.23 1069.02 L 3014.34 1069.24 L 3014.48 1012.15 z"/><path fill="#fff" d="M 3065.68 1012.28 C 3074.13 1012.03 3082.58 1011.96 3091 1012.77 L 3092.2 1068.84 L 3065.88 1068.65 L 3065.68 1012.28 z"/><path fill="#fff" d="M 1197.88 2791.61 L 1337.29 2791.77 C 1336.7 2822.18 1336.7 2852.59 1337.05 2883 C 1337.08 2885.83 1337.14 2888.67 1337.22 2891.5 C 1337.88 2915.01 1344.67 2935.54 1360.94 2953.04 C 1383.62 2977.42 1407.37 2982.52 1439.5 2983.06 C 1485.06 2983.83 1530.63 2982.61 1576.2 2982.74 L 1576 3036.26 C 1528.35 3035.1 1480.66 3036.63 1433 3035.96 C 1401.91 3035.52 1371.03 3027.03 1345.62 3008.61 C 1304.66 2978.91 1286.99 2938.32 1286.62 2888.5 C 1286.5 2872.14 1286.52 2855.77 1286.74 2839.41 L 1249.93 2840.59 C 1249.5 2864.57 1251.17 2888.68 1248.34 2912.5 C 1243.34 2954.47 1216.11 2994.19 1179.58 3015.31 C 1151.44 3031.58 1127.53 3035.52 1095.5 3035.71 C 1070.87 3035.85 1046.24 3035.64 1021.62 3034.8 L 1021.7 3074.86 C 1050.63 3074.51 1079.57 3074.18 1108.5 3074.53 C 1141.08 3074.93 1169.98 3085.97 1195.37 3106.4 C 1232.11 3135.98 1249.49 3172.56 1250.05 3219.5 C 1250.05 3219.51 1250.09 3224.49 1250.09 3224.5 C 1250.37 3296.8 1251.07 3369.21 1249.9 3441.5 C 1249.78 3448.36 1249.54 3455.16 1248.93 3462 C 1245.04 3506.08 1224.08 3543.9 1186.86 3568.46 C 1159.63 3586.42 1137.23 3591.6 1105 3592.22 C 1087.72 3592.55 1070.43 3592.37 1053.14 3592.05 L 1052.83 3540.68 C 1069.55 3540.39 1086.28 3540.82 1103 3540.52 C 1123 3540.15 1138.38 3536.79 1155.18 3525.27 C 1189.15 3501.97 1197.35 3473.9 1197.77 3434.5 C 1197.93 3419.17 1197.97 3403.83 1198.02 3388.5 C 1198.17 3333.71 1198.63 3278.79 1197.78 3224 C 1197.32 3193.76 1190.63 3172.58 1167.58 3151.78 C 1144.26 3130.72 1123.42 3127.12 1093 3126.76 C 1052.26 3126.28 1011.51 3127.53 970.761 3127.02 L 970.087 2982.93 C 1014.22 2982.2 1058.37 2983.58 1102.5 2982.53 C 1127.24 2981.94 1144.22 2978.39 1163.44 2961.86 C 1187.32 2941.31 1197.35 2912.85 1197.59 2882 C 1197.82 2851.87 1197.32 2821.74 1197.88 2791.61 z"/><path fill="#fff" d="M 1095.35 935.489 C 1097.19 933.599 1099.02 931.718 1100.94 929.902 C 1131.36 901.047 1159.89 870.194 1189.69 840.695 C 1235.66 795.194 1268.17 788.485 1330 787.996 C 1413.64 787.334 1497.36 786.435 1581 787.094 C 1584.5 787.122 1588 787.156 1591.5 787.224 C 1632.81 788.02 1663.84 798.288 1693.89 827.531 C 1726.73 859.505 1738.12 894.959 1738.73 940 C 1739.2 974.972 1738.76 1010.02 1738.74 1045 C 1738.72 1093.48 1739.45 1142.04 1738.68 1190.5 C 1737.24 1281.57 1707.1 1306.36 1644.33 1369.61 C 1614.08 1400.09 1582.94 1429.61 1552.44 1459.83 C 1552.44 1459.84 1547.82 1464.44 1547.81 1464.44 C 1541.77 1470.53 1535.83 1476.73 1529.92 1482.95 C 1495.48 1519.15 1460.79 1555.13 1424.69 1589.68 C 1408.88 1604.8 1393.44 1620.78 1376.72 1634.89 L 1342.43 1601.19 C 1344.41 1599.02 1346.36 1596.85 1348.42 1594.74 C 1372.03 1570.59 1396.05 1546.84 1420.08 1523.11 C 1476.13 1467.76 1531.21 1411.58 1586.29 1355.29 C 1606.23 1334.92 1627.32 1315.61 1646.98 1295 C 1690.19 1249.7 1689.11 1218.67 1689.03 1158.5 C 1688.94 1090.53 1689.79 1022.46 1688.96 954.5 C 1688.9 950.333 1688.81 946.166 1688.72 942 C 1688.14 914.426 1680.97 886.725 1661.4 866.286 C 1638.55 842.416 1615.44 839.882 1584 839.333 C 1558.01 838.878 1531.99 839.034 1506 839.027 C 1446.7 839.011 1387.29 838.307 1328 839.302 C 1281.65 840.08 1257.61 843.753 1223.54 878.129 C 1206.49 895.334 1190.21 913.301 1173.21 930.569 C 1159.37 944.628 1146.06 959.573 1131.3 972.659 C 1118.95 960.62 1106.15 948.935 1095.35 935.489 z"/><path fill="#fff" d="M 1061.01 970.144 L 1097.36 1004.44 C 1088.82 1014.19 1079.85 1023.56 1070.81 1032.83 C 1008.77 1096.43 944.869 1158.2 883.223 1222.2 C 865.313 1240.79 846.418 1258.41 828.49 1276.96 C 813.563 1292.41 803.412 1307.44 799.961 1329 C 792.562 1375.2 818.156 1402.97 849.136 1432.86 C 909.85 1491.46 968.5 1552.17 1029.2 1610.78 C 1052.45 1633.22 1074.71 1656.62 1097.84 1679.16 C 1116.92 1697.77 1137.46 1715.41 1164.43 1720.41 C 1213.29 1729.46 1243.53 1701.39 1275.4 1667.69 C 1285.68 1656.83 1296.51 1646.35 1306.59 1635.32 C 1317.6 1648.52 1330.55 1659.97 1343.78 1670.94 C 1327.95 1687.51 1296.34 1720.04 1279.77 1735.43 C 1253.13 1760.19 1219.79 1772.63 1183.5 1773.06 C 1137.52 1773.6 1106.19 1757.5 1073.82 1726.18 C 1003.61 1658.25 934.762 1588.91 865.504 1520 C 841.71 1496.32 817.377 1473.08 793.855 1449.14 C 765.385 1420.17 749.413 1388.5 748.093 1347.5 C 746.508 1298.24 765.715 1267.05 799.546 1233.14 C 825.45 1207.18 851.949 1181.83 878.058 1156.07 C 878.063 1156.07 880.409 1153.75 880.414 1153.74 C 888.728 1145.46 896.921 1136.99 905.032 1128.51 C 943.819 1087.95 983.73 1048.47 1023.21 1008.57 C 1035.81 995.839 1047.81 982.237 1061.01 970.144 z"/><path fill="#fff" d="M 1796.57 3458.24 C 1791.24 3499.62 1779.11 3532.69 1744.27 3560.33 C 1718.07 3581.12 1689.4 3592.09 1656 3592.69 C 1639.84 3592.97 1623.66 3592.86 1607.5 3592.78 C 1549.51 3592.48 1491.47 3593.51 1433.5 3592.69 C 1398.55 3592.19 1369.05 3583.6 1341.43 3561.56 C 1298.3 3527.12 1287.18 3493.25 1286.58 3439.5 C 1286.58 3439.49 1286.54 3433.01 1286.54 3433 C 1286.26 3361.02 1285.65 3288.97 1286.7 3217 C 1286.83 3208.6 1287.25 3200.18 1288.55 3191.88 C 1293.3 3161.66 1311.68 3132.46 1333.97 3111.95 C 1361.89 3086.28 1394.93 3074.71 1432.5 3074.32 C 1480.62 3073.83 1528.74 3074.54 1576.86 3074.28 L 1577.05 3125.72 C 1571.54 3125.54 1566.02 3125.57 1560.5 3125.6 C 1519.52 3125.89 1478.47 3125.65 1437.5 3126.41 C 1409.08 3126.94 1387.16 3133 1366.67 3153.39 C 1333.35 3186.54 1336.69 3220.59 1336.79 3265 C 1336.91 3321.97 1336.2 3379.04 1337.11 3436 C 1337.53 3462.14 1339.8 3485.13 1357.05 3506 C 1378.69 3532.17 1405.01 3540.18 1438 3540.63 C 1465.5 3541 1493 3540.86 1520.5 3540.82 C 1562.31 3540.77 1604.2 3541.38 1646 3540.67 C 1668.15 3540.3 1687.22 3537.58 1705.55 3524.13 C 1729.81 3506.33 1739.38 3486.49 1745.6 3457.73 L 1796.57 3458.24 z"/><path fill="#fff" d="M 1009.93 3592.52 C 968.787 3592.25 927.636 3593.05 886.5 3592.23 C 855.938 3591.63 831.617 3588.02 804.904 3572.24 C 757.809 3544.44 736.295 3499.74 735.608 3446 C 735.608 3445.99 735.57 3442.01 735.57 3442 C 735.111 3373.02 735.307 3303.99 735.403 3235 C 735.45 3200.93 737.729 3173.72 755.788 3143.96 C 782.67 3099.65 826.541 3077.19 877.5 3074.67 C 894.664 3073.82 911.877 3074.35 929.036 3073.41 L 928.816 3125.74 C 915.385 3125.47 901.949 3125.32 888.516 3125.49 C 859.538 3125.86 834.578 3132.33 814.115 3154.09 C 790.548 3179.16 787.559 3203.9 786.98 3237 C 786.601 3258.66 786.87 3280.34 786.965 3302 C 787.175 3349.48 786.119 3397.03 786.809 3444.5 C 787.18 3470.06 792.399 3487.05 809.028 3507 C 829.152 3531.14 851.647 3539.81 882.411 3540.49 C 925.076 3541.44 967.767 3539.96 1010.44 3540.74 L 1009.93 3592.52 z"/><path fill="#fff" d="M 735.612 2688.1 C 735.601 2679.9 735.529 2671.7 735.858 2663.5 C 737.204 2630.02 746.319 2599.16 767.853 2572.91 C 800.513 2533.1 841.593 2523.04 891 2522.31 C 916.16 2521.94 941.338 2521.97 966.5 2521.98 C 1012.81 2522.02 1059.2 2521.32 1105.5 2521.87 C 1132.89 2522.2 1155.54 2527.82 1178.91 2542.52 C 1224.74 2571.35 1248.95 2614.5 1249.75 2668.5 C 1250.16 2695.61 1249.72 2722.72 1249.67 2749.84 L 1197.65 2749.56 C 1197.71 2720.87 1198.33 2692.17 1197.38 2663.5 C 1196.64 2641.41 1189.27 2622.93 1174.95 2606 C 1151.86 2578.71 1127.47 2575.24 1093.5 2574.9 C 1082 2574.79 1070.5 2574.9 1059 2574.93 C 1001.02 2575.07 942.968 2574.4 885 2575.3 C 857.756 2575.72 840.759 2578.39 819.291 2596.59 C 789.396 2621.93 787.207 2650.69 786.653 2688.08 L 735.612 2688.1 z"/><path fill="#fff" d="M 2849.45 2600.64 C 2867.69 2582.02 2889.3 2566.5 2911.23 2552.55 C 2982.81 2507.03 3079.04 2489.01 3162.5 2503.21 C 3245.57 2517.35 3310.39 2551.15 3369.91 2610.53 C 3395.77 2636.33 3427.85 2678.94 3441.92 2712.4 C 3427.43 2720.33 3412.65 2727.88 3399.33 2737.65 C 3391.26 2724.15 3383.02 2710.76 3374.46 2697.57 C 3342.85 2648.85 3307.94 2616.69 3255.36 2587.58 C 3186.26 2549.31 3095.68 2542.29 3019.5 2561.77 C 2964.49 2575.84 2929.33 2600.62 2885.29 2634.44 L 2849.45 2600.64 z"/><path fill="#fff" d="M 1498.49 935.26 C 1546.73 935.943 1585.39 975.383 1585.12 1023.62 C 1584.85 1071.86 1545.74 1110.86 1497.5 1111 C 1448.67 1111.14 1409.1 1071.45 1409.37 1022.63 C 1409.65 973.806 1449.67 934.568 1498.49 935.26 z"/><path fill="#000" d="M 1496.47 987.677 C 1509.14 987.19 1521.08 993.606 1527.67 1004.44 C 1534.26 1015.28 1534.45 1028.83 1528.19 1039.86 C 1521.92 1050.88 1510.18 1057.65 1497.5 1057.53 C 1478.52 1057.36 1463.15 1042.08 1462.87 1023.11 C 1462.59 1004.13 1477.51 988.407 1496.47 987.677 z"/><path fill="#fff" d="M 1618.92 3074.91 C 1663.08 3074.62 1696.79 3073.67 1733.59 3099.45 C 1777.59 3130.28 1796.51 3168.13 1797.05 3221.5 C 1797.68 3284.56 1797.56 3353.57 1796.57 3415.31 L 1746.12 3414.66 C 1744.42 3350.8 1746.41 3286.87 1744.97 3223 C 1744.9 3219.83 1744.78 3216.66 1744.65 3213.5 C 1743.73 3190.53 1734.43 3169.23 1717.52 3153.49 C 1698.04 3135.36 1676.09 3126.18 1649.5 3126.32 C 1639.44 3126.37 1629.38 3126.86 1619.32 3127.01 L 1618.92 3074.91 z"/><path fill="#fff" d="M 735.577 2731.51 L 787.348 2731.6 C 787.324 2781.73 786.419 2831.88 787.4 2882 C 787.56 2890.16 787.755 2898.37 788.399 2906.51 C 790.043 2927.28 802.163 2947.3 818.081 2960.48 C 853.059 2989.44 884.553 2982.88 928.11 2982.55 L 928.163 3035.21 C 868.817 3035.1 820.777 3037.04 776.473 2992.53 C 746.108 2962.02 735.847 2932.55 735.394 2890 C 735.099 2862.18 735.232 2834.32 735.457 2806.5 C 735.659 2781.53 734.86 2756.46 735.577 2731.51 z"/><path fill="#fff" d="M 1567.31 2522.73 C 1595.2 2522.56 1623.11 2522.41 1651 2523.16 C 1682.32 2524 1712.32 2530.17 1737.51 2549.95 C 1779.81 2583.18 1796.66 2621.36 1797.2 2674.5 C 1797.56 2710.13 1797.31 2745.76 1796.8 2781.39 L 1745.07 2781.24 C 1743.86 2743.35 1745.29 2705.4 1744.19 2667.5 C 1743.45 2642.21 1736.19 2620.26 1717.98 2602.02 C 1696.99 2581 1677.35 2575.81 1648.5 2575.33 C 1621.49 2574.89 1594.46 2575.88 1567.45 2575.15 L 1567.31 2522.73 z"/><path fill="#fff" d="M 1286.66 2750.33 C 1286.48 2720.22 1286.24 2690.1 1286.92 2660 C 1287.57 2630.88 1294.94 2605.55 1312.5 2582.04 C 1342.93 2541.31 1381.36 2523.68 1431.5 2522.55 C 1462.26 2521.87 1493.04 2521.81 1523.81 2522.2 L 1523.97 2575.39 C 1496.65 2575.6 1469.32 2575.09 1442 2575.69 C 1412.79 2576.32 1390.19 2578.34 1367.81 2598.79 C 1345.87 2618.84 1337.99 2642.99 1337.21 2672 C 1336.5 2698.19 1336.83 2724.39 1336.65 2750.59 L 1286.66 2750.33 z"/><path fill="#fff" d="M 1745.36 2825.91 L 1796.81 2826.16 C 1796.89 2884.58 1802.73 2944.71 1758.79 2990.43 C 1716.85 3034.05 1676.39 3037.42 1618.39 3035.35 L 1617.85 2981.94 C 1657.62 2981.87 1682.89 2986.65 1713.54 2959.1 C 1737.43 2937.63 1744.94 2914.37 1745.53 2883 C 1745.89 2863.98 1745.16 2844.94 1745.36 2825.91 z"/><path fill="#fff" d="M 3491.5 727.126 C 3502.19 725.92 3511.58 741.029 3516.11 748.449 C 3550.04 804.035 3562.15 855.323 3558.92 919.993 C 3558.43 929.83 3558.73 941.53 3550.01 947.88 C 3535.19 958.66 3524.71 952.036 3516.47 937.972 C 3516.1 927.96 3517.72 918.003 3518.28 908 C 3520.57 867.048 3510.75 826.005 3492.5 789.453 C 3486.73 777.894 3479.28 767.658 3472.96 756.483 C 3466.37 744.817 3479.57 728.473 3491.5 727.126 z"/><path fill="#fff" d="M 3426.5 777.268 C 3433.32 777.156 3439.08 784.552 3442.42 789.618 C 3464.32 822.915 3475.69 885.049 3472.26 924.501 C 3471.28 935.8 3464.12 942.579 3452.5 942.54 C 3450.32 942.532 3448.04 942.042 3445.99 941.335 C 3430.48 935.996 3430.74 927.474 3431.01 913.001 C 3431.5 885.859 3426.85 859.809 3416.7 834.57 C 3412.84 824.988 3406.63 813.681 3403.66 803.552 C 3399.31 788.772 3412.36 777.498 3426.5 777.268 z"/><path fill="#fff" d="M 3356.5 834.46 C 3359.1 834.51 3362.07 834.934 3364.51 835.924 C 3378.49 841.613 3384.62 893.187 3385.09 906.504 C 3385.58 920.461 3375.62 930.835 3361.5 930.873 C 3351.77 930.899 3344.26 922.109 3343 913.003 C 3341.53 902.445 3343.23 893.951 3340.46 882.61 C 3338.5 874.539 3335.81 866.644 3334.2 858.495 C 3331.31 843.805 3342.18 834.187 3356.5 834.46 z"/></g></defs></svg>
+<div class="app pusty" id="app">
+  <aside class="pasek" id="pasek" aria-label="Meshuga: rozmowy">
+    <div class="pasek-gora">
+      <div class="mk-mini" id="kotPasek" style="width:40px"></div>
+      <div class="imie ukr">Meshuga<small>AI Chatbot cybersory</small></div>
+      <button class="ikonka zwin" id="zwin" aria-label="Zwiń pasek" title="Zwiń pasek">
+        <svg class="ik-pasek" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5H7.5a4 4 0 0 0-4 4v7a4 4 0 0 0 4 4h9a4 4 0 0 0 4-4v-7a4 4 0 0 0-4-4h-4"/><path d="M9.5 9v6"/></svg>
+      </button>
+    </div>
+    <button class="poz nowy" id="nowy"><svg class="ik-pasek" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4.5H8a4 4 0 0 0-4 4v5.5a4 4 0 0 0 4 4h.5v2.8l3.6-2.8H15a4 4 0 0 0 4-4V12"/><path d="M18 3v5.5M15.25 5.75h5.5"/></svg><span class="ukr">Nowy czat</span></button>
+    <label class="szukaj"><svg class="ik-pasek" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15.6 9a6.5 6.5 0 1 1-2.3-3.6"/><path d="M8.5 11h5M16 16l4 4"/></svg><span class="sr">Szukaj w rozmowach</span><input id="szukaj" type="search" placeholder="Szukaj w rozmowach" autocomplete="off"></label>
+    <button class="poz" id="umiemBtn"><svg class="ik-pasek" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2" pathLength="24" stroke-dasharray="20 4"/><rect x="13" y="4" width="7" height="7" rx="2" pathLength="24" stroke-dasharray="20 4" stroke-dashoffset="6"/><rect x="4" y="13" width="7" height="7" rx="2" pathLength="24" stroke-dasharray="20 4" stroke-dashoffset="18"/><rect x="13" y="13" width="7" height="7" rx="2" pathLength="24" stroke-dasharray="20 4" stroke-dashoffset="12"/></svg><span class="ukr">Co umiem</span></button>
+    <div class="etyk ukr">Historia</div>
+    <nav class="historia ukr" id="historia" aria-label="Historia rozmów"></nav>
+    <div class="pasek-dol">
+      <button class="poz konto-poz" id="kontoBtn" aria-expanded="false"><span class="awatar gosc" id="awatarPasek"></span><span class="ukr konto-txt"><b id="kontoNick">Zaloguj się</b><small id="kontoPod">konto cybersory</small></span></button>
+      <button class="poz" id="ustBtn" aria-expanded="false"><svg class="ik-pasek" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h9M19.5 7h.5M4 17h2.5M13.5 17H20"/><circle cx="16.25" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></svg><span class="ukr">Ustawienia</span></button>
+      <a class="poz" href="/"><svg class="ik-pasek" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7.5 5 12l4.5 4.5M5 12h9.5"/><path d="M13.5 4.5h3a3.5 3.5 0 0 1 3.5 3.5v8a3.5 3.5 0 0 1-3.5 3.5h-3"/></svg><span class="ukr">Wróć na cybersora.pl</span></a>
+    </div>
+  </aside>
+  <div class="zaslona" id="zaslona"></div>
+
+  <main class="glowny">
+    <div class="tlo" id="tlo" aria-hidden="true"></div>
+    <header class="gorny">
+      <button class="ikonka menu-tel" id="menuTel" aria-label="Otwórz rozmowy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+      <span class="tryb-info mono" id="trybInfo">MESHUGA · SZYBKI</span>
+      <button class="kontakt-btn" id="kontaktBtn" aria-expanded="false">Napisz<span class="dl"> do nas</span></button>
+    </header>
+
+    <div class="cialo">
+      <div class="przewijak" id="przewijak">
+        <div class="kolumna">
+          <section class="hero" aria-labelledby="powitanie">
+            <div class="kot-scena" id="kotScena"><div class="mk-hero" id="kotHero"></div></div>
+            <div class="brw mono"><b>MESHUGA</b><span>AI CHATBOT CYBERSORY</span></div>
+            <h1 id="powitanie">Od czego <em>zaczynamy?</em></h1>
+            <p class="swieta-napis" id="swietaNapis" hidden>U nas święta zaczynają się <em>wcześniej</em>.</p>
+          </section>
+          <section class="feed" id="feed" aria-live="polite"></section>
+          <section class="umiem" id="umiem" aria-labelledby="umiemH"></section>
+        </div>
+      </div>
+      <div class="pole-wrap kolumna">
+        <form class="pole" id="pole" autocomplete="off">
+          <label for="wpis" class="sr">Zapytaj Meshugę</label>
+          <div class="slash" id="slash" role="listbox" aria-label="Komendy" hidden></div>
+          <div class="zal" id="zal" hidden><img id="zalImg" alt=""><div class="zal-opis"><b id="zalNazwa"></b><span id="zalInfo"></span></div><button type="button" class="ikonka" id="zalUsun" aria-label="Usuń zrzut" title="Usuń zrzut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+          <textarea id="wpis" rows="1" placeholder="Zapytaj Meshugę albo wpisz /" aria-autocomplete="list" aria-controls="slash"></textarea>
+          <input type="file" id="plik" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+          <div class="pole-dol">
+            <button type="button" class="ikonka" id="plus" aria-label="Dołącz zrzut do oceny" title="Oceń mój zrzut: dołącz obrazek strony albo aplikacji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+            <div class="tryb">
+              <button type="button" id="trybBtn" aria-haspopup="menu" aria-expanded="false"><span id="trybNazwa">Szybki</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+              <div class="menu" id="trybMenu" role="menu" hidden>
+                <button type="button" role="menuitemradio" data-tryb="quick" aria-checked="true"><b>Szybki</b><small>Krótko i od razu</small><span class="ok">●</span></button>
+                <button type="button" role="menuitemradio" data-tryb="default" aria-checked="false"><b>Dokładny</b><small>Myśli dłużej, przy wycenach i pomysłach</small><span class="ok">●</span></button>
+              </div>
+            </div>
+            <button type="button" class="ikonka" id="mikro" aria-label="Mów do Meshugi" aria-pressed="false" title="Mów do Meshugi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg></button>
+            <button type="submit" class="wyslij" id="wyslij" aria-label="Wyślij" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+          </div>
+        </form>
+        <div class="stopka" id="stopka">Meshuga zna nasz cennik i projekty. Rozmowy zostają w tej przeglądarce.</div>
+      </div>
+      <div class="karty-wrap kolumna">
+        <div class="karty" id="karty"></div>
+      </div>
+    </div>
+
+    <div class="panel panel-kontakt kat" id="panelKontakt" hidden>
+      <h3>Napisz do nas</h3>
+      <p>Odpisujemy zwykle w ciągu jednego dnia roboczego. Kontakt tylko mailem albo formularzem na stronie.</p>
+      <div class="adres" id="adres">cybersora@zohomail.eu</div>
+      <div class="rzad" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn pelny" id="kopiujAdres">Kopiuj adres</button>
+        <a class="btn" href="/#contact">Formularz</a>
+      </div>
+    </div>
+  </main>
+
+  <div class="panel panel-ust" id="panelUst" hidden>
+    <h3>Ustawienia</h3>
+    <div class="wiersz"><span>Motyw</span><div class="seg" data-ust="motyw"><button data-v="dark">Ciemny</button><button data-v="light">Jasny</button></div></div>
+    <div class="wiersz"><span>Animacje</span><div class="seg" data-ust="ruch"><button data-v="on">Wł.</button><button data-v="off">Wył.</button></div></div>
+    <div class="wiersz"><span>Historia</span><button class="btn" id="wyczysc">Wyczyść</button></div>
+  </div>
+
+  <div class="panel panel-konto kat" id="panelKonto" hidden>
+    <div class="kp-gora"><span class="awatar" id="awatarPanel"></span><div><h3 id="kpNick"></h3><p id="kpOd">konto cybersory</p></div></div>
+    <p id="kpWyloguj">Wylogowanie działa na wszystkich urządzeniach (strona i gra też).</p>
+    <div class="rzad" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="wyloguj">Wyloguj</button></div>
+  </div>
+</div>
+
+<div class="okno-tlo" id="oknoKonto" hidden>
+  <div class="okno kat" role="dialog" aria-modal="true" aria-labelledby="oknoTytul">
+    <h3 id="oknoTytul">Konto cybersory</h3>
+    <div class="zakladki" id="kZakladki" role="tablist" aria-label="Konto"><button type="button" role="tab" data-z="log" aria-selected="true">Zaloguj</button><button type="button" role="tab" data-z="rej" aria-selected="false">Załóż konto</button></div>
+    <form id="fKonto" novalidate>
+      <label class="pole-f">Nick<input id="kNick" name="username" autocomplete="username" maxlength="16" spellcheck="false" autocapitalize="off"></label>
+      <label class="pole-f" id="kKodWrap" hidden>Kod odzyskiwania<input id="kKod" autocomplete="one-time-code" spellcheck="false" autocapitalize="characters"></label>
+      <label class="pole-f"><span id="kHasloEt">Hasło</span><input id="kHaslo" type="password" name="password" autocomplete="current-password" maxlength="128"></label>
+      <p class="blad" id="kBlad" role="alert"></p>
+      <div class="rzad"><button class="btn pelny" type="submit" id="kWyslij">Zaloguj</button><button class="btn" type="button" id="kAnuluj">Anuluj</button></div>
+      <button type="button" class="linkowy" id="kZapomnialem">Nie pamiętasz hasła?</button>
+    </form>
+    <div id="kKodEkran" hidden>
+      <p>Konto gotowe. To Twój kod odzyskiwania. Pokazujemy go <b>tylko raz</b>: zapisz go na kartce albo w menedżerze haseł. Bez niego nie odzyskasz konta, bo nie mamy Twojego maila.</p>
+      <div class="kod-odz" id="kKodPokaz"></div>
+      <div class="rzad"><button class="btn" type="button" id="kKopiujKod">Kopiuj kod</button><button class="btn pelny" type="button" id="kZapisane">Mam zapisany, dalej</button></div>
+    </div>
+    <p class="makieta-info" id="kMakieta" hidden>MAKIETA · udawany serwer: konto działa tylko w tej przeglądarce, hasła nigdzie się nie zapisują</p>
+  </div>
+</div>
+
+<script src="/meshuga/meshuga.js?v=07e4591741"></script>
+</body>
+</html>
