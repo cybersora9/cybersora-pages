@@ -2151,6 +2151,8 @@
       let kotwica = '';
       if (view === 'marketplace') view = 'oferta';
       else if (view === 'cennik') { view = 'oferta'; kotwica = 'cennik'; }
+      else if (view === 'zrobilismy') { view = 'start'; kotwica = 'zrobilismy'; }   // „Co zrobiliśmy” mieszka na Starcie (03.11)
+      else if (view === 'meshuga') view = 'somi';   // 03.11: na stronie SOMI nazywa się Meshuga; widok w kodzie zostaje „somi”
       if (!NAMES.includes(view)) view = 'start';
       if (view === 'products' && !PRODUKTY_WIDOCZNE) view = 'start';   // patrz PRODUKTY_WIDOCZNE
       /* hCaptcha (07.10, faza B P19): tylko pierwszy fokus/dotyk w formularzu (wyzej). Timer 1,5 s po wejsciu
@@ -2194,8 +2196,9 @@
         buildSparks();
         buildChips();
       });
-      if (push !== false && ('#' + (kotwica || view)) !== location.hash) {
-        history.replaceState(null, '', '#' + (kotwica || view));
+      const adres = '#' + (kotwica || (view === 'somi' ? 'meshuga' : view));
+      if (push !== false && adres !== location.hash) {
+        history.replaceState(null, '', adres);
       }
     };
 
@@ -2245,7 +2248,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261102c';
+  const SORAOS_V = '20261103k';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2256,6 +2259,32 @@
       Object.assign(el, attrs);
       el.onload = () => ok(el); el.onerror = () => { el.remove(); zle(new Error(attrs.src || attrs.href)); };
       document.head.appendChild(el);
+    });
+  }
+  /* 03.11: ranking DancyCloud z kontami graczy (nick + hasło) na Workerze. Do testów lokalnych ?dcapi=http://127.0.0.1:8787
+     (tylko localhost, żeby nikt nie podmienił serwera linkiem). */
+  const DC_API = (() => {
+    try {
+      const p = new URLSearchParams(location.search).get('dcapi');
+      if (p && /^http:\/\/(127\.0\.0\.1|localhost)(:\d{1,5})?$/.test(p)) return p;
+    } catch (e) { /* zostaje domyślny */ }
+    return 'https://dancycloud-ranking.dancycloud-ranking.workers.dev';
+  })();
+  /* Gra dostaje adres rankingu (ekran „Topka” z logowaniem) i haki rund. Rundy liczy osobny, niewidoczny panel,
+     bo ekran Topki istnieje tylko, gdy jest otwarty; sesja konta jest wspólna (localStorage), miejsce idzie na ekran końca gry. */
+  function dcZRankingiem(DC) {
+    if (!DC || !window.DancyRanking) return DC;
+    return Object.assign({}, DC, {
+      mount(el, o) {
+        let gra = null, rk = null;
+        try { rk = window.DancyRanking.create({ api: DC_API, el: document.createElement('div'), onRank: (r) => { if (gra && gra.showRank) gra.showRank(r); } }); } catch (e) { rk = null; }
+        gra = DC.mount(el, Object.assign({}, o, rk ? { rankingApi: DC_API, onRunStart: rk.onRunStart, onRunEnd: rk.onRunEnd } : {}));
+        if (rk && gra && typeof gra.destroy === 'function') {
+          const zniszcz = gra.destroy.bind(gra);
+          gra.destroy = () => { try { rk.destroy(); } catch (e) { /* ok */ } return zniszcz(); };
+        }
+        return gra;
+      },
     });
   }
   function soraosJson(url) {
@@ -2314,8 +2343,12 @@
         tlo: pulpit, bezOkna: true, tytul: 'Pulpit',
         onOrder: soraosZamow,
         onNav: (widok) => go(widok),
-        loadGame: () => (window.DancyCloud ? Promise.resolve(window.DancyCloud)
-          : soraosZasob('script', { src: 'dancycloud.js' + v, async: true }).then(() => window.DancyCloud)),
+        loadGame: () => (window.DancyCloud && window.DancyRanking ? Promise.resolve(dcZRankingiem(window.DancyCloud))
+          : Promise.all([
+            window.DancyCloud ? null : soraosZasob('script', { src: 'dancycloud.js' + v, async: true }),
+            // ranking (topka + konta) jest dodatkiem: gdy się nie wczyta, gra działa bez niego
+            window.DancyRanking ? null : soraosZasob('script', { src: 'ranking.js' + v, async: true }).catch(() => null),
+          ]).then(() => dcZRankingiem(window.DancyCloud))),
         poziom: 'night',
         naglowek: 'B',
       });
@@ -2675,26 +2708,93 @@
   const CART_KEY = 'cybersora_cart';
   function cartLoad() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { return []; } }
   function cartSave(items) { try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) {} }
-  const cartItems = cartLoad();
-  function cartMarkAdded(name) {
-    // the same product can appear twice (home teaser + full Produkty listing) — keep every copy in sync
-    document.querySelectorAll('.prod__addcart[data-product="' + CSS.escape(name) + '"]').forEach(b => {
-      b.textContent = 'W koszyku ✓';
-      b.classList.add('is-added');
-      b.disabled = true;
+  const cartItems = cartLoad().filter(i => i && typeof i.name === 'string' && Number.isFinite(Number(i.price)));
+  /* 03.11: widok koszyka. Przycisk w pasku pojawia sie, gdy cos jest w koszyku; okno z lista, usuwaniem i suma;
+     „Zamów” przenosi liste do formularza kontaktowego (Web3Forms), bez platnosci na stronie. */
+  const cartBtn = document.getElementById('navCart');
+  const cartN = document.getElementById('navCartN');
+  const cartDlg = document.getElementById('koszyk');
+  // „1 480 zł” jak w cenniku (toLocaleString('pl-PL') nie grupuje liczb 4-cyfrowych)
+  const zl = (n) => String(Math.round(Number(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' zł';
+  const cartSum = () => cartItems.reduce((s, i) => s + Number(i.price), 0);
+  const pozycje = (n) => n === 1 ? 'pozycja' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 'pozycje' : 'pozycji';
+  function cartRender() {
+    // ten sam produkt bywa w kilku miejscach (Top produkty, cennik, klon w SORA//OS): wszystkie kopie przycisku w zgodzie
+    document.querySelectorAll('.prod__addcart').forEach(b => {
+      const jest = cartItems.some(i => i.name === b.dataset.product);
+      b.textContent = jest ? 'W koszyku ✓' : 'Dodaj do koszyka';
+      b.classList.toggle('is-added', jest);
+      b.disabled = jest;
+    });
+    const n = cartItems.length;
+    if (cartBtn) {
+      cartBtn.hidden = n === 0 && !(cartDlg && cartDlg.open);
+      cartN.textContent = String(n);
+      cartBtn.setAttribute('aria-label', 'Koszyk: ' + n + ' ' + pozycje(n) + ', razem ' + zl(cartSum()).replace(/ /g, ' '));
+    }
+    if (!cartDlg) return;
+    const lista = document.getElementById('koszykLista');
+    lista.textContent = '';
+    cartItems.forEach((it) => {
+      const li = document.createElement('li');
+      li.className = 'koszyk__poz';
+      const nazwa = document.createElement('span'); nazwa.className = 'koszyk__nazwa'; nazwa.textContent = it.name;
+      const cena = document.createElement('span'); cena.className = 'koszyk__cena'; cena.textContent = zl(it.price);
+      const usun = document.createElement('button'); usun.type = 'button'; usun.className = 'koszyk__usun';
+      usun.textContent = 'Usuń'; usun.dataset.usun = it.name; usun.setAttribute('aria-label', 'Usuń z koszyka: ' + it.name);
+      li.append(nazwa, cena, usun);
+      lista.appendChild(li);
+    });
+    document.getElementById('koszykPusto').hidden = n > 0;
+    document.getElementById('koszykSuma').textContent = zl(cartSum());
+    document.getElementById('koszykZamow').disabled = n === 0;
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('.prod__addcart');
+    if (!b || b.disabled) return;
+    if (!cartItems.some(i => i.name === b.dataset.product)) {
+      cartItems.push({ name: b.dataset.product, price: Number(b.dataset.price) });
+      cartSave(cartItems);
+    }
+    cartRender();
+  });
+  if (cartDlg && cartBtn) {
+    cartBtn.addEventListener('click', () => { cartRender(); cartDlg.showModal(); });
+    cartDlg.addEventListener('click', (e) => {
+      if (e.target === cartDlg || (e.target.closest && e.target.closest('[data-koszyk-zamknij]'))) { cartDlg.close(); return; }
+      const u = e.target.closest && e.target.closest('[data-usun]');
+      if (!u) return;
+      const k = cartItems.findIndex(i => i.name === u.dataset.usun);
+      if (k >= 0) { cartItems.splice(k, 1); cartSave(cartItems); }
+      cartRender();
+      // fokus nie ginie po usunieciu wiersza: nastepny „Usuń” albo przycisk zamykania
+      const dalej = cartDlg.querySelectorAll('[data-usun]')[Math.min(k, cartItems.length - 1)] || cartDlg.querySelector('[data-koszyk-zamknij]');
+      if (dalej) dalej.focus();
+    });
+    cartDlg.addEventListener('close', () => { cartRender(); if (!cartBtn.hidden) cartBtn.focus(); });
+    document.getElementById('koszykZamow').addEventListener('click', () => {
+      if (!cartItems.length) return;
+      cartDlg.close();
+      go('contact');
+      kontaktInit();
+      if (konfUstawTryb) konfUstawTryb('quick', false);
+      const f = document.getElementById('contactForm');
+      if (!f) return;
+      const tekst = 'Zamówienie z koszyka:\n' + cartItems.map(i => '• ' + i.name + ': ' + zl(i.price)).join('\n') +
+        '\nRazem: ' + zl(cartSum()) + '\n';
+      const msg = f.elements.cmessage;
+      // drugi „Zamów” podmienia poprzednia liste, reszta wiadomosci zostaje
+      const reszta = msg.value.replace(/^Zamówienie z koszyka:\n[\s\S]*?\nRazem: [^\n]*\n?/, '').replace(/^\n+/, '');
+      msg.value = tekst + (reszta ? '\n' + reszta : '');
+      const sel = f.elements.ctopic;
+      if ([...sel.options].some(o => o.value === 'Zamówienie z koszyka')) sel.value = 'Zamówienie z koszyka';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      msg.dispatchEvent(new Event('input', { bubbles: true }));
+      const imie = f.elements.cname;
+      if (imie) setTimeout(() => { try { imie.focus({ preventScroll: true }); } catch (e) { imie.focus(); } imie.scrollIntoView({ block: 'center' }); }, 60);
     });
   }
-  document.querySelectorAll('.prod__addcart').forEach(btn => {
-    const name = btn.dataset.product;
-    if (cartItems.some(i => i.name === name)) cartMarkAdded(name);
-    btn.addEventListener('click', () => {
-      if (!cartItems.some(i => i.name === name)) {
-        cartItems.push({ name, price: Number(btn.dataset.price) });
-        cartSave(cartItems);
-      }
-      cartMarkAdded(name);
-    });
-  });
+  cartRender();
 
   /* ===================== Kontakt — form + live terminal preview, hands off to a formatted mailto ===================== */
   /* SZYBKOSC S2 (26.10): Kontakt i konfigurator nie startuja juz przy ladowaniu strony, tylko przy
@@ -3727,7 +3827,7 @@
         ],
       },
       somi: {
-        nazwa: 'SOMI',
+        nazwa: 'Meshuga',
         lead: 'Nasza asystentka AI. Rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. Robi też research i pracuje jak agent: czyta pliki, pisze kod, uruchamia komendy.',
         fakty: [
           ['gdzie', 'Terminal · Discord · rozmowa głosem'],
@@ -3738,7 +3838,7 @@
         zrzut: null,
         pytania: [
           { q: 'Co potrafi już dziś?', a: 'Rozmawia z nami w terminalu i na Discordzie, rozumie głos i potrafi z niego zrobić konkretną rzecz. Ma pamięć opartą o nasz dziennik i dokumentację, robi research (radar zleceń) i działa jako agent z narzędziami.' },
-          { q: 'Czy to czat na stronie?', a: 'Nie. Na stronie jest tylko zapis trzech pytań. Prawdziwa SOMI działa u nas w terminalu i na Discordzie.' },
+          { q: 'Czy to czat na stronie?', a: 'Nie. Na stronie jest tylko zapis trzech pytań. Prawdziwa Meshuga działa u nas w terminalu i na Discordzie.' },
         ],
       },
       moonsora: {
@@ -3769,8 +3869,8 @@
     const SOMI_KROKI = {
       rozmowa: {
         nazwa: 'Przykładowa rozmowa',
-        lead: 'SOMI działa już na co dzień: rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. Tutaj zobaczysz tylko zapis trzech pytań, bo czatu na żywo na stronie jeszcze nie ma.',
-        kod: 'somi> router.wybierz(zadanie)\n  rutyna   -> deepseek-v4-flash\n  trudne   -> claude-sonnet-5\n  synteza  -> claude-opus-5-5\npamiec.szukaj("radar")',
+        lead: 'Meshuga działa już na co dzień: rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. Tutaj zobaczysz tylko zapis trzech pytań, bo czatu na żywo na stronie jeszcze nie ma.',
+        kod: 'meshuga> router.wybierz(zadanie)\n  rutyna   -> deepseek-v4-flash\n  trudne   -> claude-sonnet-5\n  synteza  -> claude-opus-5-5\npamiec.szukaj("radar")',
         fakty: [
           ['na stronie', 'Zapis 3 pytań, bez czatu na żywo'],
           ['u nas', 'Terminal · Discord · rozmowa głosem'],
@@ -3785,7 +3885,7 @@
       },
       research: {
         nazwa: 'Deep research',
-        lead: 'SOMI robi deep research na to, czego akurat potrzebujemy. Najlepiej widać to w radarze: przegląda zlecenia z Useme i Upwork, odrzuca stare i ocenia resztę pod nasze umiejętności. Radar działa już dziś, a z poziomu czatu SOMI dopiero go podłączamy.',
+        lead: 'Meshuga robi deep research na to, czego akurat potrzebujemy. Najlepiej widać to w radarze: przegląda zlecenia z Useme i Upwork, odrzuca stare i ocenia resztę pod nasze umiejętności. Radar działa już dziś, a z poziomu czatu Meshugi dopiero go podłączamy.',
         znak: '.somi-demo__parts li:nth-child(2) .somi-demo__glyph',
         fakty: [
           ['źródła', 'Useme · Upwork'],
@@ -3801,7 +3901,7 @@
       },
       agent: {
         nazwa: 'Agent, który działa',
-        lead: 'W terminalu SOMI ma pętlę narzędzi: czyta i przeszukuje pliki, pisze i edytuje kod, uruchamia komendy. Nic ryzykownego bez naszej zgody.',
+        lead: 'W terminalu Meshuga ma pętlę narzędzi: czyta i przeszukuje pliki, pisze i edytuje kod, uruchamia komendy. Nic ryzykownego bez naszej zgody.',
         znak: '.somi-demo__parts li:nth-child(3) .somi-demo__glyph',
         fakty: [
           ['narzędzia', '12: pliki, kod, komendy, zadania'],
@@ -3812,7 +3912,7 @@
         zrzut: null,
         pytania: [
           { q: 'Kiedy pyta o zgodę?', a: 'Zależy od trybu, przełączanego Shift+Tab: normal, auto, plan albo bypass. Zapis w katalogu projektu nie pyta, komendy w terminalu pytają. Odpowiedź „tak i nie pytaj więcej” działa tylko dla tej jednej komendy, ścieżki albo narzędzia. Plik reguł z listami allow, ask i deny wygrywa nad trybem, a blokady niebezpiecznych komend nie wyłącza żaden tryb.' },
-          { q: 'Co znaczy parity z Claude Code?', a: 'To seria 10 modułów, od P1 do P10, w której terminal SOMI dostał to, co ma Claude Code: narzędzia, tryby zgody i reguły dostępu. Ostatni moduł zamknęliśmy 29 lipca 2026. Po nim bramka miała 569 testów bez błędu, a dziś cała bramka SOMI to ponad 1 500 testów.' },
+          { q: 'Co znaczy parity z Claude Code?', a: 'To seria 10 modułów, od P1 do P10, w której terminal Meshugi dostał to, co ma Claude Code: narzędzia, tryby zgody i reguły dostępu. Ostatni moduł zamknęliśmy 29 lipca 2026. Po nim bramka miała 569 testów bez błędu, a dziś cała bramka Meshugi to ponad 1 500 testów.' },
         ],
       },
     };
@@ -3821,7 +3921,7 @@
        grupy, z ktorej je otwarto; pasek okna pokazuje jej schemat (sadzonki:// / somi://). */
     const GRUPY = {
       sadzonki: { karty: seeds, dane: SADZONKI, klucz: 'project', schemat: 'sadzonki://' },
-      somi: { karty: somiKarty, dane: SOMI_KROKI, klucz: 'somi', schemat: 'somi://' },
+      somi: { karty: somiKarty, dane: SOMI_KROKI, klucz: 'somi', schemat: 'meshuga://' },
     };
     let g = GRUPY.sadzonki, lista = [];
     let idx = 0, lastFocus = null, pisanie = null, zamykanie = null;

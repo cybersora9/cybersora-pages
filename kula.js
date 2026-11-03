@@ -64,9 +64,10 @@
     if(document.readyState === 'complete') wstrzyknij();
     else window.addEventListener('load', wstrzyknij);
   }
-  function naSomi(){ return location.hash === '#somi' || location.hash.indexOf('#somi?') === 0 || location.hash.indexOf('#somi/') === 0; }
+  /* 03.11: na stronie SOMI nazywa sie Meshuga, adres #meshuga (stary #somi dalej dziala) */
+  function naSomi(){ return /^#(somi|meshuga)([?/]|$)/.test(location.hash); }
   function linkSomi(e){
-    var a = e.target && e.target.closest ? e.target.closest('a[href="#somi"]') : null;
+    var a = e.target && e.target.closest ? e.target.closest('a[href="#somi"],a[href="#meshuga"]') : null;
     if(a) zaladuj();
   }
 

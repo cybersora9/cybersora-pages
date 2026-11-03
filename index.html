@@ -1399,6 +1399,49 @@
     cursor:default;transform:none;
   }
   .prod__addcart:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .prod__addcart{min-height:44px;}
+
+  /* ---- KOSZYK (03.11): przycisk w pasku (tylko gdy coś jest w koszyku) + okno z lista i suma.
+     Bez platnosci: „Zamów” przenosi liste do formularza kontaktowego. ---- */
+  .nav__cart{
+    position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+    min-width:44px;min-height:44px;padding:0 .8rem;border-radius:999px;cursor:pointer;
+    font:inherit;font-size:var(--t-ui);font-weight:600;color:#fff;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);
+    transition:background .2s ease,border-color .2s ease;
+  }
+  .nav__cart[hidden]{display:none;}
+  .nav__cart:hover{background:rgba(255,255,255,.07);border-color:rgba(255,58,82,.55);}
+  .nav__cart:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .nav__cart svg{width:20px;height:20px;flex:none;}
+  .nav__cartN{display:grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--th-solid);color:#fff;font:600 13px/1 var(--mono);}
+  .koszyk{
+    width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 88px);margin:72px 16px auto auto;padding:0;
+    color:#fff;background:color-mix(in srgb,var(--ink),#fff 4%);border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:auto;
+  }
+  .koszyk::backdrop{background:rgba(6,6,9,.6);}
+  .koszyk__in{display:flex;flex-direction:column;gap:14px;padding:18px;}
+  .koszyk__head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .koszyk__head h2{margin:0;font:600 1.25rem/1.2 var(--f-sans);}
+  .koszyk__x{display:grid;place-items:center;width:44px;height:44px;border-radius:999px;cursor:pointer;font:inherit;font-size:1.1rem;color:#fff;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);}
+  .koszyk__x:hover{border-color:rgba(255,58,82,.55);}
+  .koszyk__lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .koszyk__poz{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);}
+  .koszyk__nazwa{font:500 1rem/1.3 var(--f-sans);overflow-wrap:anywhere;}
+  .koszyk__cena{font:500 14px/1 var(--mono);color:var(--th-label);white-space:nowrap;}
+  .koszyk__usun{min-height:44px;padding:0 .8rem;border-radius:999px;cursor:pointer;font:inherit;font-size:13px;color:#fff;background:transparent;border:1px solid rgba(255,255,255,.14);}
+  .koszyk__usun:hover{border-color:rgba(255,58,82,.55);}
+  .koszyk__x:focus-visible,.koszyk__usun:focus-visible,.koszyk__zamow:focus-visible{outline:2px solid var(--th-hot);outline-offset:3px;}
+  .koszyk__pusto,.koszyk__info{margin:0;font-size:14px;line-height:1.5;color:var(--muted-dark);}
+  .koszyk__suma{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.10);}
+  .koszyk__suma span{font-size:14px;color:var(--muted-dark);}
+  .koszyk__suma b{font:600 1.35rem/1 var(--mono);}
+  .koszyk__zamow{width:100%;justify-content:center;min-height:48px;}
+  .koszyk__zamow:disabled{opacity:.45;cursor:not-allowed;}
+  @media (max-width:420px){.nav__cart{padding:0 .55rem;}.koszyk{margin:68px auto auto;}}
+  /* ZMIERZONE 03.11 przy 375 px: logo + koszyk + „Napisz do nas” + burger nie mieszcza sie (koszyk wchodzil na logo).
+     Gdy koszyk jest widoczny, CTA chowa sie do menu; „Zamów” w koszyku i tak prowadzi do formularza. */
+  @media (max-width:520px){.nav__side:has(.nav__cart:not([hidden])) .nav__cta{display:none;}}
 
   /* ---- outline CTA — secondary action next to a solid .cta-big ---- */
   .cta-outline{
@@ -2330,6 +2373,9 @@
   /* 07.10 wieczor: okno gry bylo 500x270 (max-width tekstu + wysokosc 34vh), a gra potrzebuje ok. 360x520 */
   .sx-1s:has(> [aria-label="DancyCloud"][role="region"]){max-width:none;}
   [aria-label="DancyCloud"][role="region"]:not(.gra-pelny){height:clamp(300px,calc(100vh - 380px),720px);display:block;position:relative;}
+  /* 03.11: ekran Topki w oknie gry (ok. 500 px) dzielil sie na ranking 155 px + rekordy 280 px wg szerokosci EKRANU,
+     nie okna. Z panelem kont ranking byl nieczytelny, wiec w oknie obie sekcje ida jedna pod druga. */
+  [aria-label="DancyCloud"][role="region"]:not(.gra-pelny) .dcg-tk{grid-template-columns:minmax(0,1fr);}
   [data-gra-powieksz]{position:static;display:block;margin:10px auto 0;z-index:3;font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(14,14,18,.8);border:1px solid rgba(255,255,255,.3);padding:8px 12px;cursor:pointer;}
   [aria-label="DancyCloud"][role="region"] [data-gra-powieksz]{position:absolute;left:50%;top:8px;bottom:auto;transform:translateX(-50%);margin:0;padding:6px 10px;font-size:11px;opacity:.75;z-index:600;}
   [aria-label="DancyCloud"][role="region"] [data-gra-powieksz]:hover,[aria-label="DancyCloud"][role="region"] [data-gra-powieksz]:focus-visible{opacity:1;}
@@ -2396,6 +2442,16 @@
   #cennik article > a:hover{background:var(--crimson);}
   #cennik article > a:hover::after{transform:translateX(4px);}
   #cennik article > a:focus-visible{outline:2px solid #fff;outline-offset:-5px;}
+  /* 03.11 koszyk: drugi przycisk karty, obrysowany (wypelniony zostaje tylko CTA wyzej), ten sam ksztalt i szerokosc */
+  #cennik article > .prod__addcart{
+    display:flex;align-items:center;justify-content:center;min-height:46px;margin:8px var(--kt-pad) 0;padding:.8rem 1rem;
+    font:600 var(--t-ui)/1 var(--mono);letter-spacing:var(--ls-eyebrow);text-transform:uppercase;
+    color:#fff;background:transparent;border:1px solid color-mix(in srgb,var(--th-hot) 55%,transparent);border-radius:9px;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);transform:none;
+  }
+  #cennik article > .prod__addcart:hover{background:rgba(225,29,51,.12);transform:none;}
+  #cennik article > .prod__addcart.is-added{color:var(--th-label);border-color:rgba(255,255,255,.14);}
+  #cennik article > .prod__addcart:focus-visible{outline:2px solid #fff;outline-offset:-5px;}
   #cennik [data-soraos-app="projekty"] > ul > li{counter-increment:akta;}
   /* pieczatka ze statusem projektu (istniejace data-znacznik) */
   #cennik [data-soraos-app="projekty"] > ul > li[data-znacznik]::after{
@@ -2550,7 +2606,7 @@
       </defs>
     </svg></div>
     <div class="nav__left">
-      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora — Start"><svg class="nav__mark" viewBox="0 0 134 100" width="27" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)" stroke="var(--th-accent)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)" stroke="#f6f2f3"/></g></svg>cyber<b>sora</b></a><!-- deadsora — przelacznik ukryty na prosbe maisy, 22.09, tymczasowo
+      <a href="#start" class="nav__brand" data-nav="start" aria-label="cybersora — Start"><img class="nav__kot" src="assety/kot-72.webp" width="30" height="30" alt="" decoding="async">cyber<b>sora</b></a><!-- deadsora — przelacznik ukryty na prosbe maisy, 22.09, tymczasowo
         ("poki co"): sekcja Sztuka i jej CSS/JS zostaja nietkniete, to tylko wejscie.
         <button type="button" class="brand__second" data-nav="sztuka" aria-pressed="false" aria-label="deadsora — przełącz na Sztukę">/ deadsora</button>
         -->
@@ -2564,7 +2620,7 @@
         <a href="#products"  class="nav__link" data-nav="products" data-also="rnd">Projekty</a>
       </div>
       <div class="nav__duo" id="navDuo">
-        <a href="#somi"      class="nav__link nav__link--duo nav__link--somi" data-nav="somi"><span class="t" data-t="SOMI">SOMI</span></a>
+        <a href="#meshuga"      class="nav__link nav__link--duo nav__link--somi" data-nav="somi"><span class="t" data-t="Meshuga">Meshuga</span></a>
         <a href="#soraos"    class="nav__link nav__link--duo nav__link--os" data-nav="soraos" aria-label="SORA//OS, nasz pulpit z grą"><span class="t" data-t="SORA//OS">SORA<i>//</i>OS</span><span class="nav__os-cur" aria-hidden="true">_</span></a>
       </div>
       <div class="nav__grp nav__grp--r">
@@ -2580,6 +2636,7 @@
       <!-- Przelacznik PL/ENG WYCIETY 18.09: ENG byl trwale wygaszony (brak wersji),
            co czytalo sie jako "niedokonczone" w pierwszym miejscu, na ktore patrzy oko.
            Miejsce na ikony socjali jest tutaj, czeka na adresy profili. -->
+      <button class="nav__cart" type="button" id="navCart" aria-haspopup="dialog" aria-controls="koszyk" aria-label="Koszyk" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span class="nav__cartN" id="navCartN" aria-hidden="true">0</span></button>
       <button class="nav__guide" type="button" id="navGuide" aria-expanded="false" aria-controls="navPanel" aria-label="Przewodnik"><span class="nav__guideQ" aria-hidden="true">?</span><span class="nav__guideT">Przewodnik</span></button>
       <a href="#contact" class="nav__cta" data-nav="contact">Napisz do nas</a>
       <button class="nav__burger" type="button" aria-expanded="false" aria-controls="navPanel" aria-label="Otwórz menu">
@@ -2593,12 +2650,13 @@
       <div>
         <h2 class="nav__panelH">Co jest gdzie</h2>
         <div class="nav__tiles">
-          <a class="nav__tile nav__tile--duo" href="#somi" data-nav="somi"><b>SOMI</b><span>Nasza asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
+          <a class="nav__tile nav__tile--duo" href="#start" data-kot=""><b>Zapytaj Meshugę</b><span>Nasz AI Chatbot w prawym dolnym rogu. Podpowie, gdzie co jest, i odpowie na pytania o ceny i terminy.</span></a>
+          <a class="nav__tile nav__tile--duo" href="#meshuga" data-nav="somi"><b>Meshuga</b><span>Nasza asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
           <a class="nav__tile nav__tile--duo" href="#soraos" data-nav="soraos"><b>SORA//OS</b><span>Nasz pulpit jak z gry: projekty, terminy, terminal i DancyCloud.</span></a>
           <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jesteśmy i co robimy, w skrócie.</span></a>
           <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Programy, aplikacje, strony i darmowy skan widoczności. Cennik usług z ceną z góry jest na drugiej karcie.</span></a>
           <a class="nav__tile" href="#products" data-nav="products"><b>Projekty</b><span>Nasze programy do pobrania za darmo oraz to, co dopiero rośnie w Sadzonkach.</span></a>
-          <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasza asystentka SOMI. Szukamy też partnerów do projektów.</span></a>
+          <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasza asystentka Meshuga. Szukamy też partnerów do projektów.</span></a>
           <a class="nav__tile" href="#contact" data-nav="contact"><b>Kontakt</b><span>Napisz, czego potrzebujesz. Na żywo widzisz, co do nas trafi.</span></a>
         </div>
       </div>
@@ -2613,6 +2671,17 @@
     </div></div>
   </div>
 </nav>
+
+<dialog class="koszyk" id="koszyk" aria-labelledby="koszykH">
+  <div class="koszyk__in">
+    <div class="koszyk__head"><h2 id="koszykH">Koszyk</h2><button class="koszyk__x" type="button" data-koszyk-zamknij aria-label="Zamknij koszyk">&#x2715;</button></div>
+    <ul class="koszyk__lista" id="koszykLista"></ul>
+    <p class="koszyk__pusto" id="koszykPusto" hidden>Koszyk jest pusty. Usługi z ceną z góry dodasz w cenniku Oferty.</p>
+    <div class="koszyk__suma"><span>Razem</span><b id="koszykSuma">0&nbsp;zł</b></div>
+    <p class="koszyk__info">Na stronie nic nie płacisz. „Zamów” przenosi listę do formularza kontaktowego, a my odpisujemy z terminem i sposobem płatności.</p>
+    <button class="cta-big koszyk__zamow" type="button" id="koszykZamow">Zamów &rarr;</button>
+  </div>
+</dialog>
 
 <main>
   <!-- START -->
@@ -2631,35 +2700,260 @@
       <div class="hero__type">
         <h1 class="slogan hero__slogan">Piszemy software<span class="thin">na zamówienie</span></h1>
         <p class="hero__lead">Aplikacje, boty i narzędzia — od pierwszej rozmowy do wdrożenia. Własne produkty piszemy tym samym kodem, co zlecenia.</p>
-        <a class="cta-big hero__cta" href="#contact" data-nav="contact">Napisz do nas</a>
+        <div class="hero__ctas">
+          <a class="cta-big hero__cta" href="#contact" data-nav="contact">Opisz, co ma robić</a>
+          <a class="cta-outline hero__cta2" href="#oferta" data-nav="oferta">Darmowy skan widoczności</a>
+        </div>
       </div>
 
       <!-- pas faktow (07.10, faza B P1/P2): co dany program robi dla klienta, nie nasz zargon
            (bylo: PyPI 0.4.0 / testy w salonie / chodzi 24/7). Bez obietnic bez pokrycia. -->
       <dl class="hero__rail">
-        <div class="hero__fact"><dt>Pycodemath</dt><dd>wzór → gotowy kod w Pythonie</dd></div>
+        <div class="hero__fact"><dt>Pycodemath</dt><dd>sprawdza matematykę w kodzie</dd></div>
         <div class="hero__fact"><dt>SalonDesk</dt><dd>grafik, klienci i kasa salonu</dd></div>
-        <div class="hero__fact"><dt>SOMI</dt><dd>sama szuka nam zleceń</dd></div>
+        <div class="hero__fact"><dt>Meshuga</dt><dd>sama szuka nam zleceń</dd></div>
       </dl>
 
       <div class="hint">rusz kursorem po mapie &rarr;</div>
     </div>
 
-    <!-- MANIFEST — hasla w rytmie CD Projekt Red, po polsku i o kodzie.
-         Tresc ma pokrycie w tym, co naprawde chodzi: SOMI, Rachmistrz, SalonDesk
-         i radary. Zadnych obietnic, ktorych nie da sie sprawdzic. -->
-    <section class="manifest reveal" aria-label="Co robimy">
-      <div class="manifest__inner">
-        <div class="manifest__item">
-          <h2 class="manifest__head">Piszemy narzędzia<span>pod konkretną robotę</span></h2>
-          <p class="manifest__body">SOMI szuka zleceń. Pycodemath zamienia wzór w gotowy kod. SalonDesk prowadzi salon. Każde z nich powstało, bo było potrzebne — nie dlatego, że ktoś zamówił „coś w Pythonie”.</p>
-        </div>
-        <div class="manifest__item">
-          <h2 class="manifest__head">Kod, który pracuje<span>kiedy śpisz</span></h2>
-          <p class="manifest__body">Nasze radary przeglądają rynek codziennie i zwracają tylko to, co ma sens. To nie demo na pokaz, tylko narzędzie, na którym sami pracujemy.</p>
+    <!-- CO ZROBILIŚMY (ov10). 02.11 makieta 3HxqCoRS5HUQmZWF2ragus, 03.11 przeniesione z Oferty na Start
+         w miejsce manifestu, pasa projektów i scen Pycodemath (pliki pycodemath-sceny\ zostają). Jeden egzemplarz.
+         Stara lista projektów w cenniku Oferty zostaje jako źródło dla SORA//OS, ukryta przez oferta-v10/ov10.css. -->
+    <link rel="stylesheet" href="oferta-v10/ov10.css?v=20261103a">
+    <section class="ov10" id="zrobilismy" aria-labelledby="ov10-tytul">
+      <div class="ov-wrap">
+        <header class="ov-head">
+          <p class="ov-et">Co zrobiliśmy</p>
+          <h2 id="ov10-tytul">Zobacz programy, które zbudowaliśmy</h2>
+          <p class="ov-jak"><i>1</i>Kliknij numer, a zobaczysz ten fragment programu z bliska.</p>
+        </header>
+
+        <article class="ov-duza" data-tour="salon" data-kod="SD">
+          <div class="ov-kol">
+            <div class="ov-zakladki" role="tablist" aria-label="Ekrany SalonDesk"></div>
+            <div class="ov-scena"><div class="ov-pasek"><i></i>salondesk.app<em>dane pokazowe</em></div><div class="ov-plansza"></div></div>
+            <ul class="ov-punkty" aria-label="Punkty na tym ekranie"></ul>
+          </div>
+          <div class="ov-tresc">
+            <span class="ov-znacznik">działa u klienta na co dzień</span>
+            <h3>SalonDesk</h3>
+            <p class="ov-lead">Cały salon w jednym programie, który działa bez internetu.</p>
+            <ul class="ov-efekty">
+              <li>Grafik, kasa, magazyn i karty klientek w jednym miejscu</li>
+              <li>Salon używa go codziennie</li>
+              <li>Dane zostają na komputerze salonu</li>
+            </ul>
+            <a class="ov-cta" href="#contact" data-nav="contact" data-konf="app">Chcę coś podobnego →</a>
+            <details><summary>Pokaż historię projektu</summary>
+              <div class="ov-hist">
+                <p><b>Problem</b><span>Salon prowadził grafik, karty klientek i kasę w kilku miejscach naraz.</span></p>
+                <p><b>Co zbudowaliśmy</b><span>Jeden program na komputer: kalendarz z grafikiem zespołu, kasa z bonami i pakietami, magazyn i karty klientek.</span></p>
+                <p><b>Wynik</b><span>Używany w salonie codziennie. Jedno miejsce zamiast kilku.</span></p>
+              </div>
+            </details>
+          </div>
+          <section class="ov-dok" aria-label="Dokumentacja SalonDesk">
+            <details class="ov-zw" open><summary>Dokumentacja: moduły, mocne i słabe strony</summary><div class="ov-dok-in">
+              <div class="ov-moduly">
+                <div class="ov-modul"><span class="kd">SD-KAL</span><h4>Kalendarz i grafik</h4><p>Wizyty przeciągane myszą, kolizje i wolne okna liczone od razu. Urlopy, choroby i przerwy zespołu w tym samym widoku.</p></div>
+                <div class="ov-modul"><span class="kd">SD-KAS</span><h4>Kasa</h4><p>Jeden paragon można opłacić kilkoma formami: gotówką, kartą, bonem i pakietem. Pomyłkę przy kasie cofa storno paragonu.</p></div>
+                <div class="ov-modul"><span class="kd">SD-PAK</span><h4>Pakiety, bony, magazyn</h4><p>Licznik zabiegów z karnetu, a pakiet płaci za konkretny zabieg. Magazyn ze stanem, przyjęciami i remanentem.</p></div>
+                <div class="ov-modul"><span class="kd">SD-RAP</span><h4>Raporty i Excel</h4><p>Obłożenie gabinetów, wpływ do kasy i porównanie okresów. W pliku Excela są te same liczby co na ekranie.</p></div>
+              </div>
+              <div class="ov-bilans">
+                <div class="ov-bil plus"><h4>Mocne strony</h4><ul>
+                  <li><span>Działa bez internetu, dane zostają na komputerze salonu</span></li>
+                  <li><span>Pieniądze liczone w groszach, bez zaokrągleń po drodze</span></li>
+                  <li><span>Ponad 4 700 testów automatycznych na Windows i Linux</span></li>
+                  <li><span>Audyt liczb: 53 rozbieżności znalezione i naprawione</span></li>
+                </ul></div>
+                <div class="ov-bil minus"><h4>Nad czym pracujemy</h4><ul>
+                  <li><span>Wersja na telefony i serwer dla całego zespołu</span><em class="toku">w toku</em></li>
+                  <li><span>Zabezpieczenia wersji serwerowej: limity prób logowania, klucze</span><em class="toku">w toku</em></li>
+                  <li><span>Połączenie z kasą fiskalną, dziś paragon nie idzie do fiskalizacji</span><em>planowane</em></li>
+                  <li><span>Wygląd części ekranów do dopracowania</span><em>planowane</em></li>
+                </ul></div>
+              </div>
+            </div></details>
+          </section>
+        </article>
+
+        <article class="ov-duza">
+          <div class="ov-kol">
+            <div class="ov-kula">
+              <img src="assety/kula-plakat.webp" alt="Kula Meshugi" width="512" height="512" loading="lazy" decoding="async">
+              <p class="ov-mute">Kula pokazuje, co Meshuga właśnie robi: czeka, myśli, pracuje, mówi albo utknęła.</p>
+              <a class="ov-btn" href="#meshuga" data-nav="somi">Zobacz kulę Meshugi na żywo →</a>
+            </div>
+          </div>
+          <div class="ov-tresc">
+            <span class="ov-znacznik">działa codziennie</span>
+            <h3>Meshuga</h3>
+            <p class="ov-lead">Asystentka AI, która pracuje z nami każdego dnia.</p>
+            <ul class="ov-efekty">
+              <li>Prowadzi bota społeczności na Discordzie całą dobę</li>
+              <li>Mówi głosem i pracuje z nami w terminalu</li>
+              <li>Na tym kodzie stoi nasz Bot od 1 200 zł</li>
+            </ul>
+            <a class="ov-cta" href="#contact" data-nav="contact" data-konf="bot">Chcę coś podobnego →</a>
+            <details><summary>Pokaż historię projektu</summary>
+              <div class="ov-hist">
+                <p><b>Problem</b><span>Serwer społeczności trzeba pilnować całą dobę, a powtarzalnej roboty przy kodzie jest za dużo na dwie osoby.</span></p>
+                <p><b>Co zbudowaliśmy</b><span>Asystentkę AI: prowadzi bota społeczności, mówi głosem i pracuje z nami w terminalu. Kula pokazuje, co robi.</span></p>
+                <p><b>Wynik</b><span>Bot odpowiada i powiadamia całą dobę.</span></p>
+              </div>
+            </details>
+          </div>
+          <section class="ov-dok" aria-label="Dokumentacja Meshugi">
+            <details class="ov-zw" open><summary>Dokumentacja: moduły, mocne i słabe strony</summary><div class="ov-dok-in">
+              <div class="ov-moduly">
+                <div class="ov-modul"><span class="kd">MSH-RAD</span><h4>Radar zleceń</h4><p>Co 10 minut sprawdza nowe zlecenia na Useme, ocenia dopasowanie i wysyła je na Discorda bez powtórek.</p></div>
+                <div class="ov-modul"><span class="kd">MSH-AGT</span><h4>Agent z narzędziami</h4><p>Czyta i pisze pliki, tworzy i uruchamia skrypty. Polecenia systemowe wykonuje dopiero po zgodzie człowieka.</p></div>
+                <div class="ov-modul"><span class="kd">MSH-AH</span><h4>AstralHeart, samonaprawa</h4><p>Szuka plików, które padają, proponuje poprawkę i puszcza testy. Gdy coś pęknie, cofa zmianę.</p></div>
+                <div class="ov-modul"><span class="kd">MSH-MAT</span><h4>Most do Pycodemath</h4><p>Matematykę liczy silnik Pycodemath, a nie model językowy na oko.</p></div>
+              </div>
+              <div class="ov-bilans">
+                <div class="ov-bil plus"><h4>Mocne strony</h4><ul>
+                  <li><span>Wydatki i wysyłki zawsze wymagają zgody człowieka</span></li>
+                  <li><span>Plik psuty kilka razy z rzędu trafia do kwarantanny, a nie pod kolejną łatkę</span></li>
+                  <li><span>Ponad 600 testów automatycznych</span></li>
+                  <li><span>Alarm na Discordzie, gdy radar przez 6 godzin nie widzi żadnej oferty</span></li>
+                </ul></div>
+                <div class="ov-bil minus"><h4>Nad czym pracujemy</h4><ul>
+                  <li><span>Nowy układ kanałów na serwerze Discord czeka na wdrożenie</span><em class="toku">w toku</em></li>
+                  <li><span>Łatki z samonaprawy zatwierdza człowiek, pełna autonomia dopiero po zebraniu historii</span><em class="toku">w toku</em></li>
+                  <li><span>Na razie tylko Useme, inne serwisy ze zleceniami są wyłączone</span><em>planowane</em></li>
+                </ul></div>
+              </div>
+            </div></details>
+          </section>
+        </article>
+
+        <article class="ov-duza" data-tour="moon" data-kod="MS">
+          <div class="ov-kol">
+            <div class="ov-zakladki" role="tablist" aria-label="Ekrany MoonSora" hidden></div>
+            <div class="ov-scena"><div class="ov-pasek"><i></i>moonsora.exe<em>zrzut z pracy</em></div><div class="ov-plansza"></div></div>
+            <ul class="ov-punkty" aria-label="Punkty na tym ekranie"></ul>
+          </div>
+          <div class="ov-tresc">
+            <span class="ov-znacznik">używamy co dzień</span>
+            <h3>MoonSora</h3>
+            <p class="ov-lead">Terminal, w którym widać każdy krok AI.</p>
+            <ul class="ov-efekty">
+              <li>Osobna karta na każde zadanie, bez gubienia wątku</li>
+              <li>Asystent obok, pyta o zgodę przed ważnym krokiem</li>
+              <li>Pracujemy w nim codziennie nad własnymi programami</li>
+            </ul>
+            <a class="ov-cta" href="#contact" data-nav="contact" data-konf="app">Chcę coś podobnego →</a>
+            <details><summary>Pokaż historię projektu</summary>
+              <div class="ov-hist">
+                <p><b>Problem</b><span>Agent AI w zwykłym terminalu to ściana tekstu. Nie widać, co robi, a kilka zadań naraz to kilka okien.</span></p>
+                <p><b>Co zbudowaliśmy</b><span>Terminal na Windows z kartami na każde zadanie, asystentem obok i podglądem przeglądarki.</span></p>
+                <p><b>Wynik</b><span>Każdy krok agenta jest na ekranie, więc wiadomo, co się stało.</span></p>
+              </div>
+            </details>
+          </div>
+          <section class="ov-dok" aria-label="Dokumentacja MoonSora">
+            <details class="ov-zw" open><summary>Dokumentacja: moduły, mocne i słabe strony</summary><div class="ov-dok-in">
+              <div class="ov-moduly">
+                <div class="ov-modul"><span class="kd">MS-KAR</span><h4>Karty i kafle</h4><p>Karta na każde zadanie, do 4 kafli obok siebie, każdy z własną powłoką. Po restarcie sesja wraca.</p></div>
+                <div class="ov-modul"><span class="kd">MS-AI</span><h4>Panel AI</h4><p>Agent odpowiada przy zaznaczonym poleceniu i prosi o zgodę na każde narzędzie. Przed zapisem pliku pokazuje zmianę.</p></div>
+                <div class="ov-modul"><span class="kd">MS-BLK</span><h4>Bloki poleceń</h4><p>Każde polecenie ma kod wyjścia, czas, kopiowanie i ponowne uruchomienie. Ścieżki plików w wyniku da się kliknąć.</p></div>
+                <div class="ov-modul"><span class="kd">MS-WIN</span><h4>Windows od środka</h4><p>PowerShell, cmd, Git Bash, WSL, maszyny wirtualne i SSH. Może zastąpić domyślny terminal Windows.</p></div>
+              </div>
+              <div class="ov-bilans">
+                <div class="ov-bil plus"><h4>Mocne strony</h4><ul>
+                  <li><span>Rdzeń w Rust, tekst rysowany przez kartę graficzną</span></li>
+                  <li><span>Gdy agenta brak, mówi to wprost, nigdy nie zmyśla odpowiedzi</span></li>
+                  <li><span>Licencja działa offline, bez konta i logowania</span></li>
+                </ul></div>
+                <div class="ov-bil minus"><h4>Nad czym pracujemy</h4><ul>
+                  <li><span>Podpis cyfrowy programu, bez niego Windows ostrzega przy instalacji</span><em class="toku">w toku</em></li>
+                  <li><span>Sprzedaż wersji Pro jeszcze nie ruszyła</span><em>planowane</em></li>
+                  <li><span>Nowe menu Eksploratora w Windows 11 i publikacja w winget</span><em>planowane</em></li>
+                </ul></div>
+              </div>
+            </div></details>
+          </section>
+        </article>
+
+        <article class="ov-duza">
+          <div class="ov-kol">
+            <div class="ov-scena"><div class="ov-pasek"><i></i>pycodemath 0.5.0<em>prawdziwe wywołanie</em></div><pre class="ov-term" aria-live="polite"></pre></div>
+            <div class="ov-krok"></div>
+            <ul class="ov-punkty" data-o="kroki" aria-label="Kroki sceny"></ul>
+            <button class="ov-btn ov-graj" type="button">▶ Odtwórz po kolei</button>
+          </div>
+          <div class="ov-tresc">
+            <span class="ov-znacznik">nowa wersja 0.5.0 · 31.10.2026</span>
+            <h3>Pycodemath</h3>
+            <p class="ov-lead">Sprawdza matematykę w kodzie. Daje dowód albo dokładne wejście, które ją psuje.</p>
+            <ul class="ov-efekty">
+              <li>105 na 105 podrzuconych błędów złapanych, 0 fałszywych alarmów</li>
+              <li>Pilnuje pieniędzy co do grosza: podziały, VAT, raty</li>
+              <li>Publicznie na GitHubie i PyPI, działa też z agentami AI</li>
+            </ul>
+            <a class="ov-cta" href="#contact" data-nav="contact" data-konf="skrypt">Chcę coś podobnego →</a>
+            <details><summary>Pokaż historię projektu</summary>
+              <div class="ov-hist">
+                <p><b>Problem</b><span>Błędy w obliczeniach (o jeden za mało, przepełnienie, zgubiony grosz) przechodzą testy na kilku przykładach i wychodzą dopiero u klienta.</span></p>
+                <p><b>Co zbudowaliśmy</b><span>Silnik matematyki, który czyta funkcję, porównuje ją ze wzorem i odpowiada: zweryfikowane, obalone z przykładem albo nierozstrzygnięte.</span></p>
+                <p><b>Wynik</b><span>Wersja 0.5.0: 2914 testów, Python od 3.11 do 3.14, kod otwarty na GitHubie.</span></p>
+              </div>
+            </details>
+          </div>
+          <section class="ov-dok" aria-label="Dokumentacja Pycodemath">
+            <details class="ov-zw" open><summary>Dokumentacja: moduły, mocne i słabe strony</summary><div class="ov-dok-in">
+              <div class="ov-moduly">
+                <div class="ov-modul"><span class="kd">PCM-CHK</span><h4>Kod kontra wzór</h4><p>Dowodzi, że funkcja liczy to samo co wzór, albo podaje wywołanie, które to psuje. Może od razu dopisać test.</p></div>
+                <div class="ov-modul"><span class="kd">PCM-FLT</span><h4>Dokładność liczb</h4><p>Mierzy, ile dokładności gubią obliczenia na liczbach zmiennoprzecinkowych, i proponuje zapis, który ma dowód równości i zmierzoną lepszą dokładność.</p></div>
+                <div class="ov-modul"><span class="kd">PCM-PLN</span><h4>Przepełnienia i pieniądze</h4><p>Sprawdza zakresy typów liczbowych. Dzieli kwoty bez gubienia groszy: VAT, raty, stopa zwrotu.</p></div>
+                <div class="ov-modul"><span class="kd">PCM-MCP</span><h4>Dla agentów AI</h4><p>Serwer MCP z 8 narzędziami i linter, który do każdego błędu podaje przykład. Cudzego kodu domyślnie nie uruchamia.</p></div>
+              </div>
+              <div class="ov-bilans">
+                <div class="ov-bil plus"><h4>Mocne strony</h4><ul>
+                  <li><span>105 na 105 podrzuconych błędów złapanych, 0 fałszywych alarmów</span></li>
+                  <li><span>0 fałszywych alarmów na 122 poprawnych rozwiązaniach modeli AI</span></li>
+                  <li><span>Każda odpowiedź ma certyfikat, który da się sprawdzić ponownie</span></li>
+                  <li><span>2914 testów, Python od 3.11 do 3.14</span></li>
+                </ul></div>
+                <div class="ov-bil minus"><h4>Nad czym pracujemy</h4><ul>
+                  <li><span>Limit czasu obliczeń jest orientacyjny, nie twardy (opisane w dokumentacji)</span><em class="toku">w toku</em></li>
+                  <li><span>Część pytań kończy się wynikiem „nierozstrzygnięte”, bo program nie zgaduje</span></li>
+                  <li><span>Komunikaty programu są tylko po angielsku</span></li>
+                </ul></div>
+              </div>
+            </div></details>
+          </section>
+        </article>
+
+        <div>
+          <p class="ov-et" style="margin-bottom:12px">Pozostałe projekty</p>
+          <div class="ov-kafle">
+            <article class="ov-kafel"><div class="ov-mini"><img src="zrzuty_projektow/soraflux.webp" alt="SoraFlux: zakładka Konwertuj" width="1280" height="860" loading="lazy" decoding="async"></div><span class="ov-znacznik">za darmo</span><h3>SoraFlux</h3><p class="ov-mute">Konwerter wideo, dźwięku i obrazów. Działa na Twoim komputerze, bez wysyłania plików.</p><a href="#products" data-nav="products">Pobierz w Produktach</a></article>
+            <article class="ov-kafel"><div class="ov-mini"><svg viewBox="0 0 160 100" role="img" aria-label="Znak Rodziny Sora"><rect width="160" height="100" fill="#0e0e12"/><path d="M58 18H120V70L108 82H40V30Z" fill="#17171d"/><path d="M66 30H80V70H66Z" fill="#e11d33"/><path d="M86 30H112V58H86Z" fill="#f6f2f3"/><path d="M86 62H112V70H86Z" fill="#f6f2f3"/></svg></div><span class="ov-znacznik">wkrótce</span><h3>Rodzina Sora</h3><p class="ov-mute">Cztery darmowe programy na wspólnym rdzeniu: zdjęcia, zrzuty ekranu, PDF i e-booki.</p><a href="#products" data-nav="products">Zobacz w Produktach</a></article>
+            <article class="ov-kafel"><div class="ov-mini"><img src="zrzuty_projektow/sora-oracle.webp" alt="Sora Oracle: stan wyjściowy usługi" width="1600" height="1000" loading="lazy" decoding="async"></div><span class="ov-znacznik">wczesny etap</span><h3>Sora Oracle</h3><p class="ov-mute">Antywirus z lokalnym AI, bez chmury.</p></article>
+            <article class="ov-kafel"><div class="ov-mini"><svg viewBox="0 0 160 100" role="img" aria-label="Znak: nawiasy kodu i robot"><rect width="160" height="100" fill="#0e0e12"/><polygon points="44,26 58,26 30,50 58,74 44,74 16,50" fill="#e11d33"/><polygon points="116,26 102,26 130,50 102,74 116,74 144,50" fill="#e11d33"/><rect x="78" y="24" width="4" height="10" fill="#f6f2f3"/><rect x="77" y="19" width="6" height="6" fill="#ff3a52"/><rect x="64" y="34" width="32" height="32" rx="6" fill="#f6f2f3"/><rect x="69" y="44" width="6" height="8" fill="#e11d33"/><rect x="85" y="44" width="6" height="8" fill="#e11d33"/><rect x="70" y="58" width="20" height="3" fill="#0e0e12"/></svg></div><span class="ov-znacznik">pracują u nas</span><h3>Skrypty i roboty</h3><p class="ov-mute">Najwięcej daje audyt widoczności: mierzy stronę firmy pod Google i składa raport.</p><a href="#contact" data-nav="contact" data-konf="mikro">Zapytaj o podobne</a></article>
+          </div>
         </div>
       </div>
+
+      <dialog class="ov-dlg" aria-labelledby="ov10-ek-tyt">
+        <button class="ov-btn zam" data-o="zam" type="button" aria-label="Zamknij powiększenie">Zamknij ✕</button>
+        <div class="ov-ekran">
+          <div class="ov-podglad"><div class="etyk"><span data-o="poz"></span><span>powiększenie</span></div><div class="ov-wykroj" role="img"></div></div>
+          <div class="ov-opisek" aria-live="polite">
+            <span class="kod" data-o="kod"></span>
+            <h3 id="ov10-ek-tyt" data-o="tyt"></h3>
+            <p class="tekst" data-o="tekst"></p>
+            <div class="ov-po"><b>Po co to jest</b><span data-o="po"></span></div>
+            <div class="ov-dol"><span class="ov-seg"></span><button class="ov-btn" data-o="prev" type="button" aria-label="Poprzedni punkt">←</button><button class="ov-btn dalej" data-o="next" type="button">Następny punkt →</button></div>
+          </div>
+        </div>
+      </dialog>
     </section>
+    <script src="oferta-v10/ov10.js" defer></script>
 
     <section class="services" aria-label="Top produkty" data-produkty>
       <div class="services__inner">
@@ -2712,157 +3006,12 @@
       </div>
     </section>
 
-    <!-- ===== JASNY BLOK: TRZY PROJEKTY (M4.2) =====================================
-         Co tu bylo: "Trzy rzeczy, ktore robimy dobrze" — Front-end / Design / Motion
-         w trzech identycznych kartach. Wyciete z dwoch powodow:
-         1. To menu agencji webowej, a manifest dwa ekrany wyzej mowi "piszemy
-            narzedzia, NIE strony". Strona sama sobie przeczyla.
-         2. Uklad byl blizniakiem sekcji "Trzy kroki do wdrozenia" nizej — ten sam
-            rzad trzech kart dwa razy pod rzad. Stad wrazenie szablonu.
-         Co jest teraz: trzy PASY na pelna szerokosc, na przemian lewo/prawo, na
-         JASNYM tle — jedyny jasny ekran na stronie, wiec dziala jak wybicie rytmu,
-         a nie jak drugi motyw. Zamiast obietnic ("layout, ktory sprzedaje") ida
-         fakty do sprawdzenia: wersja na PyPI, stan programu (umowy NIE ma, 30.09), chodzacy radar. -->
-    <section class="projekty reveal" id="projekty" aria-label="Moje projekty">
-      <div class="projekty__inner">
-        <div class="projekty__head">
-          <h2 class="projekty__title">Trzy, które już chodzą</h2>
-          <p class="projekty__sub">Nie zrzuty z portfolio. Każdy z nich ma wersję, wdrożenie albo adres, pod którym da się to sprawdzić.</p>
-        </div>
-
-        <article class="pas reveal">
-          <div class="pas__marka">
-            <!-- sygnet z repo Pycodemath (brand/logo/pycodemath-sygnet.svg) -->
-            <span class="pas__znak" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="4 0 180 120" role="img" aria-label="pycodemath — znak">
-              <title>pycodemath — sygnet ∫&gt;_ (tło przezroczyste)</title>
-              <g stroke-linecap="round">
-                <path d="M68,20 C69,11 57,12 55,23 C51,40 54,50 46,62 C38,74 41,82 36,94 C33,105 22,105 20,95"
-                      fill="none" stroke="#e11d33" stroke-width="9"/>
-                <path d="M96,44 L120,63 L96,82" fill="none" stroke="#f6f2f3" stroke-width="9" stroke-linejoin="round"/>
-              </g>
-              <rect x="138" y="76" width="30" height="10" rx="3" fill="#e11d33"/>
-            </svg></span>
-            <h3 class="pas__nazwa" data-hex="0x6D91">Pycodemath</h3>
-          </div>
-          <div class="pas__tresc">
-            <p class="pas__co">Wpisujesz wzór, dostajesz gotowy kod w Pythonie. Pochodne, całki, macierze, układy równań. Liczy silnik symboliczny, a nie model językowy — dlatego wynik da się sprawdzić, nie trzeba mu wierzyć.</p>
-            <dl class="pas__meta">
-              <div><dt>stan</dt><dd>do pobrania za darmo</dd></div>
-              <div><dt>instalacja</dt><dd>pip install pycodemath</dd></div>
-            </dl>
-          </div>
-        </article>
-
-        <article class="pas reveal">
-          <div class="pas__marka">
-            <!-- wlasny znak SalonDeska z artefaktu "Znak SalonDeska" (11.09),
-               zapisany w SalonDesk\assets\znak\ — NIE logo klienta -->
-            <span class="pas__znak" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak SalonDesk">
-              <mask id="znak-salondesk" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
-                <rect width="64" height="64" fill="#000"/>
-                <!-- ekran: ramka + grafik wizyt -->
-                <rect x="17" y="9" width="30" height="21" rx="3.5" fill="#fff"/>
-                <rect x="20" y="12" width="24" height="15" rx="1.5" fill="#000"/>
-                <rect x="22.5" y="14.8" width="19" height="2" rx="1" fill="#fff"/>
-                <rect x="22.5" y="18.6" width="19" height="2" rx="1" fill="#fff"/>
-                <rect x="22.5" y="22.4" width="11.5" height="2" rx="1" fill="#fff"/>
-                <!-- klawiatura + touchpad -->
-                <rect x="11" y="34" width="42" height="9.5" rx="3" fill="#fff"/>
-                <rect x="14.5" y="36.4" width="35" height="2.2" rx="1.1" fill="#000"/>
-                <rect x="27" y="40" width="10" height="2" rx="1" fill="#000"/>
-                <!-- blat z krawedzia frontu -->
-                <rect x="6" y="47.5" width="52" height="6" rx="3" fill="#fff"/>
-                <rect x="10" y="50.6" width="44" height="1.4" rx="0.7" fill="#000"/>
-              </mask>
-              <rect width="64" height="64" fill="currentColor" mask="url(#znak-salondesk)"/>
-            </svg></span>
-            <h3 class="pas__nazwa" data-hex="0xF6C3">SalonDesk</h3>
-          </div>
-          <div class="pas__tresc">
-            <p class="pas__co">Aplikacja na komputer w salonie beauty: kalendarz wizyt, kartoteka klientek, kasa z bonami i pakietami, magazyn i grafik w jednym oknie. Pisana pod jeden konkretny salon, a nie pod uniwersalny formularz.</p>
-            <dl class="pas__meta">
-              <div><dt>stan</dt><dd>wersja 1.5.0</dd></div>
-              <div><dt>dla kogo</dt><dd>salony beauty</dd></div>
-            </dl>
-          </div>
-        </article>
-
-        <article class="pas reveal">
-          <div class="pas__marka">
-            <!-- glif z somi-terminal-kafelek-flat.svg, bez tla kafelka -->
-            <span class="pas__znak" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak SOMI" viewBox="26 23 98 111"><g transform="translate(27.5 19) scale(1.22)">
-              <path d="M50 14 H24 L12 26 V28 L24 40 H36 L48 52 V54 L36 66 H10" fill="none" stroke="#e11d33" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"/>
-              <rect x="59" y="12" width="17" height="56" fill="#e11d33"/>
-              <line x1="20" y1="68" x2="20" y2="82" stroke="#e11d33" stroke-width="7"/>
-              <line x1="40" y1="68" x2="40" y2="82" stroke="#e11d33" stroke-width="7"/>
-              <rect x="15.5" y="82" width="9" height="9" fill="#e11d33"/>
-              <rect x="35.5" y="82" width="9" height="9" fill="#e11d33"/>
-            </g></svg></span>
-            <h3 class="pas__nazwa" data-hex="0xB824">SOMI</h3>
-          </div>
-          <div class="pas__tresc">
-            <p class="pas__co">Asystentka studia. Codziennie przegląda giełdy zleceń, ocenia oferty własną punktacją i przygotowuje zgłoszenia. Rozmawiamy z nią przez Discorda i własny terminal.</p>
-            <dl class="pas__meta">
-              <div><dt>stan</dt><dd>działa codziennie</dd></div>
-              <div><dt>gdzie</dt><dd>Discord + terminal</dd></div>
-            </dl>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <link rel="stylesheet" href="pycodemath-sceny/pcm-sceny.css">
-    <section class="pcm" id="pycodemath" aria-labelledby="pcm-t">
-      <div class="pcm__in">
-        <header>
-          <h2 class="pcm__tytul" id="pcm-t">Zobacz, jak liczy Pycodemath</h2>
-          <p class="pcm__lead">Trzy zwykłe problemy firmy, rozwiązane na Twoich oczach. Każda liczba pochodzi z prawdziwego uruchomienia programu.</p>
-        </header>
-
-        <section class="scena" id="pcm-s1" aria-labelledby="pcm-t1">
-          <div><h3 id="pcm-t1">Jaka cena daje największy zysk?</h3>
-            <p class="problem">Sklep sprzedaje towar z kosztem 5 zł. Przy każdej złotówce więcej klient kupuje o 8 sztuk mniej. Program zaczyna od złej ceny i poprawia ją, aż zysk przestanie rosnąć.</p></div>
-          <div class="wybor" role="group" aria-label="Cena startowa"><span>Zacznij od ceny:</span><button data-start="0" aria-pressed="true">8 zł</button><button data-start="1" aria-pressed="false">22 zł</button><button data-start="2" aria-pressed="false">12 zł</button></div>
-          <div class="glowna">
-            <div class="liczniki"><div class="licznik"><small>Cena</small><strong data-r="cena">-</strong></div><div class="licznik"><small>Zysk</small><strong data-r="zysk">-</strong></div><div class="licznik"><small>Krok</small><strong data-r="krok">-</strong></div></div>
-            <svg class="wyk" id="pcm-wyk" viewBox="0 0 640 320" role="img" aria-label="Krzywa zysku w zależności od ceny; punkt wspina się na szczyt"></svg>
-            <p class="podpis" data-r="podpis"></p>
-          </div>
-          <div class="ster"></div>
-          <p class="zrodlo">Wywołanie: minimize(-(p-5)*(200-8*p), p, start, max_iter=k), po jednym na krok.</p>
-        </section>
-
-        <section class="scena" id="pcm-s2" aria-labelledby="pcm-t2">
-          <div><h3 id="pcm-t2">Faktura, która nie zgadza się o grosz</h3>
-            <p class="problem">Dwanaście pozycji, VAT 23% liczony od każdej. Zwykły komputer liczy na liczbach zmiennoprzecinkowych, program dokładnie. Patrz, ile groszy gubi się po drodze.</p></div>
-          <div class="dwa">
-            <div class="tablica"><table class="tab"><thead><tr><th>Netto</th><th>Brutto: zwykły komputer</th><th>Brutto: program</th></tr></thead><tbody data-r="wiersze"></tbody></table></div>
-            <div class="glowna">
-              <div class="sumy"><div class="licznik"><small>Suma: komputer</small><strong data-r="sf">-</strong></div><div class="licznik"><small>Suma: program</small><strong data-r="sd">-</strong></div><div class="licznik brak"><small>Brakuje</small><strong data-r="brak">0 gr</strong></div></div>
-              <div class="dymek" data-r="dymek" hidden></div>
-            </div>
-          </div>
-          <p class="podpis" data-r="podpis"></p>
-          <div class="ster"></div>
-          <p class="zrodlo">Wywołania: float_money_hazard("round(x*1.23, 2)") i round_money(…, „PLN”, „HALF_UP”).</p>
-        </section>
-
-        <section class="scena" id="pcm-s3" aria-labelledby="pcm-t3">
-          <div><h3 id="pcm-t3">Czy kod rabatu liczy tak, jak regulamin?</h3>
-            <p class="problem">Regulamin: 10 zł rabatu za każde pełne 5 sztuk w koszyku. Programista napisał funkcję. Program uruchamia ją na kolejnych koszykach i porównuje z regulaminem.</p></div>
-          <div class="dwa">
-            <div class="tablica"><table class="tab"><thead><tr><th>Sztuk</th><th>Regulamin</th><th data-r="kolkod">Kod</th></tr></thead><tbody data-r="wiersze"></tbody></table></div>
-            <div class="glowna"><pre data-r="kod" aria-label="Kod funkcji rabat"></pre><div data-r="pig"></div><pre data-r="test" hidden></pre></div>
-          </div>
-          <p class="podpis" data-r="podpis"></p>
-          <div class="ster"></div>
-          <p class="zrodlo">Wywołania: check_code(kod, „(n//5)*10”) i emit_test(wynik).</p>
-        </section>
-      </div>
-    </section>
-
-    <section class="steps reveal" aria-label="CTA">
+    <section class="steps reveal" aria-labelledby="skan-t">
       <div class="steps__inner">
+        <div class="services__head">
+          <div class="services__eyebrow" data-hex="0x5CA9">skan widoczności</div>
+          <h2 class="services__title" id="skan-t">Czy Google widzi Twoją firmę?</h2>
+        </div>
         <div class="overlay overlay--band">
           <p class="stub">Skan widoczności za darmo, a potem wizytówka Google
           i poprawki strony od 490 zł. Sprawdzamy, czy Google widzi Twoją stronę i umie ją pokazać w wynikach,
@@ -2917,7 +3066,7 @@
           <a class="cta-big" href="#contact" data-nav="contact" data-topic="Software na zamówienie">Opisz, co ma robić &rarr;</a>
           <a class="cta-outline" href="#contact" data-nav="contact" data-topic="Audyt widoczności">Darmowy skan strony</a>
         </div>
-        <p class="hero__mini"><a class="card__go" href="#contact" data-nav="contact" data-konf="mikro" data-topic="Skrypt lub automatyzacja">Małe zadanie? Mikro-skrypt od 150 zł &rarr;</a> <a class="card__go" href="#cennik" data-nav="cennik">Zobacz cennik &rarr;</a></p>
+        <p class="hero__mini"><a class="card__go" href="#contact" data-nav="contact" data-konf="mikro" data-topic="Skrypt lub automatyzacja">Małe zadanie? Mikro-skrypt od 150 zł &rarr;</a> <a class="card__go" href="#cennik" data-nav="cennik">Zobacz cennik &rarr;</a> <a class="card__go" href="#zrobilismy" data-nav="zrobilismy">Zobacz, co zrobiliśmy &rarr;</a></p>
       </div>
     </div>
 
@@ -3033,6 +3182,7 @@
                     <li>tytuł, opis i nagłówki strony</li>
                   </ul>
                   <a href="#contact" data-nav="contact" data-topic="Pakiet Start (490 zł)">Zapytaj o wycenę</a>
+                  <button class="cta-outline prod__addcart" type="button" data-product="Pakiet Start" data-price="490">Dodaj do koszyka</button>
                 </article>
               </li>
               <li data-id="pelny" data-cena="990 zł" data-czas="do 14 dni" data-topic="Pakiet Pełny (990 zł)">
@@ -3048,6 +3198,7 @@
                     <li>plan zbierania opinii</li>
                   </ul>
                   <a href="#contact" data-nav="contact" data-topic="Pakiet Pełny (990 zł)">Zapytaj o wycenę</a>
+                  <button class="cta-outline prod__addcart" type="button" data-product="Pakiet Pełny" data-price="990">Dodaj do koszyka</button>
                 </article>
               </li>
             </ul>
@@ -3094,10 +3245,10 @@ kasa.dodaj(zapis, kwota)</code></pre>
               </li>
               <li data-id="somi" data-plik="somi.ai" data-usluga="bot" data-znacznik="działa codziennie">
                 <article data-roboczy>
-                  <h3>SOMI</h3>
+                  <h3>Meshuga</h3>
                   <p data-pole="krotko">Asystentka AI: agent, terminal, bot, głos</p>
                   <p data-pole="lead">Nasza asystentka AI. Prowadzi bota społeczności, mówi głosem i pracuje w terminalu razem z nami.</p>
-                  <figure data-pole="zrzut"><picture><source srcset="zrzuty_projektow/somi.webp" type="image/webp"><img src="zrzuty_projektow/somi.png" alt="SOMI: największe klocki i ostatnie commity" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
+                  <figure data-pole="zrzut"><picture><source srcset="zrzuty_projektow/somi.webp" type="image/webp"><img src="zrzuty_projektow/somi.png" alt="Meshuga: największe klocki i ostatnie commity" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
                   <pre data-pole="kod" data-zrodlo="discord_bot.py"><code>async def watch_loop()
 def parse_watchdog_line(line: str)
 def save_state(state: Dict[str, Any])</code></pre>
@@ -3157,7 +3308,7 @@ fn free_port()</code></pre>
                   <a href="#contact" data-nav="contact" data-konf="app">Zapytaj o podobne</a>
                 </article>
               </li>
-              <li data-id="pycodemath" data-plik="pycodemath.py" data-usluga="skrypt" data-znacznik="PyPI 0.4.0">
+              <li data-id="pycodemath" data-plik="pycodemath.py" data-usluga="skrypt" data-znacznik="PyPI 0.5.0">
                 <article data-roboczy>
                   <h3>Pycodemath</h3>
                   <p data-pole="krotko">Silnik matematyczny, publicznie na PyPI</p>
@@ -3318,6 +3469,7 @@ def fetch_offer_detail(url)</code></pre>
           <section data-soraos-app="terminy" aria-labelledby="sx-terminy">
             <h2 id="sx-terminy">Update patch notes</h2>
             <ul>
+              <li><b>31.10</b> Pycodemath 0.5.0: sprawdza matematykę w kodzie, daje dowód albo przykład błędu.</li>
               <li><b>07.10</b> DancyCloud v3: gra w Terminalu dostała bossów.</li>
               <li><b>06.10</b> SORA//OS: Marketplace jako komputer, na którym właśnie jesteś.</li>
               <li><b>06.10</b> MoonSora 0.11.0: nowa wersja naszego terminala do pracy z agentami AI.</li>
@@ -3335,6 +3487,7 @@ def fetch_offer_detail(url)</code></pre>
         </div>
       </div>
     </section>
+
 
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
@@ -3493,12 +3646,12 @@ def fetch_offer_detail(url)</code></pre>
   </section>
 
   <!-- SOMI -->
-  <section class="view" data-view="somi" aria-label="SOMI" hidden>
+  <section class="view" data-view="somi" aria-label="Meshuga" hidden>
     <div class="hero">
       <div class="overlay">
-        <div class="eyebrow">somi &middot; asystentka cybersory</div>
-        <h1 class="slogan">POZNAJ SOMI<span class="thin">asystentka od kodu, researchu i pomocy</span></h1>
-        <p class="stub">SOMI na co dzień pracuje z nami w terminalu, na Discordzie i głosem. Niżej zobaczysz zapis tego, jak odpowiada, i co już naprawdę umie.</p>
+        <div class="eyebrow">meshuga &middot; asystentka cybersory</div>
+        <h1 class="slogan">POZNAJ MESHUGĘ<span class="thin">asystentka od kodu, researchu i pomocy</span></h1>
+        <p class="stub">Meshuga na co dzień pracuje z nami w terminalu, na Discordzie i głosem. Niżej zobaczysz zapis tego, jak odpowiada, i co już naprawdę umie.</p>
         <a class="cta-big" href="#contact" data-nav="contact">Napisz do nas &rarr;</a>
       </div>
     </div>
@@ -3509,10 +3662,10 @@ def fetch_offer_detail(url)</code></pre>
          zero tokenow, jak ustalone. Kazda odpowiedz trzyma sie WYLACZNIE faktow
          juz publicznych na tej stronie (156 leadow, bramka akceptacji, ponad
          1400 testow) — nic nowego nie jest tu obiecywane. -->
-    <section class="services somi-demo" aria-label="Poznaj SOMI z bliska">
+    <section class="services somi-demo" aria-label="Poznaj Meshugę z bliska">
       <div class="services__inner">
         <div class="services__head">
-          <div class="services__eyebrow" data-hex="0x2A7E">poznaj somi z bliska</div>
+          <div class="services__eyebrow" data-hex="0x2A7E">poznaj meshugę z bliska</div>
           <h2 class="services__title">Z czego się składa</h2>
         </div>
 
@@ -3521,22 +3674,22 @@ def fetch_offer_detail(url)</code></pre>
              profile MOOD_PARAMS co w terminalu; czat demo nizej steruje ta sama kula (mysli -> mowi).
              Kula dalej rysuje sie tylko w kadrze (IntersectionObserver w kula.js). -->
         <div class="somi-stage">
-          <div class="somi-stage__stany" role="group" aria-label="Stany SOMI, lewa strona">
+          <div class="somi-stage__stany" role="group" aria-label="Stany Meshugi, lewa strona">
             <button type="button" class="somi-stage__btn" data-mood="calm" aria-pressed="true"><span class="somi-stage__dot"></span>spokój</button>
             <button type="button" class="somi-stage__btn" data-mood="thinking" aria-pressed="false"><span class="somi-stage__dot"></span>myśli</button>
             <button type="button" class="somi-stage__btn" data-mood="speaking" aria-pressed="false"><span class="somi-stage__dot"></span>mówi</button>
           </div>
           <div class="somi-stage__kula">
             <div class="somi-demo__orb-wrap">
-              <div class="somi-demo__orb-slot" tabindex="0" role="group" aria-label="Kula SOMI. Przeciągnij, żeby obrócić, albo użyj strzałek." title="Przeciągnij, żeby obrócić. Kliknij, żeby SOMI zareagowała">
+              <div class="somi-demo__orb-slot" tabindex="0" role="group" aria-label="Kula Meshugi. Przeciągnij, żeby obrócić, albo użyj strzałek." title="Przeciągnij, żeby obrócić. Kliknij, żeby Meshuga zareagowała">
                 <canvas id="somiDemoOrb" hidden aria-hidden="true"></canvas>
                 <div class="somi-demo__orb-glow" aria-hidden="true"></div>
               </div>
             </div>
             <p class="somi-stage__hint" aria-hidden="true">przeciągnij, żeby obrócić</p>
-            <p class="somi-stage__status" aria-live="polite"><span class="somi-stage__prompt">somi@kula</span> <b>spokój</b> <span class="somi-stage__opis">czeka, oddycha powoli</span></p>
+            <p class="somi-stage__status" aria-live="polite"><span class="somi-stage__prompt">meshuga@kula</span> <b>spokój</b> <span class="somi-stage__opis">czeka, oddycha powoli</span></p>
           </div>
-          <div class="somi-stage__stany" role="group" aria-label="Stany SOMI, prawa strona">
+          <div class="somi-stage__stany" role="group" aria-label="Stany Meshugi, prawa strona">
             <button type="button" class="somi-stage__btn" data-mood="tool" aria-pressed="false"><span class="somi-stage__dot"></span>narzędzie</button>
             <button type="button" class="somi-stage__btn" data-mood="wow" aria-pressed="false"><span class="somi-stage__dot"></span>zaskoczenie</button>
             <button type="button" class="somi-stage__btn" data-mood="error" aria-pressed="false"><span class="somi-stage__dot"></span>błąd</button>
@@ -3545,10 +3698,10 @@ def fetch_offer_detail(url)</code></pre>
 
         <div class="somi-demo__layout">
           <div class="somi-demo__about">
-            <p class="somi-demo__lead">SOMI to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówimy wprost, co jest gotowe, a co nie. To nasz pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
+            <p class="somi-demo__lead">Meshuga to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówimy wprost, co jest gotowe, a co nie. To nasz pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
             <ul class="somi-demo__parts">
               <li><span class="somi-demo__tag is-live">działa</span> Przykładowa rozmowa niżej na tej stronie: trzy pytania i jej odpowiedzi (zapis, nie czat na żywo).</li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text">Radar ofert (Useme, Upwork) — ma w historii ponad 360 ofert i 12 wysłanych zgłoszeń. Podłączenie do czatu SOMI jeszcze przed nami.</span>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text">Radar ofert (Useme, Upwork) — ma w historii ponad 360 ofert i 12 wysłanych zgłoszeń. Podłączenie do czatu Meshugi jeszcze przed nami.</span>
                 <!-- "pająk" z banera FB — w źródle podpisany wprost jako "crawler przerysowany
                      kanciastym szkieletem marki". Tu = pieczątka przy radarze, bo radar TO crawler. -->
                 <svg class="somi-demo__glyph" viewBox="-144 -80 288 176" aria-hidden="true" focusable="false">
@@ -3605,21 +3758,21 @@ def fetch_offer_detail(url)</code></pre>
                   <polygon points="0,-17 13,0 0,17 -13,0" fill="currentColor" opacity=".85"/>
                 </svg>
               </li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Pamięć, która szuka sensu.</b> SOMI przeszukuje własny dziennik dwiema drogami naraz: po słowach i po znaczeniu, offline, z datą i ścieżką przy każdym fragmencie. Zamiast kilkunastu kroków przekopywania plików: jedno trafienie.</span></li>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Pamięć, która szuka sensu.</b> Meshuga przeszukuje własny dziennik dwiema drogami naraz: po słowach i po znaczeniu, offline, z datą i ścieżką przy każdym fragmencie. Zamiast kilkunastu kroków przekopywania plików: jedno trafienie.</span></li>
               <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Router modeli.</b> Rutynę liczy tani model, trudne sprawy dostają mocniejszy. Limit kosztów trzymamy na twardo (u nas $0 na model premium), więc nic nie wypływa po cichu.</span></li>
               <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Jeden strumień zdarzeń.</b> Terminal, Discord i narzędzia piszą do jednego dziennika z numeracją. Nic się nie dubluje i nie ginie między procesami. Sprawdziliśmy to na zgubionych liniach, nie na deklaracji.</span></li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Research z dowodem.</b> Strony pobiera naprawdę i równolegle (w teście 4 pobrania: 1,2 s → 0,3 s), a źródło liczy się tylko wtedy, gdy SOMI faktycznie je otworzyła. Cytat z pamięci nie wchodzi.</span></li>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Research z dowodem.</b> Strony pobiera naprawdę i równolegle (w teście 4 pobrania: 1,2 s → 0,3 s), a źródło liczy się tylko wtedy, gdy Meshuga faktycznie je otworzyła. Cytat z pamięci nie wchodzi.</span></li>
               <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Szybkość i przepływ między apkami.</b> Niezależne odczyty idą równolegle (0,8 s → 0,2 s w teście), a zdarzenia płyną do innych aplikacji w około 0,2 s. Całość pilnuje ponad 1 500 testów.</span></li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>AstralHeart: samonaprawa z pamięcią.</b> SOMI diagnozuje błędy we własnym kodzie, a każdą naprawę zapisuje pod odciskiem błędu. Gdy ten sam błąd wraca, nie zaczyna od zera: znajduje starą naprawę. Przy zalewie 5000 błędów wyszukanie trwa około 5 ms. Działa już dziś, a teraz przechodzi potężną aktualizację.</span></li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Dojo snu.</b> W nocy SOMI ćwiczy na mutantach własnych błędów, w osobnym procesie, z twardym budżetem nocy i izolowanym dziennikiem. Rano wie więcej, a dzienne dane zostają nietknięte. Moduł pilnuje 11 testów.</span></li>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>AstralHeart: samonaprawa z pamięcią.</b> Meshuga diagnozuje błędy we własnym kodzie, a każdą naprawę zapisuje pod odciskiem błędu. Gdy ten sam błąd wraca, nie zaczyna od zera: znajduje starą naprawę. Przy zalewie 5000 błędów wyszukanie trwa około 5 ms. Działa już dziś, a teraz przechodzi potężną aktualizację.</span></li>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Dojo snu.</b> W nocy Meshuga ćwiczy na mutantach własnych błędów, w osobnym procesie, z twardym budżetem nocy i izolowanym dziennikiem. Rano wie więcej, a dzienne dane zostają nietknięte. Moduł pilnuje 11 testów.</span></li>
               <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Tryb bezpieczny.</b> Wykrywa 7 rodzajów anomalii w mniej niż 60 s i potrafi się zatrzymać. W próbie 10 wstrzyknięć przez pętlę agenta: 0 wysłanych danych, 0 wycieków. Poziom autonomii ustawia macierz, nie nastrój modelu.</span></li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Kokpit z uczciwymi liczbami.</b> Jedna strona (i komenda na Discordzie) z danymi prosto z dziennika. Bez atrap i ozdobnych wskaźników: widać tylko to, co SOMI naprawdę zrobiła.</span></li>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Kokpit z uczciwymi liczbami.</b> Jedna strona (i komenda na Discordzie) z danymi prosto z dziennika. Bez atrap i ozdobnych wskaźników: widać tylko to, co Meshuga naprawdę zrobiła.</span></li>
             </ul>
           </div>
 
           <div class="somi-demo__chat">
-            <p class="somi-demo__disclaimer">Przykładowa rozmowa — to zapis, nie czat na żywo. Na co dzień SOMI działa już u nas: w terminalu, na Discordzie i głosem.</p>
-            <div class="somi-demo__questions" role="group" aria-label="Przykładowe pytania do SOMI">
+            <p class="somi-demo__disclaimer">Przykładowa rozmowa — to zapis, nie czat na żywo. Na co dzień Meshuga działa już u nas: w terminalu, na Discordzie i głosem.</p>
+            <div class="somi-demo__questions" role="group" aria-label="Przykładowe pytania do Meshugi">
               <button type="button" class="somi-demo__q" data-demo="robi">Co robisz?</button>
               <button type="button" class="somi-demo__q" data-demo="dziala">Jak działasz?</button>
               <button type="button" class="somi-demo__q" data-demo="zdolna">Do czego jesteś zdolna?</button>
@@ -3643,8 +3796,8 @@ def fetch_offer_detail(url)</code></pre>
     <section class="services somi-bw">
       <div class="services__inner">
         <div class="services__head">
-          <div class="services__eyebrow" data-hex="0x4B6D">somi krok po kroku</div>
-          <h2 class="services__title">Co SOMI już umie</h2>
+          <div class="services__eyebrow" data-hex="0x4B6D">meshuga krok po kroku</div>
+          <h2 class="services__title">Co Meshuga już umie</h2>
           <p class="stub" style="margin:0;max-width:var(--measure);text-align:left">Dwanaście rzeczy, które robi u nas na co dzień. Bez żargonu: co to jest i do czego się przydaje.</p>
         </div>
         <div class="cards">
@@ -3709,25 +3862,25 @@ def fetch_offer_detail(url)</code></pre>
           <article class="card bw">
             <span class="bw__top"><span class="card__tag">Działa</span><span class="bw__id" aria-hidden="true">BW·12</span></span>
             <h3 class="card__title">Kokpit z faktami</h3>
-            <p class="card__body">Jedna strona i komenda na Discordzie pokazują, co SOMI naprawdę zrobiła. Bez ozdobników i wymyślonych wskaźników: same fakty z jej dziennika.</p>
+            <p class="card__body">Jedna strona i komenda na Discordzie pokazują, co Meshuga naprawdę zrobiła. Bez ozdobników i wymyślonych wskaźników: same fakty z jej dziennika.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="proof reveal" aria-label="Konkrety SOMI">
+    <section class="proof reveal" aria-label="Konkrety Meshugi">
       <div class="proof__inner">
         <span class="proof__item">radar ofert: <b>ponad 360 ofert</b> w historii</span>
         <span class="proof__item">agent z <b>bramką akceptacji</b> — zero samowoli</span>
-        <span class="proof__item"><b>ponad 1 500 testów</b> pilnuje SOMI</span>
+        <span class="proof__item"><b>ponad 1 500 testów</b> pilnuje Meshugi</span>
       </div>
     </section>
 
     <section class="steps reveal" aria-label="CTA">
       <div class="steps__inner">
         <div class="overlay overlay--band">
-          <p class="stub">Chcesz być pierwszy, jak SOMI ruszy pełną parą? Napisz, damy znać.</p>
-          <a class="cta-big" href="#contact" data-nav="contact" data-topic="SOMI">Zapytaj o SOMI &rarr;</a>
+          <p class="stub">Chcesz być pierwszy, jak Meshuga ruszy pełną parą? Napisz, damy znać.</p>
+          <a class="cta-big" href="#contact" data-nav="contact" data-topic="Meshuga">Zapytaj o Meshugę &rarr;</a>
         </div>
       </div>
     </section>
@@ -3739,10 +3892,10 @@ def fetch_offer_detail(url)</code></pre>
       <div class="overlay">
         <div class="eyebrow">kim jesteśmy</div>
         <h1 class="slogan">O nas</h1>
-        <p class="stub">Za cybersorą stoi Patryk Gwóźdź. Zarządza wszystkim, wymyśla, projektuje i pisze kod, a każdy z naszych projektów powstał głównie przez niego. Wojtek Zięba testuje to, co powstaje, i rozwija własne projekty. Pomaga nam SOMI, asystentka AI, którą zbudował Patryk. To program, nie trzecia osoba w zespole. Do projektów aktywnie szukamy partnerów.</p>
+        <p class="stub">Za cybersorą stoi Patryk Gwóźdź. Zarządza wszystkim, wymyśla, projektuje i pisze kod, a każdy z naszych projektów powstał głównie przez niego. Wojtek Zięba testuje to, co powstaje, i rozwija własne projekty. Pomaga nam Meshuga, asystentka AI, którą zbudował Patryk. To program, nie trzecia osoba w zespole. Do projektów aktywnie szukamy partnerów.</p>
         <!-- 05.10: liczby commitów (mierz_dorobek.py, 30.09) liczyły tylko commity Patryka, więc zdjęte. Pas faktów zostaje (tło-oscyloskop liczy z niego układ), ale niesie same prawdziwe fakty o zespole. -->
         <dl class="hero__rail">
-          <div class="hero__fact"><dt>Zespół</dt><dd>2 osoby + SOMI</dd></div>
+          <div class="hero__fact"><dt>Zespół</dt><dd>2 osoby + Meshuga</dd></div>
           <div class="hero__fact"><dt>Założyciel</dt><dd>Patryk Gwóźdź</dd></div>
           <div class="hero__fact"><dt>Status</dt><dd>szukamy partnerów</dd></div>
         </dl>
@@ -3761,7 +3914,7 @@ def fetch_offer_detail(url)</code></pre>
             <p class="duet__rola">Zarządza wszystkim · projektuje · koduje · artysta</p>
           </div>
           <div class="pas__tresc">
-            <p class="pas__co">Mózg i silnik cybersory. Zarządza całą firmą i każdym projektem: wymyśla, projektuje architekturę i pisze kod, od pierwszego szkicu po działający produkt u klienta. Każdy projekt na tej stronie, czyli SOMI, Pycodemath, terminal SORA//OS i gra DancyCloud, powstał głównie przez niego. Jest też artystą (tworzy jako deadsora), dlatego jego projekty nie wyglądają jak z szablonu.</p>
+            <p class="pas__co">Mózg i silnik cybersory. Zarządza całą firmą i każdym projektem: wymyśla, projektuje architekturę i pisze kod, od pierwszego szkicu po działający produkt u klienta. Każdy projekt na tej stronie, czyli Meshuga, Pycodemath, terminal SORA//OS i gra DancyCloud, powstał głównie przez niego. Jest też artystą (tworzy jako deadsora), dlatego jego projekty nie wyglądają jak z szablonu.</p>
             <ul class="pas__lista">
               <li>Zarządzanie firmą i projektami</li>
               <li>Pomysły i projekty od zera</li>
@@ -3799,7 +3952,7 @@ def fetch_offer_detail(url)</code></pre>
           <div class="pas__marka">
             <span class="duet__mono" aria-hidden="true">SO</span>
             <span class="pas__znak duet__plytka" aria-hidden="true">SO</span>
-            <h3 class="pas__nazwa" data-hex="0x0A03">SOMI</h3>
+            <h3 class="pas__nazwa" data-hex="0x0A03">Meshuga</h3>
             <p class="duet__rola">Asystentka AI · research · kod</p>
           </div>
           <div class="pas__tresc">
@@ -3809,7 +3962,7 @@ def fetch_offer_detail(url)</code></pre>
               <li>Research</li>
               <li>Rozmowa na Discordzie</li>
             </ul>
-            <a class="card__go" href="#somi" data-nav="somi">Poznaj SOMI &rarr;</a>
+            <a class="card__go" href="#meshuga" data-nav="somi">Poznaj Meshugę &rarr;</a>
           </div>
         </article>
       </div>
@@ -3825,7 +3978,7 @@ def fetch_offer_detail(url)</code></pre>
         <div class="cards">
           <article class="card">
             <span class="card__tag">Zaplecze</span>
-            <h3 class="card__title">SOMI pracuje z nami</h3>
+            <h3 class="card__title">Meshuga pracuje z nami</h3>
             <p class="card__body">Część rutyny i researchu przejmuje nasza asystentka AI. Decyzje i odpowiedzialność za to, co trafia do klienta, zostają przy ludziach.</p>
           </article>
           <article class="card">
@@ -3986,16 +4139,16 @@ def fetch_offer_detail(url)</code></pre>
              patrz uzasadnienie przy definicji klas w <style>. Popup po kliknięciu
              = sesja 2, na razie <button> bez obsługi (celowo bierny). -->
         <div class="growth">
-          <button type="button" class="seed" data-stage="1" data-project="somi" aria-label="SOMI — zobacz więcej">
-            <div class="seed__code" aria-hidden="true">somi&gt; router.wybierz(zadanie)
+          <button type="button" class="seed" data-stage="1" data-project="somi" aria-label="Meshuga — zobacz więcej">
+            <div class="seed__code" aria-hidden="true">meshuga&gt; router.wybierz(zadanie)
 rozmowa.glos(mikrofon)
 pamiec.szukaj("radar")
 agent.uruchom(plan)</div>
-            <span class="seed__mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak SOMI"><circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="32" r="9" fill="currentColor"/><circle cx="14" cy="22" r="2.6" fill="currentColor"/><circle cx="50" cy="19" r="2.2" fill="currentColor"/><circle cx="52" cy="42" r="2.6" fill="currentColor"/><circle cx="20" cy="51" r="2.2" fill="currentColor"/></svg></span>
+            <span class="seed__mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="znak Meshugi"><circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="32" r="9" fill="currentColor"/><circle cx="14" cy="22" r="2.6" fill="currentColor"/><circle cx="50" cy="19" r="2.2" fill="currentColor"/><circle cx="52" cy="42" r="2.6" fill="currentColor"/><circle cx="20" cy="51" r="2.2" fill="currentColor"/></svg></span>
             <div class="seed__scrim" aria-hidden="true"></div>
             <div class="seed__content">
               <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> Na co dzień <span class="seed__br" aria-hidden="true">]</span></span>
-              <h3 class="seed__title">SOMI</h3>
+              <h3 class="seed__title">Meshuga</h3>
               <p class="seed__body">Nasza asystentka AI: rozmowa, głos, research i agent.</p>
               <span class="seed__hint">▸ otwórz</span>
             </div>
@@ -4287,8 +4440,9 @@ fingerprint(maszyna)</div>
                 <option value="Pakiet Start (490 zł)">Wizytówka Google + poprawki strony (Start, 490 zł)</option>
                 <option value="Pakiet Pełny (990 zł)">Pełna widoczność (Pełny, 990 zł)</option>
                 <option value="Zakup gotowego produktu">Interesuje mnie gotowy produkt (radar, bot, skrypt…)</option>
+                <option value="Zamówienie z koszyka">Zamówienie z koszyka</option>
                 <option value="Współpraca / partnerstwo">Współpraca / partnerstwo</option>
-                <option value="SOMI">Chcę zapytać o SOMI</option>
+                <option value="Meshuga">Chcę zapytać o Meshugę</option>
                 <option value="Coś innego">Coś innego</option>
               </select>
             </label>
@@ -4350,7 +4504,7 @@ fingerprint(maszyna)</div>
       <div class="overlay">
         <div class="eyebrow">dane &middot; prywatność</div>
         <h1 class="slogan">POLITYKA<span class="thin">prywatności — krótko i bez prawniczego bełkotu</span></h1>
-        <p class="stub">Ta strona zbiera dane tylko wtedy, gdy sam/sama je wpiszesz w formularz. Poniżej dokładnie co, po co i komu.</p>
+        <p class="stub">Ta strona zbiera dane tylko wtedy, gdy sam/sama je wpiszesz: w formularz kontaktowy albo przy zakładaniu konta w grze DancyCloud. Poniżej dokładnie co, po co i komu.</p>
       </div>
     </div>
 
@@ -4374,7 +4528,20 @@ fingerprint(maszyna)</div>
 
           <article class="policy__item">
             <h3 class="policy__title">Komu przekazujemy dane</h3>
-            <p class="policy__body">Wysyłkę formularzy obsługuje zewnętrzna usługa <b>Web3Forms</b> (serwery w USA) — to ona doręcza treść zgłoszenia na naszą skrzynkę <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>. Nie mamy własnej bazy danych klientów: wiadomość trafia od razu na maila. Web3Forms nie przechowuje treści zgłoszeń, a logi techniczne z danymi osobowymi kasuje po 2 miesiącach. Przy wysyłce formularza działa też <b>hCaptcha</b> (usługa antyspamowa) — widzi tylko to, co potrzebne do odróżnienia człowieka od bota, nie treść Twojej wiadomości. Nikomu innemu danych nie sprzedajemy ani nie udostępniamy.</p>
+            <p class="policy__body">Wysyłkę formularzy obsługuje zewnętrzna usługa <b>Web3Forms</b> (serwery w USA) — to ona doręcza treść zgłoszenia na naszą skrzynkę <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>. Nie mamy bazy danych klientów: wiadomość z formularza trafia od razu na maila. Jedyna nasza baza to ranking gry DancyCloud (opis niżej, w „Konta graczy DancyCloud”). Web3Forms nie przechowuje treści zgłoszeń, a logi techniczne z danymi osobowymi kasuje po 2 miesiącach. Przy wysyłce formularza działa też <b>hCaptcha</b> (usługa antyspamowa) — widzi tylko to, co potrzebne do odróżnienia człowieka od bota, nie treść Twojej wiadomości. Nikomu innemu danych nie sprzedajemy ani nie udostępniamy.</p>
+          </article>
+
+          <article class="policy__item">
+            <h3 class="policy__title">Konta graczy DancyCloud</h3>
+            <p class="policy__body">Konto w grze DancyCloud jest dobrowolne i służy tylko do jednego: rezerwuje Twój nick w topce. Zakładasz je samym nickiem i hasłem, bez imienia, nazwiska, maila i telefonu. Nawet nick i skrót hasła to dane osobowe w rozumieniu RODO, dlatego zbieramy ich najmniej, jak się da.</p>
+            <ul class="policy__list">
+              <li><b>Co przechowujemy:</b> nick, skrót hasła (PBKDF2 z losową solą, nigdy samo hasło), skrót jednorazowego kodu odzyskiwania, datę założenia konta i Twoje wyniki z Areny (punkty, fala, data).</li>
+              <li><b>Czego nie przechowujemy:</b> adresu IP. Do limitu prób logowania liczymy tylko jego jednodniowy skrót, kasowany po 2 godzinach.</li>
+              <li><b>Gdzie:</b> w bazie Cloudflare D1 (Cloudflare, Inc., USA), z której korzysta nasz serwer rankingu.</li>
+              <li><b>Jak długo:</b> dopóki konto istnieje.</li>
+              <li><b>Jak usunąć:</b> sam/sama, w grze: ekran Topka → „Usuń konto” (potrzebne hasło albo najpierw nowe hasło z kodu odzyskiwania). Znika konto i wszystkie jego wyniki. W razie kłopotu napisz na <a href="mailto:cybersora@zohomail.eu">cybersora@zohomail.eu</a>.</li>
+              <li><b>Podstawa:</b> art. 6 ust. 1 lit. b RODO, czyli prowadzenie konta, o które prosisz.</li>
+            </ul>
           </article>
 
           <article class="policy__item">
@@ -4384,7 +4551,7 @@ fingerprint(maszyna)</div>
 
           <article class="policy__item">
             <h3 class="policy__title">Ciasteczka i śledzenie</h3>
-            <p class="policy__body">Strona nie używa Google Analytics, Facebook Pixela ani żadnego śledzenia reklamowego. Jedyny wyjątek: formularze chroni darmowa <strong>hCaptcha</strong> przed spamem — przy wysyłce ładuje się skrypt z <code>hcaptcha.com</code>, który może ustawić własne ciasteczko techniczne wyłącznie do weryfikacji, że wypełnia formularz człowiek, nie bot. Konfigurator zlecenia zapamiętuje Twoje wybory lokalnie w przeglądarce (localStorage), żeby nie przepadły przy przejściu między podstronami. Te dane zostają na Twoim urządzeniu i nic nie jest wysyłane, dopóki sam/sama nie klikniesz „Wyślij”.</p>
+            <p class="policy__body">Strona nie używa Google Analytics, Facebook Pixela ani żadnego śledzenia reklamowego. Jedyny wyjątek: formularze chroni darmowa <strong>hCaptcha</strong> przed spamem — przy wysyłce ładuje się skrypt z <code>hcaptcha.com</code>, który może ustawić własne ciasteczko techniczne wyłącznie do weryfikacji, że wypełnia formularz człowiek, nie bot. Konfigurator zlecenia zapamiętuje Twoje wybory lokalnie w przeglądarce (localStorage), żeby nie przepadły przy przejściu między podstronami. Te dane zostają na Twoim urządzeniu i nic nie jest wysyłane, dopóki sam/sama nie klikniesz „Wyślij”. Tak samo działa koszyk: pamięta listę dodanych produktów, a trafia ona do nas dopiero wtedy, gdy po kliknięciu „Zamów” wyślesz formularz. Gra DancyCloud pamięta w przeglądarce Twój nick, a po zalogowaniu także token sesji (ważny 30 dni, kasowany przy wylogowaniu).</p>
           </article>
 
           <article class="policy__item">
@@ -4414,7 +4581,7 @@ fingerprint(maszyna)</div>
         <a href="#oferta" data-nav="oferta">Oferta</a>
         <a href="#cennik" data-nav="cennik">Cennik i usługi</a>
         <a href="#products" data-nav="products">Produkty</a>
-        <a href="#somi" data-nav="somi">SOMI</a>
+        <a href="#meshuga" data-nav="somi">Meshuga</a>
         <a href="#onas" data-nav="onas">O nas</a>
         <!-- Sztuka ukryta ze stopki na prosbe maisy, 22.09, tymczasowo ("poki co") —
              <a href="#sztuka" data-nav="sztuka">Sztuka</a> -->
@@ -4532,8 +4699,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261102d" defer></script>
-<script src="pycodemath-sceny/pcm-sceny.js?v=20261031a" defer></script>
+<script src="app.js?v=20261103e" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -4554,7 +4720,12 @@ fingerprint(maszyna)</div>
      SZYBKOSC S1 (26.10): i to nie po kazdym `load`, tylko gdy SOMI jest blisko
      (obserwator sceny / #somi / najechanie na link). Do tego czasu plakat.
      ============================================================ -->
-<script src="kula.js?v=20261029a" defer></script>
+<script src="kula.js?v=20261103a" defer></script>
+<!-- KOT CYBERSORY (03.11, makieta): przewodnik + czat w prawym dolnym rogu -->
+<link rel="stylesheet" href="kot-czat.css?v=20261103c">
+<!-- Na żywo przycisk „Czatuj” jest „wkrótce”: aplikacja Meshugi stoi na razie w prywatnym artefakcie claude.ai. -->
+<script>window.MESHUGA_APP = '';</script>
+<script src="kot-czat.js?v=20261103d" defer></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.
@@ -4584,3 +4755,4 @@ fingerprint(maszyna)</div>
      nie tutaj — hCaptcha słuchała każdego ruchu myszy na każdej trasie. -->
 </body>
 </html>
+
