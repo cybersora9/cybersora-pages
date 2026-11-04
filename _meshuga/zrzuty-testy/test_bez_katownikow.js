@@ -1,8 +1,10 @@
 // Po usunięciu kątowników (04.11): zrzuty aplikacji i strony + sprawdzenie, że żaden pseudo-element nie rysuje rogów.
 const { chromium } = require('playwright');
-const OUT = 'C:/Users/maisa/Documents/Meshuga/zrzuty-testy/bez-katownikow';
-const APP = 'file:///C:/Users/maisa/Documents/Meshuga/meshuga-app.html';
-const STR = 'file:///C:/Users/maisa/Documents/cybersora-pages/index.html';
+const path = require('path');
+const OUT = path.join(process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki'), 'bez-katownikow');
+require('fs').mkdirSync(OUT, { recursive: true });
+const APP = require('url').pathToFileURL(path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html'))).href;
+const STR = require('url').pathToFileURL(path.resolve(process.env.STRONA_ROOT || path.join(__dirname, '..', '..'), 'index.html')).href;
 (async () => {
   const b = await chromium.launch({ headless: true });
   let kroki = 0, bledy = [], zrzuty = 0;

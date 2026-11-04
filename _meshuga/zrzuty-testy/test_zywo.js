@@ -1,13 +1,14 @@
 // Test na żywej cybersora.pl (prawdziwy Worker kont). Konto testowe zakładane i USUWANE na końcu.
 const { chromium } = require('playwright');
 const path = require('path');
-const OUT = __dirname;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 const BAZA = 'https://cybersora.pl';
 const PYT = 'Ile kosztuje bot na Discorda?';
 const NICK = 'mtest_' + Math.random().toString(36).slice(2, 8);
 const HASLO = 'Test-' + Math.random().toString(36).slice(2, 12) + '9';
 (async () => {
-  const browser = await chromium.launch({ headless: process.env.PW_HEADLESS === 'true' });
+  const browser = await chromium.launch({ headless: process.env.PW_HEADLESS !== 'false' });
   const wyn = { kroki: 0, zrzuty: 0, bledy: [], sprawdzenia: [] };
   const ok = (n, w, i) => wyn.sprawdzenia.push((w ? 'OK  ' : 'BŁĄD ') + n + (i ? ' · ' + i : ''));
   const sluchaj = (pg, n) => { pg.on('console', m => { if (m.type() === 'error') wyn.bledy.push(n + ': ' + m.text().slice(0, 160)); }); pg.on('pageerror', e => wyn.bledy.push(n + ' pageerror: ' + e.message)); };

@@ -1,8 +1,9 @@
 // Test v1.4: komendy /, kalkulator na telefonie, brief w 5 pytaniach, Ctrl+K, mikrofon, historia.
 const { chromium } = require('playwright');
 const path = require('path');
-const URL = 'file:///' + path.resolve(__dirname, '..', 'meshuga-app.html').replace(/\\/g, '/');
-const OUT = __dirname;
+const URL = require('url').pathToFileURL(path.resolve(__dirname, '..', 'meshuga-app.html')).href;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 (async () => {
   const browser = await chromium.launch({ headless: process.env.PW_HEADLESS !== 'false' });
   const wyn = { kroki: 0, zrzuty: 0, bledy: [], sprawdzenia: [] };

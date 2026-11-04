@@ -4,10 +4,11 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
-const OUT = __dirname;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 const STRONA = process.env.MESHUGA_STRONA || path.join(__dirname, '..', 'strona');
-const FONTY = 'C:\\Users\\maisa\\Documents\\SoraWebsite\\_artefakt_strona\\fonts';
-const ART = 'file:///' + path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html')).replace(/\\/g, '/');
+const FONTY = process.env.MESHUGA_FONTY || path.resolve(__dirname, '..', '..', 'fonts');
+const ART = require('url').pathToFileURL(path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html'))).href;
 const CSP = "default-src 'self'; script-src 'self' https://web3forms.com https://hcaptcha.com https://*.hcaptcha.com; style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://hcaptcha.com https://*.hcaptcha.com https://dancycloud-ranking.dancycloud-ranking.workers.dev; frame-src https://hcaptcha.com https://*.hcaptcha.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com";
 const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.woff2': 'font/woff2', '.css': 'text/css' };
 const PYT = 'Ile kosztuje bot na Discorda?';

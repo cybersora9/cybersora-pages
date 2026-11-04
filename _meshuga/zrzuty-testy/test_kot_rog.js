@@ -5,8 +5,8 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
-const ROOT = process.env.STRONA_ROOT || 'C:\\Users\\maisa\\Documents\\cybersora-pages';
-const OUT = path.join(ROOT, 'zrzuty-testy', 'kot-rog');
+const ROOT = process.env.STRONA_ROOT || path.resolve(__dirname, '..', '..');
+const OUT = path.join(process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki'), 'kot-rog');
 fs.mkdirSync(OUT, { recursive: true });
 const ETAP = process.env.ETAP || 'po';
 const CSP = "default-src 'self'; script-src 'self' https://web3forms.com https://hcaptcha.com https://*.hcaptcha.com; style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://hcaptcha.com https://*.hcaptcha.com https://dancycloud-ranking.dancycloud-ranking.workers.dev; frame-src https://hcaptcha.com https://*.hcaptcha.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com";

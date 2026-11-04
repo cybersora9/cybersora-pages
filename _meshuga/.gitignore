@@ -1,0 +1,5 @@
+node_modules/
+# wyniki builda (artefakt i wersja na stronę) — źródłem są meshuga-app.src.html + meshuga-kot.js
+meshuga-app.html
+strona/
+zrzuty-testy/wyniki/

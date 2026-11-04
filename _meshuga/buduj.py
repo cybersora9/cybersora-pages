@@ -1,8 +1,11 @@
 # Składa meshuga-app.html (artefakt): wkleja czcionki (base64) i moduł kota do źródła.
 # Drugi wynik: strona\meshuga\ pod cybersora.pl/meshuga (bez skryptów inline, czcionki z /fonts/ strony).
-import base64, hashlib, pathlib, re
-tu = pathlib.Path(__file__).parent
-fonty = pathlib.Path(r"C:\Users\maisa\Documents\SoraWebsite\_artefakt_strona\fonts")
+import base64, hashlib, os, pathlib, re
+tu = pathlib.Path(__file__).resolve().parent
+# czcionki: zmienna MESHUGA_FONTY, inaczej dawna ścieżka z Windowsa (jeśli jest), inaczej ../fonts (czcionki strony w repo)
+_stare_fonty = pathlib.Path(r"C:\Users\maisa\Documents\SoraWebsite\_artefakt_strona\fonts")
+fonty = pathlib.Path(os.environ["MESHUGA_FONTY"]) if os.environ.get("MESHUGA_FONTY") else (
+    _stare_fonty if _stare_fonty.is_dir() else tu.parent / "fonts")
 def ff(rodzina, plik):
     b = base64.b64encode((fonty / plik).read_bytes()).decode()
     return '@font-face{font-family:"%s";src:url(data:font/woff2;base64,%s) format("woff2");font-weight:100 900;font-display:swap;}' % (rodzina, b)

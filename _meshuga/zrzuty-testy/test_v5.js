@@ -3,8 +3,9 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
-const URL = 'file:///' + path.resolve(__dirname, '..', 'meshuga-app.html').replace(/\\/g, '/');
-const OUT = __dirname;
+const URL = require('url').pathToFileURL(path.resolve(__dirname, '..', 'meshuga-app.html')).href;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 const OBRAZ = fs.readFileSync(path.join(OUT, 'v4_1280_kalkulator.png'));
 const ODP = 'Trzy rzeczy na start:\n• Przycisk „Wyślij ten zestaw” ginie obok dwóch innych.\n• Suma jest daleko od zaznaczonych pozycji.\n• Na telefonie karta jest bardzo wysoka.\n\nPełny darmowy skan widoczności sprawdzi resztę. [[KARTA:audyt]]';
 

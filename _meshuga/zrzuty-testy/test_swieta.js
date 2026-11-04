@@ -2,8 +2,9 @@
 // napis pod powitaniem; ikony kart z Recraft (wektor). Data podstawiona: 3 listopada (sezon) i 3 marca (poza sezonem).
 const { chromium } = require('playwright');
 const path = require('path');
-const URL = 'file:///' + path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html')).replace(/\\/g, '/');
-const OUT = __dirname;
+const URL = require('url').pathToFileURL(path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html'))).href;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 const DATA = t => `(() => { const T = ${t}, D = Date, p0 = performance.now();
   class F extends D { constructor(...a) { super(...(a.length ? a : [T + performance.now() - p0])); } static now() { return T + performance.now() - p0; } }
   window.Date = F; })();`;

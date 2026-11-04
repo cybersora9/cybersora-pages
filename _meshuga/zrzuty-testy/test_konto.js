@@ -2,8 +2,9 @@
 // Wybór maisy 03.11: A = profil w pasku (B i przełącznik usunięte). W pliku lokalnym działa udawany serwer (nie cybersora.pl).
 const { chromium } = require('playwright');
 const path = require('path');
-const URL = 'file:///' + path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html')).replace(/\\/g, '/');
-const OUT = __dirname;
+const URL = require('url').pathToFileURL(path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html'))).href;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 const HASLO = 'tajne-haslo-123';
 (async () => {
   const browser = await chromium.launch({ headless: process.env.PW_HEADLESS !== 'false' });

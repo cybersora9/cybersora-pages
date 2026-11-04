@@ -1,10 +1,11 @@
 // Makieta „Meshuga myśli”: 3 szerokości × stany, konsola, klatki przez 3 s.
 const { chromium } = require('playwright');
 const path = require('path');
-const OUT = 'C:/Users/maisa/Documents/Meshuga/zrzuty-testy/makieta-mysli';
-const URL = 'file:///C:/Users/maisa/Documents/Meshuga/makieta-mysli.html';
+const OUT = path.join(process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki'), 'makieta-mysli');
+require('fs').mkdirSync(OUT, { recursive: true });
+const URL = require('url').pathToFileURL(path.resolve(__dirname, '..', 'makieta-mysli.html')).href;
 (async () => {
-  const b = await chromium.launch({ headless: process.env.PW_HEADLESS === 'true' });
+  const b = await chromium.launch({ headless: process.env.PW_HEADLESS !== 'false' });
   let bledy = 0, kroki = 0, zrzuty = 0; const log = [];
   const ok = (w, m) => { kroki++; if (!w) { bledy++; log.push('BŁĄD: ' + m); } };
   for (const [w, h] of [[1280, 900], [768, 1000], [375, 800]]) {

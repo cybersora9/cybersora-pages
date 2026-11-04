@@ -1,8 +1,9 @@
 // v1.8 jedna wersja (wybór maisy 03.11): karty-widget, kółko A, tło kod, bez paska MAKIETA; mikrofon schowany w ramce artefaktu.
 const { chromium } = require('playwright');
 const path = require('path');
-const URL = 'file:///' + path.resolve(__dirname, '..', 'meshuga-app.html').replace(/\\/g, '/');
-const OUT = __dirname;
+const URL = require('url').pathToFileURL(path.resolve(__dirname, '..', 'meshuga-app.html')).href;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 // udawana ramka claude.ai: tylko window.claude.use (sample niedostępne → tryb pokazowy)
 const RAMKA = () => { window.claude = { use: async () => null }; };
 (async () => {

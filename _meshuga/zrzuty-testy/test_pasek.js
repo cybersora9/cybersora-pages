@@ -2,8 +2,9 @@
 // i rozwinięciu, napisy gasną, nic nie wystaje z wąskiego paska, ikona szukajki rozwija pasek. Zrzuty: rozwinięty, w połowie, zwinięty.
 const { chromium } = require('playwright');
 const path = require('path');
-const URL = 'file:///' + path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html')).replace(/\\/g, '/');
-const OUT = __dirname;
+const URL = require('url').pathToFileURL(path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html'))).href;
+const OUT = process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki');
+require('fs').mkdirSync(OUT, { recursive: true });
 (async () => {
   const browser = await chromium.launch({ headless: process.env.PW_HEADLESS !== 'false' });
   const wyn = { kroki: 0, zrzuty: 0, bledy: [], sprawdzenia: [] };

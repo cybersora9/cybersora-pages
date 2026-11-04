@@ -1,0 +1,11 @@
+{
+  "name": "meshuga-testy",
+  "private": true,
+  "description": "Testy Playwright aplikacji Meshuga (zrzuty-testy/*.js, odpalane zwykłym node)",
+  "scripts": {
+    "buduj": "python3 buduj.py"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
