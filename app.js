@@ -2495,6 +2495,14 @@
       if (e.pointerType !== 'mouse' || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
       navWcisniety = el; navWcisnietyT = performance.now();
       go(el.dataset.nav);
+      /* 04.11: po przełączeniu widoku puszczenie myszy trafia już w inny ekran, więc prawdziwy click na tym linku
+         nie przychodzi i temat / rodzaj konfiguratora ginął („Zapytaj o audyt” → Kontakt ze „Skrypt…”).
+         Dlatego resztę obsługi klika (temat, konfigurator, nasłuch [data-topic]) odpalamy od razu, bez drugiego go(). */
+      if (el.dataset.topic || el.dataset.konf) {
+        const t = navWcisnietyT;
+        el.click();
+        navWcisniety = el; navWcisnietyT = t;   // gdyby prawdziwy click jednak doszedł: bez drugiego go()
+      }
     });
     el.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2664,6 +2672,18 @@
       e.preventDefault();
       const cel = document.getElementById(el.dataset.prPrzewin);
       if (cel) cel.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
+  /* 04.11: galeria zrzutów w karcie produktu (SoraEbookReader): miniatura podmienia duży zrzut i podpis */
+  document.querySelectorAll('[data-galeria]').forEach(gal => {
+    const duzy = gal.querySelector('[data-gal-duzy]'), podpis = gal.querySelector('[data-gal-podpis]');
+    if (!duzy) return;
+    gal.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-gal-src]'); if (!b) return;
+      duzy.src = b.dataset.galSrc;
+      duzy.alt = 'SoraEbookReader: ' + (b.dataset.galOpis || '');
+      if (podpis) podpis.textContent = b.dataset.galOpis || '';
+      gal.querySelectorAll('button[data-gal-src]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     });
   });
 

@@ -1213,7 +1213,23 @@
     padding:clamp(1.1rem,2.6vw,2rem);border:1px solid rgba(255,255,255,.10);
     clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px);
     background:linear-gradient(155deg,color-mix(in srgb,var(--th-accent) 8%,transparent),transparent 55%),rgba(255,255,255,.02);scroll-margin-top:90px;}
-  .pr-hit--zapowiedz{grid-template-columns:minmax(0,1fr);}
+  /* 04.11 (sesja 11): karta SoraEbookReadera, wariant A „na ink” — miękka karta jak na Starcie (bez ściętych rogów), galeria zrzutów */
+  .pr-czyt{grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr);clip-path:none;border:0;border-radius:22px;
+    background:linear-gradient(160deg,rgba(225,29,51,.07),transparent 55%),#16161c;box-shadow:0 0 0 1px rgba(246,242,243,.10),0 24px 60px -30px rgba(0,0,0,.9);}
+  .pr-czyt .pr-hit__h{font-size:clamp(1.7rem,3.2vw,2.5rem);flex-wrap:wrap;overflow-wrap:anywhere;}   /* pełna nazwa mieści się w kolumnie tekstu */
+  .pr-czyt__lista{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.45rem;font-size:var(--t-ui);color:var(--muted-dark);}
+  .pr-czyt__lista li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:.5rem;align-items:baseline;}
+  .pr-czyt__lista li::before{content:"›";font-family:var(--mono);font-weight:700;color:#e11d33;}
+  .pr-czyt__format{font:500 var(--t-label) var(--mono);letter-spacing:.06em;color:var(--muted-dark);}
+  .pr-czyt__gal{display:flex;flex-direction:column;gap:.65rem;min-width:0;}
+  .pr-czyt__shot{margin:0;border-radius:14px;overflow:hidden;}
+  .pr-czyt__shot img{display:block;width:100%;height:auto;aspect-ratio:1600/1132;}
+  .pr-czyt__opis{margin:0;min-height:2.9em;font-size:var(--t-ui);line-height:1.45;color:var(--muted-dark);}
+  .pr-czyt__mini{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}
+  .pr-czyt__mini button{padding:0;border:2px solid transparent;border-radius:9px;overflow:hidden;cursor:pointer;background:none;min-height:44px;}
+  .pr-czyt__mini button[aria-pressed="true"]{border-color:#e11d33;}
+  .pr-czyt__mini button:focus-visible{outline:2px solid #ff3a52;outline-offset:3px;}
+  .pr-czyt__mini img{display:block;width:100%;height:100%;aspect-ratio:16/11;object-fit:cover;}
   .pr-hit__shot{margin:0;overflow:hidden;border:1px solid rgba(255,255,255,.08);}
   .pr-hit__shot img{display:block;width:100%;height:auto;}
   .pr-hit__txt{display:flex;flex-direction:column;gap:.8rem;min-width:0;}
@@ -1252,6 +1268,7 @@
   .pr-k--zam{border-style:dashed;}
   
   @media (max-width:860px){ .pr-hit{grid-template-columns:1fr;} .pr-hit__shot{order:-1;}
+    .pr-czyt{grid-template-columns:minmax(0,1fr);} .pr-czyt__gal{order:-1;} .pr-czyt__mini{gap:6px;}
   }
   
   @media (max-width:480px){ .pr-ik{width:60px;height:60px;}

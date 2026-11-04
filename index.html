@@ -2446,8 +2446,8 @@
     .view[data-view="start"] > .steps ~ .steps{contain-intrinsic-size:auto 570px;}
   }
 </style>
-<link rel="preload" href="views.css?v=20261105b" as="style" id="views-css">
-<noscript><link rel="stylesheet" href="views.css?v=20261105b"></noscript>
+<link rel="preload" href="views.css?v=20261105e" as="style" id="views-css">
+<noscript><link rel="stylesheet" href="views.css?v=20261105e"></noscript>
 </head>
 <body>
 
@@ -3487,12 +3487,33 @@ def fetch_offer_detail(url)</code></pre>
 
     <section class="services pr" aria-label="Nasze programy">
       <div class="services__inner">
-        <!-- 04.11: poprzedni produkt zdjęty ze strony (repo prywatne). Do premiery SoraEbookReadera sama zapowiedź; karta ze zrzutami w sesji 11. -->
-        <article class="pr-hit pr-hit--zapowiedz" id="pr-soraczytnik" aria-labelledby="pr-soraczytnik-h">
+        <!-- 04.11 (sesja 11): karta SoraEbookReadera, wariant A „na ink” (makieta PTM6LKvFMDgAoJ7g5XczbF), zrzuty w ramce macOS na ink
+             (decyzja maisy; generator: sora-rodzina apps/soraczytnik/skrypty/zrzuty-strona.mjs). Po premierze 8.11: przycisk „Pobierz”. -->
+        <article class="pr-hit pr-czyt" id="pr-soraczytnik" aria-labelledby="pr-soraczytnik-h">
           <div class="pr-hit__txt">
             <span class="card__tag">premiera &middot; 8 listopada 2026</span>
             <h2 class="pr-hit__h" id="pr-soraczytnik-h"><span>Sora<b>EbookReader</b></span></h2>
-            <p class="card__body">Nasz czytnik e-booków. Wychodzi w niedzielę, 8 listopada.</p>
+            <p class="card__body">Nasz czytnik e-booków i mang. Wszystko działa na Twoim komputerze, bez internetu.</p>
+            <ul class="pr-czyt__lista">
+              <li>książki, light novel i mangi na jednej półce</li>
+              <li>zakreślenia, notatki i postęp bez rozpraszania</li>
+              <li>manga w rozkładówkach, od prawej do lewej</li>
+            </ul>
+            <div class="pr-hit__akcje">
+              <a class="cta-big" href="#contact" data-nav="contact" data-topic="SoraEbookReader: daj znać o premierze">Daj znać, gdy wyjdzie &rarr;</a>
+              <span class="pr-czyt__format">EPUB &middot; CBZ</span>
+            </div>
+          </div>
+          <div class="pr-czyt__gal" data-galeria>
+            <figure class="pr-czyt__shot"><img data-gal-duzy src="zrzuty_projektow/soraczytnik-01-biblioteka.webp" alt="SoraEbookReader: Cała biblioteka na jednej półce: książki, light novel i mangi z Twoich folderów." width="1600" height="1132" loading="lazy" decoding="async"></figure>
+            <p class="pr-czyt__opis" data-gal-podpis aria-live="polite">Cała biblioteka na jednej półce: książki, light novel i mangi z Twoich folderów.</p>
+            <div class="pr-czyt__mini" role="group" aria-label="Zrzuty SoraEbookReadera">
+              <button type="button" data-gal-src="zrzuty_projektow/soraczytnik-01-biblioteka.webp" data-gal-opis="Cała biblioteka na jednej półce: książki, light novel i mangi z Twoich folderów." aria-pressed="true" aria-label="Cała biblioteka na jednej półce: książki, light novel i mangi z Twoich folderów."><img src="zrzuty_projektow/soraczytnik-01-biblioteka-min.webp" alt="" width="320" height="226" loading="lazy" decoding="async"></button>
+              <button type="button" data-gal-src="zrzuty_projektow/soraczytnik-02-czytanie.webp" data-gal-opis="Spokojna typografia, zakreślenia z notatkami i postęp bez rozpraszania." aria-pressed="false" aria-label="Spokojna typografia, zakreślenia z notatkami i postęp bez rozpraszania."><img src="zrzuty_projektow/soraczytnik-02-czytanie-min.webp" alt="" width="320" height="226" loading="lazy" decoding="async"></button>
+              <button type="button" data-gal-src="zrzuty_projektow/soraczytnik-03-ustawienia-czytania.webp" data-gal-opis="Strona taka, jak lubisz: rozmiar, krój, kolory papieru i marginesy jednym kliknięciem." aria-pressed="false" aria-label="Strona taka, jak lubisz: rozmiar, krój, kolory papieru i marginesy jednym kliknięciem."><img src="zrzuty_projektow/soraczytnik-03-ustawienia-czytania-min.webp" alt="" width="320" height="226" loading="lazy" decoding="async"></button>
+              <button type="button" data-gal-src="zrzuty_projektow/soraczytnik-04-manga.webp" data-gal-opis="Manga jak na papierze: rozkładówki, czytanie od prawej i przycinanie marginesów." aria-pressed="false" aria-label="Manga jak na papierze: rozkładówki, czytanie od prawej i przycinanie marginesów."><img src="zrzuty_projektow/soraczytnik-04-manga-min.webp" alt="" width="320" height="226" loading="lazy" decoding="async"></button>
+              <button type="button" data-gal-src="zrzuty_projektow/soraczytnik-05-seria.webp" data-gal-opis="Każda seria pamięta tom, stronę i swój sposób czytania." aria-pressed="false" aria-label="Każda seria pamięta tom, stronę i swój sposób czytania."><img src="zrzuty_projektow/soraczytnik-05-seria-min.webp" alt="" width="320" height="226" loading="lazy" decoding="async"></button>
+            </div>
           </div>
         </article>
 
@@ -4335,6 +4356,7 @@ fingerprint(maszyna)</div>
                 <option value="Pakiet Start (490 zł)">Wizytówka Google + poprawki strony (Start, 490 zł)</option>
                 <option value="Pakiet Pełny (990 zł)">Pełna widoczność (Pełny, 990 zł)</option>
                 <option value="Zakup gotowego produktu">Interesuje mnie gotowy produkt (radar, bot, skrypt…)</option>
+                <option value="SoraEbookReader: daj znać o premierze">Daj znać o premierze SoraEbookReadera (8 listopada)</option>
                 <option value="Zamówienie z koszyka">Zamówienie z koszyka</option>
                 <option value="Współpraca / partnerstwo">Współpraca / partnerstwo</option>
                 <option value="Meshuga">Chcę zapytać o Meshugę</option>
@@ -4594,7 +4616,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261105b" defer></script>
+<script src="app.js?v=20261105e" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
