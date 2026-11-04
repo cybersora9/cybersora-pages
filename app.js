@@ -2674,14 +2674,17 @@
       if (cel) cel.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     });
   });
-  /* 04.11: galeria zrzutów w karcie produktu (SoraEbookReader): miniatura podmienia duży zrzut i podpis */
+  /* 04.11: galeria zrzutów w karcie produktu: miniatura podmienia duży zrzut i podpis.
+     05.11: nazwa programu z data-gal-nazwa (SoraEbookReader, SalonDesk…), nie na sztywno. */
   document.querySelectorAll('[data-galeria]').forEach(gal => {
     const duzy = gal.querySelector('[data-gal-duzy]'), podpis = gal.querySelector('[data-gal-podpis]');
     if (!duzy) return;
+    const nazwa = gal.dataset.galNazwa || '';
+    const alt = (t) => (nazwa ? nazwa + ': ' : '') + t;
     gal.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-gal-src]'); if (!b) return;
       duzy.src = b.dataset.galSrc;
-      duzy.alt = 'SoraEbookReader: ' + (b.dataset.galOpis || '');
+      duzy.alt = alt(b.dataset.galOpis || '');
       if (podpis) podpis.textContent = b.dataset.galOpis || '';
       gal.querySelectorAll('button[data-gal-src]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     });
@@ -2690,7 +2693,7 @@
     const miniatury = [...gal.querySelectorAll('button[data-gal-src]')];
     if (!otworz || !miniatury.length || typeof HTMLDialogElement !== 'function') return;
     const zrob = (tag, kl, txt) => { const x = document.createElement(tag); if (kl) x.className = kl; if (txt) x.textContent = txt; return x; };
-    const ok = zrob('dialog', 'gal-ok'); ok.setAttribute('aria-label', 'Zrzut SoraEbookReadera');
+    const ok = zrob('dialog', 'gal-ok'); ok.setAttribute('aria-label', nazwa ? 'Zrzuty: ' + nazwa : 'Zrzuty');
     const licz = zrob('span', 'gal-ok__licz'), zamknij = zrob('button', null, '×');
     zamknij.type = 'button'; zamknij.setAttribute('aria-label', 'Zamknij podgląd');
     const gora = zrob('div', 'gal-ok__gora'); gora.append(licz, zamknij);
@@ -2704,7 +2707,7 @@
     function pokaz(i) {
       nr = (i + miniatury.length) % miniatury.length;
       const b = miniatury[nr], t = b.dataset.galOpis || '';
-      obraz.src = b.dataset.galSrc; obraz.alt = 'SoraEbookReader: ' + t; opis.textContent = t;
+      obraz.src = b.dataset.galSrc; obraz.alt = alt(t); opis.textContent = t;
       licz.textContent = (nr + 1) + ' / ' + miniatury.length;
       b.click();   // karta pod spodem pokazuje ten sam zrzut po zamknięciu
     }
