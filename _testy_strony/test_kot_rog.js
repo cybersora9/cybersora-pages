@@ -1,7 +1,9 @@
 // Kot w rogu cybersora.pl (wariant A, wybór maisy 04.11): żywy kot z meshuga-kot.js w kółku SVG z aplikacji
 // zamiast zdjęcia kot-128.webp w kółku CSS. Kopia strony z Documents\cybersora-pages z nagłówkami CSP cybersora.pl.
 // Stany: zamknięty, podpowiedź, otwarty, „pisze…”, po odpowiedzi; 1280/768/375; reduced-motion; brak modułu kota (fallback).
-// ETAP=przed|po (prefiks zrzutów). Zrzuty: cybersora-pages\zrzuty-testy\kot-rog.
+// 05.11 (chmura): stan „Meshuga myśli” (wstęga A, etap z tematu) w 1280/768/375, strażnik pętli rAF wstęgi
+// po odpowiedzi, reduced-motion = statyczna wstęga bez pętli, fallback bez modułu z samym napisem etapu.
+// ETAP=przed|po (prefiks zrzutów). Zrzuty: _testy_strony/zrzuty/kot-rog. Uruchomienie: node _testy_strony/test_kot_rog.js
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
@@ -18,6 +20,12 @@ const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
   const ok = (n, w, i) => wyn.sprawdzenia.push((w ? 'OK  ' : 'BŁĄD ') + n + (i ? ' · ' + i : ''));
   const zrzut = async (p, nazwa, loc) => { const o = { path: path.join(OUT, `${ETAP}_${nazwa}.png`) }; await (loc ? loc.screenshot(o) : p.screenshot(o)); wyn.zrzuty++; };
 
+  // zbliżenie rogu z zapasem: wstęga wychodzi 22% poza kota, zrzut samego przycisku by ją uciął
+  const zrzutRogu = async (p, nazwa) => {
+    const r = await p.locator('.kot__btn').boundingBox(), v = p.viewportSize(), z = 34;
+    const x = Math.max(0, r.x - z), y = Math.max(0, r.y - z);
+    await p.screenshot({ path: path.join(OUT, `${ETAP}_${nazwa}.png`), clip: { x, y, width: Math.min(v.width - x, r.width + 2 * z), height: Math.min(v.height - y, r.height + 2 * z) } }); wyn.zrzuty++;
+  };
   async function kontekst(w, opcje = {}) {
     const ctx = await browser.newContext({ viewport: { width: w, height: w === 375 ? 780 : 820 }, reducedMotion: opcje.reduce ? 'reduce' : 'no-preference', hasTouch: w === 375, isMobile: w === 375 });
     await ctx.route(/^https?:\/\/(?!cybersora\.test).*/, r => r.abort());
@@ -32,6 +40,12 @@ const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
     ctx.on('page', pg => {
       pg.on('console', m => { if (m.type() !== 'error') return; const t = m.text(); if (/Content Security Policy/i.test(t)) wyn.csp++; else if (!/Failed to load resource/.test(t)) wyn.bledy.push(w + ': ' + t); });
       pg.on('pageerror', e => wyn.bledy.push(w + ' pageerror: ' + e.message));
+    });
+    await ctx.addInitScript(() => {
+      // licznik klatek wstęgi: każde czyszczenie canvasu .mk-mysl = jedna klatka pętli rAF modułu
+      window.__wstega = 0;
+      const cr = CanvasRenderingContext2D.prototype.clearRect;
+      CanvasRenderingContext2D.prototype.clearRect = function () { if (this.canvas.classList.contains('mk-mysl')) window.__wstega++; return cr.apply(this, arguments); };
     });
     const p = await ctx.newPage();
     await p.goto('http://cybersora.test/'); await p.waitForTimeout(1400); wyn.kroki++;
@@ -49,6 +63,11 @@ const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
       mkW: mk ? Math.round(mk.getBoundingClientRect().width) : 0,
       zdjecie: /kot-128\.webp/.test(bg), squint: !!b.querySelector('.mk-squint'), staryRing: !!b.querySelector('.kot__ring, .kot__skan'),
       dot: getComputedStyle(b.querySelector('.kot__dot')).display !== 'none', ringAnims, ringRot,
+      mysli: !!b.querySelector('.mk.mk-mysli'), canvasy: b.querySelectorAll('canvas.mk-mysl').length,
+      slotOp: slot ? +getComputedStyle(slot).opacity : 1,
+      przyciete: (() => { for (let n = b.querySelector('.kot__mk'); n && n !== document.body; n = n.parentElement) { if (getComputedStyle(n).overflow !== 'visible') return n.className; } return ''; })(),
+      kotWidac: getComputedStyle(b).opacity !== '0' && getComputedStyle(b).visibility !== 'hidden',
+      pisze: (document.querySelector('.kot__pisze') || {}).textContent || '',
       poziomy: document.documentElement.scrollWidth > innerWidth
     };
   });
@@ -76,16 +95,39 @@ const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
       ok(`${w} otwarty: kółko obrócone o 90°`, kat === 90, s.ringRot + ' · ' + kat + '°');
     }
     await zrzut(p, `${w}_otwarty`);
-    // pisze…
+    // myśli: wstęga A + etap z tematu (pytanie o cenę → „przeglądam cennik…”)
     await p.fill('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Ile to kosztuje?');
-    await p.press('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Enter'); await p.waitForTimeout(120); wyn.kroki++;
+    await p.evaluate(() => {
+      window.__wstega = 0; window.__t0 = performance.now(); window.__tOdp = 0;
+      // czas myślenia = od wysłania do zniknięcia napisu etapu
+      new MutationObserver((m, o) => { if (window.__mial && !document.querySelector('.kot__pisze')) { window.__tOdp = performance.now() - window.__t0; o.disconnect(); } window.__mial = window.__mial || !!document.querySelector('.kot__pisze'); })
+        .observe(document.querySelector('.kot__log'), { childList: true });
+    });
+    await p.press('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Enter'); await p.waitForTimeout(500); wyn.kroki++;
     s = await stan(p);
-    const pisze = await p.locator('.kot__pisze').count();
-    ok(`${w} „pisze…”: kot mruży oczy`, pisze === 1 && s.squint, 'pisze ' + pisze + ' · squint ' + s.squint);
-    if (w > 480) await zrzut(p, `${w}_pisze`); else { await p.click('.kot__x'); }
-    await p.waitForTimeout(700); wyn.kroki++;
+    ok(`${w} myśli: napis etapu zamiast „Meshuga pisze…”`, s.pisze === 'przeglądam cennik…', s.pisze);
+    ok(`${w} myśli: wstęga na dwóch canvasach, kot mruży oczy, kółko przygasa do 0,28`, s.mysli && s.canvasy === 2 && s.squint && Math.abs(s.slotOp - 0.28) < 0.02, JSON.stringify({ mysli: s.mysli, canvasy: s.canvasy, squint: s.squint, op: s.slotOp }));
+    ok(`${w} myśli: nic przy kocie nie przycina canvasów (overflow)`, s.przyciete === '', s.przyciete);
+    const klatki = await p.evaluate(() => window.__wstega);
+    ok(`${w} myśli: pętla wstęgi rysuje`, klatki > 5, klatki + ' klatek / 0,5 s');
+    if (w > 480) { ok(`${w} myśli: kot w rogu widoczny przy otwartym okienku`, s.kotWidac); await zrzut(p, `${w}_mysli`); await zrzutRogu(p, `${w}_mysli_zblizenie`); }
+    else {
+      ok(`${w} myśli: na telefonie arkusz chowa kota (decyzja dla maisy, zostaje sam napis etapu)`, !s.kotWidac, 'kot widać: ' + s.kotWidac);
+      await zrzut(p, `${w}_mysli_arkusz`);
+      await p.click('.kot__x'); await p.waitForTimeout(350); wyn.kroki++;
+      s = await stan(p);
+      ok(`${w} myśli: po zamknięciu arkusza wstęga wokół kota w rogu`, s.mysli && s.kotWidac);
+      await zrzut(p, `${w}_mysli_rog`);
+    }
+    // minimum 1,2 s myślenia bez KOT_API
+    await p.waitForTimeout(1600); wyn.kroki++;
+    const tOdp = await p.evaluate(() => Math.round(window.__tOdp));
+    ok(`${w} myśli trwa co najmniej 1,2 s bez KOT_API (wstęga zdąży wejść i wyjść)`, tOdp >= 1200 && tOdp < 1700, tOdp + ' ms');
     s = await stan(p);
-    ok(`${w} po odpowiedzi: oczy otwarte`, !s.squint && (await p.locator('.kot__m--kot').count()) >= 2);
+    ok(`${w} po odpowiedzi: oczy otwarte, wstęga zgaszona, kółko wraca`, !s.squint && !s.mysli && s.slotOp > 0.95 && (await p.locator('.kot__m--kot').count()) >= 2, JSON.stringify({ squint: s.squint, mysli: s.mysli, op: s.slotOp }));
+    await p.evaluate(() => { window.__wstega = 0; }); await p.waitForTimeout(1000);
+    const poKlatki = await p.evaluate(() => window.__wstega);
+    ok(`${w} po odpowiedzi brak pętli wstęgi (0 klatek rAF w 1 s)`, poKlatki === 0, poKlatki + ' klatek');
     if (w <= 480) { await p.click('.kot__btn'); await p.waitForTimeout(600); }
     await zrzut(p, `${w}_odpowiedz`);
     // focus-visible
@@ -100,6 +142,16 @@ const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
     const s = await stan(p);
     ok(`reduced-motion: kot jest, kółko stoi`, s.kotSvg && s.ringAnims === 0, s.ringAnims + ' animacji');
     await zrzut(p, `1280_reduced_rog`, p.locator('.kot__btn'));
+    await p.click('.kot__btn'); await p.waitForTimeout(300);
+    await p.fill('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Napiszę mój pomysł');
+    await p.press('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Enter'); await p.waitForTimeout(100);
+    await p.evaluate(() => { window.__wstega = 0; }); await p.waitForTimeout(600);
+    const r = await stan(p), kl = await p.evaluate(() => window.__wstega);
+    ok(`reduced-motion myśli: statyczna wstęga bez pętli, etap „rozkładam pomysł na kroki…”`, r.mysli && r.canvasy === 2 && kl === 0 && r.pisze === 'rozkładam pomysł na kroki…', JSON.stringify({ mysli: r.mysli, kl, pisze: r.pisze }));
+    await zrzutRogu(p, `1280_reduced_mysli`);
+    await p.waitForTimeout(1200);
+    const r2 = await stan(p);
+    ok(`reduced-motion po odpowiedzi: wstęga zgaszona`, !r2.mysli && (await p.locator('.kot__m--kot').count()) >= 2);
     await ctx.close();
   }
   // brak meshuga-kot.js: zostaje zdjęcie kota (nie pusty przycisk)
@@ -110,6 +162,13 @@ const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
     await zrzut(p, `1280_fallback_rog`, p.locator('.kot__btn'));
     await p.click('.kot__btn'); await p.waitForTimeout(500);
     ok(`bez modułu kota: okienko dalej się otwiera`, await p.locator('#kotPanel').isVisible());
+    await p.fill('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Pokażcie projekty');
+    await p.press('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Enter'); await p.waitForTimeout(120); wyn.kroki++;
+    const f = await stan(p);
+    ok(`bez modułu kota: sam napis etapu „szukam w projektach…”, bez wstęgi`, f.pisze === 'szukam w projektach…' && f.canvasy === 0, f.pisze);
+    await zrzut(p, `1280_fallback_mysli`);
+    await p.waitForTimeout(700);
+    ok(`bez modułu kota: odpowiedź przychodzi (450 ms)`, (await p.locator('.kot__pisze').count()) === 0 && (await p.locator('.kot__m--kot').count()) >= 2);
     await ctx.close();
   }
   ok('zero błędów konsoli', wyn.bledy.length === 0, wyn.bledy.slice(0, 3).join(' | '));
