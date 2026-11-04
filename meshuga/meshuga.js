@@ -226,6 +226,11 @@
     'PROJEKTY (id: nazwa, opis):\n' + Object.keys(PROJEKTY).map(function (k) { var p = PROJEKTY[k]; return k + ': ' + p.n + '. ' + p.o; }).join('\n')
   ].join('\n\n');
 
+  /* modele (04.11): Astral szybki do wszystkiego, Pycode myśli dłużej; oba pomagają z kodem */
+  var ZASADY_KOD = 'Kod: pomagasz też z programowaniem (tłumaczysz błędy, poprawiasz i piszesz fragmenty kodu). Kod zawsze w bloku z trzema grawisami i nazwą języka, np. ```python. Limit słów nie obejmuje kodu. Cenniki i terminy dalej tylko z cennika; większy projekt proponujesz wysłać zespołowi.';
+  var ZASADY_ASTRAL = 'Model: Astral (szybki). Odpowiadasz od razu i zwięźle. ' + ZASADY_KOD + ' Fragment kodu najwyżej około 30 linii.';
+  var ZASADY_PYCODE = 'Model: Pycode (myśli dłużej). Zanim odpowiesz, przemyśl sprawę krok po kroku i podaj tylko dopracowany wynik. Przy wycenach i pomysłach rozpisz zakres na kroki; przy kodzie dawaj dokładne, sprawdzone rozwiązanie i jednym zdaniem powiedz, dlaczego działa. Możesz pisać do około 160 słów. ' + ZASADY_KOD + ' Fragment kodu najwyżej około 60 linii.';
+
   var STARTOWE = [
     { kod: 'CENA', q: 'Ile kosztuje aplikacja?' },
     { kod: 'SKAN', q: 'Zrób mi darmowy skan widoczności' },
@@ -644,8 +649,17 @@
     var czysty = t.replace(re, '').replace(/\[\[?[A-Za-z_]*(:[a-z+]*)?\]?$/, '').trim();
     return { czysty: czysty, znaczniki: znaczniki };
   }
+  /* bloki ```jezyk … ``` → kod z przyciskiem „Kopiuj”; niedomknięty blok w trakcie pisania też jest kodem */
   function format(t) {
-    var linie = esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').split('\n'), out = '', lista = false, akap = [];
+    return String(t).split('```').map(function (c, i) {
+      if (!(i % 2)) return formatTekst(c);
+      var nl = c.indexOf('\n'), jez = nl > -1 ? c.slice(0, nl).trim() : '', kod = nl > -1 ? c.slice(nl + 1) : c;
+      if (!/^[\w+#.-]{0,16}$/.test(jez)) { jez = ''; kod = c; }
+      return '<div class="kodblok"><div class="kodbar"><span>' + esc(jez || 'kod') + '</span><button type="button" class="kod-kopiuj">Kopiuj</button></div><pre><code>' + esc(kod.replace(/\n+$/, '')) + '</code></pre></div>';
+    }).join('');
+  }
+  function formatTekst(t) {
+    var linie = esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`\n]+)`/g, '<code>$1</code>').split('\n'), out = '', lista = false, akap = [];
     function zamknijAkap() { if (akap.length) { out += '<p>' + akap.join('<br>') + '</p>'; akap = []; } }
     linie.forEach(function (l) {
       var li = /^\s*(?:•|-|\*)\s+(.*)$/.exec(l);
@@ -882,6 +896,11 @@
     };
     d.querySelector('.ak-karty').after(a);
   }
+  $('#feed').addEventListener('click', function (e) {
+    var b = e.target.closest('.kod-kopiuj'); if (!b) return;
+    kopiuj(b.closest('.kodblok').querySelector('code').textContent, b);
+    b.textContent = 'Skopiowano'; setTimeout(function () { b.textContent = 'Kopiuj'; }, 1400);
+  });
   function kopiuj(t, btn, poleZaznacz) {
     var ok = function () { var s = btn.getAttribute('title'); btn.setAttribute('title', 'Skopiowano'); if (btn.classList.contains('btn')) { var o = btn.textContent; btn.textContent = 'Skopiowano'; setTimeout(function () { btn.textContent = o; }, 1400); } setTimeout(function () { btn.setAttribute('title', s || ''); }, 1400); };
     try { navigator.clipboard.writeText(t).then(ok, function () { if (poleZaznacz) poleZaznacz.select(); }); } catch (e) { if (poleZaznacz) poleZaznacz.select(); }
@@ -966,11 +985,19 @@
     var c = biezacy, d = dodajM(null), ctl = new AbortController(); trwa = ctl;
     stanPisze(d, true); trybPrzycisku(true); zaznacz();
     var t0 = performance.now(), demo = !(sample && sampleStan === 'ok');
-    var tier = plik ? 'default' : ust.tryb;
+    var tier = plik ? 'default' : (MODELE[ust.tryb] ? ust.tryb : 'quick'), m = model(tier);
     var log = { k: [
       { t: 'pamięć rozmowy → ' + Math.min(12, c.msgs.length) + ' wiad.', ok: true },
-      { t: (demo ? 'tryb pokazowy → gotowe teksty' : plik ? 'model → ocena zrzutu (dokładny)' : 'model → tryb ' + (ust.tryb === 'quick' ? 'szybki' : 'dokładny')), ok: false }
+      { t: (demo ? 'tryb pokazowy → gotowe teksty' : plik ? 'model → Pycode (ocena zrzutu)' : 'model → ' + m.n), ok: false }
     ] };
+    /* Pycode myśli dłużej: licznik sekund do pierwszego słowa odpowiedzi */
+    var mysliT = 0;
+    if (tier === 'default' && !plik) {
+      var tx0 = d.querySelector('.tekst');
+      tx0.innerHTML = '<p class="mdl-mysli"><svg class="mdi mdi-pycode" aria-hidden="true"><use href="#mdlPycode"/></svg>Pycode myśli <span class="t">· 0 s</span></p>';
+      mysliT = setInterval(function () { var t = d.querySelector('.mdl-mysli .t'); if (t) t.textContent = '· ' + Math.round((performance.now() - t0) / 1000) + ' s'; else clearInterval(mysliT); }, 1000);
+    }
+    var bezMysli = function () { clearInterval(mysliT); var e = d.querySelector('.mdl-mysli'); if (e) e.remove(); };
     if (plik) log.k.splice(1, 0, { t: 'zrzut → ' + rozmiar(plik.size), ok: true });
     var pisze = false;
     rysujLog(d, log, false);
@@ -982,11 +1009,12 @@
       return { role: m.r, content: tresc };
     });
     var plynie = function () {
-      if (pisze) return; pisze = true;
+      if (pisze) return; pisze = true; bezMysli();
       log.k[1].ok = true; log.k.push({ t: 'odpowiedź płynie', ok: false }); rysujLog(d, log, false);
     };
     var koniec = function (tekst, blad) {
       if (trwa === ctl) trwa = null;
+      bezMysli();
       var og = d.querySelector('.oglad'); if (og) og.remove();
       stanPisze(d, false); trybPrzycisku(false);
       log.k.forEach(function (k) { k.ok = true; });
@@ -1008,7 +1036,7 @@
       var poszlo = false;
       var opcje = { modelTier: tier, cache: false, signal: ctl.signal };
       if (plik) opcje.images = [plik];
-      sample([{ role: 'user', content: ZASADY + '\n\nRozmowa zaczyna się poniżej.' }].concat(hist), Object.assign(opcje, {
+      sample([{ role: 'user', content: ZASADY + '\n\n' + (tier === 'default' ? ZASADY_PYCODE : ZASADY_ASTRAL) + '\n\nRozmowa zaczyna się poniżej.' }].concat(hist), Object.assign(opcje, {
         onText: function (u) { if (!poszlo) { poszlo = true; d._kot.squint(false); plynie(); } ustawTekst(d, u.text, false); przewin(); }
       })).then(function (r) {
         koniec(r.text + (r.truncated ? '\n\n(Urwałem w pół zdania. Zapytaj o mniej naraz.)' : ''));
@@ -1031,12 +1059,13 @@
         if (i === 0) { d._kot.squint(false); plynie(); }
         i = Math.min(cel.length, i + 6); ustawTekst(d, cel.slice(0, i), false); przewin();
         if (i < cel.length) setTimeout(krok, MeshugaKot.motion ? 22 : 0); else koniec(cel);
-      }, 900);
+      }, tier === 'default' ? 1800 : 900);
     }
   }
 
   function gotowa(q) {
     var t = q.toLowerCase();
+    if (/\bkod|python|javascript|typescript|\bjs\b|błąd|blad|error|funkcj|pętl|petl|programowa/.test(t)) return 'Tu jestem w wersji pokazowej, więc pokażę na przykładzie. Średnia z listy w Pythonie:\n```python\nliczby = [4, 8, 15, 16, 23, 42]\nsrednia = sum(liczby) / len(liczby)\nprint(srednia)  # 18.0\n```\n`sum` dodaje wszystko, `len` liczy elementy. Z modelem pomogę z Twoim kodem. Większy projekt? Opisz go zespołowi. [[ZESPOL]]';
     if (/aplikac|program|system/.test(t)) return 'Aplikacja pod jedną firmę zaczyna się u nas od 5 000 zł, a termin podajemy po wycenie. Piszemy program pod Twoją robotę, nie pod uniwersalny formularz, więc cena zależy od tego, co ma robić.\n\nJeśli wystarczy coś mniejszego, np. skrypt albo bot, wychodzi taniej. Opisz, czego potrzebujesz albo przestaw pozycje w kalkulatorze. [[WYCENA:app]] [[ZESPOL]]';
     if (/skan|widoczn|google|seo|audyt/.test(t)) return 'Skan widoczności robimy za darmo: sprawdzamy, czy Google widzi Twoją stronę, czy działa na telefonie i czy szybko się ładuje. Raport z listą usterek dostajesz w ciągu 2 dni roboczych, bez zobowiązań.\n\nPodeślij adres strony mailem i tyle. [[KARTA:audyt]] [[KARTA:start]]';
     if (/projekt|zrobili|portfolio|pokaż|pokaz/.test(t)) return 'Kilka rzeczy, które zbudowaliśmy i które działają:\n• SalonDesk prowadzi salon beauty: wizyty, grafik, kasa, bez internetu\n• SoraFlux, darmowy konwerter wideo i obrazów\n• Pycodemath, publiczny silnik matematyki dla agentów AI\n• SOMI i MoonSora, nasze narzędzia do pracy z AI\n\nO którym opowiedzieć więcej? [[PROJEKT:salondesk]] [[PROJEKT:soraflux]]';
@@ -1050,24 +1079,37 @@
     $('#stopka').innerHTML = '<span class="demo">TRYB POKAZOWY</span> · odpowiedzi z gotowych tekstów. Rozmowy zostają w tej przeglądarce.';
   }
 
-  /* ---------- tryb (szybki / dokładny) ---------- */
-  var trybMenu = $('#trybMenu'), trybBtn = $('#trybBtn');
-  function rysujTryb() {
-    var n = ust.tryb === 'quick' ? 'Szybki' : 'Dokładny';
-    $('#trybNazwa').textContent = n; $('#trybInfo').textContent = 'MESHUGA · ' + n.toUpperCase();
-    trybMenu.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-tryb') === ust.tryb)); });
+  /* ---------- modele: Astral (quick) i Pycode (default); wybór maisy 04.11, wariant C ---------- */
+  var MODELE = { quick: { n: 'Astral', ik: 'mdlAstral', kl: 'mdi-astral' }, 'default': { n: 'Pycode', ik: 'mdlPycode', kl: 'mdi-pycode' } };
+  function model(t) { return MODELE[t] || MODELE.quick; }
+  var trybBtn = $('#trybBtn');
+  function rysujTryb(anim) {
+    if (!MODELE[ust.tryb]) ust.tryb = 'quick';
+    var m = model(ust.tryb), inny = model(ust.tryb === 'quick' ? 'default' : 'quick');
+    $('#trybNazwa').textContent = m.n; $('#trybInfo').textContent = 'MESHUGA · ' + m.n.toUpperCase();
+    var ik = $('#trybIk'); ik.setAttribute('class', 'mdi ' + m.kl); ik.innerHTML = '<use href="#' + m.ik + '"/>';
+    trybBtn.setAttribute('aria-label', 'Model: ' + m.n + '. Przełącz na ' + inny.n);
+    trybBtn.title = 'Przełącz na ' + inny.n;
+    $('#mdlKarty').querySelectorAll('.mdl-karta').forEach(function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-tryb') === ust.tryb)); });
+    if (anim) { trybBtn.classList.remove('zmiana'); void trybBtn.offsetWidth; trybBtn.classList.add('zmiana'); }
   }
-  trybBtn.onclick = function (e) { e.stopPropagation(); var o = trybMenu.hidden; trybMenu.hidden = !o; trybBtn.setAttribute('aria-expanded', String(o)); };
-  trybMenu.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; ust.tryb = b.getAttribute('data-tryb'); zapiszUst(); rysujTryb(); trybMenu.hidden = true; trybBtn.setAttribute('aria-expanded', 'false'); wpis.focus(); });
+  function ustawModel(t) { if (t === ust.tryb) return; ust.tryb = t; zapiszUst(); rysujTryb(true); }
+  trybBtn.onclick = function () { ustawModel(ust.tryb === 'quick' ? 'default' : 'quick'); };
+  $('#mdlKarty').addEventListener('click', function (e) { var b = e.target.closest('.mdl-karta'); if (!b) return; ustawModel(b.getAttribute('data-tryb')); wpis.focus(); });
+  $('#mdlKarty').addEventListener('keydown', function (e) {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
+    e.preventDefault(); ustawModel(ust.tryb === 'quick' ? 'default' : 'quick');
+    $('#mdlKarty').querySelector('[aria-checked="true"]').focus();
+  });
 
   /* ---------- panele ---------- */
   function przelacz(btn, panel) {
     btn.onclick = function (e) { e.stopPropagation(); var o = panel.hidden; zamknijPanele(); panel.hidden = !o; btn.setAttribute('aria-expanded', String(o)); };
   }
-  function zamknijPanele() { ['#panelKontakt', '#panelUst', '#trybMenu', '#panelKonto'].forEach(function (s) { $(s).hidden = true; }); ['#kontaktBtn', '#ustBtn', '#trybBtn', '#kontoBtn'].forEach(function (s) { $(s).setAttribute('aria-expanded', 'false'); }); }
+  function zamknijPanele() { ['#panelKontakt', '#panelUst', '#panelKonto'].forEach(function (s) { $(s).hidden = true; }); ['#kontaktBtn', '#ustBtn', '#kontoBtn'].forEach(function (s) { $(s).setAttribute('aria-expanded', 'false'); }); }
   przelacz($('#kontaktBtn'), $('#panelKontakt'));
   przelacz($('#ustBtn'), $('#panelUst'));
-  document.addEventListener('click', function (e) { if (!e.target.closest('.panel, .menu, #kontaktBtn, #ustBtn, #trybBtn, #kontoBtn, .okno-tlo')) zamknijPanele(); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.panel, .menu, #kontaktBtn, #ustBtn, #kontoBtn, .okno-tlo')) zamknijPanele(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (!$('#oknoKonto').hidden) { Konto.zamknij(); return; } zamknijPanele(); zamknijSzuflade(); } });
   $('#kopiujAdres').onclick = function () { kopiuj(EMAIL, this); };
   $('#wyczysc').onclick = function () {
