@@ -1202,3 +1202,35 @@
   
   @media (max-width:480px){ .pr-ik{width:60px;height:60px;}
   }
+
+  /* 05.11 telefon (pion i poziom): obszar dotyku co najmniej 44 px bez zmiany wyglądu.
+     Niewidoczny ::before wokół małych celów (pasek, przełączniki, linki „→”, rozwijane „Co to znaczy?”);
+     rysunek, odstępy i kompozycja zostają. Strażnik: _testy_strony/test_responsywnosc_strony.js (kategoria „dotyk”).
+     Grupy zawijane ciaśniej niż co 44 px (.hero__mini, .pr-filtry, .konf-seg) to decyzja maisy, nie tu. */
+  @media (max-width:480px), (pointer:coarse) and (max-height:480px){
+    .nav__brand::before,
+    .nav__cta::before,
+    .vswitch a::before,
+    .pas__tresc > a.card__go::before,
+    .card > a.card__go::before,
+    .pr-k__dol > a.card__go::before,
+    .ov10 .ov-kafel a::before,
+    a.proof__link::before,
+    .pr-info > summary::before,
+    .konf-lines > summary::before,
+    .konf-help > summary::after,  /* ::before to ikona „?” */
+    .somi-demo__q::before,
+    .sx-n > .sx-y::before{content:"";position:absolute;left:0;right:0;top:50%;height:46px;margin-top:-23px;}
+    .sx-n > .sx-y::before{left:-2px;right:-2px;}
+    .vswitch a,
+    .pas__tresc > a.card__go,
+    .card > a.card__go,
+    .pr-k__dol > a.card__go,
+    .ov10 .ov-kafel a,
+    a.proof__link,
+    .pr-info > summary,
+    .konf-lines > summary,
+    .konf-help > summary,
+    .somi-demo__q,
+    .sx-n > .sx-y{position:relative;}
+  }
