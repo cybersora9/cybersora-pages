@@ -162,16 +162,8 @@ button { cursor:pointer; }
 .brw b { color:var(--acc); font-weight:600; }
 .hero h1 { margin:0; font-weight:600; font-size:clamp(30px, 5.4vw, 48px); line-height:1.08; letter-spacing:-.03em; text-wrap:balance; }
 .hero h1 em { font-style:normal; color:var(--acc); }
-/* święta (1.11–6.01): choinka z kodu obok kota, śnieg z kodu w tle, napis pod powitaniem; bez poświaty */
+/* święta (1.11–6.01): śnieg z kodu w tle, napis pod powitaniem; bez poświaty (choinka usunięta 04.11, decyzja maisy) */
 .kot-scena { position:relative; display:grid; place-items:center; }
-.choinka { position:absolute; bottom:0; margin:0; font:500 12px/1.15 var(--mono); color:var(--fg2); white-space:pre; text-align:left; pointer-events:none; user-select:none; }
-.choinka.p { left:calc(100% + 22px); }
-.choinka i { font-style:normal; color:var(--krew); }
-.choinka i.hot, .choinka .gw { color:var(--hot); }
-.choinka i:nth-of-type(3n) { animation:migaj 2.6s steps(1) infinite; }
-.choinka i:nth-of-type(3n+1) { animation:migaj 3.4s steps(1) .9s infinite; }
-@keyframes migaj { 50% { opacity:.3; } }
-.bez-ruchu .choinka i { animation:none; }
 .swieta-napis { margin:-6px 0 0; font-size:16px; color:var(--fg2); }
 .swieta-napis em { font-style:normal; color:var(--acc); }
 .swieta-napis[hidden] { display:none; }
@@ -459,8 +451,6 @@ button { cursor:pointer; }
 @media (max-width: 420px) {
   .hero .mk { width:120px; }
   .hero h1 { font-size:28px; }
-  .choinka { font-size:9px; }
-  .choinka.p { left:calc(100% + 12px); }
   .swieta-napis { font-size:14px; margin-top:-2px; }
   .swieta.pusty .hero { gap:8px; padding-top:6px; }
   .swieta .hero .mk { width:112px; }
@@ -586,6 +576,6 @@ button { cursor:pointer; }
   </div>
 </div>
 
-<script src="/meshuga/meshuga.js?v=07e4591741"></script>
+<script src="/meshuga/meshuga.js?v=14a72e7106"></script>
 </body>
 </html>

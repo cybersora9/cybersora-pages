@@ -278,23 +278,6 @@
   /* ---------- święta: od 1 listopada do 6 stycznia („u nas święta zaczynają się wcześniej”) ---------- */
   function sezonSwiat() { var d = new Date(), m = d.getMonth(); return m === 10 || m === 11 || (m === 0 && d.getDate() <= 6); }
   var SWIETA = sezonSwiat();
-  function escK(ch) { return ch === '<' ? '&lt;' : ch === '>' ? '&gt;' : ch; }
-  function choinka(strona, ziarno) {
-    var Z = '01{}<>;=/+', s = ziarno, rz = 8, h = '';
-    function los() { s = (s * 9301 + 49297) % 233280; return s / 233280; }
-    function wcz(n) { return new Array(n + 1).join(' '); }
-    h += wcz(rz - 1) + '<span class="gw">★</span>\n';
-    for (var i = 0; i < rz; i++) {
-      var l = '';
-      for (var j = 0; j < 2 * i + 1; j++) {
-        var r = los();
-        l += r < .13 ? '<i>o</i>' : r < .19 ? '<i class="hot">*</i>' : escK(Z[(r * 997 | 0) % Z.length]);
-      }
-      h += wcz(rz - 1 - i) + l + '\n';
-    }
-    h += wcz(rz - 2) + '[_]';
-    return '<pre class="choinka ' + strona + '" aria-hidden="true">' + h + '</pre>';
-  }
   /* płatek śniegu jak w „Co umiem” (6 ramion z gałązkami, sześciokąt, kropki na końcach, kropkowana orbita z cząstkami), bez poświaty.
      Jeden <symbol>, kolory przez zmienne CSS na każdym płatku (--p-ram, --p-kon, --p-hex, --p-sr, --p-orb). */
   function platekSymbol() {
@@ -308,11 +291,6 @@
     return '<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="platekSym" viewBox="-100 -100 200 200" overflow="visible">' +
       '<circle r="92" style="fill:none;stroke:var(--p-orb);stroke-width:1.2;stroke-dasharray:2 9;opacity:.55"/>' + cz + ramiona + kon +
       '<polygon points="' + hex.join(' ') + '" style="fill:none;stroke:var(--p-hex);stroke-width:4;stroke-linejoin:round"/><circle r="5.5" style="fill:var(--p-sr)"/></symbol></defs></svg>';
-  }
-  function ustawChoinki() {
-    var sc = $('#kotScena'); sc.querySelectorAll('.choinka').forEach(function (e) { e.remove(); });
-    if (!SWIETA) return;
-    sc.insertAdjacentHTML('beforeend', choinka('p', 7));
   }
 
   /* ---------- latające płatki (święta, prośba maisy 03.11): po całym ekranie, 4 kolory; ruch = opad (wybór maisy: „ten opad jest dojebany”) ---------- */
@@ -338,14 +316,13 @@
       }
       rysuj(0, performance.now() / 1000);
     }
-    /* strefa bez płatków (uwaga maisy 03.11: „nie najeżdżać na kota”): elipsa opisana na kocie i choince + margines,
+    /* strefa bez płatków (uwaga maisy 03.11: „nie najeżdżać na kota”): elipsa opisana na kocie + margines,
        we współrzędnych warstwy płatków. Liczona co klatkę (przewijanie i zmiana rozmiaru przesuwają kota). */
     var KOLUMNA = 30; /* płatek nie startuje bliżej osi strefy niż 30 px, więc kołysanie (±24) nie przerzuca go na drugą stronę */
     function strefa() {
       var k = document.getElementById('kotHero'); if (!k || !box || !app.classList.contains('pusty')) return null;
       var b = box.getBoundingClientRect(), r = k.getBoundingClientRect(); if (!r.width) return null;
-      var x0 = r.left, x1 = r.right, y0 = r.top, y1 = r.bottom, ch = document.querySelector('#kotScena .choinka');
-      if (ch) { var c = ch.getBoundingClientRect(); x0 = Math.min(x0, c.left); x1 = Math.max(x1, c.right); y0 = Math.min(y0, c.top); y1 = Math.max(y1, c.bottom); }
+      var x0 = r.left, x1 = r.right, y0 = r.top, y1 = r.bottom;
       var M = 16;
       return { cx: (x0 + x1) / 2 - b.left, cy: (y0 + y1) / 2 - b.top, a: (x1 - x0) / 2 * 1.4142 + M, b: (y1 - y0) / 2 * 1.4142 + M };
     }
@@ -1315,7 +1292,7 @@
   }
 
   /* ---------- start ---------- */
-  motyw(); zwin(!!ust.zwiniety); rysujTryb(); ustawTlo(); ustawChoinki(); Lot.start(); Konto.rysuj(); rysujHistorie(); zaznacz();
+  motyw(); zwin(!!ust.zwiniety); rysujTryb(); ustawTlo(); Lot.start(); Konto.rysuj(); rysujHistorie(); zaznacz();
   /* pytanie z okienka na stronie („Czatuj” przenosi je w ?q=): wysyłamy raz, gdy wiadomo, czy jest model,
      a ?q= znika z adresu, żeby odświeżenie nie wysłało go drugi raz */
   var pytanieStrony = '';
