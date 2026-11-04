@@ -153,7 +153,14 @@
 
   var btn = el('button', 'kot__btn'); btn.type = 'button';
   btn.setAttribute('aria-label', 'Meshuga: szybkie pytania i czat'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'kotPanel');
-  btn.append(el('span', 'kot__ring'), el('span', 'kot__skan'), el('span', 'kot__dot'));
+  // 04.11 (wariant A, wybór maisy): żywy kot z meshuga-kot.js w kółku z aplikacji.
+  // Bez modułu zostaje zdjęcie kot-128.webp i kółko CSS.
+  var kot = null;
+  if (window.MeshugaKot) {
+    var mk = el('span', 'kot__mk'); mk.setAttribute('aria-hidden', 'true');
+    btn.classList.add('kot__btn--zywy'); btn.append(mk, el('span', 'kot__dot'));
+    kot = window.MeshugaKot.mount(mk, { ring: true });
+  } else btn.append(el('span', 'kot__ring'), el('span', 'kot__skan'), el('span', 'kot__dot'));
   root.append(tip, tlo, panel, btn);
   document.body.appendChild(root);
 
@@ -190,7 +197,8 @@
     ostatnie = q; odswiezCzatuj();
     msg('ty', q);
     var p = el('div', 'kot__pisze', 'Meshuga pisze…'); log.appendChild(p); log.scrollTop = log.scrollHeight;
-    var gotowe = function (o) { p.remove(); msg('kot', o.t, o.go); };
+    if (kot) kot.squint(true);
+    var gotowe = function (o) { p.remove(); if (kot) { kot.squint(false); kot.flash(); } msg('kot', o.t, o.go); };
     if (window.KOT_API) {
       fetch(window.KOT_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: q, widok: widok() }) })
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
