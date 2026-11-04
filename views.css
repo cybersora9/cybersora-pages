@@ -571,14 +571,19 @@
   /* ---- SOMI z bliska (18.09): duza kula + demo rozmowy bez backendu ----
      Reuzywa .terminal/.t-cursor/.t-muted z bloku wyzej — nowe klasy tylko
      tam, gdzie uklad naprawde inny (kolumny, tagi, pytania). */
-  .somi-demo__layout{
-    display:grid;
-    grid-template-columns:minmax(280px,1fr) minmax(320px,1fr);
-    gap:clamp(1.5rem,4vw,3rem);
-    align-items:start;
-  }
-  
-  @media (max-width:900px){ .somi-demo__layout{grid-template-columns:1fr;}
+  /* 05.11: demo rozmowy wyleciało (zastąpiło je okno Meshugi), została jedna kolumna opisu */
+  .somi-demo__layout{display:block;}
+
+  /* 05.11 maisa: okno Meshugi pod hero #meshuga = prawdziwa aplikacja /meshuga/ w ramce */
+  .mesh-okno{background:var(--ink);padding:clamp(1.5rem,4vw,3rem) 24px 0;}
+  .mesh-okno__inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:.7rem;}
+  .mesh-okno__ramka{display:block;width:100%;height:min(760px,86dvh);border:1px solid #2a2a33;border-radius:16px;background:#0e0e12;}
+  .mesh-okno__pelny{font:500 14px/1 var(--mono);color:#b9b4b8;text-decoration:none;padding:.75rem 0;min-height:44px;box-sizing:border-box;}
+  .mesh-okno__pelny:hover{color:#ff3a52;}
+  .mesh-okno__pelny:focus-visible{outline:2px solid var(--th-hot);outline-offset:2px;border-radius:4px;}
+  @media (max-width:640px){
+    .mesh-okno{padding-left:16px;padding-right:16px;}
+    .mesh-okno__ramka{height:min(680px,calc(100dvh - 96px));}
   }
 
   /* Kula chowa sie DOMYSLNIE — pokazuje ja dopiero __somiOrbBoot, dokladnie

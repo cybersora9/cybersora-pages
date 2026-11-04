@@ -3508,90 +3508,9 @@
     el.addEventListener('focusin', kontaktRozgrzej, { once: true });
   });
 
-  /* ===================== SOMI z bliska — demo rozmowy BEZ backendu (18.09) =====================
-     Zero tokenow, zero API: trzy pytania i trzy odpowiedzi ze skryptu w tym pliku.
-     Kazdy klik przerywa poprzednie pisanie (zatrzymajPisanie), zeby dwa szybkie
-     kliki nie dokleily tekstu jeden do drugiego. SOMI_MOOD/PULSE sa wolane
-     defensywnie (typeof === 'function'): baza jest zdefiniowana wyzej w tym samym
-     skrypcie, wiec w praktyce zawsze istnieja, ale demo ma dzialac nawet gdyby
-     kolejnosc skryptow kiedys sie zmienila. */
-  (function () {
-    const body = document.getElementById('somiDemoBody');
-    const buttons = document.querySelectorAll('.somi-demo__q');
-    const srlive = document.getElementById('somiDemoSrLive');
-    if (!body || !buttons.length) return;
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Trzymamy sie WYLACZNIE faktow juz publicznych na tej stronie (proof__item
-    // wyzej: 156 leadow, bramka akceptacji, ponad 1400 testow) — SOMI nie obiecuje tu
-    // nic ponad to, co strona juz mowi gdzie indziej.
-    const SKRYPT_DEMO = {
-      robi: {
-        q: 'Co robisz?',
-        a: 'Na co dzień pracuję w zapleczu cybersory: pilnuję radaru ofert i pomagam Patrykowi i Wojtkowi ogarniać robotę. Tu, na stronie, dopiero się tego uczę — na razie umiem porozmawiać i pokazać, od czego zacząć.'
-      },
-      dziala: {
-        q: 'Jak działasz?',
-        a: 'Nie mam jednego mózgu do wszystkiego. Radar skanuje oferty bez przerwy i sam zgłasza, co warte uwagi — ma już w historii ponad 360 ofert. Agent, który pisze kod, ma bramkę akceptacji: nic nie wysyła i nic nie zmienia bez zgody człowieka.'
-      },
-      zdolna: {
-        q: 'Do czego jesteś zdolna?',
-        a: 'Już teraz: ta przykładowa rozmowa, tutaj na stronie. W budowie: deep research nad ofertami prosto z czatu i agent, który realnie wykona zadanie — zawsze z Twoją zgodą na końcu.'
-      }
-    };
-
-    const escDemo = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-    // 04.11: odpowiedź stoi przy awatarze Meshugi (kot z logo)
-    const ODP_START = '<span class="mesh-demo__odp"><img class="mesh-demo__ava" src="assety/kot-72.webp" width="28" height="28" alt=""><span class="mesh-demo__txt">';
-
-    let pisanie = null;
-    function zatrzymajPisanie() { if (pisanie) { clearTimeout(pisanie); pisanie = null; } }
-
-    function pisz(tekst, i) {
-      if (i === 0) body.innerHTML += ODP_START + '<span id="somiDemoAns"></span><span class="t-cursor"></span></span></span>';
-      const ans = document.getElementById('somiDemoAns');
-      if (!ans) return;
-      ans.textContent = tekst.slice(0, i);
-      if (i < tekst.length) {
-        pisanie = setTimeout(() => pisz(tekst, i + 1), 16 + Math.random() * 22);
-      } else {
-        pisanie = null;
-        const cur = body.querySelector('.t-cursor');
-        if (cur) cur.remove();
-        if (typeof window.SOMI_MOOD === 'function') window.SOMI_MOOD('calm');
-      }
-    }
-
-    buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const wpis = SKRYPT_DEMO[btn.dataset.demo];
-        if (!wpis) return;
-        zatrzymajPisanie();
-        buttons.forEach((b) => b.classList.toggle('is-active', b === btn));
-
-        body.innerHTML = '<span class="t-muted">$ meshuga --zapytaj "' + escDemo(wpis.q) + '"</span>\n';
-        // Ogloszenie dla czytnika ekranu idzie RAZEM, calym zdaniem — nie
-        // czeka na koniec pisania po literce (patrz CSS .somi-demo__srlive).
-        if (srlive) srlive.textContent = wpis.q + ' — ' + wpis.a;
-        if (typeof window.SOMI_PULSE === 'function') window.SOMI_PULSE();
-        if (typeof window.SOMI_MOOD === 'function') window.SOMI_MOOD('thinking');
-
-        if (reduce) {
-          body.innerHTML += ODP_START + escDemo(wpis.a) + '</span></span>';
-          if (typeof window.SOMI_MOOD === 'function') window.SOMI_MOOD('calm');
-          return;
-        }
-        pisanie = setTimeout(() => {
-          if (typeof window.SOMI_MOOD === 'function') window.SOMI_MOOD('speaking');
-          pisz(wpis.a, 0);
-        }, 500);
-      });
-    });
-  })();
-
   /* 04.11 maisa: scena Meshugi = żywy kot (meshuga-kot.js) zamiast kuli. meshuga-kot.js ładuje się
-     po app.js (defer), więc montujemy na DOMContentLoaded. Pytania z przykładowej rozmowy wołają
-     SOMI_MOOD (thinking → speaking → calm); tu ten hak steruje kotem i podpisem pod nim. */
+     po app.js (defer), więc montujemy na DOMContentLoaded. Przyciski stanów i SOMI_MOOD
+     sterują kotem i podpisem pod nim. (05.11: demo 3 pytań wyleciało, zastąpiło je okno Meshugi.) */
   document.addEventListener('DOMContentLoaded', () => {
     const host = document.getElementById('meshScenaKot');
     if (!host || !window.MeshugaKot) return;
@@ -3958,11 +3877,11 @@
        (wyslane) + 2 drafted, bramka 1582/0 (05.10) -> "ponad 1 500", 156 wyciete (brak zrodla), N3b embeddingi scalone. */
     const SOMI_KROKI = {
       rozmowa: {
-        nazwa: 'Przykładowa rozmowa',
-        lead: 'Meshuga działa już na co dzień: rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. Tutaj zobaczysz tylko zapis trzech pytań, bo czatu na żywo na stronie jeszcze nie ma.',
+        nazwa: 'Rozmowa',
+        lead: 'Meshuga działa już na co dzień: rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. W oknie na tej stronie odpowiada w trybie pokazowym, gotowymi odpowiedziami.',
         kod: 'meshuga> router.wybierz(zadanie)\n  rutyna   -> deepseek-v4-flash\n  trudne   -> claude-sonnet-5\n  synteza  -> claude-opus-5-5\npamiec.szukaj("radar")',
         fakty: [
-          ['na stronie', 'Zapis 3 pytań, bez czatu na żywo'],
+          ['na stronie', 'Okno Meshugi, tryb pokazowy'],
           ['u nas', 'Terminal · Discord · rozmowa głosem'],
           ['modele', 'DeepSeek do rutyny · Claude do trudnych'],
           ['pamięć', 'Po słowach i po znaczeniu'],

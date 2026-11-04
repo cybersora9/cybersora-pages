@@ -1525,6 +1525,20 @@
     vv.addEventListener('resize', kb); vv.addEventListener('scroll', kb);
   }
 
+  /* ---------- w oknie na cybersora.pl (#meshuga) ----------
+     Ramka strony, nie artefakt (ten ma window.claude): linki do strony otwierają całą kartę,
+     a „Wróć na cybersora.pl” znika, bo strona jest już dookoła. */
+  if (!wRamce && window.top !== window) {
+    document.documentElement.classList.add('w-oknie');
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      var u; try { u = new URL(a.getAttribute('href'), location.href); } catch (er) { return; }
+      var strona = u.origin === location.origin || u.hostname === 'cybersora.pl';
+      if (strona && u.pathname.indexOf('/meshuga/') !== 0) a.target = '_top';
+    }, true);
+  }
+
   /* ---------- start ---------- */
   motyw(); zwin(!!ust.zwiniety); rysujTryb(); ustawTlo(); Lot.start(); Konto.rysuj(); rysujHistorie(); zaznacz();
   /* pytanie z okienka na stronie („Czatuj” przenosi je w ?q=): wysyłamy raz, gdy wiadomo, czy jest model,

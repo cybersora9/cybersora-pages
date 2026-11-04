@@ -103,6 +103,7 @@ button { cursor:pointer; }
 .pusto { font-size:13px; color:var(--fg2); padding:4px 12px; white-space:normal; }
 .pasek-dol { display:flex; flex-direction:column; gap:2px; border-top:1px solid var(--line); padding-top:8px; }
 .pasek-dol a.poz { text-decoration:none; color:var(--fg2); font-size:14px; }
+.w-oknie .pasek-dol a.poz { display:none; }
 /* zwijanie paska (uwaga maisy 03.11: płynniej): animuje się tylko szerokość kolumny, ikony stoją w tym samym miejscu
    (środek ikony = środek wąskiej kolumny, 37,5 px), napisy gasną, kot w pasku chowa się szerokością, szukajka zostaje jako ikona */
 .pasek .ukr, .szukaj input { transition:opacity .2s var(--ease); }
@@ -504,6 +505,19 @@ button { cursor:pointer; }
   .hero .mk { width:88px; }
   .pusty .hero { gap:8px; padding-block:10px 8px; }
 }
+/* 05.11: telefon i tablet (też okno Meshugi na cybersora.pl): powitanie dopasowuje się do miejsca nad kartami.
+   Kot maleje z wysokością, przy ciasnym miejscu znika najpierw napis marki, potem świąteczny, na końcu kot.
+   Nic nie chowa się pod kartami. Niskie okno: karty modeli schodzą do pigułki w polu, jak poniżej 600 px. */
+@media (max-width: 860px) {
+  .pusty .przewijak { container:powitanie / size; }
+  .pusty .hero .mk { max-width:calc(100cqh - 134px); }
+  @container powitanie (max-height: 215px) { .pusty .hero .brw { display:none; } .pusty .hero .mk { max-width:calc(100cqh - 108px); } }
+  @container powitanie (max-height: 185px) { .pusty .hero .swieta-napis { display:none; } .pusty .hero .mk { max-width:calc(100cqh - 72px); } }
+  @container powitanie (max-height: 130px) { .pusty .hero .kot-scena { display:none; } }
+}
+@media (max-width: 860px) and (max-height: 700px) {
+  .pusty .mdl-karty { display:none; }
+}
 /* z otwartą klawiaturą w pustym stanie zostaje samo pole */
 .klawiatura.pusty .hero { display:none; }
 /* niskie okno (telefon poziomo): karty startowe w jednym rzędzie, szuflada przewijana, panele z paska od góry ekranu */
@@ -644,6 +658,6 @@ button { cursor:pointer; }
   </div>
 </div>
 
-<script src="/meshuga/meshuga.js?v=31562a6efe"></script>
+<script src="/meshuga/meshuga.js?v=1f1f147de6"></script>
 </body>
 </html>

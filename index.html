@@ -2446,8 +2446,8 @@
     .view[data-view="start"] > .steps ~ .steps{contain-intrinsic-size:auto 570px;}
   }
 </style>
-<link rel="preload" href="views.css?v=20261105f" as="style" id="views-css">
-<noscript><link rel="stylesheet" href="views.css?v=20261105f"></noscript>
+<link rel="preload" href="views.css?v=20261105g" as="style" id="views-css">
+<noscript><link rel="stylesheet" href="views.css?v=20261105g"></noscript>
 </head>
 <body>
 
@@ -3590,17 +3590,22 @@ def fetch_offer_detail(url)</code></pre>
       <div class="overlay">
         <div class="eyebrow">meshuga &middot; asystent cybersory</div>
         <h1 class="slogan">POZNAJ MESHUGĘ<span class="thin">asystent od kodu, researchu i pomocy</span></h1>
-        <p class="stub">Meshuga na co dzień pracuje z nami w terminalu, na Discordzie i głosem. Niżej zobaczysz zapis tego, jak odpowiada, i co już naprawdę umie.</p>
+        <p class="stub">Meshuga na co dzień pracuje z nami w terminalu, na Discordzie i głosem. Zapytaj ją niżej, tutaj na stronie.</p>
         <a class="cta-big" href="#contact" data-nav="contact">Napisz do nas &rarr;</a>
       </div>
     </div>
 
-    <!-- SOMI z bliska (18.09): duza kula (sam jezyk co pasek, wieksze platno,
-         patrz __somiOrbBoot) + opis skladu + demo rozmowy BEZ backendu.
-         Trzy pytania i odpowiedzi ida ze skryptu w JS (SKRYPT_DEMO), nie z API —
-         zero tokenow, jak ustalone. Kazda odpowiedz trzyma sie WYLACZNIE faktow
-         juz publicznych na tej stronie (156 leadow, bramka akceptacji, ponad
-         1400 testow) — nic nowego nie jest tu obiecywane. -->
+    <!-- 05.11 maisa: pod hero prawdziwa aplikacja /meshuga/ (to samo co artefakt), w ramce.
+         Na stronie odpowiada w trybie pokazowym (gotowe teksty). Ramka wymaga w Cloudflare
+         X-Frame-Options: SAMEORIGIN i CSP frame-ancestors 'self' + frame-src 'self'. -->
+    <section class="mesh-okno" aria-label="Okno Meshugi">
+      <div class="mesh-okno__inner">
+        <iframe class="mesh-okno__ramka" src="meshuga/index.html"title="Meshuga: czat" loading="lazy"></iframe>
+        <a class="mesh-okno__pelny" href="meshuga/">Pełny ekran &#8599;</a>
+      </div>
+    </section>
+
+    <!-- SOMI z bliska: scena z kotem + opis skladu (demo 3 pytan wylecialo 05.11, zastapilo je okno wyzej). -->
     <section class="services somi-demo" aria-label="Poznaj Meshugę z bliska">
       <div class="services__inner">
         <div class="services__head">
@@ -3609,7 +3614,7 @@ def fetch_offer_detail(url)</code></pre>
         </div>
 
         <!-- 04.11 maisa: kula wyleciała, w jej miejscu żywy kot Meshugi (meshuga-kot.js, kółko z aplikacji).
-             Bez modułu albo przy reduced-motion zostaje zdjęcie kot-320.webp. Pytania z rozmowy niżej sterują kotem przez SOMI_MOOD. -->
+             Bez modułu albo przy reduced-motion zostaje zdjęcie kot-320.webp. Przyciski stanów sterują kotem przez SOMI_MOOD. -->
         <div class="mesh-scena">
           <div class="mesh-scena__kot" id="meshScenaKot" aria-hidden="true"><img class="mesh-scena__zapas" src="assety/kot-320.webp" width="320" height="320" alt="" decoding="async"></div>
           <p class="mesh-scena__status" aria-live="polite"><span class="mesh-scena__prompt">meshuga@kot</span> <b>spokój</b> <span class="mesh-scena__opis">czeka i mruga</span></p>
@@ -3624,7 +3629,6 @@ def fetch_offer_detail(url)</code></pre>
           <div class="somi-demo__about">
             <p class="somi-demo__lead">Meshuga to nie jedno okienko czatu. To kilka warstw, które pracują razem. Niżej wszystko, co już działa u nas na co dzień, z liczbami z testów. To nasz pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
             <ul class="somi-demo__parts">
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Przykładowa rozmowa.</b> Trzy pytania i jej odpowiedzi w okienku obok (zapis, nie czat na żywo).</span></li>
               <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Radar ofert.</b> Useme i Upwork, w historii ponad 360 ofert i 12 wysłanych zgłoszeń. Podłączenie do czatu Meshugi jeszcze przed nami.</span>
                 <!-- "pająk" z banera FB — w źródle podpisany wprost jako "crawler przerysowany
                      kanciastym szkieletem marki". Tu = pieczątka przy radarze, bo radar TO crawler. -->
@@ -3692,25 +3696,6 @@ def fetch_offer_detail(url)</code></pre>
               <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Tryb bezpieczny.</b> Wykrywa 7 rodzajów anomalii w mniej niż 60 s i potrafi się zatrzymać. W próbie 10 wstrzyknięć przez pętlę agenta: 0 wysłanych danych, 0 wycieków. Poziom autonomii ustawia macierz, nie nastrój modelu.</span></li>
               <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Kokpit z uczciwymi liczbami.</b> Jedna strona (i komenda na Discordzie) z danymi prosto z dziennika. Bez atrap i ozdobnych wskaźników: widać tylko to, co Meshuga naprawdę zrobiła.</span></li>
             </ul>
-          </div>
-
-          <div class="somi-demo__chat">
-            <p class="somi-demo__disclaimer">Przykładowa rozmowa — to zapis, nie czat na żywo. Na co dzień Meshuga działa już u nas: w terminalu, na Discordzie i głosem.</p>
-            <div class="somi-demo__questions" role="group" aria-label="Przykładowe pytania do Meshugi">
-              <button type="button" class="somi-demo__q" data-demo="robi">Co robisz?</button>
-              <button type="button" class="somi-demo__q" data-demo="dziala">Jak działasz?</button>
-              <button type="button" class="somi-demo__q" data-demo="zdolna">Do czego jesteś zdolna?</button>
-            </div>
-            <!-- 04.11 maisa: okienko macowo w kolorach Startu, z kotem Meshugi zamiast kropek macOS -->
-            <div class="terminal mesh-demo">
-              <div class="terminal__bar">
-                <img class="mesh-demo__ava" src="assety/kot-72.webp" width="32" height="32" alt="" decoding="async">
-                <span class="mesh-demo__kto"><b>Meshuga</b><small>przykładowa rozmowa</small></span>
-                <span class="terminal__title">meshuga_demo.log</span>
-              </div>
-              <pre class="terminal__body" id="somiDemoBody">$ meshuga --zapytaj <span class="t-muted">— wybierz pytanie powyżej</span></pre>
-            </div>
-            <p class="somi-demo__srlive" id="somiDemoSrLive" aria-live="polite"></p>
           </div>
         </div>
       </div>
@@ -4616,7 +4601,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261105f" defer></script>
+<script src="app.js?v=20261105g" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -4642,9 +4627,9 @@ fingerprint(maszyna)</div>
 <link rel="stylesheet" href="konto.css?v=20261105b">
 <script src="konto-api.js?v=20261105b" defer></script>
 <script src="konto.js?v=20261105b" defer></script>
-<link rel="stylesheet" href="kot-czat.css?v=20261105b">
+<link rel="stylesheet" href="kot-czat.css?v=20261105g">
 <script src="meshuga-kot.js?v=20261105c" defer></script>
-<script src="kot-czat.js?v=20261105c" defer></script>
+<script src="kot-czat.js?v=20261105g" defer></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.

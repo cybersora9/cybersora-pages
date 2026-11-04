@@ -27,6 +27,8 @@
 /* menu na telefonie / panel Przewodnika otwarty → kot się chowa */
 .nav__scrim.on ~ .kot{opacity:0; pointer-events:none;}
 html[data-route="soraos"] .kot, html[data-route="polityka"] .kot{display:none;}
+/* okno Meshugi (#meshuga) na ekranie → kot w rogu znika, żeby nie było dwóch czatów naraz */
+.kot.kot--przy-oknie:not(.kot--open){opacity:0; pointer-events:none; visibility:hidden;}
 
 /* ---------- przycisk: kot + cyber-kółko ---------- */
 .kot__btn{

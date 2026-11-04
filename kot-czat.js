@@ -436,4 +436,14 @@
     window.addEventListener(ev, function f() { if (!ruszyl) { ruszyl = true; zaplanuj(); } }, { passive: true, once: true });
   });
   window.addEventListener('hashchange', zaplanuj);
+
+  /* ---------- okno Meshugi na ekranie (#meshuga) → kot w rogu się chowa ---------- */
+  var oknoMeshugi = document.querySelector('.mesh-okno__ramka');
+  if (oknoMeshugi && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (wpisy) {
+      var widac = wpisy[wpisy.length - 1].isIntersecting;
+      root.classList.toggle('kot--przy-oknie', widac);
+      if (widac) schowajTip(false);
+    }, { threshold: 0.25 }).observe(oknoMeshugi);
+  }
 })();
