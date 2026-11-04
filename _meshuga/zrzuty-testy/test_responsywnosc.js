@@ -85,6 +85,9 @@ const SPRAWDZ = ({ dotyk, nakladka, sa, wolnePole }) => {
         }
       }
     }
+    // 2b. powitanie w pustym stanie widać w całości (nie przycięte krawędzią przewijaka)
+    const h1 = document.querySelector('.pusty #powitanie');
+    if (!nakladka && h1 && widac(h1)) { const r = h1.getBoundingClientRect(), q = document.querySelector('#przewijak').getBoundingClientRect(); if (r.top < q.top - 1 || r.bottom > q.bottom + 1) dodaj('powitanie przycięte', h1, `${Math.round(r.top)}–${Math.round(r.bottom)} w ${Math.round(q.top)}–${Math.round(q.bottom)}`); }
     // 3. pole wpisu: widoczne, nieprzykryte, nad klawiaturą i nad paskiem domowym
     const pole = document.querySelector('#pole');
     if (!nakladka && pole && widac(pole)) {
