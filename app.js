@@ -2685,6 +2685,40 @@
       if (podpis) podpis.textContent = b.dataset.galOpis || '';
       gal.querySelectorAll('button[data-gal-src]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     });
+    /* 04.11: klik w duży zrzut otwiera go na cały ekran; ←/→ i przyciski przełączają, Esc i klik obok zamykają */
+    const otworz = gal.querySelector('[data-gal-otworz]');
+    const miniatury = [...gal.querySelectorAll('button[data-gal-src]')];
+    if (!otworz || !miniatury.length || typeof HTMLDialogElement !== 'function') return;
+    const zrob = (tag, kl, txt) => { const x = document.createElement(tag); if (kl) x.className = kl; if (txt) x.textContent = txt; return x; };
+    const ok = zrob('dialog', 'gal-ok'); ok.setAttribute('aria-label', 'Zrzut SoraEbookReadera');
+    const licz = zrob('span', 'gal-ok__licz'), zamknij = zrob('button', null, '×');
+    zamknij.type = 'button'; zamknij.setAttribute('aria-label', 'Zamknij podgląd');
+    const gora = zrob('div', 'gal-ok__gora'); gora.append(licz, zamknij);
+    const strzalka = (znak, opis, krok) => { const s = zrob('button', null, znak); s.type = 'button'; s.setAttribute('aria-label', opis); s.addEventListener('click', () => pokaz(nr + krok)); return s; };
+    const obraz = zrob('img'); obraz.decoding = 'async';
+    const scena = zrob('div', 'gal-ok__scena'); scena.append(strzalka('‹', 'Poprzedni zrzut', -1), obraz, strzalka('›', 'Następny zrzut', 1));
+    const opis = zrob('p', 'gal-ok__opis'); opis.setAttribute('aria-live', 'polite');
+    const dol = zrob('div', 'gal-ok__dol'); dol.append(strzalka('‹', 'Poprzedni zrzut', -1), strzalka('›', 'Następny zrzut', 1));
+    ok.append(gora, scena, opis, dol); document.body.appendChild(ok);
+    let nr = 0;
+    function pokaz(i) {
+      nr = (i + miniatury.length) % miniatury.length;
+      const b = miniatury[nr], t = b.dataset.galOpis || '';
+      obraz.src = b.dataset.galSrc; obraz.alt = 'SoraEbookReader: ' + t; opis.textContent = t;
+      licz.textContent = (nr + 1) + ' / ' + miniatury.length;
+      b.click();   // karta pod spodem pokazuje ten sam zrzut po zamknięciu
+    }
+    otworz.addEventListener('click', () => {
+      const i = miniatury.findIndex(x => x.getAttribute('aria-pressed') === 'true');
+      pokaz(i < 0 ? 0 : i); document.documentElement.classList.add('gal-ok-otwarte'); ok.showModal(); zamknij.focus();
+    });
+    zamknij.addEventListener('click', () => ok.close());
+    ok.addEventListener('close', () => { document.documentElement.classList.remove('gal-ok-otwarte'); otworz.focus({ preventScroll: true }); });
+    ok.addEventListener('click', (e) => { if (!e.target.closest('button, img')) ok.close(); });
+    ok.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); pokaz(nr - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); pokaz(nr + 1); }
+    });
   });
 
   /* ===================== magnetic links (small reach, soft return) ===================== */
