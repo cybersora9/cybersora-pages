@@ -12,7 +12,8 @@
   // Na żywo pusto = „Czatuj · wkrótce”: aplikacja Meshugi stoi na razie w prywatnym artefakcie claude.ai
   // (w artefakcie strony adres to https://claude.ai/artifact/WNnVCAxaRz3AVA7HJa58oR); docelowo cybersora.pl/meshuga.
   // Nie przez <script> w index.html: CSP strony (Cloudflare) nie wpuszcza skryptów wpisanych w HTML.
-  var APP = window.MESHUGA_APP != null ? window.MESHUGA_APP : '/meshuga/';
+  var APP = window.MESHUGA_APP != null ? String(window.MESHUGA_APP) : '/meshuga/';
+  if (APP && !/^(\/(?!\/)|https:\/\/)/.test(APP)) APP = '';   // tylko ścieżka na stronie albo https:, nigdy javascript:/data:
 
   var LS = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -20,8 +21,16 @@
   };
   /* ---------- profil testowy: nick + własny awatar (tylko ta przeglądarka) ---------- */
   var PROFIL_KEY = 'meshuga-profil';
+  function dobryNick(n) { return typeof n === 'string' && n.length >= 2 && n.length <= 24 && /^[\p{L}\p{N}_.\- ]+$/u.test(n); }
+  // tylko obrazek rastrowy jako base64, bez cudzysłowów i nawiasów (idzie do url("…") w style), najwyżej ~200 kB
+  function dobryAva(d) { return typeof d === 'string' && d.length < 270000 && /^data:image\/(webp|jpeg|png|gif);base64,[A-Za-z0-9+\/]+=*$/.test(d); }
   function wczytajProfil() {
-    try { var p = JSON.parse(LS.get(PROFIL_KEY) || 'null'); if (p && typeof p.nick === 'string' && p.nick) return p; } catch (e) {}
+    try {
+      var p = JSON.parse(LS.get(PROFIL_KEY) || 'null');
+      // localStorage może być ręcznie zmieniony albo uszkodzony: przepuszczamy tylko poprawny nick i awatar data:image/*
+      if (p && typeof p === 'object' && dobryNick(p.nick))
+        return { nick: p.nick, ava: dobryAva(p.ava) ? p.ava : '', od: typeof p.od === 'string' ? p.od.slice(0, 10) : '' };
+    } catch (e) {}
     return null;
   }
   function zapiszProfil(p) {
@@ -115,7 +124,7 @@
   var pvH = el('p', 'kot__etykieta', 'profil testowy');
   var pvRow = el('div', 'kot__pRow');
   var pAva = el('span', 'kot__pAva'); pAva.setAttribute('aria-hidden', 'true');
-  var pPlik = el('input'); pPlik.type = 'file'; pPlik.accept = 'image/*'; pPlik.hidden = true;
+  var pPlik = el('input'); pPlik.type = 'file'; pPlik.accept = 'image/jpeg,image/png,image/webp,image/gif,image/avif'; pPlik.hidden = true;
   var pWybierz = el('button', 'kot__b', 'Wybierz obrazek'); pWybierz.type = 'button';
   var pUsun = el('button', 'kot__b', 'Usuń'); pUsun.type = 'button'; pUsun.setAttribute('aria-label', 'Usuń awatar');
   var pBtns = el('div', 'kot__pBtns'); pBtns.append(pWybierz, pUsun);
@@ -146,7 +155,7 @@
   var czatujT = el('span', 'kot__czatujT', 'Czatuj');
   var czatujS = el('span', 'kot__czatujS', APP ? 'pełna aplikacja Meshugi ↗' : 'pełna aplikacja · wkrótce');
   czatuj.append(czatujT, czatujS);
-  if (APP) { czatuj.target = '_blank'; czatuj.rel = 'noopener'; }
+  if (APP) { czatuj.target = '_blank'; czatuj.rel = 'noopener noreferrer'; }
   else { czatuj.setAttribute('role', 'button'); czatuj.setAttribute('aria-disabled', 'true'); czatuj.tabIndex = 0; root.classList.add('kot--bezApp'); }
   var note = el('p', 'kot__note', 'Odpowiadam z treści strony. Nie zapisuję rozmowy.');
   panel.append(uchwyt, head, pv, log, chipsH, chips, form, czatuj, note);
@@ -160,6 +169,8 @@
     var mk = el('span', 'kot__mk'); mk.setAttribute('aria-hidden', 'true');
     btn.classList.add('kot__btn--zywy'); btn.append(mk, el('span', 'kot__dot'));
     kot = window.MeshugaKot.mount(mk, { ring: true });
+    // 05.11: „Meshuga myśli” = wariant A (wstęga, wybór maisy). Warunkowo, bo przełącznik może zniknąć z modułu.
+    if (window.MeshugaKot.wariantMysli) window.MeshugaKot.wariantMysli('A');
   } else btn.append(el('span', 'kot__ring'), el('span', 'kot__skan'), el('span', 'kot__dot'));
   root.append(tip, tlo, panel, btn);
   document.body.appendChild(root);
@@ -192,19 +203,58 @@
     log.appendChild(m); log.scrollTop = log.scrollHeight;
   }
   var przywitany = false;
+  /* Etap „nad czym myśli” z tematu pytania: ta sama logika co etapyMysli() w aplikacji
+     (_meshuga/meshuga-app.src.html). Gdy moduł ma MeshugaKot.etapy, liczy on (jedno źródło). */
+  var historia = 0;
+  function etapMysli(q) {
+    if (window.MeshugaKot && typeof window.MeshugaKot.etapy === 'function') {
+      try { var e = window.MeshugaKot.etapy(q, { historia: historia > 0, zrzut: false }); if (e && e.length) return String(e[e.length - 1]); } catch (er) {}
+    }
+    q = (q || '').toLowerCase();
+    if (/```|\bkod|python|javascript|typescript|\bjs\b|błąd|blad|error|funkcj|pętl|petl|programow/.test(q)) return 'czytam Twój kod';
+    if (/pomys|opisz|opiszę/.test(q)) return 'rozkładam pomysł na kroki';
+    if (/cen|koszt|ile|zł|wycen/.test(q)) return 'przeglądam cennik';
+    if (/projekt|zrobili|portfolio/.test(q)) return 'szukam w projektach';
+    return 'układam odpowiedź';
+  }
+  /* WYJĄTEK od zasady „najwyżej dwie pętle naraz (mapa + kula)” z index.html:
+     wstęga „Meshuga myśli” (kot.mysli) to trzecia pętla rAF, ale tylko po kliknięciu
+     i tylko na czas myślenia (1–3 s); po odpowiedzi moduł zatrzymuje rAF
+     (strażnik: _testy_strony/test_kot_rog.js, „po odpowiedzi brak pętli wstęgi”).
+     Bez KOT_API (gotowe odpowiedzi) myślenie trwa co najmniej MYSL_MIN ms, żeby wstęga
+     zdążyła wejść (0,55 s) i wyjść (0,45 s); z prawdziwym KOT_API bez sztucznego czekania. */
+  var MYSL_MIN = 1200, myslacych = 0;
+  /* Odpowiedź z KOT_API to obce dane: tylko tekst (textContent), przycięty,
+     link tylko do znanego widoku strony (#widok), inaczej bez linku. */
+  var WIDOKI = ['start', 'oferta', 'cennik', 'products', 'zrobilismy', 'meshuga', 'somi', 'soraos', 'onas', 'sztuka', 'contact', 'polityka'];
+  function zApi(j) {
+    if (!j || typeof j.odpowiedz !== 'string' || !j.odpowiedz.trim()) return null;
+    var o = { t: j.odpowiedz.slice(0, 1200) }, l = j.link;
+    if (Array.isArray(l) && typeof l[0] === 'string' && typeof l[1] === 'string' && WIDOKI.indexOf(l[0]) >= 0 && l[1].trim())
+      o.go = [l[0], l[1].slice(0, 40)];
+    return o;
+  }
   function zapytaj(q) {
     q = (q || '').trim(); if (!q) return;
     ostatnie = q; odswiezCzatuj();
+    var etap = etapMysli(q); historia++;
     msg('ty', q);
-    var p = el('div', 'kot__pisze', 'Meshuga pisze…'); log.appendChild(p); log.scrollTop = log.scrollHeight;
-    if (kot) kot.squint(true);
-    var gotowe = function (o) { p.remove(); if (kot) { kot.squint(false); kot.flash(); } msg('kot', o.t, o.go); };
+    var p = el('div', 'kot__pisze', etap + '…'); log.appendChild(p); log.scrollTop = log.scrollHeight;
+    var mysli = !!(kot && kot.mysli);
+    myslacych++;
+    if (mysli) kot.mysli(true); else if (kot) kot.squint(true);
+    var gotowe = function (o) {
+      p.remove();
+      // kilka pytań naraz: kot przestaje myśleć dopiero przy ostatniej odpowiedzi
+      if (--myslacych <= 0) { myslacych = 0; if (mysli) kot.mysli(false); /* błysk oczu robi moduł */ else if (kot) { kot.squint(false); kot.flash(); } }
+      msg('kot', o.t, o.go);
+    };
     if (window.KOT_API) {
       fetch(window.KOT_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: q, widok: widok() }) })
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-        .then(function (j) { gotowe({ t: j.odpowiedz || '…', go: j.link }); })
+        .then(function (j) { gotowe(zApi(j) || odpowiedz(q)); })
         .catch(function () { gotowe(odpowiedz(q)); });
-    } else setTimeout(function () { gotowe(odpowiedz(q)); }, 450);
+    } else setTimeout(function () { gotowe(odpowiedz(q)); }, mysli ? MYSL_MIN : 450);
   }
   form.addEventListener('submit', function (e) { e.preventDefault(); var q = inp.value; inp.value = ''; zapytaj(q); });
   chips.addEventListener('click', function (e) {
@@ -270,6 +320,7 @@
   /* ---------- profil: widok, awatar, zapis ---------- */
   var nowyAva = null; // dataURL wybranego obrazka przed zapisem ('' = usunięty)
   function ustawAva(n, d, nick) {
+    if (d && !dobryAva(d)) d = '';
     n.style.backgroundImage = d ? 'url("' + d + '")' : '';
     n.textContent = d ? '' : (nick ? nick.charAt(0).toUpperCase() : '');
     n.classList.toggle('bezObrazka', !d);
@@ -294,16 +345,18 @@
     } else setTimeout(function () { (matchMedia('(hover:none)').matches ? prof : inp).focus(); }, 30);
   }
   function obrazek(plik, cb) {
-    if (!plik || !/^image\//.test(plik.type)) return cb('To nie jest obrazek. Wybierz JPG, PNG, WEBP albo GIF.');
+    if (!plik || !/^image\/(jpeg|png|webp|gif|avif)$/.test(plik.type)) return cb('To nie jest obrazek. Wybierz JPG, PNG, WEBP albo GIF.');
     if (plik.size > 8e6) return cb('Obrazek jest za duży (najwyżej 8 MB).');
     var u = URL.createObjectURL(plik), img = new Image();
     img.onload = function () {
       var c = document.createElement('canvas'); c.width = c.height = 128;
       var s = Math.min(img.naturalWidth, img.naturalHeight);
+      if (!s) { URL.revokeObjectURL(u); return cb('Nie udało się odczytać obrazka.'); }
       c.getContext('2d').drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 128, 128);
       URL.revokeObjectURL(u);
       var d = c.toDataURL('image/webp', 0.85);
       if (d.indexOf('data:image/webp') !== 0) d = c.toDataURL('image/jpeg', 0.85);
+      if (!dobryAva(d)) return cb('Nie udało się odczytać obrazka.');
       cb(null, d);
     };
     img.onerror = function () { URL.revokeObjectURL(u); cb('Nie udało się odczytać obrazka.'); };
@@ -324,7 +377,7 @@
   pZapisz.addEventListener('click', function () {
     var n = pNick.value.trim().replace(/\s+/g, ' ');
     if (n.length < 2) { pBlad.textContent = 'Nick musi mieć co najmniej 2 znaki.'; pNick.focus(); return; }
-    if (!/^[\p{L}\p{N}_.\- ]+$/u.test(n)) { pBlad.textContent = 'Nick może mieć tylko litery, cyfry, spację i znaki _ . -'; pNick.focus(); return; }
+    if (!dobryNick(n)) { pBlad.textContent = 'Nick może mieć tylko litery, cyfry, spację i znaki _ . -'; pNick.focus(); return; }
     var nowy = { nick: n, ava: nowyAva || '', od: (profil && profil.od) || new Date().toISOString().slice(0, 10) };
     if (!zapiszProfil(nowy)) { pBlad.textContent = 'Przeglądarka nie pozwala zapisać profilu (tryb prywatny?).'; return; }
     var nowyGosc = !profil; profil = nowy; odswiezProfil(); pokazProfil(false);
