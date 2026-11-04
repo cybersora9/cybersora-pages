@@ -196,7 +196,7 @@ button { cursor:pointer; }
 .mdl-mysli .et { color:var(--fg); display:inline-block; transition:opacity .2s var(--ease), transform .2s var(--ease); }
 .mdl-mysli .et.zm { opacity:0; transform:translateY(-4px); }
 .mdl-mysli .t { color:var(--fg2); font-size:12px; font-variant-numeric:tabular-nums; }
-/* „Meshuga myśli” (makieta 04.11): wstęga na canvasach z meshuga-kot.js, kółko na ten czas przygasa */
+/* „Meshuga myśli” (wariant A na stałe): wstęga na canvasach z meshuga-kot.js, kółko na ten czas przygasa */
 .mk-ring-slot { transition:opacity .45s var(--ease); }
 .mk.mk-mysli .mk-ring-slot { opacity:.28; }
 @keyframes mdl-mysl { 50% { opacity:.35; transform:scale(.85); } }
@@ -573,7 +573,6 @@ button { cursor:pointer; }
     <h3>Ustawienia</h3>
     <div class="wiersz"><span>Motyw</span><div class="seg" data-ust="motyw"><button data-v="dark">Ciemny</button><button data-v="light">Jasny</button></div></div>
     <div class="wiersz"><span>Animacje</span><div class="seg" data-ust="ruch"><button data-v="on">Wł.</button><button data-v="off">Wył.</button></div></div>
-    <div class="wiersz"><span>Myśli · makieta</span><div class="seg" data-ust="mysli"><button data-v="A">A</button><button data-v="B">B</button><button data-v="C">C</button></div></div>
     <div class="wiersz"><span>Historia</span><button class="btn" id="wyczysc">Wyczyść</button></div>
   </div>
 
@@ -684,8 +683,9 @@ button { cursor:pointer; }
   };
 
   /* ---------- stan ---------- */
-  var ust = Object.assign({ motyw: 'dark', ruch: 'on', tryb: 'quick', zwiniety: false, mysli: 'A' }, LS.get('ust', {}));
+  var ust = Object.assign({ motyw: 'dark', ruch: 'on', tryb: 'quick', zwiniety: false }, LS.get('ust', {}));
   delete ust.konto; /* stary przełącznik makiety KONTO (A/B), wybrano A */
+  delete ust.mysli; /* stary przełącznik makiety MYŚLI (A/B/C), wybrano A na stałe */
   ['ring', 'tlo', 'karty', 'platek', 'choinka', 'platki'].forEach(function (k) { delete ust[k]; }); /* dawne przełączniki makiety (wybór 03.11) */
   var czaty = LS.get('czaty', []);
   if (!Array.isArray(czaty)) czaty = [];
@@ -698,7 +698,6 @@ button { cursor:pointer; }
   /* ---------- koty ---------- */
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (ust.ruch === 'off' || reduce) MeshugaKot.setMotion(false);
-  MeshugaKot.wariantMysli(ust.mysli);
   var kotHero = MeshugaKot.mount($('#kotHero'), { ring: true });
   var kotPasek = MeshugaKot.mount($('#kotPasek'), { ring: false });
 
@@ -875,7 +874,6 @@ button { cursor:pointer; }
     var k = b.parentElement.getAttribute('data-ust'), v = b.getAttribute('data-v');
     if (k === 'motyw') { ust.motyw = v; motyw(); ustawTlo(); }
     else if (k === 'ruch') { ust.ruch = v; MeshugaKot.setMotion(v === 'on' && !reduce); ustawTlo(); Lot.start(); }
-    else if (k === 'mysli') { ust.mysli = v; MeshugaKot.wariantMysli(v); }
     Platek.przerysuj();
     zapiszUst();
     zaznacz();
@@ -1417,7 +1415,7 @@ button { cursor:pointer; }
     var mysliT = 0;
     d._kot.mysli(true); kotHero.mysli(true);
     if (!plik) {
-      var etapy = etapyMysli(c), ei = 0, tE = t0;
+      var etapy = MeshugaKot.etapy(c.msgs[c.msgs.length - 1].t, { historia: c.msgs.length - 1 }), ei = 0, tE = t0;
       d.querySelector('.tekst').innerHTML = '<p class="mdl-mysli"><svg class="mdi ' + m.kl + '" aria-hidden="true"><use href="#' + m.ik + '"/></svg><span class="et">' + etapy[0] + '</span><span class="t">· 0 s</span></p>';
       mysliT = setInterval(function () {
         var t = d.querySelector('.mdl-mysli .t'), et = d.querySelector('.mdl-mysli .et'), teraz = performance.now();
@@ -1494,18 +1492,6 @@ button { cursor:pointer; }
         if (i < cel.length) setTimeout(krok, MeshugaKot.motion ? 22 : 0); else koniec(cel);
       }, tier === 'default' ? 1800 : 900);
     }
-  }
-
-  /* etapy myślenia: 2–3 krótkie, ostatni (temat pytania) trzyma się do pierwszego słowa */
-  function etapyMysli(c) {
-    var q = (c.msgs[c.msgs.length - 1].t || '').toLowerCase(), e = ['czytam pytanie'];
-    if (c.msgs.length > 1) e.push('przypominam sobie rozmowę');
-    if (/```|\bkod|python|javascript|typescript|\bjs\b|błąd|blad|error|funkcj|pętl|petl|programow/.test(q)) e.push('czytam Twój kod');
-    else if (/pomys|opisz|opiszę/.test(q)) e.push('rozkładam pomysł na kroki');
-    else if (/cen|koszt|ile|zł|wycen/.test(q)) e.push('przeglądam cennik');
-    else if (/projekt|zrobili|portfolio/.test(q)) e.push('szukam w projektach');
-    else e.push('układam odpowiedź');
-    return e;
   }
 
   function gotowa(q) {
