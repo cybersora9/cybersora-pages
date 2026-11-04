@@ -7,6 +7,8 @@ const path = require('path');
 const fs = require('fs');
 const URL = require('url').pathToFileURL(path.resolve(process.env.MESHUGA_PLIK || path.join(__dirname, '..', 'meshuga-app.html'))).href;
 const STRONA = process.env.MESHUGA_STRONA || path.join(__dirname, '..', 'strona');
+const OUT = path.join(process.env.MESHUGA_ZRZUTY || path.join(__dirname, 'wyniki'), 'bezpieczenstwo');
+fs.mkdirSync(OUT, { recursive: true });
 
 const MODEL = () => {
   window.__odp = []; window.__wyslane = null;
@@ -66,6 +68,7 @@ const SKAN = () => {
       ok(`model #${i + 1}: brak wykonania i brak znaczników z on*/javascript:`, !s.xss && !s.zle.length, JSON.stringify(s));
       if (i === 4) ok('model: [[KARTA:constructor]] / [[PROJEKT:constructor]] nie tworzą pustych kart ani wpisów w logu', !s.karty && !s.log, JSON.stringify(s));
     }
+    await p.locator('#feed').screenshot({ path: path.join(OUT, 'bezpieczenstwo_model_wrogi_html.png') }); wyn.zrzuty++;
     ok('model: tekst z HTML-em widać jako tekst', await p.evaluate(() => document.querySelector('#feed').textContent.includes('<img src=x onerror="window.__xss=1">')));
     ok('model: zero błędów strony przy wrogich odpowiedziach', !bledy.length, bledy.slice(0, 2).join(' | '));
     await p.reload(); await p.waitForTimeout(500);
