@@ -11,7 +11,8 @@
 
   // Na żywo aplikacja Meshugi stoi pod cybersora.pl/meshuga/ (kopia artefaktu strony ma tu link do artefaktu).
   // Nie przez <script> w index.html: CSP strony (Cloudflare) nie wpuszcza skryptów wpisanych w HTML.
-  var APP = window.MESHUGA_APP != null ? window.MESHUGA_APP : '/meshuga/';
+  var APP = window.MESHUGA_APP != null ? String(window.MESHUGA_APP) : '/meshuga/';
+  if (APP && !/^(\/(?!\/)|https:\/\/)/.test(APP)) APP = '';   // 04.11 (audyt B): tylko ścieżka na stronie albo https:, nigdy javascript:/data:
 
   var LS = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -19,9 +20,20 @@
   };
   /* ---------- profil testowy: nick + własny awatar (tylko ta przeglądarka) ---------- */
   var PROFIL_KEY = 'meshuga-profil';
+  /* 04.11 (audyt B): localStorage może być ręcznie zmieniony albo uszkodzony. Nick 2–24 znaki,
+     awatar tylko jako data:image/* base64 (idzie do url("…") w style) albo kot z assety/kot-awatar/. */
+  function dobryNick(n) { return typeof n === 'string' && n.length >= 2 && n.length <= 24 && /^[\p{L}\p{N}_.\- ]+$/u.test(n); }
+  function dobryAva(d) {
+    return typeof d === 'string' && ((d.length < 270000 && /^data:image\/(webp|jpeg|png|gif);base64,[A-Za-z0-9+\/]+=*$/.test(d)) ||
+      /^assety\/kot-awatar\/kot-[a-z]+-\d+\.webp$/.test(d));
+  }
   function wczytajProfil() {
-    if (window.Konto) { var k = window.Konto.profil(); return k ? { nick: k.nick, ava: k.ava } : null; }   // 04.11: konto strony zamiast profilu testowego
-    try { var p = JSON.parse(LS.get(PROFIL_KEY) || 'null'); if (p && typeof p.nick === 'string' && p.nick) return p; } catch (e) {}
+    if (window.Konto) { var k = window.Konto.profil(); return k && dobryNick(k.nick) ? { nick: k.nick, ava: dobryAva(k.ava) ? k.ava : '' } : null; }   // 04.11: konto strony zamiast profilu testowego
+    try {
+      var p = JSON.parse(LS.get(PROFIL_KEY) || 'null');
+      if (p && typeof p === 'object' && dobryNick(p.nick))
+        return { nick: p.nick, ava: dobryAva(p.ava) ? p.ava : '', od: typeof p.od === 'string' ? p.od.slice(0, 10) : '' };
+    } catch (e) {}
     return null;
   }
   function zapiszProfil(p) {
@@ -115,7 +127,7 @@
   var pvH = el('p', 'kot__etykieta', 'profil testowy');
   var pvRow = el('div', 'kot__pRow');
   var pAva = el('span', 'kot__pAva'); pAva.setAttribute('aria-hidden', 'true');
-  var pPlik = el('input'); pPlik.type = 'file'; pPlik.accept = 'image/*'; pPlik.hidden = true;
+  var pPlik = el('input'); pPlik.type = 'file'; pPlik.accept = 'image/jpeg,image/png,image/webp,image/gif,image/avif'; pPlik.hidden = true;
   var pWybierz = el('button', 'kot__b', 'Wybierz obrazek'); pWybierz.type = 'button';
   var pUsun = el('button', 'kot__b', 'Usuń'); pUsun.type = 'button'; pUsun.setAttribute('aria-label', 'Usuń awatar');
   var pBtns = el('div', 'kot__pBtns'); pBtns.append(pWybierz, pUsun);
@@ -146,7 +158,7 @@
   var czatujT = el('span', 'kot__czatujT', 'Czatuj');
   var czatujS = el('span', 'kot__czatujS', APP ? 'pełna aplikacja Meshugi ↗' : 'pełna aplikacja · wkrótce');
   czatuj.append(czatujT, czatujS);
-  if (APP) { czatuj.target = '_blank'; czatuj.rel = 'noopener'; }
+  if (APP) { czatuj.target = '_blank'; czatuj.rel = 'noopener noreferrer'; }
   else { czatuj.setAttribute('role', 'button'); czatuj.setAttribute('aria-disabled', 'true'); czatuj.tabIndex = 0; root.classList.add('kot--bezApp'); }
   var note = el('p', 'kot__note', 'Odpowiadam z treści strony. Nie zapisuję rozmowy.');
   panel.append(uchwyt, head, pv, log, chipsH, chips, form, czatuj, note);
@@ -201,6 +213,16 @@
     if (/projekt|zrobili|portfolio/.test(q)) return 'szukam w projektach';
     return 'układam odpowiedź';
   }
+  /* 04.11 (audyt B): odpowiedź z KOT_API to obce dane: tylko tekst (textContent), przycięty,
+     link tylko do znanego widoku strony (#widok), inaczej bez linku. */
+  var WIDOKI = ['start', 'oferta', 'cennik', 'products', 'rnd', 'zrobilismy', 'meshuga', 'somi', 'soraos', 'onas', 'sztuka', 'contact', 'polityka'];
+  function zApi(j) {
+    if (!j || typeof j.odpowiedz !== 'string' || !j.odpowiedz.trim()) return null;
+    var o = { t: j.odpowiedz.slice(0, 1200) }, l = j.link;
+    if (Array.isArray(l) && typeof l[0] === 'string' && typeof l[1] === 'string' && WIDOKI.indexOf(l[0]) >= 0 && l[1].trim())
+      o.go = [l[0], l[1].slice(0, 40)];
+    return o;
+  }
   function zapytaj(q) {
     q = (q || '').trim(); if (!q) return;
     ostatnie = q; odswiezCzatuj();
@@ -221,7 +243,7 @@
     if (window.KOT_API) {
       fetch(window.KOT_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: q, widok: widok() }) })
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-        .then(function (j) { gotowe({ t: j.odpowiedz || '…', go: j.link }); })
+        .then(function (j) { gotowe(zApi(j) || odpowiedz(q)); })
         .catch(function () { gotowe(odpowiedz(q)); });
     } else setTimeout(function () { gotowe(odpowiedz(q)); }, 450);
   }
@@ -289,6 +311,7 @@
   /* ---------- profil: widok, awatar, zapis ---------- */
   var nowyAva = null; // dataURL wybranego obrazka przed zapisem ('' = usunięty)
   function ustawAva(n, d, nick) {
+    if (d && !dobryAva(d)) d = '';
     n.style.backgroundImage = d ? 'url("' + d + '")' : '';
     n.textContent = d ? '' : (nick ? nick.charAt(0).toUpperCase() : '');
     n.classList.toggle('bezObrazka', !d);
@@ -318,20 +341,24 @@
     } else setTimeout(function () { (matchMedia('(hover:none)').matches ? prof : inp).focus(); }, 30);
   }
   function obrazek(plik, cb) {
-    if (!plik || !/^image\//.test(plik.type)) return cb('To nie jest obrazek. Wybierz JPG, PNG, WEBP albo GIF.');
+    if (!plik || !/^image\/(jpeg|png|webp|gif|avif)$/.test(plik.type)) return cb('To nie jest obrazek. Wybierz JPG, PNG, WEBP albo GIF.');
     if (plik.size > 8e6) return cb('Obrazek jest za duży (najwyżej 8 MB).');
-    var u = URL.createObjectURL(plik), img = new Image();
+    // 04.11 (audyt B): FileReader → data:, nie createObjectURL → blob:, bo CSP strony (img-src 'self' data:)
+    // blokuje blob: i na żywo żaden awatar by się nie wczytał
+    var fr = new FileReader(), img = new Image(), zle = function () { cb('Nie udało się odczytać obrazka.'); };
     img.onload = function () {
       var c = document.createElement('canvas'); c.width = c.height = 128;
       var s = Math.min(img.naturalWidth, img.naturalHeight);
+      if (!s) return zle();
       c.getContext('2d').drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 128, 128);
-      URL.revokeObjectURL(u);
       var d = c.toDataURL('image/webp', 0.85);
       if (d.indexOf('data:image/webp') !== 0) d = c.toDataURL('image/jpeg', 0.85);
+      if (!dobryAva(d)) return zle();
       cb(null, d);
     };
-    img.onerror = function () { URL.revokeObjectURL(u); cb('Nie udało się odczytać obrazka.'); };
-    img.src = u;
+    img.onerror = zle; fr.onerror = zle;
+    fr.onload = function () { if (typeof fr.result === 'string' && fr.result.indexOf('data:image/') === 0) img.src = fr.result; else zle(); };
+    fr.readAsDataURL(plik);
   }
   prof.addEventListener('click', function () {
     if (window.Konto) { zamknij(false); profil ? window.Konto.otworz('meshuga') : window.Konto.zaloguj(); return; }
@@ -351,7 +378,7 @@
   pZapisz.addEventListener('click', function () {
     var n = pNick.value.trim().replace(/\s+/g, ' ');
     if (n.length < 2) { pBlad.textContent = 'Nick musi mieć co najmniej 2 znaki.'; pNick.focus(); return; }
-    if (!/^[\p{L}\p{N}_.\- ]+$/u.test(n)) { pBlad.textContent = 'Nick może mieć tylko litery, cyfry, spację i znaki _ . -'; pNick.focus(); return; }
+    if (!dobryNick(n)) { pBlad.textContent = 'Nick może mieć tylko litery, cyfry, spację i znaki _ . -'; pNick.focus(); return; }
     var nowy = { nick: n, ava: nowyAva || '', od: (profil && profil.od) || new Date().toISOString().slice(0, 10) };
     if (!zapiszProfil(nowy)) { pBlad.textContent = 'Przeglądarka nie pozwala zapisać profilu (tryb prywatny?).'; return; }
     var nowyGosc = !profil; profil = nowy; odswiezProfil(); pokazProfil(false);
