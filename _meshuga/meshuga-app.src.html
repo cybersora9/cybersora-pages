@@ -540,7 +540,7 @@ button { cursor:pointer; }
           <label for="wpis" class="sr">Zapytaj Meshugę</label>
           <div class="slash" id="slash" role="listbox" aria-label="Komendy" hidden></div>
           <div class="zal" id="zal" hidden><img id="zalImg" alt=""><div class="zal-opis"><b id="zalNazwa"></b><span id="zalInfo"></span></div><button type="button" class="ikonka" id="zalUsun" aria-label="Usuń zrzut" title="Usuń zrzut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-          <textarea id="wpis" rows="1" placeholder="Zapytaj Meshugę albo wpisz /" aria-autocomplete="list" aria-controls="slash"></textarea>
+          <textarea id="wpis" rows="1" maxlength="4000" placeholder="Zapytaj Meshugę albo wpisz /" aria-autocomplete="list" aria-controls="slash"></textarea>
           <input type="file" id="plik" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
           <div class="pole-dol">
             <button type="button" class="ikonka" id="plus" aria-label="Dołącz zrzut do oceny" title="Oceń mój zrzut: dołącz obrazek strony albo aplikacji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -587,7 +587,7 @@ button { cursor:pointer; }
   <div class="okno" role="dialog" aria-modal="true" aria-labelledby="oknoTytul">
     <h3 id="oknoTytul">Konto cybersory</h3>
     <div class="zakladki" id="kZakladki" role="tablist" aria-label="Konto"><button type="button" role="tab" data-z="log" aria-selected="true">Zaloguj</button><button type="button" role="tab" data-z="rej" aria-selected="false">Załóż konto</button></div>
-    <form id="fKonto" novalidate>
+    <form id="fKonto" method="post" novalidate>
       <label class="pole-f">Nick<input id="kNick" name="username" autocomplete="username" maxlength="16" spellcheck="false" autocapitalize="off"></label>
       <label class="pole-f" id="kKodWrap" hidden>Kod odzyskiwania<input id="kKod" autocomplete="one-time-code" spellcheck="false" autocapitalize="characters"></label>
       <label class="pole-f"><span id="kHasloEt">Hasło</span><input id="kHaslo" type="password" name="password" autocomplete="current-password" maxlength="128"></label>
@@ -614,7 +614,7 @@ button { cursor:pointer; }
   var app = $('#app');
   var LS = {
     get: function (k, d) { try { var v = localStorage.getItem('meshuga.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set: function (k, v) { try { localStorage.setItem('meshuga.' + k, JSON.stringify(v)); } catch (e) {} }
+    set: function (k, v) { try { localStorage.setItem('meshuga.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } }
   };
 
   /* ---------- wiedza z cybersora.pl (cennik i projekty, stan 03.11.2026) ---------- */
@@ -682,13 +682,47 @@ button { cursor:pointer; }
     ]
   };
 
+  /* ---------- historia z localStorage: tylko to, co ma dobry kształt (uszkodzony albo wrogi zapis nie wysypuje aplikacji) ---------- */
+  var MAX_WPIS = 4000; /* najdłuższa wiadomość (pole wpisu, ?q=, karty): dłuższa zapychała localStorage i prompt */
+  function czyscNazwe(n) { return String(n == null ? '' : n).replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029\[\]<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80); }
+  function zdrowaWiad(m) {
+    if (!m || typeof m !== 'object' || (m.r !== 'user' && m.r !== 'assistant') || typeof m.t !== 'string') return null;
+    var w = { r: m.r, t: m.t };
+    if (typeof m.zrzut === 'string') w.zrzut = czyscNazwe(m.zrzut);
+    if (m.lok === true) w.lok = true;
+    if (typeof m.et === 'string') w.et = m.et;
+    if (m.log && typeof m.log === 'object' && Array.isArray(m.log.k)) {
+      w.log = { k: m.log.k.filter(function (k) { return k && typeof k.t === 'string'; }).map(function (k) { return { t: k.t, ok: !!k.ok }; }) };
+      if (typeof m.log.ms === 'number' && isFinite(m.log.ms)) w.log.ms = m.log.ms;
+    }
+    if (m.brief && typeof m.brief === 'object' && typeof m.brief.nr === 'string') {
+      var p = m.brief.p && typeof m.brief.p === 'object' ? m.brief.p : {}, bp = {};
+      PYTANIA.forEach(function (q) { if (typeof p[q[0]] === 'string') bp[q[0]] = p[q[0]]; });
+      w.brief = { nr: m.brief.nr, p: bp, wycena: typeof m.brief.wycena === 'string' ? m.brief.wycena : '' };
+    }
+    return w;
+  }
+  function zdrowyCzat(c) {
+    if (!c || typeof c !== 'object' || Array.isArray(c) || !Array.isArray(c.msgs) || (typeof c.id !== 'string' && typeof c.id !== 'number')) return null;
+    var z = { id: String(c.id), tytul: typeof c.tytul === 'string' && c.tytul ? c.tytul : 'Rozmowa', msgs: c.msgs.map(zdrowaWiad).filter(Boolean) };
+    var b = c.brief;
+    if (b && typeof b === 'object' && b.krok === (b.krok | 0) && b.krok >= 0 && b.krok < PYTANIA.length) {
+      var p = b.p && typeof b.p === 'object' ? b.p : {}, bp = {};
+      PYTANIA.forEach(function (q) { if (typeof p[q[0]] === 'string') bp[q[0]] = p[q[0]]; });
+      z.brief = { krok: b.krok, p: bp, wycena: typeof b.wycena === 'string' ? b.wycena : '' };
+    }
+    return z;
+  }
+
   /* ---------- stan ---------- */
-  var ust = Object.assign({ motyw: 'dark', ruch: 'on', tryb: 'quick', zwiniety: false }, LS.get('ust', {}));
+  var ustZapis = LS.get('ust', {});
+  if (!ustZapis || typeof ustZapis !== 'object' || Array.isArray(ustZapis)) ustZapis = {}; /* uszkodzony zapis = ustawienia domyślne */
+  var ust = Object.assign({ motyw: 'dark', ruch: 'on', tryb: 'quick', zwiniety: false }, ustZapis);
   delete ust.konto; /* stary przełącznik makiety KONTO (A/B), wybrano A */
   delete ust.mysli; /* stary przełącznik makiety MYŚLI (A/B/C), wybrano A na stałe */
   ['ring', 'tlo', 'karty', 'platek', 'choinka', 'platki'].forEach(function (k) { delete ust[k]; }); /* dawne przełączniki makiety (wybór 03.11) */
   var czaty = LS.get('czaty', []);
-  if (!Array.isArray(czaty)) czaty = [];
+  czaty = (Array.isArray(czaty) ? czaty : []).map(zdrowyCzat).filter(Boolean).slice(0, 30);
   var biezacy = null;      /* {id, tytul, msgs} */
   var trwa = null;         /* AbortController */
   var sample = null, sampleStan = 'czekam';
@@ -1062,6 +1096,8 @@ button { cursor:pointer; }
   });
 
   /* ---------- wiadomości ---------- */
+  /* id ze znacznika modelu ([[KARTA:id]]) to tylko własny klucz słownika: „constructor” itp. z prototypu nie przechodzi */
+  function wlasne(obj, id) { return Object.prototype.hasOwnProperty.call(obj, id) ? obj[id] : null; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function rozbierz(t) {
     var znaczniki = [], m, re = /\[\[(KARTA|PROJEKT|WYCENA):([a-z+]+)\]\]|\[\[ZESPOL\]\]/g;
@@ -1205,9 +1241,9 @@ button { cursor:pointer; }
   function krokiZeZnacznikow(r) {
     var k = [];
     r.znaczniki.forEach(function (z) {
-      if (z.typ === 'KARTA' && CENNIK[z.id]) k.push({ t: 'cennik → ' + CENNIK[z.id].kod, ok: true });
-      else if (z.typ === 'PROJEKT' && PROJEKTY[z.id]) k.push({ t: 'projekty → ' + PROJEKTY[z.id].kod, ok: true });
-      else if (z.typ === 'WYCENA') k.push({ t: 'kalkulator → ' + (z.id.split('+').filter(function (x) { return CENNIK[x]; }).join(' + ') || 'nic nie zaznaczone'), ok: true });
+      if (z.typ === 'KARTA' && wlasne(CENNIK, z.id)) k.push({ t: 'cennik → ' + CENNIK[z.id].kod, ok: true });
+      else if (z.typ === 'PROJEKT' && wlasne(PROJEKTY, z.id)) k.push({ t: 'projekty → ' + PROJEKTY[z.id].kod, ok: true });
+      else if (z.typ === 'WYCENA') k.push({ t: 'kalkulator → ' + (z.id.split('+').filter(function (x) { return wlasne(CENNIK, x); }).join(' + ') || 'nic nie zaznaczone'), ok: true });
       else if (z.typ === 'ZESPOL') k.push({ t: 'opis dla zespołu złożony', ok: true });
     });
     return k;
@@ -1283,10 +1319,10 @@ button { cursor:pointer; }
     r.znaczniki.forEach(function (z) {
       if (z.typ === 'WYCENA' && !box.querySelector('.kalk')) {
         box.appendChild(kalkulator(z.id));
-      } else if (z.typ === 'KARTA' && CENNIK[z.id] && kart < 2) {
+      } else if (z.typ === 'KARTA' && wlasne(CENNIK, z.id) && kart < 2) {
         kart++; var c = CENNIK[z.id];
         box.insertAdjacentHTML('beforeend', '<article class="ak"><div class="kod">' + c.kod + '</div><h3>' + esc(c.n) + '</h3><p>' + esc(c.o) + '</p><div class="cena"><b>' + esc(c.c) + '</b><span>' + esc(c.t).toUpperCase() + '</span></div></article>');
-      } else if (z.typ === 'PROJEKT' && PROJEKTY[z.id] && kart < 2) {
+      } else if (z.typ === 'PROJEKT' && wlasne(PROJEKTY, z.id) && kart < 2) {
         kart++; var p = PROJEKTY[z.id];
         box.insertAdjacentHTML('beforeend', '<article class="ak"><div class="kod">' + p.kod + '</div><h3>' + esc(p.n) + '</h3><p>' + esc(p.o) + '</p><dl class="fakty">' + p.f.map(function (f) { return '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl><div class="rzad"><a class="btn" href="https://cybersora.pl/#products" target="_blank" rel="noopener">Zobacz na stronie</a></div></article>');
       } else if (z.typ === 'ZESPOL' && !box.querySelector('.zespol')) {
@@ -1376,6 +1412,7 @@ button { cursor:pointer; }
   });
   function wyslij(t, plik) {
     if (trwa) return;
+    t = String(t).slice(0, MAX_WPIS);
     zapewnijCzat(t);
     var m = { r: 'user', t: t };
     if (plik) { m.zrzut = opisZrzutu(plik); delete biezacy.brief; }
@@ -1383,7 +1420,12 @@ button { cursor:pointer; }
     dodajU(t, m.zrzut); zapiszCzaty(); rysujHistorie(); zaznacz();
     if (biezacy.brief) odpowiedzBrief(t); else odpowiedz(plik);
   }
-  function zapiszCzaty() { LS.set('czaty', czaty); }
+  function zapiszCzaty() {
+    while (!LS.set('czaty', czaty)) {
+      var i = czaty.length - 1; while (i >= 0 && czaty[i] === biezacy) i--;
+      if (i < 0) return; czaty.splice(i, 1);
+    }
+  }
   function trybPrzycisku(stop) {
     btnW.disabled = stop ? false : !wpis.value.trim() && !zrzut;
     btnW.setAttribute('aria-label', stop ? 'Zatrzymaj' : 'Wyślij');
@@ -1566,7 +1608,8 @@ button { cursor:pointer; }
     function bladNicku(n) { n = String(n || '').normalize('NFC').trim(); if (n.length < 3) return 'Nick jest za krótki: min. 3 znaki.'; if (n.length > 16) return 'Nick jest za długi: maks. 16 znaków.'; if (!NICK_RE.test(n)) return 'Nick może mieć tylko litery, cyfry oraz _ - .'; return null; }
     function bladHasla(h, n) { h = String(h || ''); var d = Array.from(h.normalize('NFC')).length; if (d < 8) return 'Hasło jest za krótkie: min. 8 znaków.'; if (d > 128) return 'Hasło jest za długie: maks. 128 znaków.'; if (n && h.normalize('NFC').toLowerCase() === String(n).normalize('NFC').trim().toLowerCase()) return 'Hasło nie może być takie samo jak nick.'; return null; }
     function makieta(sciezka, metoda, d, token) {
-      var nicki = LS.get('makieta-nicki', []), jest = function (n) { return nicki.indexOf(String(n || '').trim().toLowerCase()) > -1; };
+      var nicki = LS.get('makieta-nicki', []); if (!Array.isArray(nicki)) nicki = [];
+      var jest = function (n) { return nicki.indexOf(String(n || '').trim().toLowerCase()) > -1; };
       function ses(n) { return { nick: n.trim(), token: 'makieta.' + Math.random().toString(36).slice(2), waznyDo: new Date(Date.now() + 30 * 864e5).toISOString() }; }
       function kod() { var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = ''; for (var i = 0; i < 12; i++) { s += a[Math.random() * a.length | 0]; if (i === 3 || i === 7) s += '-'; } return s; }
       return new Promise(function (ok, nie) {
@@ -1599,13 +1642,14 @@ button { cursor:pointer; }
       }, function () { throw { status: 0, kod: 'siec', error: 'Brak połączenia z serwerem kont. Spróbuj za chwilę.' }; });
     }
     function sesja() {
-      var s = czytaj(KEY_SESJA); if (!s || !s.token || !s.nick) return null;
+      var s = czytaj(KEY_SESJA); if (!s || typeof s.token !== 'string' || typeof s.nick !== 'string' || !s.token || !s.nick.trim()) return null;
       if (s.waznyDo && Date.parse(s.waznyDo) < Date.now()) { zapisz(KEY_SESJA, null); return null; }
       return s;
     }
     function awatar(nick) {
       var p = czytaj(KEY_PROFIL);
-      if (nick && p && p.nick && typeof p.ava === 'string' && /^data:image\/(png|jpeg|webp|gif);base64,/.test(p.ava) && p.nick.trim().toLowerCase() === nick.trim().toLowerCase()) return '<img alt="" src="' + p.ava + '">';
+      /* ava tylko jako pełny data:image base64 (bez cudzysłowów i spacji), wstawiany z esc: inaczej „" onerror=…” w profilu = XSS */
+      if (nick && p && typeof p.nick === 'string' && typeof p.ava === 'string' && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\/]+=*$/.test(p.ava) && p.nick.trim().toLowerCase() === nick.trim().toLowerCase()) return '<img alt="" src="' + esc(p.ava) + '">';
       return nick ? esc(Array.from(nick.trim())[0] || '?') : GOSC;
     }
     function rysuj() {
@@ -1640,6 +1684,7 @@ button { cursor:pointer; }
     }
     function zamknij() { okno.hidden = true; $('#kHaslo').value = ''; $('#kKod').value = ''; $('#kBlad').textContent = ''; if (skad) skad.focus(); }
     function zalogowany(r) {
+      if (!r || typeof r.nick !== 'string' || typeof r.token !== 'string') { $('#kBlad').textContent = 'Serwer kont odpowiedział dziwnie. Spróbuj za chwilę.'; return; }
       zapisz(KEY_SESJA, { nick: r.nick, token: r.token, waznyDo: r.waznyDo }); zapisz(KEY_NICK, r.nick);
       $('#kHaslo').value = ''; $('#kKod').value = ''; rysuj();
       if (r.kodOdzyskiwania) { f.hidden = true; $('#kZakladki').hidden = true; $('#kKodPokaz').textContent = r.kodOdzyskiwania; $('#kKodEkran').hidden = false; $('#kZapisane').focus(); }
@@ -1683,7 +1728,7 @@ button { cursor:pointer; }
   /* ---------- „Oceń mój zrzut”: wybór, upuszczenie albo wklejenie obrazka ---------- */
   var plikIn = $('#plik'), zalUrl = null;
   function rozmiar(b) { return b < 1024 * 1024 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(1).replace('.', ',') + ' MB'; }
-  function opisZrzutu(f) { return (f.name || 'zrzut') + ', ' + rozmiar(f.size); }
+  function opisZrzutu(f) { return (czyscNazwe(f.name) || 'zrzut') + ', ' + rozmiar(f.size); }
   function mozeObrazki() { return !!(sample && sampleStan === 'ok' && imgLim); }
   function ustawPlus() {
     var b = $('#plus'), on = mozeObrazki();
@@ -1699,7 +1744,7 @@ button { cursor:pointer; }
     if (imgLim.maxInputBytes && f.size > imgLim.maxInputBytes) { stopka('Zrzut jest za duży (' + rozmiar(f.size) + '). Najwyżej ' + rozmiar(imgLim.maxInputBytes) + '.'); return; }
     usunZrzut(); zrzut = f;
     try { zalUrl = URL.createObjectURL(f); $('#zalImg').src = zalUrl; } catch (e) { $('#zalImg').removeAttribute('src'); }
-    $('#zalNazwa').textContent = f.name || 'zrzut'; $('#zalInfo').textContent = rozmiar(f.size) + ' · do oceny';
+    $('#zalNazwa').textContent = czyscNazwe(f.name) || 'zrzut'; $('#zalInfo').textContent = rozmiar(f.size) + ' · do oceny';
     $('#zal').hidden = false; app.classList.add('ma-zal'); stopkaWroc(); auto();
     if (!wpis.value.trim()) wpis.placeholder = 'Dopisz pytanie albo wyślij sam zrzut';
     wpis.focus();
