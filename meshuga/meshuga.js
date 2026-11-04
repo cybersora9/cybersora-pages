@@ -5,9 +5,13 @@
      kot.flash()              // krótki błysk oczu po odpowiedzi
      kot.slucha(true|false)   // słucha mikrofonu (kółko przyspiesza, oczy otwarte)
      kot.setRing(true|false)  // pokazuje albo chowa kółko
+     kot.mysli(true|false)    // wstęga „Meshuga myśli” wokół kota (wariant A na stałe: jedna wstęga po torze jak pierścień Saturna;
+                              // wejście, pętla rAF tylko na czas myślenia, wyjście + błysk oczu; bez ruchu = statyczny przerywany pierścień)
      kot.destroy()
      MeshugaKot.setMotion(false)  // wyłącza ruch wszędzie (ustawienie „wyłącz animacje”)
-   Ruch tylko przez transform/opacity. Pauza, gdy karta ukryta. reduced-motion = statyczny kot. */
+     MeshugaKot.etapy(pytanie, { historia: liczba wcześniejszych wiadomości, zrzut: bool })
+                              // 2–4 krótkie etapy „nad czym myśli” (aplikacja i okienko strony liczą tak samo); ostatni = temat pytania
+   Ruch tylko przez transform/opacity i canvas. Pauza, gdy karta ukryta. reduced-motion = statyczny kot. */
 (function (g) {
   'use strict';
   var NS = 'http://www.w3.org/2000/svg';
@@ -153,7 +157,121 @@
     var m = Math.min(1, d / 400) * 2 * unitsPerPx;
     this.oczy.style.transform = 'translate(' + (ax / d * m).toFixed(1) + 'px,' + (ay / d * m * 0.7).toFixed(1) + 'px)';
   };
+  /* ---------- „Meshuga myśli”: wstęga wokół kota na dwóch canvasach (tył pod dyskiem, przód nad nim) ---------- */
+  var KREW = [225, 29, 51], KOSC = [246, 242, 243], HOT = [255, 58, 82], TAU = Math.PI * 2;
+  var myslace = [], mRaf = 0, mLast = 0;
+  function mix(a, b, u) { return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u]; }
+  function rgba(c, al) { return 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + Math.max(0, al).toFixed(3) + ')'; }
+  function rad(d) { return d * Math.PI / 180; }
+  /* tor jak pierścień Saturna: z>0 = przed kotem (dolny łuk), z<0 = za dyskiem */
+  function rzut(R, phi, al, be) {
+    var x0 = R * Math.cos(phi), y0 = R * Math.sin(phi), y1 = y0 * Math.cos(al), z = y0 * Math.sin(al);
+    return { x: x0 * Math.cos(be) - y1 * Math.sin(be), y: x0 * Math.sin(be) + y1 * Math.cos(be), z: z / R };
+  }
+  /* orbita wstęgi (wariant A, wybór właściciela): nachylenie i obrót toru „oddychają” w czasie */
+  function orbita(t) { return { al: rad(68 + 10 * Math.sin(TAU * t / 3.7)), be: rad(-16 + 24 * Math.sin(TAU * t / 6.1)), kol: KREW, kon: KOSC }; }
+  function Mysl(kot) { this.kot = kot; this.stan = 'off'; this.k = 0; }
+  Mysl.prototype.przygotuj = function () {
+    var el = this.kot.el, w = el.getBoundingClientRect().width || 40;
+    this.w = w; this.maly = w < 100; this.pad = Math.ceil(w * 0.22);
+    var S = w + this.pad * 2, dpr = Math.min(2, g.devicePixelRatio || 1), self = this;
+    this.S = S; this.dpr = dpr;
+    if (!this.cb) {
+      var c = function () {
+        var e = document.createElement('canvas'); e.className = 'mk-mysl'; e.setAttribute('aria-hidden', 'true');
+        e.style.cssText = 'position:absolute;pointer-events:none'; return e;
+      };
+      this.cb = c(); this.cf = c();
+      el.insertBefore(this.cb, el.querySelector('.mk-disk')); el.appendChild(this.cf);
+      this.xb = this.cb.getContext('2d'); this.xf = this.cf.getContext('2d');
+    }
+    [this.cb, this.cf].forEach(function (e) {
+      e.width = S * dpr; e.height = S * dpr;
+      e.style.left = e.style.top = (-self.pad) + 'px'; e.style.width = e.style.height = S + 'px';
+    });
+    this.phi = 0; this.t = 0; this.hist = [];
+  };
+  Mysl.prototype.czysc = function () {
+    if (!this.cb) return;
+    var S = this.S * this.dpr;
+    [this.xb, this.xf].forEach(function (x) { x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, S, S); });
+    this.xb.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); this.xf.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  };
+  Mysl.prototype.statyczny = function () {
+    this.czysc();
+    var c = this.S / 2, R = this.w * 0.56, o = orbita(0), n = 48;
+    for (var i = 0; i < n; i += 2) {
+      var a = rzut(R, i / n * TAU, o.al, o.be), b = rzut(R, (i + 1) / n * TAU, o.al, o.be), x = (a.z + b.z) > 0 ? this.xf : this.xb;
+      x.strokeStyle = rgba(KREW, 0.9); x.lineWidth = Math.max(1.5, this.w * 0.018);
+      x.beginPath(); x.moveTo(c + a.x, c + a.y); x.lineTo(c + b.x, c + b.y); x.stroke();
+    }
+  };
+  Mysl.prototype.phiAt = function (tq) {
+    var h = this.hist;
+    for (var i = h.length - 1; i > 0; i--) if (h[i - 1].t <= tq) { var a = h[i - 1], b = h[i]; return a.p + (b.p - a.p) * ((tq - a.t) / ((b.t - a.t) || 1)); }
+    return h.length ? h[0].p : 0;
+  };
+  Mysl.prototype.krok = function (dt) {
+    if (this.stan === 'in') { this.k = Math.min(1, this.k + dt / 0.55); if (this.k >= 1) this.stan = 'on'; }
+    if (this.stan === 'out') {
+      this.k = Math.max(0, this.k - dt / 0.45);
+      if (this.k <= 0) { this.stan = 'off'; this.czysc(); this.kot.flash(); return; }
+    }
+    this.t += dt;
+    this.phi += TAU / (this.maly ? 1.7 : 1.5) * (1 + 0.5 * Math.sin(TAU * this.t / 2.6)) * dt;  /* oddech */
+    this.hist.push({ t: this.t, p: this.phi });
+    while (this.hist.length > 2 && this.hist[1].t < this.t - 1.3) this.hist.shift();
+    if (this.kot.el.offsetParent) this.rysuj();
+  };
+  Mysl.prototype.rysuj = function () {
+    this.czysc();
+    var e = 1 - Math.pow(1 - this.k, 3), c = this.S / 2, w = this.w, R = w * (0.36 + 0.2 * e), o = orbita(this.t);
+    var N = this.maly ? 12 : 26, ogon = 0.8 * e, W = Math.max(2.2, w * 0.05), pts = [], k;
+    for (k = 0; k <= N; k++) {
+      var tq = this.t - k * ogon / N, oo = orbita(tq);
+      pts.push(rzut(R, this.phiAt(tq), oo.al, oo.be));
+    }
+    for (k = N - 1; k >= 0; k--) {
+      var a = pts[k], b = pts[k + 1], u = k / N, x = (a.z + b.z) > 0 ? this.xf : this.xb;
+      x.strokeStyle = rgba(mix(o.kol, o.kon, Math.pow(u, 0.9)), Math.pow(1 - u, 1.25) * e);
+      x.lineWidth = W * Math.pow(1 - u, 0.7) * (1 + 0.09 * (a.z + b.z));
+      x.beginPath(); x.moveTo(c + a.x, c + a.y); x.lineTo(c + a.x + (b.x - a.x) * 0.72, c + a.y + (b.y - a.y) * 0.72); x.stroke();
+    }
+    /* głowa wstęgi: ostry romb w hot */
+    var h = pts[0], p1 = pts[1], dx = h.x - p1.x, dy = h.y - p1.y, d = Math.hypot(dx, dy) || 1;
+    dx /= d; dy /= d;
+    var L = W * 1.7, B = W * 0.62 * (1 + 0.18 * h.z), xh = h.z > 0 ? this.xf : this.xb;
+    xh.fillStyle = rgba(HOT, e);
+    xh.beginPath(); xh.moveTo(c + h.x + dx * L, c + h.y + dy * L); xh.lineTo(c + h.x - dy * B, c + h.y + dx * B);
+    xh.lineTo(c + h.x - dx * W * 0.5, c + h.y - dy * W * 0.5); xh.lineTo(c + h.x + dy * B, c + h.y - dx * B); xh.closePath(); xh.fill();
+  };
+  function mPetla() { if (!mRaf && !hidden && motionOn) { mLast = 0; mRaf = requestAnimationFrame(mKlatka); } }
+  function mKlatka(ts) {
+    mRaf = 0;
+    var dt = mLast ? Math.min(0.05, (ts - mLast) / 1000) : 1 / 60, dalej = false; mLast = ts;
+    myslace = myslace.filter(function (m) { if (m.stan === 'off') return false; m.krok(dt); dalej = dalej || m.stan !== 'off'; return true; });
+    if (dalej && !hidden && motionOn) mRaf = requestAnimationFrame(mKlatka);
+  }
+  Kot.prototype.mysli = function (on) {
+    var m = this._m || (this._m = new Mysl(this));
+    this.el.classList.toggle('mk-mysli', !!on);
+    if (on) {
+      if (m.stan === 'on' || m.stan === 'in') return;
+      if (m.stan === 'off') { m.przygotuj(); m.k = 0; }
+      m.stan = 'in'; this.squint(true);
+      if (!motionOn) { m.k = 1; m.statyczny(); return; }
+      if (myslace.indexOf(m) < 0) myslace.push(m);
+      mPetla();
+    } else {
+      if (m.stan === 'off' || m.stan === 'out') return;
+      this.squint(false);
+      if (!motionOn) { m.stan = 'off'; m.k = 0; m.czysc(); this.flash(); return; }
+      m.stan = 'out'; if (myslace.indexOf(m) < 0) myslace.push(m); mPetla();
+    }
+  };
+
   Kot.prototype.destroy = function () {
+    if (this._m) { this._m.stan = 'off'; this._m.czysc(); }
     clearTimeout(this.t);
     this.anims.forEach(function (a) { a.cancel(); });
     this.el.removeEventListener('pointerenter', this._hover);
@@ -169,7 +287,22 @@
   document.addEventListener('visibilitychange', function () {
     hidden = document.hidden;
     live.forEach(function (k) { k.anims.forEach(function (a) { hidden ? a.pause() : a.play(); }); });
+    if (!hidden) mPetla();
   });
+
+  /* „nad czym myśli”: tylko to, co wiemy na pewno (pamięć rozmowy, zrzut, temat pytania z naszych słów-kluczy), nie udawany tok modelu */
+  function etapy(pytanie, o) {
+    var q = String(pytanie == null ? '' : pytanie).toLowerCase(), e = ['czytam pytanie'];
+    o = o || {};
+    if ((+o.historia || 0) > 0) e.push('przypominam sobie rozmowę');
+    if (o.zrzut) e.push('oglądam zrzut');
+    if (/```|\bkod|python|javascript|typescript|\bjs\b|błąd|blad|error|funkcj|pętl|petl|programow/.test(q)) e.push('czytam Twój kod');
+    else if (/pomys|opisz|opiszę/.test(q)) e.push('rozkładam pomysł na kroki');
+    else if (/cen|koszt|ile|zł|wycen/.test(q)) e.push('przeglądam cennik');
+    else if (/projekt|zrobili|portfolio/.test(q)) e.push('szukam w projektach');
+    else e.push('układam odpowiedź');
+    return e;
+  }
 
   g.MeshugaKot = {
     mount: function (el, opt) { return new Kot(el, opt); },
@@ -180,8 +313,11 @@
         k.oczy.style.transform = '';
         k.setRing(k.el.classList.contains('mk-has-ring'));
         k.schedule();
+        var m = k._m;   /* myśli w trakcie przełączenia ruchu: od nowa w nowym trybie */
+        if (m && m.stan !== 'off') { m.stan = 'off'; m.czysc(); k.mysli(true); }
       });
     },
+    etapy: etapy,
     get motion() { return motionOn; }
   };
 })(window);
@@ -194,7 +330,7 @@
   var app = $('#app');
   var LS = {
     get: function (k, d) { try { var v = localStorage.getItem('meshuga.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set: function (k, v) { try { localStorage.setItem('meshuga.' + k, JSON.stringify(v)); } catch (e) {} }
+    set: function (k, v) { try { localStorage.setItem('meshuga.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } }
   };
 
   /* ---------- wiedza z cybersora.pl (cennik i projekty, stan 03.11.2026) ---------- */
@@ -262,12 +398,47 @@
     ]
   };
 
+  /* ---------- historia z localStorage: tylko to, co ma dobry kształt (uszkodzony albo wrogi zapis nie wysypuje aplikacji) ---------- */
+  var MAX_WPIS = 4000; /* najdłuższa wiadomość (pole wpisu, ?q=, karty): dłuższa zapychała localStorage i prompt */
+  function czyscNazwe(n) { return String(n == null ? '' : n).replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029\[\]<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80); }
+  function zdrowaWiad(m) {
+    if (!m || typeof m !== 'object' || (m.r !== 'user' && m.r !== 'assistant') || typeof m.t !== 'string') return null;
+    var w = { r: m.r, t: m.t };
+    if (typeof m.zrzut === 'string') w.zrzut = czyscNazwe(m.zrzut);
+    if (m.lok === true) w.lok = true;
+    if (typeof m.et === 'string') w.et = m.et;
+    if (m.log && typeof m.log === 'object' && Array.isArray(m.log.k)) {
+      w.log = { k: m.log.k.filter(function (k) { return k && typeof k.t === 'string'; }).map(function (k) { return { t: k.t, ok: !!k.ok }; }) };
+      if (typeof m.log.ms === 'number' && isFinite(m.log.ms)) w.log.ms = m.log.ms;
+    }
+    if (m.brief && typeof m.brief === 'object' && typeof m.brief.nr === 'string') {
+      var p = m.brief.p && typeof m.brief.p === 'object' ? m.brief.p : {}, bp = {};
+      PYTANIA.forEach(function (q) { if (typeof p[q[0]] === 'string') bp[q[0]] = p[q[0]]; });
+      w.brief = { nr: m.brief.nr, p: bp, wycena: typeof m.brief.wycena === 'string' ? m.brief.wycena : '' };
+    }
+    return w;
+  }
+  function zdrowyCzat(c) {
+    if (!c || typeof c !== 'object' || Array.isArray(c) || !Array.isArray(c.msgs) || (typeof c.id !== 'string' && typeof c.id !== 'number')) return null;
+    var z = { id: String(c.id), tytul: typeof c.tytul === 'string' && c.tytul ? c.tytul : 'Rozmowa', msgs: c.msgs.map(zdrowaWiad).filter(Boolean) };
+    var b = c.brief;
+    if (b && typeof b === 'object' && b.krok === (b.krok | 0) && b.krok >= 0 && b.krok < PYTANIA.length) {
+      var p = b.p && typeof b.p === 'object' ? b.p : {}, bp = {};
+      PYTANIA.forEach(function (q) { if (typeof p[q[0]] === 'string') bp[q[0]] = p[q[0]]; });
+      z.brief = { krok: b.krok, p: bp, wycena: typeof b.wycena === 'string' ? b.wycena : '' };
+    }
+    return z;
+  }
+
   /* ---------- stan ---------- */
-  var ust = Object.assign({ motyw: 'dark', ruch: 'on', tryb: 'quick', zwiniety: false }, LS.get('ust', {}));
+  var ustZapis = LS.get('ust', {});
+  if (!ustZapis || typeof ustZapis !== 'object' || Array.isArray(ustZapis)) ustZapis = {}; /* uszkodzony zapis = ustawienia domyślne */
+  var ust = Object.assign({ motyw: 'dark', ruch: 'on', tryb: 'quick', zwiniety: false }, ustZapis);
   delete ust.konto; /* stary przełącznik makiety KONTO (A/B), wybrano A */
+  delete ust.mysli; /* stary przełącznik makiety MYŚLI (A/B/C), wybrano A na stałe */
   ['ring', 'tlo', 'karty', 'platek', 'choinka', 'platki'].forEach(function (k) { delete ust[k]; }); /* dawne przełączniki makiety (wybór 03.11) */
   var czaty = LS.get('czaty', []);
-  if (!Array.isArray(czaty)) czaty = [];
+  czaty = (Array.isArray(czaty) ? czaty : []).map(zdrowyCzat).filter(Boolean).slice(0, 30);
   var biezacy = null;      /* {id, tytul, msgs} */
   var trwa = null;         /* AbortController */
   var sample = null, sampleStan = 'czekam';
@@ -641,6 +812,8 @@
   });
 
   /* ---------- wiadomości ---------- */
+  /* id ze znacznika modelu ([[KARTA:id]]) to tylko własny klucz słownika: „constructor” itp. z prototypu nie przechodzi */
+  function wlasne(obj, id) { return Object.prototype.hasOwnProperty.call(obj, id) ? obj[id] : null; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function rozbierz(t) {
     var znaczniki = [], m, re = /\[\[(KARTA|PROJEKT|WYCENA):([a-z+]+)\]\]|\[\[ZESPOL\]\]/g;
@@ -784,9 +957,9 @@
   function krokiZeZnacznikow(r) {
     var k = [];
     r.znaczniki.forEach(function (z) {
-      if (z.typ === 'KARTA' && CENNIK[z.id]) k.push({ t: 'cennik → ' + CENNIK[z.id].kod, ok: true });
-      else if (z.typ === 'PROJEKT' && PROJEKTY[z.id]) k.push({ t: 'projekty → ' + PROJEKTY[z.id].kod, ok: true });
-      else if (z.typ === 'WYCENA') k.push({ t: 'kalkulator → ' + (z.id.split('+').filter(function (x) { return CENNIK[x]; }).join(' + ') || 'nic nie zaznaczone'), ok: true });
+      if (z.typ === 'KARTA' && wlasne(CENNIK, z.id)) k.push({ t: 'cennik → ' + CENNIK[z.id].kod, ok: true });
+      else if (z.typ === 'PROJEKT' && wlasne(PROJEKTY, z.id)) k.push({ t: 'projekty → ' + PROJEKTY[z.id].kod, ok: true });
+      else if (z.typ === 'WYCENA') k.push({ t: 'kalkulator → ' + (z.id.split('+').filter(function (x) { return wlasne(CENNIK, x); }).join(' + ') || 'nic nie zaznaczone'), ok: true });
       else if (z.typ === 'ZESPOL') k.push({ t: 'opis dla zespołu złożony', ok: true });
     });
     return k;
@@ -862,10 +1035,10 @@
     r.znaczniki.forEach(function (z) {
       if (z.typ === 'WYCENA' && !box.querySelector('.kalk')) {
         box.appendChild(kalkulator(z.id));
-      } else if (z.typ === 'KARTA' && CENNIK[z.id] && kart < 2) {
+      } else if (z.typ === 'KARTA' && wlasne(CENNIK, z.id) && kart < 2) {
         kart++; var c = CENNIK[z.id];
         box.insertAdjacentHTML('beforeend', '<article class="ak"><div class="kod">' + c.kod + '</div><h3>' + esc(c.n) + '</h3><p>' + esc(c.o) + '</p><div class="cena"><b>' + esc(c.c) + '</b><span>' + esc(c.t).toUpperCase() + '</span></div></article>');
-      } else if (z.typ === 'PROJEKT' && PROJEKTY[z.id] && kart < 2) {
+      } else if (z.typ === 'PROJEKT' && wlasne(PROJEKTY, z.id) && kart < 2) {
         kart++; var p = PROJEKTY[z.id];
         box.insertAdjacentHTML('beforeend', '<article class="ak"><div class="kod">' + p.kod + '</div><h3>' + esc(p.n) + '</h3><p>' + esc(p.o) + '</p><dl class="fakty">' + p.f.map(function (f) { return '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl><div class="rzad"><a class="btn" href="https://cybersora.pl/#products" target="_blank" rel="noopener">Zobacz na stronie</a></div></article>');
       } else if (z.typ === 'ZESPOL' && !box.querySelector('.zespol')) {
@@ -955,6 +1128,7 @@
   });
   function wyslij(t, plik) {
     if (trwa) return;
+    t = String(t).slice(0, MAX_WPIS);
     zapewnijCzat(t);
     var m = { r: 'user', t: t };
     if (plik) { m.zrzut = opisZrzutu(plik); delete biezacy.brief; }
@@ -962,7 +1136,12 @@
     dodajU(t, m.zrzut); zapiszCzaty(); rysujHistorie(); zaznacz();
     if (biezacy.brief) odpowiedzBrief(t); else odpowiedz(plik);
   }
-  function zapiszCzaty() { LS.set('czaty', czaty); }
+  function zapiszCzaty() {
+    while (!LS.set('czaty', czaty)) {
+      var i = czaty.length - 1; while (i >= 0 && czaty[i] === biezacy) i--;
+      if (i < 0) return; czaty.splice(i, 1);
+    }
+  }
   function trybPrzycisku(stop) {
     btnW.disabled = stop ? false : !wpis.value.trim() && !zrzut;
     btnW.setAttribute('aria-label', stop ? 'Zatrzymaj' : 'Wyślij');
@@ -990,14 +1169,24 @@
       { t: 'pamięć rozmowy → ' + Math.min(12, c.msgs.length) + ' wiad.', ok: true },
       { t: (demo ? 'tryb pokazowy → gotowe teksty' : plik ? 'model → Pycode (ocena zrzutu)' : 'model → ' + m.n), ok: false }
     ] };
-    /* Pycode myśli dłużej: licznik sekund do pierwszego słowa odpowiedzi */
+    /* „Meshuga myśli”: wstęga wokół kota + etapy, które znamy na pewno (log i temat pytania), do pierwszego słowa */
     var mysliT = 0;
-    if (tier === 'default' && !plik) {
-      var tx0 = d.querySelector('.tekst');
-      tx0.innerHTML = '<p class="mdl-mysli"><svg class="mdi mdi-pycode" aria-hidden="true"><use href="#mdlPycode"/></svg>Pycode myśli <span class="t">· 0 s</span></p>';
-      mysliT = setInterval(function () { var t = d.querySelector('.mdl-mysli .t'); if (t) t.textContent = '· ' + Math.round((performance.now() - t0) / 1000) + ' s'; else clearInterval(mysliT); }, 1000);
+    d._kot.mysli(true); kotHero.mysli(true);
+    if (!plik) {
+      var etapy = MeshugaKot.etapy(c.msgs[c.msgs.length - 1].t, { historia: c.msgs.length - 1 }), ei = 0, tE = t0;
+      d.querySelector('.tekst').innerHTML = '<p class="mdl-mysli"><svg class="mdi ' + m.kl + '" aria-hidden="true"><use href="#' + m.ik + '"/></svg><span class="et">' + etapy[0] + '</span><span class="t">· 0 s</span></p>';
+      mysliT = setInterval(function () {
+        var t = d.querySelector('.mdl-mysli .t'), et = d.querySelector('.mdl-mysli .et'), teraz = performance.now();
+        if (!t) return clearInterval(mysliT);
+        t.textContent = '· ' + Math.floor((teraz - t0) / 1000) + ' s';
+        if (teraz - tE > 1100 && ei < etapy.length - 1) {
+          ei++; tE = teraz;
+          if (!MeshugaKot.motion) { et.textContent = etapy[ei]; return; }
+          et.classList.add('zm'); setTimeout(function () { et.textContent = etapy[ei]; et.classList.remove('zm'); }, 200);
+        }
+      }, 250);
     }
-    var bezMysli = function () { clearInterval(mysliT); var e = d.querySelector('.mdl-mysli'); if (e) e.remove(); };
+    var bezMysli = function () { clearInterval(mysliT); var e = d.querySelector('.mdl-mysli'); if (e) e.remove(); d._kot.mysli(false); kotHero.mysli(false); };
     if (plik) log.k.splice(1, 0, { t: 'zrzut → ' + rozmiar(plik.size), ok: true });
     var pisze = false;
     rysujLog(d, log, false);
@@ -1135,7 +1324,8 @@
     function bladNicku(n) { n = String(n || '').normalize('NFC').trim(); if (n.length < 3) return 'Nick jest za krótki: min. 3 znaki.'; if (n.length > 16) return 'Nick jest za długi: maks. 16 znaków.'; if (!NICK_RE.test(n)) return 'Nick może mieć tylko litery, cyfry oraz _ - .'; return null; }
     function bladHasla(h, n) { h = String(h || ''); var d = Array.from(h.normalize('NFC')).length; if (d < 8) return 'Hasło jest za krótkie: min. 8 znaków.'; if (d > 128) return 'Hasło jest za długie: maks. 128 znaków.'; if (n && h.normalize('NFC').toLowerCase() === String(n).normalize('NFC').trim().toLowerCase()) return 'Hasło nie może być takie samo jak nick.'; return null; }
     function makieta(sciezka, metoda, d, token) {
-      var nicki = LS.get('makieta-nicki', []), jest = function (n) { return nicki.indexOf(String(n || '').trim().toLowerCase()) > -1; };
+      var nicki = LS.get('makieta-nicki', []); if (!Array.isArray(nicki)) nicki = [];
+      var jest = function (n) { return nicki.indexOf(String(n || '').trim().toLowerCase()) > -1; };
       function ses(n) { return { nick: n.trim(), token: 'makieta.' + Math.random().toString(36).slice(2), waznyDo: new Date(Date.now() + 30 * 864e5).toISOString() }; }
       function kod() { var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = ''; for (var i = 0; i < 12; i++) { s += a[Math.random() * a.length | 0]; if (i === 3 || i === 7) s += '-'; } return s; }
       return new Promise(function (ok, nie) {
@@ -1168,13 +1358,14 @@
       }, function () { throw { status: 0, kod: 'siec', error: 'Brak połączenia z serwerem kont. Spróbuj za chwilę.' }; });
     }
     function sesja() {
-      var s = czytaj(KEY_SESJA); if (!s || !s.token || !s.nick) return null;
+      var s = czytaj(KEY_SESJA); if (!s || typeof s.token !== 'string' || typeof s.nick !== 'string' || !s.token || !s.nick.trim()) return null;
       if (s.waznyDo && Date.parse(s.waznyDo) < Date.now()) { zapisz(KEY_SESJA, null); return null; }
       return s;
     }
     function awatar(nick) {
       var p = czytaj(KEY_PROFIL);
-      if (nick && p && p.nick && typeof p.ava === 'string' && /^data:image\/(png|jpeg|webp|gif);base64,/.test(p.ava) && p.nick.trim().toLowerCase() === nick.trim().toLowerCase()) return '<img alt="" src="' + p.ava + '">';
+      /* ava tylko jako pełny data:image base64 (bez cudzysłowów i spacji), wstawiany z esc: inaczej „" onerror=…” w profilu = XSS */
+      if (nick && p && typeof p.nick === 'string' && typeof p.ava === 'string' && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\/]+=*$/.test(p.ava) && p.nick.trim().toLowerCase() === nick.trim().toLowerCase()) return '<img alt="" src="' + esc(p.ava) + '">';
       return nick ? esc(Array.from(nick.trim())[0] || '?') : GOSC;
     }
     function rysuj() {
@@ -1209,6 +1400,7 @@
     }
     function zamknij() { okno.hidden = true; $('#kHaslo').value = ''; $('#kKod').value = ''; $('#kBlad').textContent = ''; if (skad) skad.focus(); }
     function zalogowany(r) {
+      if (!r || typeof r.nick !== 'string' || typeof r.token !== 'string') { $('#kBlad').textContent = 'Serwer kont odpowiedział dziwnie. Spróbuj za chwilę.'; return; }
       zapisz(KEY_SESJA, { nick: r.nick, token: r.token, waznyDo: r.waznyDo }); zapisz(KEY_NICK, r.nick);
       $('#kHaslo').value = ''; $('#kKod').value = ''; rysuj();
       if (r.kodOdzyskiwania) { f.hidden = true; $('#kZakladki').hidden = true; $('#kKodPokaz').textContent = r.kodOdzyskiwania; $('#kKodEkran').hidden = false; $('#kZapisane').focus(); }
@@ -1252,7 +1444,7 @@
   /* ---------- „Oceń mój zrzut”: wybór, upuszczenie albo wklejenie obrazka ---------- */
   var plikIn = $('#plik'), zalUrl = null;
   function rozmiar(b) { return b < 1024 * 1024 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(1).replace('.', ',') + ' MB'; }
-  function opisZrzutu(f) { return (f.name || 'zrzut') + ', ' + rozmiar(f.size); }
+  function opisZrzutu(f) { return (czyscNazwe(f.name) || 'zrzut') + ', ' + rozmiar(f.size); }
   function mozeObrazki() { return !!(sample && sampleStan === 'ok' && imgLim); }
   function ustawPlus() {
     var b = $('#plus'), on = mozeObrazki();
@@ -1268,7 +1460,7 @@
     if (imgLim.maxInputBytes && f.size > imgLim.maxInputBytes) { stopka('Zrzut jest za duży (' + rozmiar(f.size) + '). Najwyżej ' + rozmiar(imgLim.maxInputBytes) + '.'); return; }
     usunZrzut(); zrzut = f;
     try { zalUrl = URL.createObjectURL(f); $('#zalImg').src = zalUrl; } catch (e) { $('#zalImg').removeAttribute('src'); }
-    $('#zalNazwa').textContent = f.name || 'zrzut'; $('#zalInfo').textContent = rozmiar(f.size) + ' · do oceny';
+    $('#zalNazwa').textContent = czyscNazwe(f.name) || 'zrzut'; $('#zalInfo').textContent = rozmiar(f.size) + ' · do oceny';
     $('#zal').hidden = false; app.classList.add('ma-zal'); stopkaWroc(); auto();
     if (!wpis.value.trim()) wpis.placeholder = 'Dopisz pytanie albo wyślij sam zrzut';
     wpis.focus();
@@ -1329,7 +1521,8 @@
   /* ---------- telefon: klawiatura ---------- */
   if (window.visualViewport) {
     var vv = window.visualViewport;
-    var kb = function () { var d = Math.max(0, window.innerHeight - vv.height - vv.offsetTop); document.documentElement.style.setProperty('--kb', d + 'px'); };
+    /* powiększenie palcami (scale > 1) też zmniejsza visualViewport, ale to nie klawiatura: wtedy bez dopełnienia */
+    var kb = function () { var d = vv.scale > 1.01 ? 0 : Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)); document.documentElement.style.setProperty('--kb', d + 'px'); app.classList.toggle('klawiatura', d > 80); };
     vv.addEventListener('resize', kb); vv.addEventListener('scroll', kb);
   }
 
