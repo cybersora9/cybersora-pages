@@ -1,0 +1,3689 @@
+{
+ "razem": 1400,
+ "wgKat": {
+  "poziomy": 0,
+  "pozaEkranem": 0,
+  "nachodzi": 0,
+  "uciete": 0,
+  "dotyk": 80,
+  "maly": 1301,
+  "kot": 19
+ },
+ "kroki": 221,
+ "bledy": [],
+ "csp": 0,
+ "tabela": {
+  "#start": {
+   "320": 42,
+   "360": 42,
+   "375": 42,
+   "390": 42,
+   "414": 42,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 60
+  },
+  "#oferta": {
+   "320": 20,
+   "360": 20,
+   "375": 21,
+   "390": 21,
+   "414": 20,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 19
+  },
+  "#cennik": {
+   "320": 2,
+   "360": 2,
+   "375": 2,
+   "390": 2,
+   "414": 2,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 1
+  },
+  "#products": {
+   "320": 21,
+   "360": 21,
+   "375": 21,
+   "390": 21,
+   "414": 21,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 21
+  },
+  "#zrobilismy": {
+   "320": 14,
+   "360": 15,
+   "375": 15,
+   "390": 15,
+   "414": 14,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 6
+  },
+  "#meshuga": {
+   "320": 21,
+   "360": 21,
+   "375": 21,
+   "390": 21,
+   "414": 21,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 21
+  },
+  "#soraos": {
+   "320": 8,
+   "360": 8,
+   "375": 8,
+   "390": 8,
+   "414": 8,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 8
+  },
+  "#onas": {
+   "320": 15,
+   "360": 15,
+   "375": 15,
+   "390": 15,
+   "414": 15,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 15
+  },
+  "#sztuka": {
+   "320": 2,
+   "360": 3,
+   "375": 3,
+   "390": 3,
+   "414": 2,
+   "600": 2,
+   "768": 0,
+   "820": 1,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 1
+  },
+  "#contact": {
+   "320": 70,
+   "360": 70,
+   "375": 70,
+   "390": 64,
+   "414": 64,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 70
+  },
+  "#polityka": {
+   "320": 2,
+   "360": 2,
+   "375": 2,
+   "390": 2,
+   "414": 2,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 2
+  },
+  "kot: zamknięte": {
+   "320": 0,
+   "360": 0,
+   "375": 0,
+   "390": 0,
+   "414": 0,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 0
+  },
+  "kot: podpowiedź": {
+   "320": 0,
+   "360": 0,
+   "375": 0,
+   "390": 0,
+   "414": 0,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 0
+  },
+  "kot: otwarte": {
+   "320": 5,
+   "360": 5,
+   "375": 5,
+   "390": 5,
+   "414": 5,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 3
+  },
+  "kot: myśli": {
+   "320": 6,
+   "360": 6,
+   "375": 6,
+   "390": 6,
+   "414": 6,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 5
+  },
+  "kot: po odpowiedzi": {
+   "320": 5,
+   "360": 5,
+   "375": 5,
+   "390": 5,
+   "414": 5,
+   "600": 0,
+   "768": 0,
+   "820": 0,
+   "1024": 0,
+   "1280": 0,
+   "1440": 0,
+   "1920": 0,
+   "844x390": 4
+  }
+ },
+ "szczegoly": {
+  "#start": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".hero__fact > dt „Pycodemath” 11.84px",
+     ".hero__fact > dt „SalonDesk” 11.84px",
+     ".hero__fact > dt „Meshuga” 11.84px",
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px",
+     "b „4” 13px",
+     ".ov-tresc > span.ov-znacznik „działa u klienta na co d” 13px",
+     ".ov-zw > summary „Dokumentacja: moduły, mo” 13px",
+     ".ov-kula > a.ov-btn „Zobacz kulę Meshugi na ż” 13px",
+     ".ov-tresc > span.ov-znacznik „działa codziennie” 13px",
+     ".ov-scena > div.ov-pasek „moonsora.exe” 13px",
+     ".ov-pasek > em „zrzut z pracy” 13px",
+     ".ov-tresc > span.ov-znacznik „używamy co dzień” 13px",
+     ".ov-scena > div.ov-pasek „pycodemath 0.5.0” 13px",
+     ".ov-pasek > em „prawdziwe wywołanie” 13px",
+     ".ov-scena > pre.ov-term „def sum_to(n):\n    total” 13.5px",
+     ".ov-term > span.c „# sums.py: ma zsumować 1” 13.5px",
+     ".ov-term > span.zle „range(n)” 13.5px",
+     ".ov-krok > span.nr „Krok 1 z 3” 13px",
+     "small „krok” 13px",
+     ".ov-kol > button.ov-btn.ov-graj „▶ Odtwórz po kolei” 13px",
+     ".ov-tresc > span.ov-znacznik „nowa wersja 0.5.0 · 31.1” 13px",
+     "p.ov-et „Pozostałe projekty” 13px",
+     ".ov-kafel > span.ov-znacznik „za darmo” 13px",
+     ".ov-kafel > span.ov-znacznik „wkrótce” 13px",
+     ".ov-kafel > span.ov-znacznik „wczesny etap” 13px",
+     ".ov-kafel > span.ov-znacznik „pracują u nas” 13px",
+     ".services__head > div.services__eyebrow „skan widoczności” 13.6px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".hero__fact > dt „Pycodemath” 11.84px",
+     ".hero__fact > dt „SalonDesk” 11.84px",
+     ".hero__fact > dt „Meshuga” 11.84px",
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px",
+     "b „4” 13px",
+     ".ov-tresc > span.ov-znacznik „działa u klienta na co d” 13px",
+     ".ov-zw > summary „Dokumentacja: moduły, mo” 13px",
+     ".ov-kula > a.ov-btn „Zobacz kulę Meshugi na ż” 13px",
+     ".ov-tresc > span.ov-znacznik „działa codziennie” 13px",
+     ".ov-scena > div.ov-pasek „moonsora.exe” 13px",
+     ".ov-pasek > em „zrzut z pracy” 13px",
+     ".ov-tresc > span.ov-znacznik „używamy co dzień” 13px",
+     ".ov-scena > div.ov-pasek „pycodemath 0.5.0” 13px",
+     ".ov-pasek > em „prawdziwe wywołanie” 13px",
+     ".ov-scena > pre.ov-term „def sum_to(n):\n    total” 13.5px",
+     ".ov-term > span.c „# sums.py: ma zsumować 1” 13.5px",
+     ".ov-term > span.zle „range(n)” 13.5px",
+     ".ov-krok > span.nr „Krok 1 z 3” 13px",
+     "small „krok” 13px",
+     ".ov-kol > button.ov-btn.ov-graj „▶ Odtwórz po kolei” 13px",
+     ".ov-tresc > span.ov-znacznik „nowa wersja 0.5.0 · 31.1” 13px",
+     "p.ov-et „Pozostałe projekty” 13px",
+     ".ov-kafel > span.ov-znacznik „za darmo” 13px",
+     ".ov-kafel > span.ov-znacznik „wkrótce” 13px",
+     ".ov-kafel > span.ov-znacznik „wczesny etap” 13px",
+     ".ov-kafel > span.ov-znacznik „pracują u nas” 13px",
+     ".services__head > div.services__eyebrow „skan widoczności” 13.6px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".hero__fact > dt „Pycodemath” 11.84px",
+     ".hero__fact > dt „SalonDesk” 11.84px",
+     ".hero__fact > dt „Meshuga” 11.84px",
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px",
+     "b „4” 13px",
+     ".ov-tresc > span.ov-znacznik „działa u klienta na co d” 13px",
+     ".ov-zw > summary „Dokumentacja: moduły, mo” 13px",
+     ".ov-kula > a.ov-btn „Zobacz kulę Meshugi na ż” 13px",
+     ".ov-tresc > span.ov-znacznik „działa codziennie” 13px",
+     ".ov-scena > div.ov-pasek „moonsora.exe” 13px",
+     ".ov-pasek > em „zrzut z pracy” 13px",
+     ".ov-tresc > span.ov-znacznik „używamy co dzień” 13px",
+     ".ov-scena > div.ov-pasek „pycodemath 0.5.0” 13px",
+     ".ov-pasek > em „prawdziwe wywołanie” 13px",
+     ".ov-scena > pre.ov-term „def sum_to(n):\n    total” 13.5px",
+     ".ov-term > span.c „# sums.py: ma zsumować 1” 13.5px",
+     ".ov-term > span.zle „range(n)” 13.5px",
+     ".ov-krok > span.nr „Krok 1 z 3” 13px",
+     "small „krok” 13px",
+     ".ov-kol > button.ov-btn.ov-graj „▶ Odtwórz po kolei” 13px",
+     ".ov-tresc > span.ov-znacznik „nowa wersja 0.5.0 · 31.1” 13px",
+     "p.ov-et „Pozostałe projekty” 13px",
+     ".ov-kafel > span.ov-znacznik „za darmo” 13px",
+     ".ov-kafel > span.ov-znacznik „wkrótce” 13px",
+     ".ov-kafel > span.ov-znacznik „wczesny etap” 13px",
+     ".ov-kafel > span.ov-znacznik „pracują u nas” 13px",
+     ".services__head > div.services__eyebrow „skan widoczności” 13.6px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".hero__fact > dt „Pycodemath” 11.84px",
+     ".hero__fact > dt „SalonDesk” 11.84px",
+     ".hero__fact > dt „Meshuga” 11.84px",
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px",
+     "b „4” 13px",
+     ".ov-tresc > span.ov-znacznik „działa u klienta na co d” 13px",
+     ".ov-zw > summary „Dokumentacja: moduły, mo” 13px",
+     ".ov-kula > a.ov-btn „Zobacz kulę Meshugi na ż” 13px",
+     ".ov-tresc > span.ov-znacznik „działa codziennie” 13px",
+     ".ov-scena > div.ov-pasek „moonsora.exe” 13px",
+     ".ov-pasek > em „zrzut z pracy” 13px",
+     ".ov-tresc > span.ov-znacznik „używamy co dzień” 13px",
+     ".ov-scena > div.ov-pasek „pycodemath 0.5.0” 13px",
+     ".ov-pasek > em „prawdziwe wywołanie” 13px",
+     ".ov-scena > pre.ov-term „def sum_to(n):\n    total” 13.5px",
+     ".ov-term > span.c „# sums.py: ma zsumować 1” 13.5px",
+     ".ov-term > span.zle „range(n)” 13.5px",
+     ".ov-krok > span.nr „Krok 1 z 3” 13px",
+     "small „krok” 13px",
+     ".ov-kol > button.ov-btn.ov-graj „▶ Odtwórz po kolei” 13px",
+     ".ov-tresc > span.ov-znacznik „nowa wersja 0.5.0 · 31.1” 13px",
+     "p.ov-et „Pozostałe projekty” 13px",
+     ".ov-kafel > span.ov-znacznik „za darmo” 13px",
+     ".ov-kafel > span.ov-znacznik „wkrótce” 13px",
+     ".ov-kafel > span.ov-znacznik „wczesny etap” 13px",
+     ".ov-kafel > span.ov-znacznik „pracują u nas” 13px",
+     ".services__head > div.services__eyebrow „skan widoczności” 13.6px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".hero__fact > dt „Pycodemath” 11.84px",
+     ".hero__fact > dt „SalonDesk” 11.84px",
+     ".hero__fact > dt „Meshuga” 11.84px",
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px",
+     "b „4” 13px",
+     ".ov-tresc > span.ov-znacznik „działa u klienta na co d” 13px",
+     ".ov-zw > summary „Dokumentacja: moduły, mo” 13px",
+     ".ov-kula > a.ov-btn „Zobacz kulę Meshugi na ż” 13px",
+     ".ov-tresc > span.ov-znacznik „działa codziennie” 13px",
+     ".ov-scena > div.ov-pasek „moonsora.exe” 13px",
+     ".ov-pasek > em „zrzut z pracy” 13px",
+     ".ov-tresc > span.ov-znacznik „używamy co dzień” 13px",
+     ".ov-scena > div.ov-pasek „pycodemath 0.5.0” 13px",
+     ".ov-pasek > em „prawdziwe wywołanie” 13px",
+     ".ov-scena > pre.ov-term „def sum_to(n):\n    total” 13.5px",
+     ".ov-term > span.c „# sums.py: ma zsumować 1” 13.5px",
+     ".ov-term > span.zle „range(n)” 13.5px",
+     ".ov-krok > span.nr „Krok 1 z 3” 13px",
+     "small „krok” 13px",
+     ".ov-kol > button.ov-btn.ov-graj „▶ Odtwórz po kolei” 13px",
+     ".ov-tresc > span.ov-znacznik „nowa wersja 0.5.0 · 31.1” 13px",
+     "p.ov-et „Pozostałe projekty” 13px",
+     ".ov-kafel > span.ov-znacznik „za darmo” 13px",
+     ".ov-kafel > span.ov-znacznik „wkrótce” 13px",
+     ".ov-kafel > span.ov-znacznik „wczesny etap” 13px",
+     ".ov-kafel > span.ov-znacznik „pracują u nas” 13px",
+     ".services__head > div.services__eyebrow „skan widoczności” 13.6px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".hero__fact > dt „Pycodemath” 11.84px",
+     ".hero__fact > dt „SalonDesk” 11.84px",
+     ".hero__fact > dt „Meshuga” 11.84px",
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px",
+     "b „4” 13px",
+     ".ov-tresc > span.ov-znacznik „działa u klienta na co d” 13px",
+     ".ov-zw > summary „Dokumentacja: moduły, mo” 13px",
+     ".ov-modul > span.kd „SD-KAL” 13px",
+     ".ov-modul > span.kd „SD-KAS” 13px",
+     ".ov-modul > span.kd „SD-PAK” 13px",
+     ".ov-modul > span.kd „SD-RAP” 13px",
+     "em.toku „w toku” 13px",
+     "em „planowane” 13px",
+     ".ov-kula > a.ov-btn „Zobacz kulę Meshugi na ż” 13px",
+     ".ov-tresc > span.ov-znacznik „działa codziennie” 13px",
+     ".ov-modul > span.kd „MSH-RAD” 13px",
+     ".ov-modul > span.kd „MSH-AGT” 13px",
+     ".ov-modul > span.kd „MSH-AH” 13px",
+     ".ov-modul > span.kd „MSH-MAT” 13px",
+     ".ov-scena > div.ov-pasek „moonsora.exe” 13px",
+     ".ov-pasek > em „zrzut z pracy” 13px",
+     ".ov-tresc > span.ov-znacznik „używamy co dzień” 13px",
+     ".ov-modul > span.kd „MS-KAR” 13px",
+     ".ov-modul > span.kd „MS-AI” 13px",
+     ".ov-modul > span.kd „MS-BLK” 13px",
+     ".ov-modul > span.kd „MS-WIN” 13px",
+     ".ov-scena > div.ov-pasek „pycodemath 0.5.0” 13px",
+     ".ov-pasek > em „prawdziwe wywołanie” 13px",
+     ".ov-scena > pre.ov-term „def sum_to(n):\n    total” 13.5px",
+     ".ov-term > span.c „# sums.py: ma zsumować 1” 13.5px",
+     ".ov-term > span.zle „range(n)” 13.5px",
+     ".ov-krok > span.nr „Krok 1 z 3” 13px",
+     "small „krok” 13px",
+     ".ov-kol > button.ov-btn.ov-graj „▶ Odtwórz po kolei” 13px",
+     ".ov-tresc > span.ov-znacznik „nowa wersja 0.5.0 · 31.1” 13px",
+     ".ov-modul > span.kd „PCM-CHK” 13px",
+     ".ov-modul > span.kd „PCM-FLT” 13px",
+     ".ov-modul > span.kd „PCM-PLN” 13px",
+     ".ov-modul > span.kd „PCM-MCP” 13px",
+     "p.ov-et „Pozostałe projekty” 13px",
+     ".ov-kafel > span.ov-znacznik „za darmo” 13px",
+     ".ov-kafel > span.ov-znacznik „wkrótce” 13px",
+     ".ov-kafel > span.ov-znacznik „wczesny etap” 13px",
+     ".ov-kafel > span.ov-znacznik „pracują u nas” 13px",
+     ".services__head > div.services__eyebrow „skan widoczności” 13.6px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px"
+    ],
+    "kot": []
+   }
+  },
+  "#oferta": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".hero__mini > a.card__go „Zobacz cennik →” 121×28",
+     ".hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 172×28"
+    ],
+    "maly": [
+     ".vswitch > a „Opis i proces” 12px",
+     ".vswitch > a „Cennik i usługi” 12px",
+     ".overlay > div.eyebrow „oferta” 13.6px",
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px",
+     "p „termin po wycenie” 11.84px",
+     "h3 „Widoczność w Google” 13.6px",
+     "p „do 2 dni roboczych” 11.84px",
+     "p „do 7 dni” 11.84px",
+     "p „do 14 dni” 11.84px",
+     "p.pasy-dopisek „„Od” to najmniejszy proj” 11.84px",
+     "b „31.10” 12.48px",
+     "b „07.10” 12.48px",
+     "b „06.10” 12.48px",
+     "b „05.10” 12.48px",
+     "b „30.09” 12.48px"
+    ],
+    "kot": [
+     "góra: .hero__cta-row > a.cta-outline „Darmowy skan strony” 35×45",
+     "góra: .hero__mini > a.card__go „Małe zadanie? Mikro-skry” 68×3"
+    ]
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".hero__mini > a.card__go „Małe zadanie? Mikro-skry” 285×28",
+     ".hero__mini > a.card__go „Zobacz cennik →” 121×28",
+     ".hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 172×28"
+    ],
+    "maly": [
+     ".vswitch > a „Opis i proces” 12px",
+     ".vswitch > a „Cennik i usługi” 12px",
+     ".overlay > div.eyebrow „oferta” 13.6px",
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px",
+     "p „termin po wycenie” 11.84px",
+     "h3 „Widoczność w Google” 13.6px",
+     "p „do 2 dni roboczych” 11.84px",
+     "p „do 7 dni” 11.84px",
+     "p „do 14 dni” 11.84px",
+     "p.pasy-dopisek „„Od” to najmniejszy proj” 11.84px",
+     "b „31.10” 12.48px",
+     "b „07.10” 12.48px",
+     "b „06.10” 12.48px",
+     "b „05.10” 12.48px",
+     "b „30.09” 12.48px"
+    ],
+    "kot": [
+     "góra: .hero__mini > a.card__go „Małe zadanie? Mikro-skry” 41×11"
+    ]
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".hero__mini > a.card__go „Małe zadanie? Mikro-skry” 285×28",
+     ".hero__mini > a.card__go „Zobacz cennik →” 121×28",
+     ".hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 172×28"
+    ],
+    "maly": [
+     ".vswitch > a „Opis i proces” 12px",
+     ".vswitch > a „Cennik i usługi” 12px",
+     ".overlay > div.eyebrow „oferta” 13.6px",
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px",
+     "p „termin po wycenie” 11.84px",
+     "h3 „Widoczność w Google” 13.6px",
+     "p „do 2 dni roboczych” 11.84px",
+     "p „do 7 dni” 11.84px",
+     "p „do 14 dni” 11.84px",
+     "p.pasy-dopisek „„Od” to najmniejszy proj” 11.84px",
+     "b „31.10” 12.48px",
+     "b „07.10” 12.48px",
+     "b „06.10” 12.48px",
+     "b „05.10” 12.48px",
+     "b „30.09” 12.48px"
+    ],
+    "kot": [
+     "góra: .hero__mini > a.card__go „Małe zadanie? Mikro-skry” 26×11",
+     "góra: .hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 59×28"
+    ]
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".hero__mini > a.card__go „Małe zadanie? Mikro-skry” 285×28",
+     ".hero__mini > a.card__go „Zobacz cennik →” 121×28",
+     ".hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 172×28"
+    ],
+    "maly": [
+     ".vswitch > a „Opis i proces” 12px",
+     ".vswitch > a „Cennik i usługi” 12px",
+     ".overlay > div.eyebrow „oferta” 13.6px",
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px",
+     "p „termin po wycenie” 11.84px",
+     "h3 „Widoczność w Google” 13.6px",
+     "p „do 2 dni roboczych” 11.84px",
+     "p „do 7 dni” 11.84px",
+     "p „do 14 dni” 11.84px",
+     "p.pasy-dopisek „„Od” to najmniejszy proj” 11.84px",
+     "b „31.10” 12.48px",
+     "b „07.10” 12.48px",
+     "b „06.10” 12.48px",
+     "b „05.10” 12.48px",
+     "b „30.09” 12.48px"
+    ],
+    "kot": [
+     "góra: .hero__mini > a.card__go „Małe zadanie? Mikro-skry” 11×11",
+     "góra: .hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 44×28"
+    ]
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".hero__mini > a.card__go „Małe zadanie? Mikro-skry” 285×28",
+     ".hero__mini > a.card__go „Zobacz cennik →” 121×28",
+     ".hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 172×28"
+    ],
+    "maly": [
+     ".vswitch > a „Opis i proces” 12px",
+     ".vswitch > a „Cennik i usługi” 12px",
+     ".overlay > div.eyebrow „oferta” 13.6px",
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px",
+     "p „termin po wycenie” 11.84px",
+     "h3 „Widoczność w Google” 13.6px",
+     "p „do 2 dni roboczych” 11.84px",
+     "p „do 7 dni” 11.84px",
+     "p „do 14 dni” 11.84px",
+     "p.pasy-dopisek „„Od” to najmniejszy proj” 11.84px",
+     "b „31.10” 12.48px",
+     "b „07.10” 12.48px",
+     "b „06.10” 12.48px",
+     "b „05.10” 12.48px",
+     "b „30.09” 12.48px"
+    ],
+    "kot": [
+     "góra: .hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 20×17"
+    ]
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".hero__mini > a.card__go „Małe zadanie? Mikro-skry” 285×28",
+     ".hero__mini > a.card__go „Zobacz cennik →” 121×28",
+     ".hero__mini > a.card__go „Zobacz, co zrobiliśmy →” 172×28"
+    ],
+    "maly": [
+     ".vswitch > a „Opis i proces” 12px",
+     ".vswitch > a „Cennik i usługi” 12px",
+     ".overlay > div.eyebrow „oferta” 13.6px",
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px",
+     "p „termin po wycenie” 11.84px",
+     "h3 „Widoczność w Google” 13.6px",
+     "p „do 2 dni roboczych” 11.84px",
+     "p „do 7 dni” 11.84px",
+     "p „do 14 dni” 11.84px",
+     "p.pasy-dopisek „„Od” to najmniejszy proj” 11.84px",
+     "b „31.10” 12.48px",
+     "b „07.10” 12.48px",
+     "b „06.10” 12.48px",
+     "b „05.10” 12.48px",
+     "b „30.09” 12.48px"
+    ],
+    "kot": []
+   }
+  },
+  "#cennik": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     "h3 „Software” 13.6px",
+     "p „standard do 14 dni” 11.84px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     "h3 „Software” 13.6px"
+    ],
+    "kot": []
+   }
+  },
+  "#products": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".pr-filtry > button „Wszystkie” 103×34",
+     ".pr-filtry > button „Na Windows” 122×34",
+     ".pr-filtry > button „W przeglądarce” 143×34",
+     ".pr-filtry > button „Dla programistów” 160×34",
+     ".pr-filtry > button „Wkrótce” 93×34"
+    ],
+    "maly": [
+     ".vswitch > a „Gotowe, do pobrania” 12px",
+     ".vswitch > a „W budowie” 12px",
+     ".overlay > div.eyebrow „produkty · do pobrania” 13.6px",
+     ".pr-hit__txt > span.card__tag „nowość · Windows · za da” 13.6px",
+     "dt „wersja” 11.84px",
+     "dd „1.4.0” 11.84px",
+     "dt „system” 11.84px",
+     "dd „Windows 10 i 11, 64-bit” 11.84px",
+     "dt „plik” 11.84px",
+     "dd „3,5 MB, instalator .exe” 11.84px",
+     ".pr-k__txt > span.card__tag „Windows · za darmo” 13.6px",
+     ".pr-k__txt > span.card__tag „gra · online” 13.6px",
+     ".pr-k__txt > span.card__tag „Python · MIT” 13.6px",
+     ".pr-k__txt > span.card__tag „Windows · wkrótce” 13.6px",
+     ".pr-k__dol > span.pr-k__wkr „w budowie” 11.84px",
+     ".pr-k__txt > span.card__tag „na zamówienie” 13.6px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".pr-filtry > button „Wszystkie” 103×34",
+     ".pr-filtry > button „Na Windows” 122×34",
+     ".pr-filtry > button „W przeglądarce” 143×34",
+     ".pr-filtry > button „Dla programistów” 160×34",
+     ".pr-filtry > button „Wkrótce” 93×34"
+    ],
+    "maly": [
+     ".vswitch > a „Gotowe, do pobrania” 12px",
+     ".vswitch > a „W budowie” 12px",
+     ".overlay > div.eyebrow „produkty · do pobrania” 13.6px",
+     ".pr-hit__txt > span.card__tag „nowość · Windows · za da” 13.6px",
+     "dt „wersja” 11.84px",
+     "dd „1.4.0” 11.84px",
+     "dt „system” 11.84px",
+     "dd „Windows 10 i 11, 64-bit” 11.84px",
+     "dt „plik” 11.84px",
+     "dd „3,5 MB, instalator .exe” 11.84px",
+     ".pr-k__txt > span.card__tag „Windows · za darmo” 13.6px",
+     ".pr-k__txt > span.card__tag „gra · online” 13.6px",
+     ".pr-k__txt > span.card__tag „Python · MIT” 13.6px",
+     ".pr-k__txt > span.card__tag „Windows · wkrótce” 13.6px",
+     ".pr-k__dol > span.pr-k__wkr „w budowie” 11.84px",
+     ".pr-k__txt > span.card__tag „na zamówienie” 13.6px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".pr-filtry > button „Wszystkie” 103×34",
+     ".pr-filtry > button „Na Windows” 122×34",
+     ".pr-filtry > button „W przeglądarce” 143×34",
+     ".pr-filtry > button „Dla programistów” 160×34",
+     ".pr-filtry > button „Wkrótce” 93×34"
+    ],
+    "maly": [
+     ".vswitch > a „Gotowe, do pobrania” 12px",
+     ".vswitch > a „W budowie” 12px",
+     ".overlay > div.eyebrow „produkty · do pobrania” 13.6px",
+     ".pr-hit__txt > span.card__tag „nowość · Windows · za da” 13.6px",
+     "dt „wersja” 11.84px",
+     "dd „1.4.0” 11.84px",
+     "dt „system” 11.84px",
+     "dd „Windows 10 i 11, 64-bit” 11.84px",
+     "dt „plik” 11.84px",
+     "dd „3,5 MB, instalator .exe” 11.84px",
+     ".pr-k__txt > span.card__tag „Windows · za darmo” 13.6px",
+     ".pr-k__txt > span.card__tag „gra · online” 13.6px",
+     ".pr-k__txt > span.card__tag „Python · MIT” 13.6px",
+     ".pr-k__txt > span.card__tag „Windows · wkrótce” 13.6px",
+     ".pr-k__dol > span.pr-k__wkr „w budowie” 11.84px",
+     ".pr-k__txt > span.card__tag „na zamówienie” 13.6px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".pr-filtry > button „Wszystkie” 103×34",
+     ".pr-filtry > button „Na Windows” 122×34",
+     ".pr-filtry > button „W przeglądarce” 143×34",
+     ".pr-filtry > button „Dla programistów” 160×34",
+     ".pr-filtry > button „Wkrótce” 93×34"
+    ],
+    "maly": [
+     ".vswitch > a „Gotowe, do pobrania” 12px",
+     ".vswitch > a „W budowie” 12px",
+     ".overlay > div.eyebrow „produkty · do pobrania” 13.6px",
+     ".pr-hit__txt > span.card__tag „nowość · Windows · za da” 13.6px",
+     "dt „wersja” 11.84px",
+     "dd „1.4.0” 11.84px",
+     "dt „system” 11.84px",
+     "dd „Windows 10 i 11, 64-bit” 11.84px",
+     "dt „plik” 11.84px",
+     "dd „3,5 MB, instalator .exe” 11.84px",
+     ".pr-k__txt > span.card__tag „Windows · za darmo” 13.6px",
+     ".pr-k__txt > span.card__tag „gra · online” 13.6px",
+     ".pr-k__txt > span.card__tag „Python · MIT” 13.6px",
+     ".pr-k__txt > span.card__tag „Windows · wkrótce” 13.6px",
+     ".pr-k__dol > span.pr-k__wkr „w budowie” 11.84px",
+     ".pr-k__txt > span.card__tag „na zamówienie” 13.6px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".pr-filtry > button „Wszystkie” 103×34",
+     ".pr-filtry > button „Na Windows” 122×34",
+     ".pr-filtry > button „W przeglądarce” 143×34",
+     ".pr-filtry > button „Dla programistów” 160×34",
+     ".pr-filtry > button „Wkrótce” 93×34"
+    ],
+    "maly": [
+     ".vswitch > a „Gotowe, do pobrania” 12px",
+     ".vswitch > a „W budowie” 12px",
+     ".overlay > div.eyebrow „produkty · do pobrania” 13.6px",
+     ".pr-hit__txt > span.card__tag „nowość · Windows · za da” 13.6px",
+     "dt „wersja” 11.84px",
+     "dd „1.4.0” 11.84px",
+     "dt „system” 11.84px",
+     "dd „Windows 10 i 11, 64-bit” 11.84px",
+     "dt „plik” 11.84px",
+     "dd „3,5 MB, instalator .exe” 11.84px",
+     ".pr-k__txt > span.card__tag „Windows · za darmo” 13.6px",
+     ".pr-k__txt > span.card__tag „gra · online” 13.6px",
+     ".pr-k__txt > span.card__tag „Python · MIT” 13.6px",
+     ".pr-k__txt > span.card__tag „Windows · wkrótce” 13.6px",
+     ".pr-k__dol > span.pr-k__wkr „w budowie” 11.84px",
+     ".pr-k__txt > span.card__tag „na zamówienie” 13.6px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     ".pr-filtry > button „Wszystkie” 103×34",
+     ".pr-filtry > button „Na Windows” 122×34",
+     ".pr-filtry > button „W przeglądarce” 143×34",
+     ".pr-filtry > button „Dla programistów” 160×34",
+     ".pr-filtry > button „Wkrótce” 93×34"
+    ],
+    "maly": [
+     ".vswitch > a „Gotowe, do pobrania” 12px",
+     ".vswitch > a „W budowie” 12px",
+     ".overlay > div.eyebrow „produkty · do pobrania” 13.6px",
+     ".pr-hit__txt > span.card__tag „nowość · Windows · za da” 13.6px",
+     "dt „wersja” 11.84px",
+     "dd „1.4.0” 11.84px",
+     "dt „system” 11.84px",
+     "dd „Windows 10 i 11, 64-bit” 11.84px",
+     "dt „plik” 11.84px",
+     "dd „3,5 MB, instalator .exe” 11.84px",
+     ".pr-k__txt > span.card__tag „Windows · za darmo” 13.6px",
+     ".pr-k__txt > span.card__tag „gra · online” 13.6px",
+     ".pr-k__txt > span.card__tag „Python · MIT” 13.6px",
+     ".pr-k__txt > span.card__tag „Windows · wkrótce” 13.6px",
+     ".pr-k__dol > span.pr-k__wkr „w budowie” 11.84px",
+     ".pr-k__txt > span.card__tag „na zamówienie” 13.6px"
+    ],
+    "kot": []
+   }
+  },
+  "#zrobilismy": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px",
+     "b „3” 13px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px",
+     ".ov-scena > div.ov-pasek „salondesk.app” 13px",
+     ".ov-pasek > em „dane pokazowe” 13px",
+     ".ov-pin > span „1” 13px",
+     ".ov-pin > span „2” 13px",
+     ".ov-pin > span „3” 13px",
+     ".ov-pin > span „4” 13px",
+     "b „1” 13px",
+     "small „powiększ” 13px",
+     "b „2” 13px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".hero__fact > dt „Meshuga” 11.84px",
+     ".ov-head > p.ov-et „Co zrobiliśmy” 13px",
+     ".ov-jak > i „1” 13px",
+     ".ov-zakladki > button.ov-zak „Pulpit” 13px",
+     ".ov-zakladki > button.ov-zak „Kalendarz” 13px",
+     ".ov-zakladki > button.ov-zak „Kasa” 13px"
+    ],
+    "kot": []
+   }
+  },
+  "#meshuga": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „meshuga · asystentka cyb” 13.6px",
+     ".services__head > div.services__eyebrow „poznaj meshugę z bliska” 13.6px",
+     "span.somi-demo__tag.is-live „działa” 11.84px",
+     ".somi-demo__chat > p.somi-demo__disclaimer „Przykładowa rozmowa — to” 11.84px",
+     ".terminal__bar > span.terminal__title „somi_demo.log” 10.88px",
+     "pre#somiDemoBody „$ zapytaj_somi” 12.48px",
+     "#somiDemoBody > span.t-muted „— wybierz pytanie powyże” 12.48px",
+     ".services__head > div.services__eyebrow „meshuga krok po kroku” 13.6px",
+     ".bw__top > span.card__tag „Działa” 13.6px",
+     ".bw__top > span.bw__id „BW·01” 13.6px",
+     ".bw__top > span.bw__id „BW·02” 13.6px",
+     ".bw__top > span.bw__id „BW·03” 13.6px",
+     ".bw__top > span.bw__id „BW·04” 13.6px",
+     ".bw__top > span.bw__id „BW·05” 13.6px",
+     ".bw__top > span.bw__id „BW·06” 13.6px",
+     ".bw__top > span.bw__id „BW·07” 13.6px",
+     ".bw__top > span.bw__id „BW·08” 13.6px",
+     ".bw__top > span.bw__id „BW·09” 13.6px",
+     ".bw__top > span.bw__id „BW·10” 13.6px",
+     ".bw__top > span.bw__id „BW·11” 13.6px",
+     ".bw__top > span.bw__id „BW·12” 13.6px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „meshuga · asystentka cyb” 13.6px",
+     ".services__head > div.services__eyebrow „poznaj meshugę z bliska” 13.6px",
+     "span.somi-demo__tag.is-live „działa” 11.84px",
+     ".somi-demo__chat > p.somi-demo__disclaimer „Przykładowa rozmowa — to” 11.84px",
+     ".terminal__bar > span.terminal__title „somi_demo.log” 10.88px",
+     "pre#somiDemoBody „$ zapytaj_somi” 12.48px",
+     "#somiDemoBody > span.t-muted „— wybierz pytanie powyże” 12.48px",
+     ".services__head > div.services__eyebrow „meshuga krok po kroku” 13.6px",
+     ".bw__top > span.card__tag „Działa” 13.6px",
+     ".bw__top > span.bw__id „BW·01” 13.6px",
+     ".bw__top > span.bw__id „BW·02” 13.6px",
+     ".bw__top > span.bw__id „BW·03” 13.6px",
+     ".bw__top > span.bw__id „BW·04” 13.6px",
+     ".bw__top > span.bw__id „BW·05” 13.6px",
+     ".bw__top > span.bw__id „BW·06” 13.6px",
+     ".bw__top > span.bw__id „BW·07” 13.6px",
+     ".bw__top > span.bw__id „BW·08” 13.6px",
+     ".bw__top > span.bw__id „BW·09” 13.6px",
+     ".bw__top > span.bw__id „BW·10” 13.6px",
+     ".bw__top > span.bw__id „BW·11” 13.6px",
+     ".bw__top > span.bw__id „BW·12” 13.6px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „meshuga · asystentka cyb” 13.6px",
+     ".services__head > div.services__eyebrow „poznaj meshugę z bliska” 13.6px",
+     "span.somi-demo__tag.is-live „działa” 11.84px",
+     ".somi-demo__chat > p.somi-demo__disclaimer „Przykładowa rozmowa — to” 11.84px",
+     ".terminal__bar > span.terminal__title „somi_demo.log” 10.88px",
+     "pre#somiDemoBody „$ zapytaj_somi” 12.48px",
+     "#somiDemoBody > span.t-muted „— wybierz pytanie powyże” 12.48px",
+     ".services__head > div.services__eyebrow „meshuga krok po kroku” 13.6px",
+     ".bw__top > span.card__tag „Działa” 13.6px",
+     ".bw__top > span.bw__id „BW·01” 13.6px",
+     ".bw__top > span.bw__id „BW·02” 13.6px",
+     ".bw__top > span.bw__id „BW·03” 13.6px",
+     ".bw__top > span.bw__id „BW·04” 13.6px",
+     ".bw__top > span.bw__id „BW·05” 13.6px",
+     ".bw__top > span.bw__id „BW·06” 13.6px",
+     ".bw__top > span.bw__id „BW·07” 13.6px",
+     ".bw__top > span.bw__id „BW·08” 13.6px",
+     ".bw__top > span.bw__id „BW·09” 13.6px",
+     ".bw__top > span.bw__id „BW·10” 13.6px",
+     ".bw__top > span.bw__id „BW·11” 13.6px",
+     ".bw__top > span.bw__id „BW·12” 13.6px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „meshuga · asystentka cyb” 13.6px",
+     ".services__head > div.services__eyebrow „poznaj meshugę z bliska” 13.6px",
+     "span.somi-demo__tag.is-live „działa” 11.84px",
+     ".somi-demo__chat > p.somi-demo__disclaimer „Przykładowa rozmowa — to” 11.84px",
+     ".terminal__bar > span.terminal__title „somi_demo.log” 10.88px",
+     "pre#somiDemoBody „$ zapytaj_somi” 12.48px",
+     "#somiDemoBody > span.t-muted „— wybierz pytanie powyże” 12.48px",
+     ".services__head > div.services__eyebrow „meshuga krok po kroku” 13.6px",
+     ".bw__top > span.card__tag „Działa” 13.6px",
+     ".bw__top > span.bw__id „BW·01” 13.6px",
+     ".bw__top > span.bw__id „BW·02” 13.6px",
+     ".bw__top > span.bw__id „BW·03” 13.6px",
+     ".bw__top > span.bw__id „BW·04” 13.6px",
+     ".bw__top > span.bw__id „BW·05” 13.6px",
+     ".bw__top > span.bw__id „BW·06” 13.6px",
+     ".bw__top > span.bw__id „BW·07” 13.6px",
+     ".bw__top > span.bw__id „BW·08” 13.6px",
+     ".bw__top > span.bw__id „BW·09” 13.6px",
+     ".bw__top > span.bw__id „BW·10” 13.6px",
+     ".bw__top > span.bw__id „BW·11” 13.6px",
+     ".bw__top > span.bw__id „BW·12” 13.6px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „meshuga · asystentka cyb” 13.6px",
+     ".services__head > div.services__eyebrow „poznaj meshugę z bliska” 13.6px",
+     "span.somi-demo__tag.is-live „działa” 11.84px",
+     ".somi-demo__chat > p.somi-demo__disclaimer „Przykładowa rozmowa — to” 11.84px",
+     ".terminal__bar > span.terminal__title „somi_demo.log” 10.88px",
+     "pre#somiDemoBody „$ zapytaj_somi” 12.48px",
+     "#somiDemoBody > span.t-muted „— wybierz pytanie powyże” 12.48px",
+     ".services__head > div.services__eyebrow „meshuga krok po kroku” 13.6px",
+     ".bw__top > span.card__tag „Działa” 13.6px",
+     ".bw__top > span.bw__id „BW·01” 13.6px",
+     ".bw__top > span.bw__id „BW·02” 13.6px",
+     ".bw__top > span.bw__id „BW·03” 13.6px",
+     ".bw__top > span.bw__id „BW·04” 13.6px",
+     ".bw__top > span.bw__id „BW·05” 13.6px",
+     ".bw__top > span.bw__id „BW·06” 13.6px",
+     ".bw__top > span.bw__id „BW·07” 13.6px",
+     ".bw__top > span.bw__id „BW·08” 13.6px",
+     ".bw__top > span.bw__id „BW·09” 13.6px",
+     ".bw__top > span.bw__id „BW·10” 13.6px",
+     ".bw__top > span.bw__id „BW·11” 13.6px",
+     ".bw__top > span.bw__id „BW·12” 13.6px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „meshuga · asystentka cyb” 13.6px",
+     ".services__head > div.services__eyebrow „poznaj meshugę z bliska” 13.6px",
+     "span.somi-demo__tag.is-live „działa” 11.84px",
+     ".somi-demo__chat > p.somi-demo__disclaimer „Przykładowa rozmowa — to” 11.84px",
+     ".terminal__bar > span.terminal__title „somi_demo.log” 10.88px",
+     "pre#somiDemoBody „$ zapytaj_somi” 12.48px",
+     "#somiDemoBody > span.t-muted „— wybierz pytanie powyże” 12.48px",
+     ".services__head > div.services__eyebrow „meshuga krok po kroku” 13.6px",
+     ".bw__top > span.card__tag „Działa” 13.6px",
+     ".bw__top > span.bw__id „BW·01” 13.6px",
+     ".bw__top > span.bw__id „BW·02” 13.6px",
+     ".bw__top > span.bw__id „BW·03” 13.6px",
+     ".bw__top > span.bw__id „BW·04” 13.6px",
+     ".bw__top > span.bw__id „BW·05” 13.6px",
+     ".bw__top > span.bw__id „BW·06” 13.6px",
+     ".bw__top > span.bw__id „BW·07” 13.6px",
+     ".bw__top > span.bw__id „BW·08” 13.6px",
+     ".bw__top > span.bw__id „BW·09” 13.6px",
+     ".bw__top > span.bw__id „BW·10” 13.6px",
+     ".bw__top > span.bw__id „BW·11” 13.6px",
+     ".bw__top > span.bw__id „BW·12” 13.6px"
+    ],
+    "kot": []
+   }
+  },
+  "#soraos": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".sx-n > span.sx-16 „SORA OS” 12.48px",
+     ".sx-16 > i „//” 12.48px",
+     ".sx-y > span.sx-2b „Lista” 12.48px",
+     ".sx-a > span.sx-1v „DancyCloud · jedno klikn” 11.84px",
+     ".sx-a > span.sx-1v „Usługi z ceną i terminem” 11.84px",
+     ".sx-a > span.sx-1v „Eksperymenty i rzeczy w ” 11.84px",
+     ".sx-a > span.sx-1v „Drop dates i zmiany” 11.84px",
+     ".sx-a > span.sx-1v „DancyCloud” 11.84px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".sx-n > span.sx-16 „SORA OS” 12.48px",
+     ".sx-16 > i „//” 12.48px",
+     ".sx-y > span.sx-2b „Lista” 12.48px",
+     ".sx-a > span.sx-1v „DancyCloud · jedno klikn” 11.84px",
+     ".sx-a > span.sx-1v „Usługi z ceną i terminem” 11.84px",
+     ".sx-a > span.sx-1v „Eksperymenty i rzeczy w ” 11.84px",
+     ".sx-a > span.sx-1v „Drop dates i zmiany” 11.84px",
+     ".sx-a > span.sx-1v „DancyCloud” 11.84px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".sx-n > span.sx-16 „SORA OS” 12.48px",
+     ".sx-16 > i „//” 12.48px",
+     ".sx-y > span.sx-2b „Lista” 12.48px",
+     ".sx-a > span.sx-1v „DancyCloud · jedno klikn” 11.84px",
+     ".sx-a > span.sx-1v „Usługi z ceną i terminem” 11.84px",
+     ".sx-a > span.sx-1v „Eksperymenty i rzeczy w ” 11.84px",
+     ".sx-a > span.sx-1v „Drop dates i zmiany” 11.84px",
+     ".sx-a > span.sx-1v „DancyCloud” 11.84px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".sx-n > span.sx-16 „SORA OS” 12.48px",
+     ".sx-16 > i „//” 12.48px",
+     ".sx-y > span.sx-2b „Lista” 12.48px",
+     ".sx-a > span.sx-1v „DancyCloud · jedno klikn” 11.84px",
+     ".sx-a > span.sx-1v „Usługi z ceną i terminem” 11.84px",
+     ".sx-a > span.sx-1v „Eksperymenty i rzeczy w ” 11.84px",
+     ".sx-a > span.sx-1v „Drop dates i zmiany” 11.84px",
+     ".sx-a > span.sx-1v „DancyCloud” 11.84px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".sx-n > span.sx-16 „SORA OS” 12.48px",
+     ".sx-16 > i „//” 12.48px",
+     ".sx-y > span.sx-2b „Lista” 12.48px",
+     ".sx-a > span.sx-1v „DancyCloud · jedno klikn” 11.84px",
+     ".sx-a > span.sx-1v „Usługi z ceną i terminem” 11.84px",
+     ".sx-a > span.sx-1v „Eksperymenty i rzeczy w ” 11.84px",
+     ".sx-a > span.sx-1v „Drop dates i zmiany” 11.84px",
+     ".sx-a > span.sx-1v „DancyCloud” 11.84px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".sx-n > span.sx-16 „SORA OS” 12.48px",
+     ".sx-16 > i „//” 12.48px",
+     ".sx-y > span.sx-2b „Lista” 12.48px",
+     ".sx-a > span.sx-1v „DancyCloud · jedno klikn” 11.84px",
+     ".sx-a > span.sx-1v „Usługi z ceną i terminem” 11.84px",
+     ".sx-a > span.sx-1v „Eksperymenty i rzeczy w ” 11.84px",
+     ".sx-a > span.sx-1v „Drop dates i zmiany” 11.84px",
+     ".sx-a > span.sx-1v „DancyCloud” 11.84px"
+    ],
+    "kot": []
+   }
+  },
+  "#onas": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kim jesteśmy” 13.6px",
+     ".hero__fact > dt „Zespół” 11.84px",
+     ".hero__fact > dt „Założyciel” 11.84px",
+     ".hero__fact > dt „Status” 11.84px",
+     ".pas__marka > p.duet__rola „Zarządza wszystkim · pro” 11.84px",
+     "dt „stack” 11.84px",
+     ".pas__marka > p.duet__rola „Programista · QA · optym” 11.84px",
+     ".pas__marka > p.duet__rola „Asystentka AI · research” 11.84px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px",
+     ".card > span.card__tag „Zaplecze” 13.6px",
+     ".card > span.card__tag „Partnerzy” 13.6px",
+     ".services__head > div.services__eyebrow „czym się różnimy” 13.6px",
+     ".card > span.card__tag „Zespół” 13.6px",
+     ".card > span.card__tag „Produkt” 13.6px",
+     ".card > span.card__tag „Rynek” 13.6px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kim jesteśmy” 13.6px",
+     ".hero__fact > dt „Zespół” 11.84px",
+     ".hero__fact > dt „Założyciel” 11.84px",
+     ".hero__fact > dt „Status” 11.84px",
+     ".pas__marka > p.duet__rola „Zarządza wszystkim · pro” 11.84px",
+     "dt „stack” 11.84px",
+     ".pas__marka > p.duet__rola „Programista · QA · optym” 11.84px",
+     ".pas__marka > p.duet__rola „Asystentka AI · research” 11.84px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px",
+     ".card > span.card__tag „Zaplecze” 13.6px",
+     ".card > span.card__tag „Partnerzy” 13.6px",
+     ".services__head > div.services__eyebrow „czym się różnimy” 13.6px",
+     ".card > span.card__tag „Zespół” 13.6px",
+     ".card > span.card__tag „Produkt” 13.6px",
+     ".card > span.card__tag „Rynek” 13.6px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kim jesteśmy” 13.6px",
+     ".hero__fact > dt „Zespół” 11.84px",
+     ".hero__fact > dt „Założyciel” 11.84px",
+     ".hero__fact > dt „Status” 11.84px",
+     ".pas__marka > p.duet__rola „Zarządza wszystkim · pro” 11.84px",
+     "dt „stack” 11.84px",
+     ".pas__marka > p.duet__rola „Programista · QA · optym” 11.84px",
+     ".pas__marka > p.duet__rola „Asystentka AI · research” 11.84px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px",
+     ".card > span.card__tag „Zaplecze” 13.6px",
+     ".card > span.card__tag „Partnerzy” 13.6px",
+     ".services__head > div.services__eyebrow „czym się różnimy” 13.6px",
+     ".card > span.card__tag „Zespół” 13.6px",
+     ".card > span.card__tag „Produkt” 13.6px",
+     ".card > span.card__tag „Rynek” 13.6px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kim jesteśmy” 13.6px",
+     ".hero__fact > dt „Zespół” 11.84px",
+     ".hero__fact > dt „Założyciel” 11.84px",
+     ".hero__fact > dt „Status” 11.84px",
+     ".pas__marka > p.duet__rola „Zarządza wszystkim · pro” 11.84px",
+     "dt „stack” 11.84px",
+     ".pas__marka > p.duet__rola „Programista · QA · optym” 11.84px",
+     ".pas__marka > p.duet__rola „Asystentka AI · research” 11.84px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px",
+     ".card > span.card__tag „Zaplecze” 13.6px",
+     ".card > span.card__tag „Partnerzy” 13.6px",
+     ".services__head > div.services__eyebrow „czym się różnimy” 13.6px",
+     ".card > span.card__tag „Zespół” 13.6px",
+     ".card > span.card__tag „Produkt” 13.6px",
+     ".card > span.card__tag „Rynek” 13.6px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kim jesteśmy” 13.6px",
+     ".hero__fact > dt „Zespół” 11.84px",
+     ".hero__fact > dt „Założyciel” 11.84px",
+     ".hero__fact > dt „Status” 11.84px",
+     ".pas__marka > p.duet__rola „Zarządza wszystkim · pro” 11.84px",
+     "dt „stack” 11.84px",
+     ".pas__marka > p.duet__rola „Programista · QA · optym” 11.84px",
+     ".pas__marka > p.duet__rola „Asystentka AI · research” 11.84px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px",
+     ".card > span.card__tag „Zaplecze” 13.6px",
+     ".card > span.card__tag „Partnerzy” 13.6px",
+     ".services__head > div.services__eyebrow „czym się różnimy” 13.6px",
+     ".card > span.card__tag „Zespół” 13.6px",
+     ".card > span.card__tag „Produkt” 13.6px",
+     ".card > span.card__tag „Rynek” 13.6px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kim jesteśmy” 13.6px",
+     ".hero__fact > dt „Zespół” 11.84px",
+     ".hero__fact > dt „Założyciel” 11.84px",
+     ".hero__fact > dt „Status” 11.84px",
+     ".pas__marka > p.duet__rola „Zarządza wszystkim · pro” 11.84px",
+     "dt „stack” 11.84px",
+     ".pas__marka > p.duet__rola „Programista · QA · optym” 11.84px",
+     ".pas__marka > p.duet__rola „Asystentka AI · research” 11.84px",
+     ".services__head > div.services__eyebrow „jak pracujemy” 13.6px",
+     ".card > span.card__tag „Zaplecze” 13.6px",
+     ".card > span.card__tag „Partnerzy” 13.6px",
+     ".services__head > div.services__eyebrow „czym się różnimy” 13.6px",
+     ".card > span.card__tag „Zespół” 13.6px",
+     ".card > span.card__tag „Produkt” 13.6px",
+     ".card > span.card__tag „Rynek” 13.6px"
+    ],
+    "kot": []
+   }
+  },
+  "#sztuka": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „poza kodem” 13.6px"
+    ],
+    "kot": [
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 2 z 6” 68×76"
+    ]
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „poza kodem” 13.6px"
+    ],
+    "kot": [
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 1 z 6” 68×31",
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 2 z 6” 68×36"
+    ]
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „poza kodem” 13.6px"
+    ],
+    "kot": [
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 1 z 6” 68×46",
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 2 z 6” 68×21"
+    ]
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „poza kodem” 13.6px"
+    ],
+    "kot": [
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 1 z 6” 68×61",
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 2 z 6” 68×6"
+    ]
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „poza kodem” 13.6px"
+    ],
+    "kot": [
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 1 z 6” 68×84"
+    ]
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": [
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 4 z 6” 68×23",
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 6 z 6” 68×44"
+    ]
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": [
+     "góra: .sztuka__grid > button.sztuka__item „Powiększ grafikę 6 z 6” 68×11"
+    ]
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „poza kodem” 13.6px"
+    ],
+    "kot": []
+   }
+  },
+  "#contact": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#konfSteps > button.konf-seg.is-on „Start” 33×44",
+     "#konfSteps > button.konf-seg „Działanie” 33×44",
+     "#konfSteps > button.konf-seg „Termin” 33×44",
+     "#konfSteps > button.konf-seg „Ochrona” 33×44",
+     "#konfSteps > button.konf-seg „Serwis” 33×44",
+     "#konfSteps > button.konf-seg „Wysyłka” 33×44"
+    ],
+    "maly": [
+     ".overlay > div.eyebrow „kontakt · współpraca” 13.6px",
+     ".services__head > div.services__eyebrow „nowe zgłoszenie” 13.6px",
+     "#konfTabK > span.konf-tab__new „nowe” 10.88px",
+     ".konf-hud > span „sys//cfg · krok /06 ·” 10.88px",
+     "b#konfN „01” 10.88px",
+     "span#konfT „Start” 10.88px",
+     "span#konfSaved „✓ zapisano” 10.88px",
+     "span#konfLeft „zostało 5 kroków” 10.88px",
+     "text „KOMPUTER” 11px",
+     "text „ŹR 01” 11px",
+     "text „ŹR 02” 11px",
+     "text „ŹR 03” 11px",
+     "text.b „SKRYPT” 11px",
+     "text „AUTO” 11px",
+     "text.b „PLIK” 11px",
+     "text „OCHRONA” 11px",
+     "text „14 DNI” 11px",
+     "text.l „SERWIS: PODSTAWOWY · 6 M” 11px",
+     ".konf-price > small „cena orient.” 10.88px",
+     "p#konfUpto „Górna granica, jeśli opi” 11.84px",
+     ".konf-lines > summary „Skąd ta cena” 10.88px",
+     "span#konfNavPrice „500 zł” 12.48px",
+     ".konf-opt__b > span.konf-opt__x „0x01” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Mikro-skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Jedno zadanie, jedno źró” 11.84px",
+     ".konf-opt__p > span „150 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x02” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kilka kroków, pobieranie” 11.84px",
+     ".konf-opt__p > span „500 zł” 11.84px",
+     ".konf-opt__p > span.konf-opt__r „polecane” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x03” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Bot” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Działa całą dobę, pilnuj” 11.84px",
+     ".konf-opt__p > span „1200 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x04” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Aplikacja” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kalendarz, klienci, maga” 11.84px",
+     ".konf-opt__p > span „od 5000 zł” 11.84px",
+     ".konf-help > summary „Co to znaczy?” 10.88px",
+     ".terminal__bar > span.terminal__title „zgloszenie.log” 10.88px",
+     "pre#terminalBody „Skrypt, bot albo automat” 12.48px",
+     "#terminalBody > span.t-muted „$ nowe_zgloszenie --od=c” 12.48px",
+     "#terminalBody > span.t-label „OD:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na imię…” 12.48px",
+     "#terminalBody > span.t-label „EMAIL:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na e-mail…” 12.48px",
+     "#terminalBody > span.t-label „TEL:” 12.48px",
+     "#terminalBody > span.t-muted „—” 12.48px",
+     "#terminalBody > span.t-label „ŹRÓDŁO:” 12.48px",
+     "#terminalBody > span.t-label „TEMAT:” 12.48px",
+     "#terminalBody > span.t-label „BUDŻET:” 12.48px",
+     "#terminalBody > span.t-label „TERMIN:” 12.48px",
+     "#terminalBody > span.t-label „RODZAJ:” 12.48px",
+     "#terminalBody > span.t-label „MODUŁY:” 12.48px",
+     "#terminalBody > span.t-muted „> install” 12.48px",
+     "#terminalBody > span.t-ok „OK” 12.48px",
+     "#terminalBody > span.t-muted „0%” 12.48px",
+     "#terminalBody > span.t-label „SERWIS:” 12.48px",
+     "#terminalBody > span.t-label „CENA ORIENT.:” 12.48px",
+     "#terminalBody > span.t-muted „(do 600 zł)” 12.48px",
+     "#terminalBody > span.t-label „OPIS:” 12.48px",
+     "#terminalBody > span.t-muted „zacznij pisać po lewej…” 12.48px",
+     "#terminalBody > span.t-muted „--- gotowe do wysłania, ” 12.48px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#konfSteps > button.konf-seg.is-on „Start” 40×44",
+     "#konfSteps > button.konf-seg „Działanie” 40×44",
+     "#konfSteps > button.konf-seg „Termin” 40×44",
+     "#konfSteps > button.konf-seg „Ochrona” 40×44",
+     "#konfSteps > button.konf-seg „Serwis” 40×44",
+     "#konfSteps > button.konf-seg „Wysyłka” 40×44"
+    ],
+    "maly": [
+     ".overlay > div.eyebrow „kontakt · współpraca” 13.6px",
+     ".services__head > div.services__eyebrow „nowe zgłoszenie” 13.6px",
+     "#konfTabK > span.konf-tab__new „nowe” 10.88px",
+     ".konf-hud > span „sys//cfg · krok /06 ·” 10.88px",
+     "b#konfN „01” 10.88px",
+     "span#konfT „Start” 10.88px",
+     "span#konfSaved „✓ zapisano” 10.88px",
+     "span#konfLeft „zostało 5 kroków” 10.88px",
+     "text „KOMPUTER” 11px",
+     "text „ŹR 01” 11px",
+     "text „ŹR 02” 11px",
+     "text „ŹR 03” 11px",
+     "text.b „SKRYPT” 11px",
+     "text „AUTO” 11px",
+     "text.b „PLIK” 11px",
+     "text „OCHRONA” 11px",
+     "text „14 DNI” 11px",
+     "text.l „SERWIS: PODSTAWOWY · 6 M” 11px",
+     ".konf-price > small „cena orient.” 10.88px",
+     "p#konfUpto „Górna granica, jeśli opi” 11.84px",
+     ".konf-lines > summary „Skąd ta cena” 10.88px",
+     "span#konfNavPrice „500 zł” 12.48px",
+     ".konf-opt__b > span.konf-opt__x „0x01” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Mikro-skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Jedno zadanie, jedno źró” 11.84px",
+     ".konf-opt__p > span „150 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x02” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kilka kroków, pobieranie” 11.84px",
+     ".konf-opt__p > span „500 zł” 11.84px",
+     ".konf-opt__p > span.konf-opt__r „polecane” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x03” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Bot” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Działa całą dobę, pilnuj” 11.84px",
+     ".konf-opt__p > span „1200 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x04” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Aplikacja” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kalendarz, klienci, maga” 11.84px",
+     ".konf-opt__p > span „od 5000 zł” 11.84px",
+     ".konf-help > summary „Co to znaczy?” 10.88px",
+     ".terminal__bar > span.terminal__title „zgloszenie.log” 10.88px",
+     "pre#terminalBody „Skrypt, bot albo automat” 12.48px",
+     "#terminalBody > span.t-muted „$ nowe_zgloszenie --od=c” 12.48px",
+     "#terminalBody > span.t-label „OD:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na imię…” 12.48px",
+     "#terminalBody > span.t-label „EMAIL:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na e-mail…” 12.48px",
+     "#terminalBody > span.t-label „TEL:” 12.48px",
+     "#terminalBody > span.t-muted „—” 12.48px",
+     "#terminalBody > span.t-label „ŹRÓDŁO:” 12.48px",
+     "#terminalBody > span.t-label „TEMAT:” 12.48px",
+     "#terminalBody > span.t-label „BUDŻET:” 12.48px",
+     "#terminalBody > span.t-label „TERMIN:” 12.48px",
+     "#terminalBody > span.t-label „RODZAJ:” 12.48px",
+     "#terminalBody > span.t-label „MODUŁY:” 12.48px",
+     "#terminalBody > span.t-muted „> install” 12.48px",
+     "#terminalBody > span.t-ok „OK” 12.48px",
+     "#terminalBody > span.t-muted „0%” 12.48px",
+     "#terminalBody > span.t-label „SERWIS:” 12.48px",
+     "#terminalBody > span.t-label „CENA ORIENT.:” 12.48px",
+     "#terminalBody > span.t-muted „(do 600 zł)” 12.48px",
+     "#terminalBody > span.t-label „OPIS:” 12.48px",
+     "#terminalBody > span.t-muted „zacznij pisać po lewej…” 12.48px",
+     "#terminalBody > span.t-muted „--- gotowe do wysłania, ” 12.48px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#konfSteps > button.konf-seg.is-on „Start” 42×44",
+     "#konfSteps > button.konf-seg „Działanie” 42×44",
+     "#konfSteps > button.konf-seg „Termin” 42×44",
+     "#konfSteps > button.konf-seg „Ochrona” 42×44",
+     "#konfSteps > button.konf-seg „Serwis” 42×44",
+     "#konfSteps > button.konf-seg „Wysyłka” 42×44"
+    ],
+    "maly": [
+     ".overlay > div.eyebrow „kontakt · współpraca” 13.6px",
+     ".services__head > div.services__eyebrow „nowe zgłoszenie” 13.6px",
+     "#konfTabK > span.konf-tab__new „nowe” 10.88px",
+     ".konf-hud > span „sys//cfg · krok /06 ·” 10.88px",
+     "b#konfN „01” 10.88px",
+     "span#konfT „Start” 10.88px",
+     "span#konfSaved „✓ zapisano” 10.88px",
+     "span#konfLeft „zostało 5 kroków” 10.88px",
+     "text „KOMPUTER” 11px",
+     "text „ŹR 01” 11px",
+     "text „ŹR 02” 11px",
+     "text „ŹR 03” 11px",
+     "text.b „SKRYPT” 11px",
+     "text „AUTO” 11px",
+     "text.b „PLIK” 11px",
+     "text „OCHRONA” 11px",
+     "text „14 DNI” 11px",
+     "text.l „SERWIS: PODSTAWOWY · 6 M” 11px",
+     ".konf-price > small „cena orient.” 10.88px",
+     "p#konfUpto „Górna granica, jeśli opi” 11.84px",
+     ".konf-lines > summary „Skąd ta cena” 10.88px",
+     "span#konfNavPrice „500 zł” 12.48px",
+     ".konf-opt__b > span.konf-opt__x „0x01” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Mikro-skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Jedno zadanie, jedno źró” 11.84px",
+     ".konf-opt__p > span „150 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x02” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kilka kroków, pobieranie” 11.84px",
+     ".konf-opt__p > span „500 zł” 11.84px",
+     ".konf-opt__p > span.konf-opt__r „polecane” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x03” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Bot” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Działa całą dobę, pilnuj” 11.84px",
+     ".konf-opt__p > span „1200 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x04” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Aplikacja” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kalendarz, klienci, maga” 11.84px",
+     ".konf-opt__p > span „od 5000 zł” 11.84px",
+     ".konf-help > summary „Co to znaczy?” 10.88px",
+     ".terminal__bar > span.terminal__title „zgloszenie.log” 10.88px",
+     "pre#terminalBody „Skrypt, bot albo automat” 12.48px",
+     "#terminalBody > span.t-muted „$ nowe_zgloszenie --od=c” 12.48px",
+     "#terminalBody > span.t-label „OD:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na imię…” 12.48px",
+     "#terminalBody > span.t-label „EMAIL:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na e-mail…” 12.48px",
+     "#terminalBody > span.t-label „TEL:” 12.48px",
+     "#terminalBody > span.t-muted „—” 12.48px",
+     "#terminalBody > span.t-label „ŹRÓDŁO:” 12.48px",
+     "#terminalBody > span.t-label „TEMAT:” 12.48px",
+     "#terminalBody > span.t-label „BUDŻET:” 12.48px",
+     "#terminalBody > span.t-label „TERMIN:” 12.48px",
+     "#terminalBody > span.t-label „RODZAJ:” 12.48px",
+     "#terminalBody > span.t-label „MODUŁY:” 12.48px",
+     "#terminalBody > span.t-muted „> install” 12.48px",
+     "#terminalBody > span.t-ok „OK” 12.48px",
+     "#terminalBody > span.t-muted „0%” 12.48px",
+     "#terminalBody > span.t-label „SERWIS:” 12.48px",
+     "#terminalBody > span.t-label „CENA ORIENT.:” 12.48px",
+     "#terminalBody > span.t-muted „(do 600 zł)” 12.48px",
+     "#terminalBody > span.t-label „OPIS:” 12.48px",
+     "#terminalBody > span.t-muted „zacznij pisać po lewej…” 12.48px",
+     "#terminalBody > span.t-muted „--- gotowe do wysłania, ” 12.48px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kontakt · współpraca” 13.6px",
+     ".services__head > div.services__eyebrow „nowe zgłoszenie” 13.6px",
+     "#konfTabK > span.konf-tab__new „nowe” 10.88px",
+     ".konf-hud > span „sys//cfg · krok /06 ·” 10.88px",
+     "b#konfN „01” 10.88px",
+     "span#konfT „Start” 10.88px",
+     "span#konfSaved „✓ zapisano” 10.88px",
+     "span#konfLeft „zostało 5 kroków” 10.88px",
+     "text „KOMPUTER” 11px",
+     "text „ŹR 01” 11px",
+     "text „ŹR 02” 11px",
+     "text „ŹR 03” 11px",
+     "text.b „SKRYPT” 11px",
+     "text „AUTO” 11px",
+     "text.b „PLIK” 11px",
+     "text „OCHRONA” 11px",
+     "text „14 DNI” 11px",
+     "text.l „SERWIS: PODSTAWOWY · 6 M” 11px",
+     ".konf-price > small „cena orient.” 10.88px",
+     "p#konfUpto „Górna granica, jeśli opi” 11.84px",
+     ".konf-lines > summary „Skąd ta cena” 10.88px",
+     "span#konfNavPrice „500 zł” 12.48px",
+     ".konf-opt__b > span.konf-opt__x „0x01” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Mikro-skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Jedno zadanie, jedno źró” 11.84px",
+     ".konf-opt__p > span „150 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x02” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kilka kroków, pobieranie” 11.84px",
+     ".konf-opt__p > span „500 zł” 11.84px",
+     ".konf-opt__p > span.konf-opt__r „polecane” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x03” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Bot” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Działa całą dobę, pilnuj” 11.84px",
+     ".konf-opt__p > span „1200 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x04” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Aplikacja” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kalendarz, klienci, maga” 11.84px",
+     ".konf-opt__p > span „od 5000 zł” 11.84px",
+     ".konf-help > summary „Co to znaczy?” 10.88px",
+     ".terminal__bar > span.terminal__title „zgloszenie.log” 10.88px",
+     "pre#terminalBody „Skrypt, bot albo automat” 12.48px",
+     "#terminalBody > span.t-muted „$ nowe_zgloszenie --od=c” 12.48px",
+     "#terminalBody > span.t-label „OD:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na imię…” 12.48px",
+     "#terminalBody > span.t-label „EMAIL:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na e-mail…” 12.48px",
+     "#terminalBody > span.t-label „TEL:” 12.48px",
+     "#terminalBody > span.t-muted „—” 12.48px",
+     "#terminalBody > span.t-label „ŹRÓDŁO:” 12.48px",
+     "#terminalBody > span.t-label „TEMAT:” 12.48px",
+     "#terminalBody > span.t-label „BUDŻET:” 12.48px",
+     "#terminalBody > span.t-label „TERMIN:” 12.48px",
+     "#terminalBody > span.t-label „RODZAJ:” 12.48px",
+     "#terminalBody > span.t-label „MODUŁY:” 12.48px",
+     "#terminalBody > span.t-muted „> install” 12.48px",
+     "#terminalBody > span.t-ok „OK” 12.48px",
+     "#terminalBody > span.t-muted „0%” 12.48px",
+     "#terminalBody > span.t-label „SERWIS:” 12.48px",
+     "#terminalBody > span.t-label „CENA ORIENT.:” 12.48px",
+     "#terminalBody > span.t-muted „(do 600 zł)” 12.48px",
+     "#terminalBody > span.t-label „OPIS:” 12.48px",
+     "#terminalBody > span.t-muted „zacznij pisać po lewej…” 12.48px",
+     "#terminalBody > span.t-muted „--- gotowe do wysłania, ” 12.48px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kontakt · współpraca” 13.6px",
+     ".services__head > div.services__eyebrow „nowe zgłoszenie” 13.6px",
+     "#konfTabK > span.konf-tab__new „nowe” 10.88px",
+     ".konf-hud > span „sys//cfg · krok /06 ·” 10.88px",
+     "b#konfN „01” 10.88px",
+     "span#konfT „Start” 10.88px",
+     "span#konfSaved „✓ zapisano” 10.88px",
+     "span#konfLeft „zostało 5 kroków” 10.88px",
+     "text „KOMPUTER” 11px",
+     "text „ŹR 01” 11px",
+     "text „ŹR 02” 11px",
+     "text „ŹR 03” 11px",
+     "text.b „SKRYPT” 11px",
+     "text „AUTO” 11px",
+     "text.b „PLIK” 11px",
+     "text „OCHRONA” 11px",
+     "text „14 DNI” 11px",
+     "text.l „SERWIS: PODSTAWOWY · 6 M” 11px",
+     ".konf-price > small „cena orient.” 10.88px",
+     "p#konfUpto „Górna granica, jeśli opi” 11.84px",
+     ".konf-lines > summary „Skąd ta cena” 10.88px",
+     ".konf-opt__b > span.konf-opt__x „0x01” 10.88px",
+     "span#konfNavPrice „500 zł” 12.48px",
+     ".konf-opt__b > span.konf-opt__k „Mikro-skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Jedno zadanie, jedno źró” 11.84px",
+     ".konf-opt__p > span „150 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x02” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kilka kroków, pobieranie” 11.84px",
+     ".konf-opt__p > span „500 zł” 11.84px",
+     ".konf-opt__p > span.konf-opt__r „polecane” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x03” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Bot” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Działa całą dobę, pilnuj” 11.84px",
+     ".konf-opt__p > span „1200 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x04” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Aplikacja” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kalendarz, klienci, maga” 11.84px",
+     ".konf-opt__p > span „od 5000 zł” 11.84px",
+     ".konf-help > summary „Co to znaczy?” 10.88px",
+     ".terminal__bar > span.terminal__title „zgloszenie.log” 10.88px",
+     "pre#terminalBody „Skrypt, bot albo automat” 12.48px",
+     "#terminalBody > span.t-muted „$ nowe_zgloszenie --od=c” 12.48px",
+     "#terminalBody > span.t-label „OD:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na imię…” 12.48px",
+     "#terminalBody > span.t-label „EMAIL:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na e-mail…” 12.48px",
+     "#terminalBody > span.t-label „TEL:” 12.48px",
+     "#terminalBody > span.t-muted „—” 12.48px",
+     "#terminalBody > span.t-label „ŹRÓDŁO:” 12.48px",
+     "#terminalBody > span.t-label „TEMAT:” 12.48px",
+     "#terminalBody > span.t-label „BUDŻET:” 12.48px",
+     "#terminalBody > span.t-label „TERMIN:” 12.48px",
+     "#terminalBody > span.t-label „RODZAJ:” 12.48px",
+     "#terminalBody > span.t-label „MODUŁY:” 12.48px",
+     "#terminalBody > span.t-muted „> install” 12.48px",
+     "#terminalBody > span.t-ok „OK” 12.48px",
+     "#terminalBody > span.t-muted „0%” 12.48px",
+     "#terminalBody > span.t-label „SERWIS:” 12.48px",
+     "#terminalBody > span.t-label „CENA ORIENT.:” 12.48px",
+     "#terminalBody > span.t-muted „(do 600 zł)” 12.48px",
+     "#terminalBody > span.t-label „OPIS:” 12.48px",
+     "#terminalBody > span.t-muted „zacznij pisać po lewej…” 12.48px",
+     "#terminalBody > span.t-muted „--- gotowe do wysłania, ” 12.48px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „kontakt · współpraca” 13.6px",
+     ".services__head > div.services__eyebrow „nowe zgłoszenie” 13.6px",
+     "#konfTabK > span.konf-tab__new „nowe” 10.88px",
+     ".konf-hud > span „sys//cfg · krok /06 ·” 10.88px",
+     "b#konfN „01” 10.88px",
+     "span#konfT „Start” 10.88px",
+     "span#konfSaved „✓ zapisano” 10.88px",
+     "span#konfLeft „zostało 5 kroków” 10.88px",
+     ".konf-seg > span „Start” 10.88px",
+     ".konf-seg > span „Działanie” 10.88px",
+     ".konf-seg > span „Termin” 10.88px",
+     ".konf-seg > span „Ochrona” 10.88px",
+     ".konf-seg > span „Serwis” 10.88px",
+     ".konf-seg > span „Wysyłka” 10.88px",
+     "text „KOMPUTER” 11px",
+     "text „ŹR 01” 11px",
+     "text „ŹR 02” 11px",
+     "text „ŹR 03” 11px",
+     "text.b „SKRYPT” 11px",
+     "text „AUTO” 11px",
+     "text.b „PLIK” 11px",
+     "text „OCHRONA” 11px",
+     "text „14 DNI” 11px",
+     ".konf-price > small „cena orient.” 10.88px",
+     "p#konfUpto „Górna granica, jeśli opi” 11.84px",
+     "span#konfNavPrice „500 zł” 12.48px",
+     "text.l „SERWIS: PODSTAWOWY · 6 M” 11px",
+     ".konf-lines > summary „Skąd ta cena” 10.88px",
+     ".konf-opt__b > span.konf-opt__x „0x01” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Mikro-skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Jedno zadanie, jedno źró” 11.84px",
+     ".konf-opt__p > span „150 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x02” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Skrypt” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kilka kroków, pobieranie” 11.84px",
+     ".konf-opt__p > span „500 zł” 11.84px",
+     ".konf-opt__p > span.konf-opt__r „polecane” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x03” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Bot” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Działa całą dobę, pilnuj” 11.84px",
+     ".konf-opt__p > span „1200 zł” 11.84px",
+     ".konf-opt__b > span.konf-opt__x „0x04” 10.88px",
+     ".konf-opt__b > span.konf-opt__k „Aplikacja” 10.88px",
+     ".konf-opt__b > span.konf-opt__d „Kalendarz, klienci, maga” 11.84px",
+     ".konf-opt__p > span „od 5000 zł” 11.84px",
+     ".konf-help > summary „Co to znaczy?” 10.88px",
+     ".terminal__bar > span.terminal__title „zgloszenie.log” 10.88px",
+     "pre#terminalBody „Skrypt, bot albo automat” 12.48px",
+     "#terminalBody > span.t-muted „$ nowe_zgloszenie --od=c” 12.48px",
+     "#terminalBody > span.t-label „OD:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na imię…” 12.48px",
+     "#terminalBody > span.t-label „EMAIL:” 12.48px",
+     "#terminalBody > span.t-muted „czekam na e-mail…” 12.48px",
+     "#terminalBody > span.t-label „TEL:” 12.48px",
+     "#terminalBody > span.t-muted „—” 12.48px",
+     "#terminalBody > span.t-label „ŹRÓDŁO:” 12.48px",
+     "#terminalBody > span.t-label „TEMAT:” 12.48px",
+     "#terminalBody > span.t-label „BUDŻET:” 12.48px",
+     "#terminalBody > span.t-label „TERMIN:” 12.48px",
+     "#terminalBody > span.t-label „RODZAJ:” 12.48px",
+     "#terminalBody > span.t-label „MODUŁY:” 12.48px",
+     "#terminalBody > span.t-muted „> install” 12.48px",
+     "#terminalBody > span.t-ok „OK” 12.48px",
+     "#terminalBody > span.t-muted „0%” 12.48px",
+     "#terminalBody > span.t-label „SERWIS:” 12.48px",
+     "#terminalBody > span.t-label „CENA ORIENT.:” 12.48px",
+     "#terminalBody > span.t-muted „(do 600 zł)” 12.48px",
+     "#terminalBody > span.t-label „OPIS:” 12.48px",
+     "#terminalBody > span.t-muted „zacznij pisać po lewej…” 12.48px",
+     "#terminalBody > span.t-muted „--- gotowe do wysłania, ” 12.48px"
+    ],
+    "kot": []
+   }
+  },
+  "#polityka": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „dane · prywatność” 13.6px",
+     ".services__head > div.services__eyebrow „rodo” 13.6px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „dane · prywatność” 13.6px",
+     ".services__head > div.services__eyebrow „rodo” 13.6px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „dane · prywatność” 13.6px",
+     ".services__head > div.services__eyebrow „rodo” 13.6px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „dane · prywatność” 13.6px",
+     ".services__head > div.services__eyebrow „rodo” 13.6px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „dane · prywatność” 13.6px",
+     ".services__head > div.services__eyebrow „rodo” 13.6px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".overlay > div.eyebrow „dane · prywatność” 13.6px",
+     ".services__head > div.services__eyebrow „rodo” 13.6px"
+    ],
+    "kot": []
+   }
+  },
+  "kot: zamknięte": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   }
+  },
+  "kot: podpowiedź": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   }
+  },
+  "kot: otwarte": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 318×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 358×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 373×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 388×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 412×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px"
+    ],
+    "kot": []
+   }
+  },
+  "kot: myśli": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 318×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     ".kot__log > div.kot__pisze „przeglądam cennik…” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 358×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     ".kot__log > div.kot__pisze „przeglądam cennik…” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 373×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     ".kot__log > div.kot__pisze „przeglądam cennik…” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 388×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     ".kot__log > div.kot__pisze „przeglądam cennik…” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 412×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     ".kot__log > div.kot__pisze „przeglądam cennik…” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     ".kot__log > div.kot__pisze „przeglądam cennik…” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   }
+  },
+  "kot: po odpowiedzi": {
+   "320": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 318×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "360": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 358×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "375": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 373×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 388×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "414": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [
+     "#kotPanel > button.kot__uchwyt „Zamknij okienko Meshugi” 412×30"
+    ],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   },
+   "600": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "768": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "820": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1024": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1280": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1440": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "1920": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [],
+    "kot": []
+   },
+   "844x390": {
+    "poziomy": [],
+    "pozaEkranem": [],
+    "nachodzi": [],
+    "uciete": [],
+    "dotyk": [],
+    "maly": [
+     ".kot__name > small „AI Chatbot cybersory” 13px",
+     "#kotPanel > p.kot__etykieta „szybkie pytania” 13px",
+     ".kot__czatuj > span.kot__czatujS „pełna aplikacja Meshugi ” 13px",
+     "#kotPanel > p.kot__note „Odpowiadam z treści stro” 13px"
+    ],
+    "kot": []
+   }
+  }
+ }
+}
