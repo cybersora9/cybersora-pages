@@ -2023,7 +2023,7 @@
      POWROT = jedno slowo nizej na true, nic wiecej.
      Powod praktyczny stoi w PLAN_STRONY: 32 z 38 przyciskow Gumroada prowadza
      w blad, wiec dzisiaj kazde wejscie na Produkty konczy sie bledem. */
-  /* 08.10: Produkty WRACAJA jako nasze programy do pobrania (SoraFlux, Pycodemath, DancyCloud,
+  /* 08.10: Produkty WRACAJA jako nasze programy do pobrania (Pycodemath, DancyCloud,
      Rodzina Sora wkrotce). Stary blok "Top produkty" na Starcie (Gumroad) zostaje schowany na stale. */
   const PRODUKTY_WIDOCZNE = true;
   document.querySelectorAll('[data-produkty]').forEach(el => { el.hidden = true; });
@@ -2248,7 +2248,7 @@
      Tresc Marketplace to zwykla lista w index.html ([data-soraos-tresc]); modul soraos.js
      (repo cybersora9/soraos) czyta ja i buduje nad nia komputer. Ladowany leniwie przy pierwszym
      wejsciu w widok. Brak pliku / blad = zostaje zwykla lista (to jest atrapa i zarazem fallback). */
-  const SORAOS_V = '20261103k';
+  const SORAOS_V = '20261105b';
   let soraosOS = null, soraosLaduje = null, soraosPomin = null;
   function soraosWidziany() {
     try { return sessionStorage.getItem('soraos:wpiety') === '1'; } catch (e) { return false; }
@@ -2278,7 +2278,12 @@
       mount(el, o) {
         let gra = null, rk = null;
         try { rk = window.DancyRanking.create({ api: DC_API, el: document.createElement('div'), onRank: (r) => { if (gra && gra.showRank) gra.showRank(r); } }); } catch (e) { rk = null; }
-        gra = DC.mount(el, Object.assign({}, o, rk ? { rankingApi: DC_API, onRunStart: rk.onRunStart, onRunEnd: rk.onRunEnd } : {}));
+        /* 04.11: wynik rundy idzie też na konto cybersory (konto.js słucha 'dancycloud:wynik') */
+        const koniec = (w) => {
+          try { if (w) window.dispatchEvent(new CustomEvent('dancycloud:wynik', { detail: { score: w.score } })); } catch (e) { /* ok */ }
+          return rk.onRunEnd(w);
+        };
+        gra = DC.mount(el, Object.assign({}, o, rk ? { rankingApi: DC_API, onRunStart: rk.onRunStart, onRunEnd: koniec } : {}));
         if (rk && gra && typeof gra.destroy === 'function') {
           const zniszcz = gra.destroy.bind(gra);
           gra.destroy = () => { try { rk.destroy(); } catch (e) { /* ok */ } return zniszcz(); };
@@ -2707,7 +2712,10 @@
   /* ===================== minimal cart — remembers picks locally, no checkout/payment yet ===================== */
   const CART_KEY = 'cybersora_cart';
   function cartLoad() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { return []; } }
-  function cartSave(items) { try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) {} }
+  function cartSave(items) {
+    try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) {}
+    window.dispatchEvent(new CustomEvent('cybersora:koszyk', { detail: { items: items.slice() } }));   // 04.11: konto zapisuje koszyk
+  }
   const cartItems = cartLoad().filter(i => i && typeof i.name === 'string' && Number.isFinite(Number(i.price)));
   /* 03.11: widok koszyka. Przycisk w pasku pojawia sie, gdy cos jest w koszyku; okno z lista, usuwaniem i suma;
      „Zamów” przenosi liste do formularza kontaktowego (Web3Forms), bez platnosci na stronie. */
@@ -2795,6 +2803,12 @@
     });
   }
   cartRender();
+  /* 04.11: konto (konto.js) podmienia koszyk po zalogowaniu/wylogowaniu; wczytujemy go na nowo w to samo miejsce */
+  window.addEventListener('cybersora:koszyk-wczytaj', () => {
+    const nowe = cartLoad().filter(i => i && typeof i.name === 'string' && Number.isFinite(Number(i.price)));
+    cartItems.splice(0, cartItems.length, ...nowe);
+    cartRender();
+  });
 
   /* ===================== Kontakt — form + live terminal preview, hands off to a formatted mailto ===================== */
   /* SZYBKOSC S2 (26.10): Kontakt i konfigurator nie startuja juz przy ladowaniu strony, tylko przy
@@ -2923,6 +2937,7 @@
           'h-captcha-response': fd.get('h-captcha-response') || ''
         });
         if (data.success) {
+          window.dispatchEvent(new CustomEvent('cybersora:wyslano', { detail: { temat: topicText } }));   // 04.11: konto zapisuje zamówienie
           body.innerHTML = '<span class="t-label">✔ WYSŁANO</span>\n\n' +
             'Dziękuję' + (fd.get('cname') ? ', ' + escapeHtml(fd.get('cname')) : '') + '. Odezwę się na ' +
             escapeHtml(fd.get('cemail') || '') + '.';
@@ -3472,12 +3487,14 @@
     };
 
     const escDemo = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    // 04.11: odpowiedź stoi przy awatarze Meshugi (kot z logo)
+    const ODP_START = '<span class="mesh-demo__odp"><img class="mesh-demo__ava" src="assety/kot-72.webp" width="28" height="28" alt=""><span class="mesh-demo__txt">';
 
     let pisanie = null;
     function zatrzymajPisanie() { if (pisanie) { clearTimeout(pisanie); pisanie = null; } }
 
     function pisz(tekst, i) {
-      if (i === 0) body.innerHTML += '<span id="somiDemoAns"></span><span class="t-cursor"></span>';
+      if (i === 0) body.innerHTML += ODP_START + '<span id="somiDemoAns"></span><span class="t-cursor"></span></span></span>';
       const ans = document.getElementById('somiDemoAns');
       if (!ans) return;
       ans.textContent = tekst.slice(0, i);
@@ -3498,7 +3515,7 @@
         zatrzymajPisanie();
         buttons.forEach((b) => b.classList.toggle('is-active', b === btn));
 
-        body.innerHTML = '<span class="t-muted">$ somi --zapytaj "' + escDemo(wpis.q) + '"</span>\n\n';
+        body.innerHTML = '<span class="t-muted">$ meshuga --zapytaj "' + escDemo(wpis.q) + '"</span>\n';
         // Ogloszenie dla czytnika ekranu idzie RAZEM, calym zdaniem — nie
         // czeka na koniec pisania po literce (patrz CSS .somi-demo__srlive).
         if (srlive) srlive.textContent = wpis.q + ' — ' + wpis.a;
@@ -3506,7 +3523,7 @@
         if (typeof window.SOMI_MOOD === 'function') window.SOMI_MOOD('thinking');
 
         if (reduce) {
-          body.innerHTML += escDemo(wpis.a);
+          body.innerHTML += ODP_START + escDemo(wpis.a) + '</span></span>';
           if (typeof window.SOMI_MOOD === 'function') window.SOMI_MOOD('calm');
           return;
         }
@@ -3517,6 +3534,44 @@
       });
     });
   })();
+
+  /* 04.11 maisa: scena Meshugi = żywy kot (meshuga-kot.js) zamiast kuli. meshuga-kot.js ładuje się
+     po app.js (defer), więc montujemy na DOMContentLoaded. Pytania z przykładowej rozmowy wołają
+     SOMI_MOOD (thinking → speaking → calm); tu ten hak steruje kotem i podpisem pod nim. */
+  document.addEventListener('DOMContentLoaded', () => {
+    const host = document.getElementById('meshScenaKot');
+    if (!host || !window.MeshugaKot) return;
+    const mk = document.createElement('span');
+    mk.className = 'mesh-scena__mk';
+    host.replaceChildren(mk);
+    const kot = window.MeshugaKot.mount(mk, { ring: true });
+    const scena = host.closest('.mesh-scena');
+    const btns = scena ? [...scena.querySelectorAll('.mesh-scena__btn')] : [];
+    const status = scena && scena.querySelector('.mesh-scena__status');
+    const OPIS = {
+      calm: ['spokój', 'czeka i mruga'],
+      thinking: ['myśli', 'wstęga krąży, oczy zmrużone'],
+      speaking: ['mówi', 'odpowiada w okienku rozmowy']
+    };
+    /* 04.11: „myśli” = ta sama wstęga co w aplikacji Meshugi (kot.mysli z meshuga-kot.js); stary moduł = mrużenie */
+    function stan(m) {
+      if (!OPIS[m]) m = 'calm';
+      if (kot.mysli) kot.mysli(m === 'thinking'); else kot.squint(m === 'thinking');
+      kot.slucha(m === 'speaking');
+      if (m === 'calm' && !kot.mysli) kot.flash();
+      btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.stan === m)));
+      if (status) {
+        status.querySelector('b').textContent = OPIS[m][0];
+        status.querySelector('.mesh-scena__opis').textContent = OPIS[m][1];
+      }
+    }
+    btns.forEach((b) => b.addEventListener('click', () => stan(b.dataset.stan)));
+    const poprzedni = window.SOMI_MOOD;
+    window.SOMI_MOOD = function (m) {
+      if (typeof poprzedni === 'function') { try { poprzedni(m); } catch (e) { /* stary hak nie może zatrzymać kota */ } }
+      stan(m);
+    };
+  });
 
   /* ===================== Produkty — category filter rail (catcard buttons) over one shared grid ===================== */
   document.querySelectorAll('.catgrid[role="tablist"]').forEach(bar => {
@@ -3792,25 +3847,6 @@
           { q: 'Gdzie go wziąć?', a: 'Z PyPI: pip install pycodemath (wersja 0.5.0, Python 3.11 lub nowszy). Kod jest otwarty, na licencji MIT: github.com/cybersora9/pycodemath. Od wersji 0.4.0 umie sprawdzić wynik i odpowiedzieć: potwierdzony, obalony z kontrprzykładem albo nierozstrzygnięty. Od 0.5.0 sprawdza też matematykę w kodzie: daje dowód albo przykład błędu.' },
         ],
       },
-      soraflux: {
-        nazwa: 'SoraFlux',
-        lead: 'Nasz konwerter na komputer. Zamienia wideo, dźwięk i obrazy na potrzebny format, pokazuje rozmiar wyniku przed startem i robi wszystko lokalnie, bez wysyłania plików do sieci.',
-        fakty: [
-          ['zakres', 'Wideo · audio · obrazy · GIF'],
-          ['wersja', '1.4.0 · Windows 10 i 11'],
-          ['silnik', 'Rust · Tauri 2 · ffmpeg'],
-          ['cena', 'Za darmo, do pobrania w Produktach'],
-        ],
-        zrzut: {
-          src: 'sadzonki/soraflux-konwertuj.webp', w: 1280, h: 860,
-          alt: 'SoraFlux, zakładka Konwertuj: gotowe ustawienia (Telefon 480p 25 fps, Discord 10 MB, WhatsApp 16 MB), lista plików, wybór formatu i przewidywany rozmiar wyniku 40 MB.',
-          podpis: 'Prawdziwy zrzut aplikacji w motywie cybersory, na przykładowych plikach.',
-        },
-        pytania: [
-          { q: 'Co potrafi?', a: 'Zmienia format wideo i dźwięku (MP4, MKV, WEBM, MP3, AAC, FLAC i inne), robi GIF-y z klipów i zmniejsza obrazy. Ustawisz rozdzielczość, liczbę klatek, jakość i bitrate, a gotowe zestawy, np. „Telefon 480p 25 fps” czy „Discord 10 MB”, robią to jednym kliknięciem.' },
-          { q: 'Kiedy i za ile?', a: 'Już teraz, za darmo: wersję 1.4.0 pobierzesz z zakładki Produkty na tej stronie. Pliki nie wychodzą z Twojego komputera i program nie zbiera żadnej telemetrii.' },
-        ],
-      },
       frostwall: {
         nazwa: 'Frostwall',
         lead: 'Nasza biblioteka licencyjna. Sprawdza licencję i odblokowuje chroniony kod bez łączenia się z żadnym serwerem.',
@@ -3828,7 +3864,7 @@
       },
       somi: {
         nazwa: 'Meshuga',
-        lead: 'Nasza asystentka AI. Rozmawiamy z nią w terminalu i na Discordzie, a mówiąc do niej głosem, dostajemy od niej gotowe rzeczy. Robi też research i pracuje jak agent: czyta pliki, pisze kod, uruchamia komendy.',
+        lead: 'Nasz asystent AI. Rozmawiamy z nim w terminalu i na Discordzie, a mówiąc do niego głosem, dostajemy od niego gotowe rzeczy. Robi też research i pracuje jak agent: czyta pliki, pisze kod, uruchamia komendy.',
         fakty: [
           ['gdzie', 'Terminal · Discord · rozmowa głosem'],
           ['modele', 'DeepSeek do rutyny · Claude do trudnych'],

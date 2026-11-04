@@ -9,26 +9,30 @@
   /* Punkty: bx, by, bw, bh = podświetlany obszar w % obrazu; numer stoi w jego lewym górnym rogu. */
   var TOURY = {
     salon: [
-      {id: 'pulpit', nazwa: 'Pulpit', img: 'oferta-v10/pulpit.webp', w: 1920, h: 1080, alt: 'SalonDesk: pulpit dnia z kafelkami kasy, wizyt, obłożenia i zobowiązań', pins: [
+      {id: 'pulpit', nazwa: 'Pulpit', img: 'oferta-v10/pulpit.webp', w: 1920, h: 1080, alt: 'SalonDesk: pulpit dnia z kafelkami kasy, wizyt, obłożenia i zobowiązań',
+        opis: 'Pierwszy ekran po otwarciu programu: kasa, wizyty, zespół i sprawy do decyzji na jednym widoku.', pins: [
         {bx: 13.3, by: 24.4, bw: 66, bh: 12.3, t: 'Cały dzień w czterech liczbach', d: 'Wpływ do kasy, wizyty dzisiaj, obłożenie gabinetów i zobowiązania z pakietów. Właścicielka widzi stan salonu od razu po otwarciu.', po: 'Zamiast przeglądać kasę, kalendarz i pakiety osobno, masz cały dzień w jednym rzędzie.'},
         {bx: 13.3, by: 38.3, bw: 66, bh: 18.8, t: 'Kto dziś pracuje i co ma następne', d: 'Lista zespołu z godzinami zmiany i najbliższą wizytą każdej osoby. Pracownik na urlopie albo z wolnym dniem jest oznaczony.', po: 'Wiesz, kto jest w pracy i co robi za chwilę, bez dzwonienia do zespołu.'},
         {bx: 80, by: 24.4, bw: 18.7, bh: 29.3, t: 'Rzeczy, które czekają na decyzję', d: 'Wnioski o zmianę grafiku, niepotwierdzone zapisy i braki w magazynie. Każda pozycja ma przycisk „Otwórz”.', po: 'Nic nie ginie w wiadomościach: wszystko, co czeka na Ciebie, jest na jednej liście.'},
         {bx: 80, by: 55.2, bw: 18.7, bh: 44.8, t: 'Pakiety klientek w toku', d: 'Kto ile zabiegów z pakietu już wykorzystał i do kiedy ważny jest karnet. Pasek postępu zamiast liczenia w zeszycie.', po: 'Salon nie traci pieniędzy na zapomnianych pakietach i nie spiera się z klientką o liczbę wizyt.'}
       ]},
-      {id: 'kalendarz', nazwa: 'Kalendarz', img: 'oferta-v10/kalendarz.webp', w: 1920, h: 1080, alt: 'SalonDesk: kalendarz dnia z kolumnami pracowników', pins: [
+      {id: 'kalendarz', nazwa: 'Kalendarz', img: 'oferta-v10/kalendarz.webp', w: 1920, h: 1080, alt: 'SalonDesk: kalendarz dnia z kolumnami pracowników',
+        opis: 'Dzień salonu z osobną kolumną dla każdej osoby z zespołu. Program sam pilnuje grafiku, przerw i uprawnień.', pins: [
         {bx: 24.5, by: 6.5, bw: 26, bh: 5.5, t: 'Podsumowanie dnia', d: 'Liczba wizyt, obsadzone gabinety i obłożenie w procentach, razem z godzinami otwarcia salonu.'},
         {bx: 60.7, by: 34, bw: 20.2, bh: 11.6, t: 'Wizyta poza grafikiem pracownika', d: 'Program zaznacza wizytę, której nie da się zrobić w godzinach tej osoby. Widać to, zanim klientka przyjdzie.'},
         {bx: 18, by: 54, bw: 20.2, bh: 3.9, t: 'Przerwa pracownika', d: 'Przerwa jest w kalendarzu jak wizyta, więc nikt nie wpisze klientki na ten czas.'},
         {bx: 18, by: 82.8, bw: 20.2, bh: 7.6, t: 'Brak uprawnień do zabiegu', d: 'Jeśli pracownik nie ma uprawnień do danego zabiegu, np. do epilacji laserowej, wizyta dostaje znacznik ostrzeżenia.'}
       ]},
-      {id: 'kasa', nazwa: 'Kasa', img: 'oferta-v10/kasa-rozliczenie.webp', w: 1920, h: 1080, alt: 'SalonDesk: kasa z cennikiem i paragonem', pins: [
+      {id: 'kasa', nazwa: 'Kasa', img: 'oferta-v10/kasa-rozliczenie.webp', w: 1920, h: 1080, alt: 'SalonDesk: kasa z cennikiem i paragonem',
+        opis: 'Cennik po lewej, paragon po prawej. Wizytę rozliczasz kilkoma kliknięciami.', pins: [
         {bx: 13.3, by: 13, bw: 66, bh: 80, t: 'Cennik jednym kliknięciem', d: 'Zabiegi i produkty pogrupowane po kategoriach, z ceną i czasem trwania. Klik dodaje pozycję do paragonu.'},
         {bx: 80.9, by: 39.7, bw: 17, bh: 4.8, t: 'Cztery formy płatności', d: 'Gotówka, karta, bon i pakiet. Jeden paragon można rozliczyć kilkoma formami naraz.'},
         {bx: 80.9, by: 51.6, bw: 17.5, bh: 8.8, t: 'Paragon zapisuje się w bazie salonu', d: 'Przycisk „Zamknij paragon” zamyka rozliczenie. Dane zostają w salonie, na tym komputerze.'}
       ]}
     ],
     moon: [
-      {id: 'blad', nazwa: 'Błąd w teście', img: 'zrzuty_projektow/moonsora.webp', w: 1600, h: 1000, alt: 'MoonSora: terminal z nieudanym testem i asystentem obok', pins: [
+      {id: 'blad', nazwa: 'Błąd w teście', img: 'zrzuty_projektow/moonsora.webp', w: 1600, h: 1000, alt: 'MoonSora: terminal z nieudanym testem i asystentem obok',
+        opis: 'Terminal w czasie pracy: test się wysypał, a asystent AI siedzi obok i pomaga znaleźć przyczynę.', pins: [
         {bx: 4.1, by: 50.5, bw: 45.5, bh: 17.3, t: 'Błąd jest widoczny od razu', d: 'Nieudany test jest podświetlony na czerwono, z kodem wyjścia. Nie trzeba szukać go w ścianie tekstu.'},
         {bx: 51.2, by: 32.5, bw: 14.2, bh: 17, t: 'Asystent obok terminala', d: 'Pytasz „dlaczego to się wysypało?”, a asystent odpowiada przy tym samym błędzie. Nie przełączasz się do innego okna.'},
         {bx: 37.7, by: 84, bw: 9.4, bh: 4.2, t: 'Zapytaj o błąd jednym przyciskiem', d: 'Zaznaczony fragment wyniku idzie do asystenta przyciskiem na dolnym pasku.'},
@@ -89,6 +93,85 @@
     pokazTab(0);
   }
 
+  /* 04.11 galeria (maisa: „zamiast punktów mała galeria ze slajdami i opisami”). Slajd 0 każdego ekranu = cały ekran,
+     dalej przybliżone fragmenty z czerwoną ramką i opisem. Okno 16:9, obraz jako tło: przejście między slajdami to płynny zoom. */
+  function galeria(box) {
+    var tabs = TOURY[box.getAttribute('data-tour')];
+    var kol = box.querySelector('.ov-kol'), tablist = box.querySelector('.ov-zakladki'), plansza = box.querySelector('.ov-plansza'), lista = box.querySelector('.ov-punkty');
+    var slajdy = [];
+    tabs.forEach(function (t, ti) {
+      new Image().src = t.img;   // wczytaj z góry, żeby zmiana ekranu nie migała
+      slajdy.push({ti: ti, t: t, p: null, k: 0});
+      t.pins.forEach(function (p, pi) { slajdy.push({ti: ti, t: t, p: p, k: pi + 1}); });
+    });
+    kol.setAttribute('role', 'region'); kol.setAttribute('aria-roledescription', 'galeria'); kol.setAttribute('aria-label', 'Galeria ekranów ' + box.querySelector('h3').textContent);
+    var okno = el('div', 'ov-gal-okno'); okno.setAttribute('role', 'img');
+    var ramka = el('div', 'ov-gal-ramka'); okno.appendChild(ramka);
+    plansza.textContent = ''; plansza.appendChild(okno);
+    var gal = el('div', 'ov-gal');
+    var opis = el('div', 'ov-gal-opis'); opis.setAttribute('aria-live', 'polite');
+    var poz = el('span', 'ov-gal-poz'), tyt = el('b'), tekst = el('p'), po = el('p', 'ov-gal-po');
+    opis.append(poz, tyt, tekst, po);
+    var ster = el('div', 'ov-gal-ster');
+    var prev = el('button', 'ov-btn', '←'), next = el('button', 'ov-btn', '→'), kropki = el('div', 'ov-gal-kropki');
+    prev.type = next.type = 'button'; prev.setAttribute('aria-label', 'Poprzedni slajd'); next.setAttribute('aria-label', 'Następny slajd');
+    ster.append(prev, kropki, next); gal.append(opis, ster);
+    lista.replaceWith(gal);
+    var zbtns = tabs.map(function (t, ti) {
+      var b = el('button', 'ov-zak'); b.textContent = t.nazwa; b.type = 'button'; b.setAttribute('role', 'tab');
+      b.addEventListener('click', function () { pokaz(slajdy.findIndex(function (s) { return s.ti === ti; })); });
+      tablist.appendChild(b); return b;
+    });
+    var cur = 0, rozdzial = -1;
+    function pokaz(i) {
+      cur = (i + slajdy.length) % slajdy.length;
+      var s = slajdy[cur], t = s.t, W = t.w, H = t.h, A = W / H, wx = 0, wy = 0, ww = W, wh = H;
+      okno.style.aspectRatio = W + ' / ' + H;   // okno w proporcjach zrzutu (SalonDesk 16:9, MoonSora 16:10)
+      if (s.p) {
+        var rx = s.p.bx / 100 * W, ry = s.p.by / 100 * H, rw = s.p.bw / 100 * W, rh = s.p.bh / 100 * H;
+        ww = Math.max(rw * 1.2, rh * 1.2 * A, W * 0.34); wh = ww / A;          // margines wokół fragmentu, bez przesadnego zoomu
+        if (ww > W) { ww = W; wh = W / A; } if (wh > H) { wh = H; ww = H * A; }
+        wx = Math.min(Math.max(rx + rw / 2 - ww / 2, 0), W - ww); wy = Math.min(Math.max(ry + rh / 2 - wh / 2, 0), H - wh);
+        ramka.style.left = ((rx - wx) / ww * 100) + '%'; ramka.style.top = ((ry - wy) / wh * 100) + '%';
+        ramka.style.width = (rw / ww * 100) + '%'; ramka.style.height = (rh / wh * 100) + '%';
+      }
+      ramka.hidden = !s.p;
+      okno.style.backgroundImage = 'url(' + t.img + ')';
+      okno.style.backgroundSize = (W / ww * 100) + '% auto';
+      okno.style.backgroundPosition = (W > ww ? wx / (W - ww) * 100 : 0) + '% ' + (H > wh ? wy / (H - wh) * 100 : 0) + '%';
+      okno.setAttribute('aria-label', s.p ? t.nazwa + ', przybliżenie: ' + s.p.t : t.alt);
+      poz.textContent = t.nazwa + (s.p ? ' · ' + s.k + ' z ' + t.pins.length : ' · cały ekran');
+      tyt.textContent = s.p ? s.p.t : t.nazwa;
+      tekst.textContent = s.p ? s.p.d : t.opis;
+      po.hidden = !(s.p && s.p.po); po.textContent = (s.p && s.p.po) || '';
+      zbtns.forEach(function (b, k) { b.setAttribute('aria-selected', k === s.ti ? 'true' : 'false'); });
+      if (rozdzial !== s.ti) {   // kropki tylko dla bieżącego ekranu (najwyżej 5), żeby mieściły się na telefonie
+        rozdzial = s.ti; kropki.textContent = '';
+        slajdy.forEach(function (q, k) {
+          if (q.ti !== s.ti) return;
+          var d = el('button'); d.type = 'button';
+          d.setAttribute('aria-label', q.t.nazwa + (q.p ? ': ' + q.p.t : ': cały ekran'));
+          d.addEventListener('click', function () { pokaz(k); });
+          kropki.appendChild(d);
+        });
+      }
+      Array.prototype.forEach.call(kropki.children, function (d, k) { d.setAttribute('aria-current', k === s.k ? 'true' : 'false'); });
+    }
+    prev.addEventListener('click', function () { pokaz(cur - 1); });
+    next.addEventListener('click', function () { pokaz(cur + 1); });
+    okno.addEventListener('click', function () { if (!przesuniete) pokaz(cur + 1); });
+    var x0 = null, przesuniete = false;
+    okno.addEventListener('pointerdown', function (e) { x0 = e.clientX; przesuniete = false; });
+    okno.addEventListener('pointerup', function (e) {
+      if (x0 === null) return; var dx = e.clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) { przesuniete = true; pokaz(cur + (dx < 0 ? 1 : -1)); }
+    });
+    kol.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); pokaz(cur + 1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); pokaz(cur - 1); }
+    });
+    pokaz(0);
+  }
+
   /* wykrój: obszar punktu z małym marginesem, powiększony jako tło */
   function wytnij(t, p) {
     var m = 2, x0 = Math.max(0, p.bx - m), y0 = Math.max(0, p.by - m * 1.6), x1 = Math.min(100, p.bx + p.bw + m), y1 = Math.min(100, p.by + p.bh + m * 1.6);
@@ -125,7 +208,7 @@
   dlg.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') krok(1); if (e.key === 'ArrowLeft') krok(-1); });
   dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
   dlg.addEventListener('close', function () { if (opener && document.contains(opener)) opener.focus(); });
-  root.querySelectorAll('[data-tour]').forEach(zbuduj);
+  root.querySelectorAll('[data-tour]').forEach(function (b) { b.hasAttribute('data-galeria') ? galeria(b) : zbuduj(b); });
 
   /* Pycodemath: wyniki skopiowane 1:1 z wywołania pycodemath 0.5.0 (PyPI), 02.11.2026. */
   var KOD_ZLY = '<span class="c"># sums.py: ma zsumować 1 + 2 + … + n</span>\ndef sum_to(n):\n    total = 0\n    for i in <span class="zle">range(n)</span>:\n        total += i\n    return total';

@@ -69,20 +69,6 @@
     "src/SoraOracle.Service/Watch/DownloadsWatcher.cs": 89
    }
   },
-  "soraflux": {
-   "commity": 23,
-   "tydzien": 23,
-   "ostatni": "2026-10-07T16:51:23+02:00",
-   "wersja": "1.4.0",
-   "linie": 7437,
-   "pliki": 42,
-   "klocki": {
-    "src-tauri/src/budowniczy/mod.rs": 722,
-    "src-tauri/src/kolejka.rs": 488,
-    "src-tauri/src/szacunek.rs": 255,
-    "src/motywy.ts": 272
-   }
-  },
   "skrypty": {
    "commity": 37,
    "tydzien": 26,

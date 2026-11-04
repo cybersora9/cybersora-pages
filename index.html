@@ -39,7 +39,7 @@
   "description": "Programy, aplikacje, skrypty i strony internetowe na zamówienie. Automatyzacje, aplikacje na komputer, wizytówki Google i audyty widoczności.",
   "founder": [
     { "@type": "Person", "name": "Patryk Gwóźdź", "jobTitle": "Założyciel, projektant i programista" },
-    { "@type": "Person", "name": "Wojtek Zięba", "jobTitle": "Programista, QA i optymalizacja" }
+    { "@type": "Person", "name": "Wojtek Zięba", "jobTitle": "Współzałożyciel, marketing manager i programista" }
   ],
   "areaServed": [
     { "@type": "City", "name": "Gorlice" },
@@ -1622,6 +1622,22 @@
   .step__body{display:flex;flex-direction:column;gap:.5rem;padding-top:.2rem;}
   .step__title{margin:0;font-size:var(--t-title);line-height:var(--lh-title);font-weight:600;letter-spacing:var(--ls-title);}
   .step__text{margin:0;max-width:var(--measure);font-size:var(--t-body);line-height:var(--lh-text);color:var(--muted-dark);}
+  /* 04.11 (maisa, wariant 1): „Jak pracujemy” = cztery kafle jak na Starcie. Treść tylko z obietnic Kontaktu. */
+  .jp-kafle{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;}
+  .jp-kafel{background:#17171d;border-radius:16px;padding:18px;display:grid;gap:10px;align-content:start;
+    box-shadow:inset 0 1px 0 rgba(246,242,243,.07),0 16px 34px -22px rgba(0,0,0,.8);}
+  .jp-czas{justify-self:start;font:500 13px/1 var(--mono);color:#f6f2f3;background:#1e1e26;border:1px solid #e11d33;border-radius:8px;padding:7px 10px;white-space:nowrap;}
+  .jp-kafel h3{margin:4px 0 0;display:flex;gap:10px;align-items:baseline;font-size:19px;line-height:1.25;font-weight:700;}
+  .jp-kafel h3 small{font:600 13px/1 var(--mono);color:var(--th-hot);}
+  .jp-kafel p{margin:0;font-size:15px;line-height:1.5;color:rgba(246,242,243,.82);}
+  .jp-stopka{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-top:22px;}
+  .jp-cta{display:inline-flex;align-items:center;min-height:52px;padding:0 20px;border-radius:12px;background:var(--th-solid,#d4132b);color:#fff;font-weight:600;text-decoration:none;}
+  .jp-cta:hover{background:#e11d33;}
+  .jp-cta:focus-visible{outline:2px solid #f6f2f3;outline-offset:3px;}
+  .jp-alt{color:rgba(246,242,243,.72);font-size:15px;text-decoration:underline;text-decoration-color:rgba(246,242,243,.3);text-underline-offset:4px;min-height:44px;display:inline-flex;align-items:center;}
+  .jp-alt:hover{text-decoration-color:var(--th-hot);}
+  @media (max-width:1000px){ .jp-kafle{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  @media (max-width:560px){ .jp-kafle{grid-template-columns:minmax(0,1fr);} }
 
   /* ---- footer ---- */
   /* ===================== MANIFEST — zmiana rytmu zaraz po hero =====================
@@ -2430,8 +2446,8 @@
     .view[data-view="start"] > .steps ~ .steps{contain-intrinsic-size:auto 570px;}
   }
 </style>
-<link rel="preload" href="views.css?v=20261030a" as="style" id="views-css">
-<noscript><link rel="stylesheet" href="views.css?v=20261030a"></noscript>
+<link rel="preload" href="views.css?v=20261105b" as="style" id="views-css">
+<noscript><link rel="stylesheet" href="views.css?v=20261105b"></noscript>
 </head>
 <body>
 
@@ -2557,12 +2573,12 @@
         <h2 class="nav__panelH">Co jest gdzie</h2>
         <div class="nav__tiles">
           <a class="nav__tile nav__tile--duo" href="#start" data-kot=""><b>Zapytaj Meshugę</b><span>Nasz AI Chatbot w prawym dolnym rogu. Podpowie, gdzie co jest, i odpowie na pytania o ceny i terminy.</span></a>
-          <a class="nav__tile nav__tile--duo" href="#meshuga" data-nav="somi"><b>Meshuga</b><span>Nasza asystentka AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
+          <a class="nav__tile nav__tile--duo" href="#meshuga" data-nav="somi"><b>Meshuga</b><span>Nasz asystent AI. Możesz zobaczyć, jak dziś odpowiada.</span></a>
           <a class="nav__tile nav__tile--duo" href="#soraos" data-nav="soraos"><b>SORA//OS</b><span>Nasz pulpit jak z gry: projekty, terminy, terminal i DancyCloud.</span></a>
           <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jesteśmy i co robimy, w skrócie.</span></a>
           <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Programy, aplikacje, strony i darmowy skan widoczności. Cennik usług z ceną z góry jest na drugiej karcie.</span></a>
           <a class="nav__tile" href="#products" data-nav="products"><b>Projekty</b><span>Nasze programy do pobrania za darmo oraz to, co dopiero rośnie w Sadzonkach.</span></a>
-          <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasza asystentka Meshuga. Szukamy też partnerów do projektów.</span></a>
+          <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasz asystent Meshuga. Szukamy też partnerów do projektów.</span></a>
           <a class="nav__tile" href="#contact" data-nav="contact"><b>Kontakt</b><span>Napisz, czego potrzebujesz. Na żywo widzisz, co do nas trafi.</span></a>
         </div>
       </div>
@@ -2626,16 +2642,16 @@
     <!-- CO ZROBILIŚMY (ov10). 02.11 makieta 3HxqCoRS5HUQmZWF2ragus, 03.11 przeniesione z Oferty na Start
          w miejsce manifestu, pasa projektów i scen Pycodemath (pliki pycodemath-sceny\ zostają). Jeden egzemplarz.
          Stara lista projektów w cenniku Oferty zostaje jako źródło dla SORA//OS, ukryta przez oferta-v10/ov10.css. -->
-    <link rel="stylesheet" href="oferta-v10/ov10.css?v=20261103a">
+    <link rel="stylesheet" href="oferta-v10/ov10.css?v=20261105b">
     <section class="ov10" id="zrobilismy" aria-labelledby="ov10-tytul">
       <div class="ov-wrap">
         <header class="ov-head">
           <p class="ov-et">Co zrobiliśmy</p>
           <h2 id="ov10-tytul">Zobacz programy, które zbudowaliśmy</h2>
-          <p class="ov-jak"><i>1</i>Kliknij numer, a zobaczysz ten fragment programu z bliska.</p>
+          <p class="ov-jak"><i>→</i>Przewijaj zdjęcia strzałkami, a zobaczysz fragmenty programów z bliska.</p>
         </header>
 
-        <article class="ov-duza" data-tour="salon" data-kod="SD">
+        <article class="ov-duza" data-tour="salon" data-kod="SD" data-galeria>
           <div class="ov-kol">
             <div class="ov-zakladki" role="tablist" aria-label="Ekrany SalonDesk"></div>
             <div class="ov-scena"><div class="ov-pasek"><i></i>salondesk.app<em>dane pokazowe</em></div><div class="ov-plansza"></div></div>
@@ -2687,16 +2703,17 @@
 
         <article class="ov-duza">
           <div class="ov-kol">
-            <div class="ov-kula">
-              <img src="assety/kula-plakat.webp" alt="Kula Meshugi" width="512" height="512" loading="lazy" decoding="async">
-              <p class="ov-mute">Kula pokazuje, co Meshuga właśnie robi: czeka, myśli, pracuje, mówi albo utknęła.</p>
-              <a class="ov-btn" href="#meshuga" data-nav="somi">Zobacz kulę Meshugi na żywo →</a>
+            <!-- 04.11 maisa: kula SOMI wyleciała, w jej miejscu Meshuga (wektor z kot-awatar\meshuga.svg, nacięte ucho = Meshuga) -->
+            <div class="ov-kula ov-meshuga">
+              <img class="ov-meshuga__logo" src="assety/kot-320.webp" alt="Meshuga, kot z logo cybersory" width="320" height="320" loading="lazy" decoding="async">
+              <p class="ov-mute">Meshuga odpowiada na pytania o ceny i terminy. Jest w prawym dolnym rogu strony.</p>
+              <a class="ov-btn" href="#start" data-kot="">Zapytaj Meshugę →</a>
             </div>
           </div>
           <div class="ov-tresc">
             <span class="ov-znacznik">działa codziennie</span>
             <h3>Meshuga</h3>
-            <p class="ov-lead">Asystentka AI, która pracuje z nami każdego dnia.</p>
+            <p class="ov-lead">Asystent AI, który pracuje z nami każdego dnia.</p>
             <ul class="ov-efekty">
               <li>Prowadzi bota społeczności na Discordzie całą dobę</li>
               <li>Mówi głosem i pracuje z nami w terminalu</li>
@@ -2706,37 +2723,91 @@
             <details><summary>Pokaż historię projektu</summary>
               <div class="ov-hist">
                 <p><b>Problem</b><span>Serwer społeczności trzeba pilnować całą dobę, a powtarzalnej roboty przy kodzie jest za dużo na dwie osoby.</span></p>
-                <p><b>Co zbudowaliśmy</b><span>Asystentkę AI: prowadzi bota społeczności, mówi głosem i pracuje z nami w terminalu. Kula pokazuje, co robi.</span></p>
+                <p><b>Co zbudowaliśmy</b><span>Asystenta AI: prowadzi bota społeczności, mówi głosem i pracuje z nami w terminalu.</span></p>
                 <p><b>Wynik</b><span>Bot odpowiada i powiadamia całą dobę.</span></p>
               </div>
             </details>
           </div>
           <section class="ov-dok" aria-label="Dokumentacja Meshugi">
             <details class="ov-zw" open><summary>Dokumentacja: moduły, mocne i słabe strony</summary><div class="ov-dok-in">
-              <div class="ov-moduly">
-                <div class="ov-modul"><span class="kd">MSH-RAD</span><h4>Radar zleceń</h4><p>Co 10 minut sprawdza nowe zlecenia na Useme, ocenia dopasowanie i wysyła je na Discorda bez powtórek.</p></div>
-                <div class="ov-modul"><span class="kd">MSH-AGT</span><h4>Agent z narzędziami</h4><p>Czyta i pisze pliki, tworzy i uruchamia skrypty. Polecenia systemowe wykonuje dopiero po zgodzie człowieka.</p></div>
-                <div class="ov-modul"><span class="kd">MSH-AH</span><h4>AstralHeart, samonaprawa</h4><p>Szuka plików, które padają, proponuje poprawkę i puszcza testy. Gdy coś pęknie, cofa zmianę.</p></div>
-                <div class="ov-modul"><span class="kd">MSH-MAT</span><h4>Most do Pycodemath</h4><p>Matematykę liczy silnik Pycodemath, a nie model językowy na oko.</p></div>
+              <!-- 04.11 maisa: wszystkie moduły opisane technicznie, statyczna mapa zamiast kwadracików. Fakty z kodu SOMI
+                   (raport 04.11: discord_bot.py, cogs/, modules/, flagi.toml, bramka 31.10). Radar opisany ogólnie, bez nazw serwisów
+                   i szczegółów technicznych. Moduły off/cień w flagi.toml mają znacznik „w testach”. -->
+              <div class="ov-mapa">
+                <dl class="ov-mapa__liczby">
+                  <div><dt>komend w bocie roboczym</dt><dd>~44</dd></div>
+                  <div><dt>komend w bocie społeczności</dt><dd>38</dd></div>
+                  <div><dt>testów automatycznych (31.10)</dt><dd>1 619</dd></div>
+                  <div><dt>przegląd nowych zleceń</dt><dd>co 10 min</dd></div>
+                </dl>
+                <div class="ov-mapa__dzialy">
+                  <section class="ov-dzial">
+                    <h4><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>Agent i narzędzia</h4>
+                    <ul>
+                      <li><span class="kd">MSH-AGT</span><b>Pętla agenta</b><p>Model AI z narzędziami do plików i poleceń. Działa tylko w wydzielonym folderze roboczym, a każda akcja trafia do dziennika.</p></li>
+                      <li><span class="kd">MSH-RTR</span><b>Router modeli</b><p>Dobiera model do rodzaju zadania. Bramka do API pilnuje budżetu, pamięci podręcznej i ponowień.</p></li>
+                      <li><span class="kd">MSH-RES</span><b>Research i MCP</b><p>Research z cytatami źródeł. Nowe narzędzia podpina się przez MCP, bez przebudowy rdzenia.</p></li>
+                    </ul>
+                  </section>
+                  <section class="ov-dzial">
+                    <h4><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>Pamięć</h4>
+                    <ul>
+                      <li><span class="kd">MSH-PAM</span><b>Pamięć długoterminowa</b><p>Szuka po słowach i po znaczeniu (pełnotekstowo i wektorowo). Rozmowa przeżywa restart programu.</p></li>
+                      <li><span class="kd">MSH-PRJ</span><b>Pamięć projektu</b><p>Trwałe fakty o projekcie trafiają do każdego zadania, więc nie trzeba ich powtarzać.</p></li>
+                      <li><span class="kd">MSH-SEN</span><b>Sen</b><p>Nocą porządkuje i scala zapisane wspomnienia.</p></li>
+                    </ul>
+                  </section>
+                  <section class="ov-dzial">
+                    <h4><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5M11 7.5v3.5l2.5 1.5"/></svg>Zlecenia i rynek</h4>
+                    <ul>
+                      <li><span class="kd">MSH-RAD</span><b>Radar zleceń</b><p>Co 10 minut przegląda publiczne ogłoszenia w serwisach ze zleceniami, spokojnym tempem. Ocenia dopasowanie do tego, co robimy, odrzuca powtórki i wysyła najlepsze na Discorda.</p></li>
+                      <li><span class="kd">MSH-RYN</span><b>Rynek i wycena</b><p>Trendy i raport tygodniowy, wstępna wycena zlecenia i rejestr wysłanych ofert z ich wynikiem.</p></li>
+                    </ul>
+                  </section>
+                  <section class="ov-dzial">
+                    <h4><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M8 10h8M8 13h5"/></svg>Discord</h4>
+                    <ul>
+                      <li><span class="kd">MSH-DSC</span><b>Bot roboczy</b><p>Około 44 komend: radar i oferty, rynek, sondy, decyzje i porządek na serwerze. 11 typów kanałów, każdy strumień ma swój.</p></li>
+                      <li><span class="kd">MSH-COM</span><b>Bot społeczności</b><p>38 komend: ekonomia, poziomy i ranking, reputacja, gangi, statystyki i muzyka.</p></li>
+                    </ul>
+                  </section>
+                  <section class="ov-dzial">
+                    <h4><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Bezpieczeństwo i zgody</h4>
+                    <ul>
+                      <li><span class="kd">MSH-ZGD</span><b>Tryby autonomii</b><p>Polecenia systemowe, wydatki i wysyłki przechodzą dopiero po zgodzie człowieka. Dolnego progu zabezpieczeń nie da się obniżyć.</p></li>
+                      <li><span class="kd">MSH-COF</span><b>Cofanie i sejf</b><p>Każdą turę pracy można cofnąć w całości. Klucze leżą w szyfrowanym sejfie.</p></li>
+                      <li><span class="kd">MSH-INJ</span><b>Odporność na wstrzykiwanie poleceń</b><p>W pomiarze na 1 046 próbach udało się 1,8% ataków. To jeden pomiar, powtarzamy go.</p></li>
+                    </ul>
+                  </section>
+                  <section class="ov-dzial">
+                    <h4><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17v3h3l5.2-5.2a4 4 0 0 0 5.3-5.3l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>Samonaprawa i matematyka</h4>
+                    <ul>
+                      <li><span class="kd">MSH-AH</span><b>AstralHeart</b><p>Co godzinę opisuje, co jest zepsute i gdzie. Poprawki proponuje i sprawdza testami.</p><em>w testach</em></li>
+                      <li><span class="kd">MSH-MAT</span><b>Most do Pycodemath</b><p>Matematykę liczy silnik Pycodemath (SymPy i NumPy), a nie model językowy na oko. Limit 30 s na zadanie.</p></li>
+                      <li><span class="kd">MSH-TRM</span><b>Terminal i kula</b><p>Terminal w stylu Claude Code z jednym rejestrem komend. Animowana kula pokazuje, co Meshuga właśnie robi.</p></li>
+                    </ul>
+                  </section>
+                </div>
               </div>
               <div class="ov-bilans">
                 <div class="ov-bil plus"><h4>Mocne strony</h4><ul>
                   <li><span>Wydatki i wysyłki zawsze wymagają zgody człowieka</span></li>
                   <li><span>Plik psuty kilka razy z rzędu trafia do kwarantanny, a nie pod kolejną łatkę</span></li>
-                  <li><span>Ponad 600 testów automatycznych</span></li>
+                  <li><span>Ponad 1 600 testów automatycznych</span></li>
                   <li><span>Alarm na Discordzie, gdy radar przez 6 godzin nie widzi żadnej oferty</span></li>
                 </ul></div>
                 <div class="ov-bil minus"><h4>Nad czym pracujemy</h4><ul>
                   <li><span>Nowy układ kanałów na serwerze Discord czeka na wdrożenie</span><em class="toku">w toku</em></li>
                   <li><span>Łatki z samonaprawy zatwierdza człowiek, pełna autonomia dopiero po zebraniu historii</span><em class="toku">w toku</em></li>
-                  <li><span>Na razie tylko Useme, inne serwisy ze zleceniami są wyłączone</span><em>planowane</em></li>
+                  <li><span>Radar obsługuje na razie jeden serwis ze zleceniami</span><em>planowane</em></li>
+                  <li><span>Głos ElevenLabs i część modułów nowej generacji są jeszcze w testach</span><em class="toku">w toku</em></li>
                 </ul></div>
               </div>
             </div></details>
           </section>
         </article>
 
-        <article class="ov-duza" data-tour="moon" data-kod="MS">
+        <article class="ov-duza" data-tour="moon" data-kod="MS" data-galeria>
           <div class="ov-kol">
             <div class="ov-zakladki" role="tablist" aria-label="Ekrany MoonSora" hidden></div>
             <div class="ov-scena"><div class="ov-pasek"><i></i>moonsora.exe<em>zrzut z pracy</em></div><div class="ov-plansza"></div></div>
@@ -2837,7 +2908,6 @@
         <div>
           <p class="ov-et" style="margin-bottom:12px">Pozostałe projekty</p>
           <div class="ov-kafle">
-            <article class="ov-kafel"><div class="ov-mini"><img src="zrzuty_projektow/soraflux.webp" alt="SoraFlux: zakładka Konwertuj" width="1280" height="860" loading="lazy" decoding="async"></div><span class="ov-znacznik">za darmo</span><h3>SoraFlux</h3><p class="ov-mute">Konwerter wideo, dźwięku i obrazów. Działa na Twoim komputerze, bez wysyłania plików.</p><a href="#products" data-nav="products">Pobierz w Produktach</a></article>
             <article class="ov-kafel"><div class="ov-mini"><svg viewBox="0 0 160 100" role="img" aria-label="Znak Rodziny Sora"><rect width="160" height="100" fill="#0e0e12"/><path d="M58 18H120V70L108 82H40V30Z" fill="#17171d"/><path d="M66 30H80V70H66Z" fill="#e11d33"/><path d="M86 30H112V58H86Z" fill="#f6f2f3"/><path d="M86 62H112V70H86Z" fill="#f6f2f3"/></svg></div><span class="ov-znacznik">wkrótce</span><h3>Rodzina Sora</h3><p class="ov-mute">Cztery darmowe programy na wspólnym rdzeniu: zdjęcia, zrzuty ekranu, PDF i e-booki.</p><a href="#products" data-nav="products">Zobacz w Produktach</a></article>
             <article class="ov-kafel"><div class="ov-mini"><img src="zrzuty_projektow/sora-oracle.webp" alt="Sora Oracle: stan wyjściowy usługi" width="1600" height="1000" loading="lazy" decoding="async"></div><span class="ov-znacznik">wczesny etap</span><h3>Sora Oracle</h3><p class="ov-mute">Antywirus z lokalnym AI, bez chmury.</p></article>
             <article class="ov-kafel"><div class="ov-mini"><svg viewBox="0 0 160 100" role="img" aria-label="Znak: nawiasy kodu i robot"><rect width="160" height="100" fill="#0e0e12"/><polygon points="44,26 58,26 30,50 58,74 44,74 16,50" fill="#e11d33"/><polygon points="116,26 102,26 130,50 102,74 116,74 144,50" fill="#e11d33"/><rect x="78" y="24" width="4" height="10" fill="#f6f2f3"/><rect x="77" y="19" width="6" height="6" fill="#ff3a52"/><rect x="64" y="34" width="32" height="32" rx="6" fill="#f6f2f3"/><rect x="69" y="44" width="6" height="8" fill="#e11d33"/><rect x="85" y="44" width="6" height="8" fill="#e11d33"/><rect x="70" y="58" width="20" height="3" fill="#0e0e12"/></svg></div><span class="ov-znacznik">pracują u nas</span><h3>Skrypty i roboty</h3><p class="ov-mute">Najwięcej daje audyt widoczności: mierzy stronę firmy pod Google i składa raport.</p><a href="#contact" data-nav="contact" data-konf="mikro">Zapytaj o podobne</a></article>
@@ -2859,7 +2929,7 @@
         </div>
       </dialog>
     </section>
-    <script src="oferta-v10/ov10.js" defer></script>
+    <script src="oferta-v10/ov10.js?v=20261105b" defer></script>
 
     <section class="services" aria-label="Top produkty" data-produkty>
       <div class="services__inner">
@@ -2931,31 +3001,34 @@
       <div class="steps__inner">
         <div class="services__head">
           <div class="services__eyebrow" data-hex="0x71A9">jak pracujemy</div>
-          <h2 class="services__title">Trzy kroki do wdrożenia</h2>
+          <h2 class="services__title">Co się dzieje po Twojej wiadomości</h2>
         </div>
-        <ol class="steps__list">
-          <li class="step">
-            <span class="step__num">01</span>
-            <div class="step__body">
-              <h3 class="step__title">Brief i wycena</h3>
-              <p class="step__text">Opisz projekt w kilku zdaniach. Wracamy z konkretem zwykle w 24 godziny, najdalej w 2 dni robocze: zakres, termin, cena.</p>
-            </div>
+        <ol class="jp-kafle">
+          <li class="jp-kafel">
+            <span class="jp-czas">dziś</span>
+            <h3><small>1</small>Piszesz</h3>
+            <p>Dwa zdania o tym, co chcesz zrobić albo co Cię spowalnia. Możesz też wyklikać zakres w konfiguratorze.</p>
           </li>
-          <li class="step">
-            <span class="step__num">02</span>
-            <div class="step__body">
-              <h3 class="step__title">Projekt + kod</h3>
-              <p class="step__text">Projektujemy i kodujemy równolegle — podgląd na żywo w trakcie prac, bez niespodzianek na końcu.</p>
-            </div>
+          <li class="jp-kafel">
+            <span class="jp-czas">zwykle 24 h · max 2 dni rob.</span>
+            <h3><small>2</small>Odpisujemy</h3>
+            <p>Bierzemy, dopytujemy albo odmawiamy z krótkim powodem. Jeśli bierzemy, dostajesz wiążącą cenę.</p>
           </li>
-          <li class="step">
-            <span class="step__num">03</span>
-            <div class="step__body">
-              <h3 class="step__title">Wdrożenie i wsparcie</h3>
-              <p class="step__text">Wdrażamy, mierzymy i zostajemy w kontakcie. Narzędzie ma działać u Ciebie, nie tylko na prezentacji.</p>
-            </div>
+          <li class="jp-kafel">
+            <span class="jp-czas">bez zobowiązań</span>
+            <h3><small>3</small>Decydujesz</h3>
+            <p>Ruszamy dopiero po Twoim „tak”. Wtedy ustalamy termin i płatność. Odmowa nic nie kosztuje.</p>
+          </li>
+          <li class="jp-kafel">
+            <span class="jp-czas">po odbiorze · 14 dni</span>
+            <h3><small>4</small>Odbierasz</h3>
+            <p>Dostajesz kod i instrukcję, a przez 14 dni poprawiamy bezpłatnie.</p>
           </li>
         </ol>
+        <div class="jp-stopka">
+          <a class="jp-cta" href="#contact" data-nav="contact">Opisz projekt &rarr;</a>
+          <a class="jp-alt" href="#contact" data-nav="contact" data-topic="Audyt widoczności">albo zacznij od darmowego skanu widoczności</a>
+        </div>
       </div>
     </section>
   </section>
@@ -3152,8 +3225,8 @@ kasa.dodaj(zapis, kwota)</code></pre>
               <li data-id="somi" data-plik="somi.ai" data-usluga="bot" data-znacznik="działa codziennie">
                 <article data-roboczy>
                   <h3>Meshuga</h3>
-                  <p data-pole="krotko">Asystentka AI: agent, terminal, bot, głos</p>
-                  <p data-pole="lead">Nasza asystentka AI. Prowadzi bota społeczności, mówi głosem i pracuje w terminalu razem z nami.</p>
+                  <p data-pole="krotko">Asystent AI: agent, terminal, bot, głos</p>
+                  <p data-pole="lead">Nasz asystent AI. Prowadzi bota społeczności, mówi głosem i pracuje w terminalu razem z nami.</p>
                   <figure data-pole="zrzut"><picture><source srcset="zrzuty_projektow/somi.webp" type="image/webp"><img src="zrzuty_projektow/somi.png" alt="Meshuga: największe klocki i ostatnie commity" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
                   <pre data-pole="kod" data-zrodlo="discord_bot.py"><code>async def watch_loop()
 def parse_watchdog_line(line: str)
@@ -3242,36 +3315,6 @@ generuj_kod(wzor)</code></pre>
                     </li>
                   </ul>
                   <a href="#contact" data-nav="contact" data-konf="skrypt">Zapytaj o podobne</a>
-                </article>
-              </li>
-              <li data-id="soraflux" data-plik="soraflux.exe" data-usluga="app" data-znacznik="za darmo">
-                <article data-roboczy>
-                  <h3>SoraFlux</h3>
-                  <p data-pole="krotko">Konwerter wideo, audio i obrazów na komputer</p>
-                  <p data-pole="lead">Zamienia wideo, dźwięk i obrazy na potrzebny format: MP4 na telefon, MP3 z filmu, GIF z klipu. Sam pilnuje rozmiaru pliku i działa w całości na Twoim komputerze. Za darmo, do pobrania w zakładce Produkty.</p>
-                  <figure data-pole="zrzut"><picture><source srcset="zrzuty_projektow/soraflux.webp" type="image/webp"><img src="zrzuty_projektow/soraflux.png" alt="SoraFlux: zakładka Konwertuj z gotowymi ustawieniami i przewidywanym rozmiarem wyniku" width="1280" height="860" loading="lazy" decoding="async"></picture></figure>
-                  <pre data-pole="kod" data-zrodlo="src-tauri/src/"><code>plan(media, profil, wejscie, wyjscie)
-bitrate_z_rozmiaru(mb, czas_s, kbps_audio)
-kolejka.dodaj(nowe_zadanie)</code></pre>
-                  <h4>Gotowe klocki</h4>
-                  <ul data-pole="klocki">
-                    <li data-sciezka="src-tauri/src/budowniczy/mod.rs" data-linie="722" data-uslugi="app skrypt">
-                      <h5>Kreator poleceń ffmpeg</h5>
-                      <p data-pole="co">Zamienia wybrane ustawienia na gotowe polecenie dla ffmpeg.</p>
-                      <p data-pole="dla">Dla Ciebie: obróbka nagrań jednym kliknięciem, bez znajomości ffmpeg.</p>
-                    </li>
-                    <li data-sciezka="src-tauri/src/kolejka.rs" data-linie="488" data-uslugi="app">
-                      <h5>Kolejka zadań</h5>
-                      <p data-pole="co">Kilka plików naraz, z anulowaniem i bez śmieci po przerwanym zadaniu.</p>
-                      <p data-pole="dla">Dla Ciebie: hurtowa obróbka setek plików w tle.</p>
-                    </li>
-                    <li data-sciezka="src-tauri/src/szacunek.rs" data-linie="255" data-uslugi="app mikro">
-                      <h5>Przewidywany rozmiar</h5>
-                      <p data-pole="co">Pokazuje rozmiar pliku wynikowego, zanim konwersja ruszy.</p>
-                      <p data-pole="dla">Dla Ciebie: plik zmieści się w limicie maila czy komunikatora za pierwszym razem.</p>
-                    </li>
-                  </ul>
-                  <a href="#contact" data-nav="contact" data-konf="app">Zapytaj o podobne</a>
                 </article>
               </li>
               <!-- RODZINA SORA (17.10, teksty zaakceptowane przez maise): opisy Foto/Shot/PDF z kafli w Produktach; linie = git ls-files sora-rodzina 5dc16f7 bez testow. Przy wydaniu apki zmienic data-znacznik i link. -->
@@ -3429,50 +3472,28 @@ def fetch_offer_detail(url)</code></pre>
        generator gen_znaki.py — tu tylko <symbol>-e z tych samych bryl). Polka: jeden produkt na scenie
        (nowa premiera = podmiana .pr-hit), pod nim filtry i siatka kafli (nowy produkt = jeden kafel).
        Instalator lezy w pobierz/ (cybersora-pages); przy nowej wersji zmienic: href (2x), wersje, rozmiar i SHA-256.
-       SoraSub NIE ma kafla: to tryb "Napisy" w SoraFluxie (ADR-08 Rodziny Sora). Platne = przez Kontakt. -->
+       Platne = przez Kontakt. -->
   <section class="view" data-view="products" aria-label="Produkty" hidden>
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="zn-soraflux" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 26H38L72 60L38 94H18L52 60Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M48 26H68L102 60L68 94H48L82 60Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorafoto" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M34 18H102V86L86 102H18V34ZM38.6 29H91V81.4L81.4 91H29V38.6Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M31 88L51 58L63 73L71 63L84 88Z" fill="#e11d33" fill-rule="evenodd"/><path d="M76 34L83 41L76 48L69 41Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorashot" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 48V30L30 18H48V30H35L30 35V48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M72 18H90L102 30V48H90V35L85 30H72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M102 72V90L90 102H72V90H85L90 85V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M48 102H30L18 90V72H30V85L35 90H48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M40 51H90L80 69H30Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorapdf" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M28 14H54V52H92V106H28ZM40 62V70H80V62ZM40 76V84H80V76ZM40 90V98H64V90Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 14L92 46H60Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-dancycloud" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 72V60L28 50H36V46L48 34H58L66 26H80L92 38V48L102 58V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 80L76 100H65L60 93L55 100H44Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-pycodemath" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><g transform="translate(6.6 26.7) scale(.57)"><g fill="none" stroke-linecap="round" stroke-width="12"><path d="M68,20 C69,11 57,12 55,23 C51,40 54,50 46,62 C38,74 41,82 36,94 C33,105 22,105 20,95" stroke="#e11d33"/><path d="M96,44 L120,63 L96,82" stroke="#f6f2f3" stroke-linejoin="round"/></g><rect x="138" y="76" width="30" height="12" fill="#e11d33"/></g></symbol></svg>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="zn-sorafoto" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M34 18H102V86L86 102H18V34ZM38.6 29H91V81.4L81.4 91H29V38.6Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M31 88L51 58L63 73L71 63L84 88Z" fill="#e11d33" fill-rule="evenodd"/><path d="M76 34L83 41L76 48L69 41Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorashot" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 48V30L30 18H48V30H35L30 35V48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M72 18H90L102 30V48H90V35L85 30H72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M102 72V90L90 102H72V90H85L90 85V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M48 102H30L18 90V72H30V85L35 90H48Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M40 51H90L80 69H30Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-sorapdf" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M28 14H54V52H92V106H28ZM40 62V70H80V62ZM40 76V84H80V76ZM40 90V98H64V90Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 14L92 46H60Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-dancycloud" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><path d="M18 72V60L28 50H36V46L48 34H58L66 26H80L92 38V48L102 58V72Z" fill="#f6f2f3" fill-rule="evenodd"/><path d="M60 80L76 100H65L60 93L55 100H44Z" fill="#e11d33" fill-rule="evenodd"/></symbol><symbol id="zn-pycodemath" viewBox="0 0 120 120"><path d="M18 0H120V102L102 120H0V18Z" fill="#17171d"/><g transform="translate(6.6 26.7) scale(.57)"><g fill="none" stroke-linecap="round" stroke-width="12"><path d="M68,20 C69,11 57,12 55,23 C51,40 54,50 46,62 C38,74 41,82 36,94 C33,105 22,105 20,95" stroke="#e11d33"/><path d="M96,44 L120,63 L96,82" stroke="#f6f2f3" stroke-linejoin="round"/></g><rect x="138" y="76" width="30" height="12" fill="#e11d33"/></g></symbol></svg>
     <div class="hero">
       <div class="overlay">
         <nav class="vswitch" aria-label="Projekty"><a href="#products" data-nav="products">Gotowe, do pobrania</a><a href="#rnd" data-nav="rnd">W budowie</a></nav>
         <div class="eyebrow">produkty &middot; do pobrania</div>
         <h1 class="slogan">NASZE PROGRAMY<span class="thin">pobierasz i używasz, bez konta</span></h1>
         <p class="stub">To, co zbudowaliśmy dla siebie, oddajemy dalej. Pobierasz prosto z tej strony.</p>
-        <a class="cta-big" href="#products" data-pr-przewin="pr-soraflux">Pobierz SoraFlux &darr;</a>
+        <a class="cta-big" href="#products" data-pr-przewin="pr-soraczytnik">Zobacz programy &darr;</a>
       </div>
     </div>
 
     <section class="services pr" aria-label="Nasze programy">
       <div class="services__inner">
-        <article class="pr-hit" id="pr-soraflux" aria-labelledby="pr-soraflux-h">
+        <!-- 04.11: poprzedni produkt zdjęty ze strony (repo prywatne). Do premiery SoraEbookReadera sama zapowiedź; karta ze zrzutami w sesji 11. -->
+        <article class="pr-hit pr-hit--zapowiedz" id="pr-soraczytnik" aria-labelledby="pr-soraczytnik-h">
           <div class="pr-hit__txt">
-            <span class="card__tag">nowość &middot; Windows &middot; za darmo</span>
-            <h2 class="pr-hit__h" id="pr-soraflux-h"><svg class="pr-hit__ik" aria-hidden="true" focusable="false"><use href="#zn-soraflux"/></svg><span>Sora<b>Flux</b></span></h2>
-            <p class="card__body">Konwerter wideo, dźwięku i obrazów. MP4 na telefon, MP3 z filmu, GIF z klipu i plik „zmniejsz do 25 MB” z gotowych ustawień. Wszystko dzieje się na Twoim komputerze: bez wysyłania plików, limitów i reklam.</p>
-            <ul class="pr-hit__lista">
-              <li>szybkie akcje: na telefon, wyciągnij MP3, zrób GIF, wytnij fragment</li>
-              <li>podgląd przed i po, zanim zaczniesz</li>
-              <li>nigdy nie nadpisuje oryginału, zero telemetrii</li>
-            </ul>
-            <div class="pr-hit__akcje">
-              <a class="cta-big" href="pobierz/SoraFlux_1.4.0_x64-setup.exe" download data-pr-pobierz="soraflux">Pobierz SoraFlux 1.4.0 &darr;</a>
-              <a class="cta-outline" href="https://github.com/cybersora9/soraflux" target="_blank" rel="noopener">Kod na GitHubie &#8599;</a>
-            </div>
-            <dl class="pr-meta">
-              <div><dt>wersja</dt><dd>1.4.0</dd></div>
-              <div><dt>system</dt><dd>Windows 10 i 11, 64-bit</dd></div>
-              <div><dt>plik</dt><dd>3,5 MB, instalator .exe</dd></div>
-            </dl>
-            <details class="pr-info">
-              <summary>Windows pokazuje „System Windows ochronił ten komputer”?</summary>
-              <p>To normalne dla nowych programów bez płatnego podpisu cyfrowego. Kliknij <b>Więcej informacji</b>, a potem <b>Uruchom mimo to</b>. Przy pierwszym uruchomieniu SoraFlux zaproponuje pobranie ffmpeg (silnika konwersji) z oficjalnego źródła.</p>
-              <p>Chcesz sprawdzić, czy plik jest nasz? W PowerShellu wpisz <code>Get-FileHash .\SoraFlux_1.4.0_x64-setup.exe</code>. Wynik powinien być taki:</p>
-              <code class="pr-sha">C6F3A9856AD0D3A6482A8698E20BBDAE1E3AA10D5223F0FDCF4EB62A4FF2CBA1</code>
-            </details>
+            <span class="card__tag">premiera &middot; 8 listopada 2026</span>
+            <h2 class="pr-hit__h" id="pr-soraczytnik-h"><span>Sora<b>EbookReader</b></span></h2>
+            <p class="card__body">Nasz czytnik e-booków. Wychodzi w niedzielę, 8 listopada.</p>
           </div>
-          <figure class="pr-hit__shot">
-            <picture><source srcset="zrzuty_projektow/soraflux.webp" type="image/webp"><img src="zrzuty_projektow/soraflux.png" alt="SoraFlux: zakładka Konwertuj z gotowymi ustawieniami i przewidywanym rozmiarem wyniku" width="1280" height="860" loading="lazy" decoding="async"></picture>
-          </figure>
         </article>
 
         <div class="pr-filtry" role="group" aria-label="Pokaż programy">
@@ -3483,15 +3504,6 @@ def fetch_offer_detail(url)</code></pre>
           <button type="button" data-pr-f="soon" aria-pressed="false">Wkrótce</button>
         </div>
         <div class="pr-siatka">
-          <article class="pr-k" data-pr-typ="win">
-            <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-soraflux"/></svg>
-            <div class="pr-k__txt">
-              <h3 class="pr-k__h">SoraFlux</h3>
-              <span class="card__tag">Windows &middot; za darmo</span>
-              <p>Konwerter wideo, dźwięku i obrazów. MP4 na telefon, MP3 z filmu, GIF z klipu.</p>
-            </div>
-            <div class="pr-k__dol"><a class="card__go" href="pobierz/SoraFlux_1.4.0_x64-setup.exe" download>Pobierz 1.4.0 &darr;</a></div>
-          </article>
           <article class="pr-k" data-pr-typ="web">
             <svg class="pr-ik" aria-hidden="true" focusable="false"><use href="#zn-dancycloud"/></svg>
             <div class="pr-k__txt">
@@ -3555,8 +3567,8 @@ def fetch_offer_detail(url)</code></pre>
   <section class="view" data-view="somi" aria-label="Meshuga" hidden>
     <div class="hero">
       <div class="overlay">
-        <div class="eyebrow">meshuga &middot; asystentka cybersory</div>
-        <h1 class="slogan">POZNAJ MESHUGĘ<span class="thin">asystentka od kodu, researchu i pomocy</span></h1>
+        <div class="eyebrow">meshuga &middot; asystent cybersory</div>
+        <h1 class="slogan">POZNAJ MESHUGĘ<span class="thin">asystent od kodu, researchu i pomocy</span></h1>
         <p class="stub">Meshuga na co dzień pracuje z nami w terminalu, na Discordzie i głosem. Niżej zobaczysz zapis tego, jak odpowiada, i co już naprawdę umie.</p>
         <a class="cta-big" href="#contact" data-nav="contact">Napisz do nas &rarr;</a>
       </div>
@@ -3575,39 +3587,24 @@ def fetch_offer_detail(url)</code></pre>
           <h2 class="services__title">Z czego się składa</h2>
         </div>
 
-        <!-- SCENA KULI (30.09, prosba maisy: "kulka wieksza, na srodku, zeby sie krecila i reagowala,
-             obok przyciski, mozesz sprawdzic np. jak mysli — jak w SOMI terminal"). Stany to te same
-             profile MOOD_PARAMS co w terminalu; czat demo nizej steruje ta sama kula (mysli -> mowi).
-             Kula dalej rysuje sie tylko w kadrze (IntersectionObserver w kula.js). -->
-        <div class="somi-stage">
-          <div class="somi-stage__stany" role="group" aria-label="Stany Meshugi, lewa strona">
-            <button type="button" class="somi-stage__btn" data-mood="calm" aria-pressed="true"><span class="somi-stage__dot"></span>spokój</button>
-            <button type="button" class="somi-stage__btn" data-mood="thinking" aria-pressed="false"><span class="somi-stage__dot"></span>myśli</button>
-            <button type="button" class="somi-stage__btn" data-mood="speaking" aria-pressed="false"><span class="somi-stage__dot"></span>mówi</button>
-          </div>
-          <div class="somi-stage__kula">
-            <div class="somi-demo__orb-wrap">
-              <div class="somi-demo__orb-slot" tabindex="0" role="group" aria-label="Kula Meshugi. Przeciągnij, żeby obrócić, albo użyj strzałek." title="Przeciągnij, żeby obrócić. Kliknij, żeby Meshuga zareagowała">
-                <canvas id="somiDemoOrb" hidden aria-hidden="true"></canvas>
-                <div class="somi-demo__orb-glow" aria-hidden="true"></div>
-              </div>
-            </div>
-            <p class="somi-stage__hint" aria-hidden="true">przeciągnij, żeby obrócić</p>
-            <p class="somi-stage__status" aria-live="polite"><span class="somi-stage__prompt">meshuga@kula</span> <b>spokój</b> <span class="somi-stage__opis">czeka, oddycha powoli</span></p>
-          </div>
-          <div class="somi-stage__stany" role="group" aria-label="Stany Meshugi, prawa strona">
-            <button type="button" class="somi-stage__btn" data-mood="tool" aria-pressed="false"><span class="somi-stage__dot"></span>narzędzie</button>
-            <button type="button" class="somi-stage__btn" data-mood="wow" aria-pressed="false"><span class="somi-stage__dot"></span>zaskoczenie</button>
-            <button type="button" class="somi-stage__btn" data-mood="error" aria-pressed="false"><span class="somi-stage__dot"></span>błąd</button>
+        <!-- 04.11 maisa: kula wyleciała, w jej miejscu żywy kot Meshugi (meshuga-kot.js, kółko z aplikacji).
+             Bez modułu albo przy reduced-motion zostaje zdjęcie kot-320.webp. Pytania z rozmowy niżej sterują kotem przez SOMI_MOOD. -->
+        <div class="mesh-scena">
+          <div class="mesh-scena__kot" id="meshScenaKot" aria-hidden="true"><img class="mesh-scena__zapas" src="assety/kot-320.webp" width="320" height="320" alt="" decoding="async"></div>
+          <p class="mesh-scena__status" aria-live="polite"><span class="mesh-scena__prompt">meshuga@kot</span> <b>spokój</b> <span class="mesh-scena__opis">czeka i mruga</span></p>
+          <div class="mesh-scena__stany" role="group" aria-label="Pokaż, jak Meshuga reaguje">
+            <button type="button" class="mesh-scena__btn" data-stan="calm" aria-pressed="true">spokój</button>
+            <button type="button" class="mesh-scena__btn" data-stan="thinking" aria-pressed="false">myśli</button>
+            <button type="button" class="mesh-scena__btn" data-stan="speaking" aria-pressed="false">mówi</button>
           </div>
         </div>
 
         <div class="somi-demo__layout">
           <div class="somi-demo__about">
-            <p class="somi-demo__lead">Meshuga to nie jedno okienko czatu. To kilka warstw, które pracują razem — jedna już naprawdę działa, reszta wciąż się buduje. Bez owijania: mówimy wprost, co jest gotowe, a co nie. To nasz pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
+            <p class="somi-demo__lead">Meshuga to nie jedno okienko czatu. To kilka warstw, które pracują razem. Niżej wszystko, co już działa u nas na co dzień, z liczbami z testów. To nasz pierwszy projekt, który naprawdę pomógł — trudno o nim mówić inaczej niż z dumą.</p>
             <ul class="somi-demo__parts">
-              <li><span class="somi-demo__tag is-live">działa</span> Przykładowa rozmowa niżej na tej stronie: trzy pytania i jej odpowiedzi (zapis, nie czat na żywo).</li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text">Radar ofert (Useme, Upwork) — ma w historii ponad 360 ofert i 12 wysłanych zgłoszeń. Podłączenie do czatu Meshugi jeszcze przed nami.</span>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Przykładowa rozmowa.</b> Trzy pytania i jej odpowiedzi w okienku obok (zapis, nie czat na żywo).</span></li>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Radar ofert.</b> Useme i Upwork, w historii ponad 360 ofert i 12 wysłanych zgłoszeń. Podłączenie do czatu Meshugi jeszcze przed nami.</span>
                 <!-- "pająk" z banera FB — w źródle podpisany wprost jako "crawler przerysowany
                      kanciastym szkieletem marki". Tu = pieczątka przy radarze, bo radar TO crawler. -->
                 <svg class="somi-demo__glyph" viewBox="-144 -80 288 176" aria-hidden="true" focusable="false">
@@ -3635,7 +3632,7 @@ def fetch_offer_detail(url)</code></pre>
                   <polygon points="0,-40 20,-30 26,-4 20,24 0,42 -20,24 -26,-4 -20,-30" fill="currentColor" opacity=".85"/>
                 </svg>
               </li>
-              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text">Agent z bramką akceptacji — czyta pliki, pisze i uruchamia kod, ale nic bez Twojej zgody.</span>
+              <li><span class="somi-demo__tag is-live">działa</span> <span class="somi-demo__text"><b>Agent z bramką akceptacji.</b> Czyta pliki, pisze i uruchamia kod, ale nic bez Twojej zgody.</span>
                 <!-- "payload/mina" z banera FB — w źródle podpisana jako "echo pająka", ten sam
                      szkielet w wersji promienistej. Tu = pieczątka przy agencie, bo agent to
                      ładunek, ktory sie wykonuje (i to bramka akceptacji go uzbraja). -->
@@ -3683,14 +3680,14 @@ def fetch_offer_detail(url)</code></pre>
               <button type="button" class="somi-demo__q" data-demo="dziala">Jak działasz?</button>
               <button type="button" class="somi-demo__q" data-demo="zdolna">Do czego jesteś zdolna?</button>
             </div>
-            <div class="terminal">
+            <!-- 04.11 maisa: okienko macowo w kolorach Startu, z kotem Meshugi zamiast kropek macOS -->
+            <div class="terminal mesh-demo">
               <div class="terminal__bar">
-                <span class="terminal__dot terminal__dot--r"></span>
-                <span class="terminal__dot terminal__dot--y"></span>
-                <span class="terminal__dot terminal__dot--g"></span>
-                <span class="terminal__title">somi_demo.log</span>
+                <img class="mesh-demo__ava" src="assety/kot-72.webp" width="32" height="32" alt="" decoding="async">
+                <span class="mesh-demo__kto"><b>Meshuga</b><small>przykładowa rozmowa</small></span>
+                <span class="terminal__title">meshuga_demo.log</span>
               </div>
-              <pre class="terminal__body" id="somiDemoBody">$ zapytaj_somi <span class="t-muted">— wybierz pytanie powyżej</span></pre>
+              <pre class="terminal__body" id="somiDemoBody">$ meshuga --zapytaj <span class="t-muted">— wybierz pytanie powyżej</span></pre>
             </div>
             <p class="somi-demo__srlive" id="somiDemoSrLive" aria-live="polite"></p>
           </div>
@@ -3798,11 +3795,11 @@ def fetch_offer_detail(url)</code></pre>
       <div class="overlay">
         <div class="eyebrow">kim jesteśmy</div>
         <h1 class="slogan">O nas</h1>
-        <p class="stub">Za cybersorą stoi Patryk Gwóźdź. Zarządza wszystkim, wymyśla, projektuje i pisze kod, a każdy z naszych projektów powstał głównie przez niego. Wojtek Zięba testuje to, co powstaje, i rozwija własne projekty. Pomaga nam Meshuga, asystentka AI, którą zbudował Patryk. To program, nie trzecia osoba w zespole. Do projektów aktywnie szukamy partnerów.</p>
+        <p class="stub">Za cybersorą stoi Patryk Gwóźdź. Zarządza wszystkim, wymyśla, projektuje i pisze kod, a każdy z naszych projektów powstał głównie przez niego. Wojtek Zięba, współzałożyciel, prowadzi marketing i też programuje. Pomaga nam Meshuga, asystent AI, którego zbudował Patryk. To program, nie trzecia osoba w zespole. Do projektów aktywnie szukamy partnerów.</p>
         <!-- 05.10: liczby commitów (mierz_dorobek.py, 30.09) liczyły tylko commity Patryka, więc zdjęte. Pas faktów zostaje (tło-oscyloskop liczy z niego układ), ale niesie same prawdziwe fakty o zespole. -->
         <dl class="hero__rail">
           <div class="hero__fact"><dt>Zespół</dt><dd>2 osoby + Meshuga</dd></div>
-          <div class="hero__fact"><dt>Założyciel</dt><dd>Patryk Gwóźdź</dd></div>
+          <div class="hero__fact"><dt>Założyciele</dt><dd>Patryk i Wojtek</dd></div>
           <div class="hero__fact"><dt>Status</dt><dd>szukamy partnerów</dd></div>
         </dl>
       </div>
@@ -3814,61 +3811,71 @@ def fetch_offer_detail(url)</code></pre>
       <div class="projekty__inner">
         <article class="pas reveal">
           <div class="pas__marka">
-            <span class="duet__mono" aria-hidden="true">PG</span>
-            <span class="pas__znak duet__plytka" aria-hidden="true">PG</span>
+            <!-- 04.11: znaczek w stylu logo (wariant A „kafel favicony”, generator: SoraWebsite\podglad-onas-znaczki.html) -->
+            <span class="duet__znak" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect width="100" height="100" rx="24" fill="#e11d33"/><rect x="1.5" y="1.5" width="97" height="97" rx="22.5" fill="none" stroke="#0e0e12" stroke-width="2" opacity=".4"/><g transform="translate(16.54 27.31) scale(0.5672)" fill="none" stroke-width="15" stroke-linejoin="miter" stroke-miterlimit="2.2"><path d="M7.5 80 V7.5 H36 L46.5 18 V32 L36 42.5 H7.5" stroke="#0e0e12"/><path d="M52 7.5 H21 L7.5 21 V59 L21 72.5 H48.5 V44 H32" transform="translate(62 0)" stroke="#f6f2f3"/><g fill="#e11d33" stroke="none"><rect x="-4" y="21" width="126" height="3.5"/><rect x="-4" y="59" width="126" height="3.5"/></g></g></svg></span>
             <h3 class="pas__nazwa" data-hex="0x0A01">Patryk Gwóźdź</h3>
-            <p class="duet__rola">Zarządza wszystkim · projektuje · koduje · artysta</p>
+            <p class="duet__rola">Założyciel · full-stack Python · AI · artysta</p>
           </div>
           <div class="pas__tresc">
             <p class="pas__co">Mózg i silnik cybersory. Zarządza całą firmą i każdym projektem: wymyśla, projektuje architekturę i pisze kod, od pierwszego szkicu po działający produkt u klienta. Każdy projekt na tej stronie, czyli Meshuga, Pycodemath, terminal SORA//OS i gra DancyCloud, powstał głównie przez niego. Jest też artystą (tworzy jako deadsora), dlatego jego projekty nie wyglądają jak z szablonu.</p>
-            <ul class="pas__lista">
-              <li>Zarządzanie firmą i projektami</li>
-              <li>Pomysły i projekty od zera</li>
-              <li>Architektura i kod produktów</li>
-              <li>Software na zamówienie</li>
-              <li>Sztuka i kreacja jako deadsora</li>
-            </ul>
-            <dl class="pas__meta">
-              <div><dt>stack</dt><dd>Python, SQLite, FastAPI</dd></div>
-            </dl>
+            <div class="duet__boks">
+              <span class="duet__etyk">umie</span>
+              <ul class="pas__lista">
+                <li>Full-stack w Pythonie</li>
+                <li>Agenci AI i narzędzia do modeli językowych</li>
+                <li>Aplikacje na komputer</li>
+                <li>Kryptografia i bezpieczeństwo aplikacji</li>
+                <li>Automatyczne testy (pytest, Playwright)</li>
+                <li>Szybkość stron i SEO</li>
+              </ul>
+              <dl class="pas__meta">
+                <div><dt>wydał</dt><dd>SalonDesk, Pycodemath (PyPI), SoraEbookReader</dd></div>
+              </dl>
+            </div>
           </div>
         </article>
 
         <article class="pas reveal">
           <div class="pas__marka">
-            <span class="duet__mono" aria-hidden="true">WZ</span>
-            <span class="pas__znak duet__plytka" aria-hidden="true">WZ</span>
+            <span class="duet__znak" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect width="100" height="100" rx="24" fill="#e11d33"/><rect x="1.5" y="1.5" width="97" height="97" rx="22.5" fill="none" stroke="#0e0e12" stroke-width="2" opacity=".4"/><g transform="translate(12.00 27.31) scale(0.5672)" fill="none" stroke-width="15" stroke-linejoin="miter" stroke-miterlimit="2.2"><path d="M7.5 0 V72.5 H18 L36 48 L54 72.5 H64.5 V0" stroke="#0e0e12"/><path d="M0 7.5 H46.5 V14 L7.5 66 V72.5 H54" transform="translate(80 0)" stroke="#f6f2f3"/><g fill="#e11d33" stroke="none"><rect x="-4" y="21" width="142" height="3.5"/><rect x="-4" y="59" width="142" height="3.5"/></g></g></svg></span>
             <h3 class="pas__nazwa" data-hex="0x0A02">Wojtek Zięba</h3>
-            <p class="duet__rola">Programista · QA · optymalizacja · kreatywność</p>
+            <p class="duet__rola">Współzałożyciel · marketing manager · Python/JS</p>
           </div>
           <div class="pas__tresc">
-            <p class="pas__co">Tester i łowca błędów, który rozwija też własne projekty: MelloDesk i kalendarz cybersora. W projektach Patryka przepuszcza przez gęste sito wszystko, co powstaje: przeklikuje każdy ekran, próbuje zepsuć to, czego zwykły użytkownik nawet by nie dotknął, i wyciska wydajność tam, gdzie inni by odpuścili. Wnosi do projektów sporo kreatywności. To w dużej mierze dzięki jego testom do klienta trafia kod, który działa tak, jak obiecujemy.</p>
-            <ul class="pas__lista">
-              <li>Programowanie</li>
-              <li>Kontrola jakości (QA) i łowienie błędów</li>
-              <li>Optymalizacja kodu i wydajności</li>
-              <li>Testy, zanim cokolwiek trafi do klienta</li>
-              <li>Kreatywne rozwiązania</li>
-            </ul>
+            <p class="pas__co">Współzałożyciel cybersory i nasz marketing manager. Odpowiada za to, jak o nas słychać: media społecznościowe, treści, SEO i wzrost. Sam też programuje w Pythonie i JavaScripcie, buduje automatyzacje z AI, projektuje produkty od strony UI/UX i robi animacje w Remotion. Rozwija własne projekty: MelloDesk i kalendarz cybersora.</p>
+            <div class="duet__boks">
+              <span class="duet__etyk">umie</span>
+              <ul class="pas__lista">
+                <li>Marketing, media społecznościowe i treści</li>
+                <li>SEO i wzrost</li>
+                <li>Python i JavaScript</li>
+                <li>Automatyzacje z AI i narzędzia do modeli językowych</li>
+                <li>Aplikacje na komputer i w przeglądarce</li>
+                <li>Projekt produktu i UI/UX</li>
+                <li>Animacje w Remotion</li>
+              </ul>
+            </div>
           </div>
         </article>
 
         <!-- SOMI (07.10, PROMPT_O_NAS.md): trzeci pas, uczciwie jako program, nie osoba. Tylko fakty juz publiczne w widoku "somi". -->
         <article class="pas reveal">
           <div class="pas__marka">
-            <span class="duet__mono" aria-hidden="true">SO</span>
-            <span class="pas__znak duet__plytka" aria-hidden="true">SO</span>
+            <span class="duet__znak" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect width="100" height="100" rx="24" fill="#e11d33"/><rect x="1.5" y="1.5" width="97" height="97" rx="22.5" fill="none" stroke="#0e0e12" stroke-width="2" opacity=".4"/><g transform="translate(13.13 27.31) scale(0.5672)" fill="none" stroke-width="15" stroke-linejoin="miter" stroke-miterlimit="2.2"><path d="M7.5 80 V7.5 H18 L36 32 L54 7.5 H64.5 V80" stroke="#0e0e12"/><path d="M50 7.5 H21 L7.5 21 V59 L21 72.5 H50" transform="translate(80 0)" stroke="#f6f2f3"/><path d="M7.5 40 H40" transform="translate(80 0)" stroke="#f6f2f3"/><g fill="#e11d33" stroke="none"><rect x="-4" y="21" width="138" height="3.5"/><rect x="-4" y="59" width="138" height="3.5"/></g></g></svg></span>
             <h3 class="pas__nazwa" data-hex="0x0A03">Meshuga</h3>
-            <p class="duet__rola">Asystentka AI · research · kod</p>
+            <p class="duet__rola">Asystent AI · research · kod</p>
           </div>
           <div class="pas__tresc">
-            <p class="pas__co">Program zbudowany przez Patryka Gwoździa, a nie trzecia osoba. Pracuje w zapleczu cybersory: pomaga przy kodzie, researchu i porządkowaniu informacji. Za każdą jej pracę odpowiada człowiek.</p>
-            <ul class="pas__lista">
-              <li>Pomoc przy kodzie</li>
-              <li>Research</li>
-              <li>Rozmowa na Discordzie</li>
-            </ul>
-            <a class="card__go" href="#meshuga" data-nav="somi">Poznaj Meshugę &rarr;</a>
+            <p class="pas__co">Program zbudowany przez Patryka Gwoździa, a nie trzecia osoba. Pracuje w zapleczu cybersory: pomaga przy kodzie, researchu i porządkowaniu informacji. Za każdą jego pracę odpowiada człowiek.</p>
+            <div class="duet__boks">
+              <span class="duet__etyk">umie</span>
+              <ul class="pas__lista">
+                <li>Pomoc przy kodzie</li>
+                <li>Research</li>
+                <li>Rozmowa na Discordzie</li>
+              </ul>
+              <a class="card__go" href="#meshuga" data-nav="somi">Poznaj Meshugę &rarr;</a>
+            </div>
           </div>
         </article>
       </div>
@@ -3885,7 +3892,7 @@ def fetch_offer_detail(url)</code></pre>
           <article class="card">
             <span class="card__tag">Zaplecze</span>
             <h3 class="card__title">Meshuga pracuje z nami</h3>
-            <p class="card__body">Część rutyny i researchu przejmuje nasza asystentka AI. Decyzje i odpowiedzialność za to, co trafia do klienta, zostają przy ludziach.</p>
+            <p class="card__body">Część rutyny i researchu przejmuje nasz asystent AI. Decyzje i odpowiedzialność za to, co trafia do klienta, zostają przy ludziach.</p>
           </article>
           <article class="card">
             <span class="card__tag">Partnerzy</span>
@@ -3944,7 +3951,7 @@ def fetch_offer_detail(url)</code></pre>
         <div class="om-proj">
           <div class="om-row om-row--head"><span>projekt</span><span class="om-row__c">commity</span><span class="om-row__ln">linie</span></div>
           <div class="om-row"><span class="om-row__n">SalonDesk<small>aplikacja desktop dla salonów beauty</small></span><span class="om-row__c">304</span><span class="om-row__ln">160 557</span></div>
-          <div class="om-row"><span class="om-row__n">SOMI<small>asystentka: agent, terminal, bot, głos</small></span><span class="om-row__c">323</span><span class="om-row__ln">144 653</span></div>
+          <div class="om-row"><span class="om-row__n">SOMI<small>asystent: agent, terminal, bot, głos</small></span><span class="om-row__c">323</span><span class="om-row__ln">144 653</span></div>
           <div class="om-row"><span class="om-row__n">Pycodemath<small>silnik matematyczny, publicznie na PyPI</small></span><span class="om-row__c">164</span><span class="om-row__ln">33 192</span></div>
           <div class="om-row"><span class="om-row__n">Reszta<small>ta strona, bot społeczności, audyt widoczności, licencje, rachunki, MoonSora</small></span><span class="om-row__c">299</span><span class="om-row__ln">43 983</span></div>
         </div>
@@ -3962,7 +3969,7 @@ def fetch_offer_detail(url)</code></pre>
           <article class="card">
             <span class="card__tag">Zespół</span>
             <h3 class="card__title">Rozmawiasz z tymi, którzy to robią</h3>
-            <p class="card__body">Bez pośredników. Wszystko prowadzi Patryk, od pomysłu po kod, a Wojtek programuje, testuje i optymalizuje. Mniej warstw, szybsze decyzje, żadnych niespodzianek.</p>
+            <p class="card__body">Bez pośredników. Wszystko prowadzi Patryk, od pomysłu po kod, a Wojtek odpowiada za marketing i też programuje. Mniej warstw, szybsze decyzje.</p>
           </article>
           <article class="card">
             <span class="card__tag">Produkt</span>
@@ -4055,7 +4062,7 @@ agent.uruchom(plan)</div>
             <div class="seed__content">
               <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> Na co dzień <span class="seed__br" aria-hidden="true">]</span></span>
               <h3 class="seed__title">Meshuga</h3>
-              <p class="seed__body">Nasza asystentka AI: rozmowa, głos, research i agent.</p>
+              <p class="seed__body">Nasz asystent AI: rozmowa, głos, research i agent.</p>
               <span class="seed__hint">▸ otwórz</span>
             </div>
           </button>
@@ -4125,25 +4132,7 @@ generuj_kod(wzor)</div>
               <span class="seed__hint">▸ otwórz</span>
             </div>
           </button>
-          <button type="button" class="seed" data-stage="5" data-project="soraflux" aria-label="SoraFlux — zobacz więcej">
-            <div class="seed__code" aria-hidden="true">plan(media, profil)
-bitrate_z_rozmiaru(mb, czas)
-kolejka.dodaj(zadanie)
--c:a aac -b:a 8k -ac 1</div>
-            <!-- SoraFlux (07.10): znak z samej aplikacji (src/main.ts, MARKA), dwie fale, jednym kolorem jak reszta -->
-            <span class="seed__mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="12 20 96 80" role="img" aria-label="SoraFlux — znak">
-              <path d="M18 26H38L72 60L38 94H18L52 60Z" fill="#e11d33" fill-opacity=".55"/>
-              <path d="M48 26H68L102 60L68 94H48L82 60Z" fill="#e11d33"/>
-            </svg></span>
-            <div class="seed__scrim" aria-hidden="true"></div>
-            <div class="seed__content">
-              <span class="seed__tag"><span class="seed__br" aria-hidden="true">[</span> do pobrania <span class="seed__br" aria-hidden="true">]</span></span>
-              <h3 class="seed__title">SoraFlux</h3>
-              <p class="seed__body">Konwerter wideo, audio i obrazów.</p>
-              <span class="seed__hint">▸ otwórz</span>
-            </div>
-          </button>
-          <button type="button" class="seed" data-stage="6" data-project="frostwall" aria-label="Frostwall — zobacz więcej">
+          <button type="button" class="seed" data-stage="5" data-project="frostwall" aria-label="Frostwall — zobacz więcej">
             <div class="seed__code" aria-hidden="true">podpis = sign(dane, klucz)
 verify(podpis, klucz_pub)
 if not aktywacja.wazna(): blokuj
@@ -4605,7 +4594,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261103e" defer></script>
+<script src="app.js?v=20261105b" defer></script>
 <!-- ============================================================
      KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
      (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
@@ -4628,9 +4617,12 @@ fingerprint(maszyna)</div>
      ============================================================ -->
 <script src="kula.js?v=20261103a" defer></script>
 <!-- KOT CYBERSORY (03.11, makieta): przewodnik + czat w prawym dolnym rogu -->
-<link rel="stylesheet" href="kot-czat.css?v=20261104k">
-<script src="meshuga-kot.js?v=20261104k" defer></script>
-<script src="kot-czat.js?v=20261104k" defer></script>
+<link rel="stylesheet" href="konto.css?v=20261105b">
+<script src="konto-api.js?v=20261105b" defer></script>
+<script src="konto.js?v=20261105b" defer></script>
+<link rel="stylesheet" href="kot-czat.css?v=20261105b">
+<script src="meshuga-kot.js?v=20261105b" defer></script>
+<script src="kot-czat.js?v=20261105b" defer></script>
 
 <!-- ============================================================
      SONDA FPS — narzędzie, nie część strony.
@@ -4660,4 +4652,3 @@ fingerprint(maszyna)</div>
      nie tutaj — hCaptcha słuchała każdego ruchu myszy na każdej trasie. -->
 </body>
 </html>
-

@@ -70,6 +70,54 @@
 .ov10 .ov-kula{background:var(--o-panel2);border:1px solid var(--o-linia);border-radius:16px;padding:20px;display:grid;gap:14px;justify-items:center;text-align:center}
 .ov10 .ov-kula img{width:min(260px,70%);height:auto;aspect-ratio:1;object-fit:contain}
 .ov10 .ov-kula .ov-btn{text-decoration:none}
+/* 04.11: Meshuga zamiast kuli = kot z logo cybersory (assety/kot-320.webp, sam jest okrągły). */
+.ov10 .ov-meshuga img.ov-meshuga__logo{width:min(260px,70%);border-radius:50%}
+
+/* 04.11: mapa modułów Meshugi (zamiast kwadracików .ov-modul). Typografia i cienkie kreski, bez ramek wokół działów. */
+.ov10 .ov-mapa{display:grid;gap:28px}
+.ov10 .ov-mapa__liczby{margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.ov10 .ov-mapa__liczby div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:6px;padding:4px 18px 4px 0}
+.ov10 .ov-mapa__liczby div + div{padding-left:18px;border-left:1px solid var(--o-linia)}
+.ov10 .ov-mapa__liczby dd{margin:0;font:600 clamp(28px,4vw,40px)/1 var(--o-mono);color:var(--o-kosc);letter-spacing:-.02em}
+.ov10 .ov-mapa__liczby dt{font:500 13px/1.35 var(--o-mono);color:var(--o-mute)}
+.ov10 .ov-mapa__dzialy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 40px}
+.ov10 .ov-dzial h4{display:flex;align-items:center;gap:10px;margin:0;padding-top:14px;border-top:2px solid var(--o-krew);font:700 18px/1.3 var(--o-sans);color:var(--o-kosc)}
+.ov10 .ov-dzial h4 svg{width:22px;height:22px;flex:none;fill:none;stroke:var(--o-hot);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ov10 .ov-dzial ul{list-style:none;margin:6px 0 0;padding:0}
+.ov10 .ov-dzial li{display:grid;grid-template-columns:76px minmax(0,1fr);column-gap:14px;padding:12px 0;border-bottom:1px solid var(--o-linia)}
+.ov10 .ov-dzial li:last-child{border-bottom:0}
+.ov10 .ov-dzial .kd{grid-row:span 3;font:500 12px/1.6 var(--o-mono);color:var(--o-hot);letter-spacing:.04em}
+.ov10 .ov-dzial b{font:600 15px/1.4 var(--o-sans);color:var(--o-kosc)}
+.ov10 .ov-dzial p{margin:2px 0 0;font-size:14px;line-height:1.55;color:var(--o-mute)}
+.ov10 .ov-dzial em{justify-self:start;margin-top:6px;font:500 12px/1 var(--o-mono);font-style:normal;color:var(--o-kosc);border:1px solid var(--o-linia);border-radius:999px;padding:5px 9px}
+@media (max-width:900px){.ov10 .ov-mapa__dzialy{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  .ov10 .ov-mapa__liczby{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:18px}
+  .ov10 .ov-mapa__liczby div:nth-child(3){padding-left:0;border-left:0}
+  .ov10 .ov-mapa__liczby dd{font-size:24px;white-space:nowrap}
+  .ov10 .ov-dzial li{grid-template-columns:minmax(0,1fr)}
+  .ov10 .ov-dzial .kd{grid-row:auto}
+}
+
+/* 04.11: galeria SalonDesk (zamiast numerków na zrzucie): slajd = cały ekran albo przybliżony fragment + opis */
+.ov10 .ov-gal{display:grid;gap:12px}
+.ov10 .ov-gal-okno{position:relative;aspect-ratio:16/9;background-repeat:no-repeat;background-color:var(--o-ink);touch-action:pan-y;cursor:grab;
+  transition:background-size .45s cubic-bezier(.32,.72,0,1),background-position .45s cubic-bezier(.32,.72,0,1)}
+.ov10 .ov-gal-okno:active{cursor:grabbing}
+.ov10 .ov-gal-ramka{position:absolute;border:2px solid var(--o-hot);border-radius:8px;pointer-events:none;transition:all .45s cubic-bezier(.32,.72,0,1)}
+.ov10 .ov-gal-ramka[hidden]{display:none}
+.ov10 .ov-gal-opis{background:var(--o-panel2);border:1px solid var(--o-linia);border-radius:12px;padding:16px;display:grid;gap:6px;min-height:150px;align-content:start}
+.ov10 .ov-gal-poz{font:500 13px/1.4 var(--o-mono);color:var(--o-hot);letter-spacing:.04em}
+.ov10 .ov-gal-opis b{font:600 18px/1.3 var(--o-sans);color:var(--o-kosc)}
+.ov10 .ov-gal-opis p{margin:0;font-size:15px;line-height:1.55;color:var(--o-mute)}
+.ov10 .ov-gal-opis p.ov-gal-po{color:var(--o-kosc)}
+.ov10 .ov-gal-ster{display:flex;align-items:center;gap:10px}
+.ov10 .ov-gal-ster .ov-btn{font-size:18px;padding:0;width:44px}
+.ov10 .ov-gal-kropki{flex:1;display:flex;justify-content:center;flex-wrap:wrap;gap:2px}
+.ov10 .ov-gal-kropki button{width:28px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
+.ov10 .ov-gal-kropki button::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--o-linia);transition:width .25s ease,background .25s ease}
+.ov10 .ov-gal-kropki button.ov-gal-sep{margin-left:8px}
+.ov10 .ov-gal-kropki button[aria-current="true"]::before{width:20px;border-radius:4px;background:var(--o-hot)}
 
 /* Pycodemath: scena w 3 krokach */
 .ov10 .ov-term{margin:0;background:var(--o-ink);padding:18px;font:400 13.5px/1.7 var(--o-mono);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--o-kosc);min-height:250px}
@@ -95,10 +143,13 @@
 .ov10 .ov-bilans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .ov10 .ov-bil{border:1px solid var(--o-linia);border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start}
 .ov10 .ov-bil ul{list-style:none;padding:0;display:grid;gap:10px}
-.ov10 .ov-bil li{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:10px;align-items:baseline;font-size:15px;line-height:1.5}
-.ov10 .ov-bil li::before{content:"";width:9px;height:9px;transform:translateY(-1px)}
-.ov10 .ov-bil.plus li::before{background:var(--o-kosc)}
-.ov10 .ov-bil.minus li::before{border:2px solid var(--o-hot);width:5px;height:5px}
+.ov10 .ov-bil li{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:baseline;font-size:15px;line-height:1.5}
+/* 04.11 maisa: znaczniki „terminal” zamiast kwadracików; w „Nad czym pracujemy” znak sam mówi o statusie */
+.ov10 .ov-bil li::before{font:600 14px/1 var(--o-mono);letter-spacing:-.06em;white-space:pre;justify-self:start;color:var(--o-mute)}
+.ov10 .ov-bil.plus li::before{content:"+";color:var(--o-kosc)}
+.ov10 .ov-bil.minus li::before{content:"//"}
+.ov10 .ov-bil.minus li:has(em)::before{content:"[ ]"}
+.ov10 .ov-bil.minus li:has(em.toku)::before{content:">_";color:var(--o-hot)}
 .ov10 .ov-bil li em{font:500 13px/1 var(--o-mono);font-style:normal;letter-spacing:.04em;text-transform:uppercase;color:var(--o-mute);border:1px solid var(--o-linia);border-radius:6px;padding:5px 7px;white-space:nowrap}
 .ov10 .ov-bil li em.toku{color:var(--o-hot);border-color:var(--o-krew)}
 
@@ -145,7 +196,7 @@
   .ov10 .ov-duza{padding:16px}
   .ov10 .ov-punkty{grid-template-columns:minmax(0,1fr)}
   .ov10 .ov-bilans{grid-template-columns:minmax(0,1fr)}
-  .ov10 .ov-bil li{grid-template-columns:14px minmax(0,1fr)}
+  .ov10 .ov-bil li{grid-template-columns:26px minmax(0,1fr)}
   .ov10 .ov-bil li em{grid-column:2;justify-self:start}
   .ov10 .ov-ekran{grid-template-columns:minmax(0,1fr)}
   .ov10 .ov-podglad{border-right:0;border-bottom:1px solid var(--o-linia);padding:16px;padding-top:60px}

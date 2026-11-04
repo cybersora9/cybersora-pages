@@ -9,8 +9,7 @@
   'use strict';
   if (window.__kotCzat) return; window.__kotCzat = 1;
 
-  // Na żywo pusto = „Czatuj · wkrótce”: aplikacja Meshugi stoi na razie w prywatnym artefakcie claude.ai
-  // (w artefakcie strony adres to https://claude.ai/artifact/WNnVCAxaRz3AVA7HJa58oR); docelowo cybersora.pl/meshuga.
+  // Na żywo aplikacja Meshugi stoi pod cybersora.pl/meshuga/ (kopia artefaktu strony ma tu link do artefaktu).
   // Nie przez <script> w index.html: CSP strony (Cloudflare) nie wpuszcza skryptów wpisanych w HTML.
   var APP = window.MESHUGA_APP != null ? window.MESHUGA_APP : '/meshuga/';
 
@@ -21,6 +20,7 @@
   /* ---------- profil testowy: nick + własny awatar (tylko ta przeglądarka) ---------- */
   var PROFIL_KEY = 'meshuga-profil';
   function wczytajProfil() {
+    if (window.Konto) { var k = window.Konto.profil(); return k ? { nick: k.nick, ava: k.ava } : null; }   // 04.11: konto strony zamiast profilu testowego
     try { var p = JSON.parse(LS.get(PROFIL_KEY) || 'null'); if (p && typeof p.nick === 'string' && p.nick) return p; } catch (e) {}
     return null;
   }
@@ -64,8 +64,8 @@
         return { t: 'Robimy darmowy skan widoczności: sprawdzamy, jak firmę widzi Google i asystenci AI, i mówimy, co poprawić.', go: ['oferta', 'Zobacz w Ofercie'] }; } },
     { k: /salondesk|salon|grafik|fryzjer|kosmetycz/i, f: function () {
         return { t: 'SalonDesk prowadzi salon: grafik, klienci i kasa w jednym programie. Działa u klienta.', go: ['products', 'Zobacz projekty'] }; } },
-    { k: /somi|asystentk/i, f: function () {
-        return { t: 'To ja, Meshuga, asystentka AI cybersory. Sama szukam zleceń i pomagam w pracy.', go: ['somi', 'Poznaj mnie bliżej'] }; } },
+    { k: /somi|asystent/i, f: function () {
+        return { t: 'To ja, Meshuga, asystent AI cybersory. Sam szukam zleceń i pomagam w pracy.', go: ['somi', 'Poznaj mnie bliżej'] }; } },
     { k: /pycodemath|matemat|python/i, f: function () {
         return { t: 'Pycodemath sprawdza matematykę w kodzie. Jest darmowy i publiczny.', go: ['products', 'Zobacz projekty'] }; } },
     { k: /sora.?os|pulpit/i, f: function () {
@@ -192,13 +192,32 @@
     log.appendChild(m); log.scrollTop = log.scrollHeight;
   }
   var przywitany = false;
+  /* etap myślenia z tematu pytania (ta sama logika co etapyMysli() w aplikacji Meshugi) */
+  function etapKota(q) {
+    q = q.toLowerCase();
+    if (/```|\bkod|python|javascript|typescript|\bjs\b|błąd|blad|error|funkcj|pętl|petl|programow/.test(q)) return 'czytam Twój kod';
+    if (/pomys|opisz|opiszę/.test(q)) return 'rozkładam pomysł na kroki';
+    if (/cen|koszt|ile|zł|wycen/.test(q)) return 'przeglądam cennik';
+    if (/projekt|zrobili|portfolio/.test(q)) return 'szukam w projektach';
+    return 'układam odpowiedź';
+  }
   function zapytaj(q) {
     q = (q || '').trim(); if (!q) return;
     ostatnie = q; odswiezCzatuj();
     msg('ty', q);
-    var p = el('div', 'kot__pisze', 'Meshuga pisze…'); log.appendChild(p); log.scrollTop = log.scrollHeight;
-    if (kot) kot.squint(true);
-    var gotowe = function (o) { p.remove(); if (kot) { kot.squint(false); kot.flash(); } msg('kot', o.t, o.go); };
+    if (window.Konto) window.Konto.zapiszPytanie(q);
+    /* 04.11: „Meshuga myśli” — wstęga wokół kota (meshuga-kot.js) i etap z tematu pytania. Trzecia pętla
+       obok mapy i kuli, ale tylko na czas myślenia (1–3 s po pytaniu); po odpowiedzi rAF stoi. */
+    var p = el('div', 'kot__pisze', '› ' + etapKota(q)); log.appendChild(p); log.scrollTop = log.scrollHeight;
+    var t0 = Date.now(), wstega = !!(kot && kot.mysli);
+    if (wstega) kot.mysli(true); else if (kot) kot.squint(true);
+    var gotowe = function (o) {
+      setTimeout(function () {   /* min. 1,2 s: wstęga zdąży wejść i wyjść */
+        p.remove();
+        if (wstega) kot.mysli(false); else if (kot) { kot.squint(false); kot.flash(); }
+        msg('kot', o.t, o.go);
+      }, Math.max(0, 1200 - (Date.now() - t0)));
+    };
     if (window.KOT_API) {
       fetch(window.KOT_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: q, widok: widok() }) })
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
@@ -239,8 +258,8 @@
           ? 'Cześć, ' + profil.nick + '! Tu Meshuga. Wybierz szybkie pytanie albo napisz własne.'
           : 'Cześć, jestem Meshuga, AI Chatbot cybersory. Wybierz szybkie pytanie albo napisz własne.');
         if (!profil) {
-          var z = el('button', 'kot__go kot__go--profil', 'Załóż profil: nick i awatar'); z.type = 'button';
-          z.addEventListener('click', function () { pokazProfil(true); });
+          var z = el('button', 'kot__go kot__go--profil', window.Konto ? 'Zaloguj się: nick i zdjęcie' : 'Załóż profil: nick i awatar'); z.type = 'button';
+          z.addEventListener('click', function () { if (window.Konto) { zamknij(false); window.Konto.zaloguj(); } else pokazProfil(true); });
           log.lastChild.appendChild(document.createElement('br')); log.lastChild.appendChild(z);
         }
       }
@@ -277,11 +296,16 @@
   function odswiezProfil() {
     ustawAva(prof, profil && profil.ava, profil && profil.nick);
     if (!profil) prof.textContent = '+';
-    prof.setAttribute('aria-label', profil ? 'Twój profil: ' + profil.nick : 'Załóż profil testowy');
-    prof.title = profil ? profil.nick : 'Profil testowy';
+    prof.setAttribute('aria-label', profil ? 'Twój profil: ' + profil.nick : window.Konto ? 'Zaloguj się' : 'Załóż profil testowy');
+    prof.title = profil ? profil.nick : window.Konto ? 'Konto' : 'Profil testowy';
     pWyloguj.hidden = !profil;
+    if (window.Konto) note.textContent = profil ? 'Odpowiadam z treści strony. Twoje pytania zapisuję na Twoim koncie.' : 'Odpowiadam z treści strony. Nie zapisuję rozmowy.';
     odswiezCzatuj();
   }
+  window.addEventListener('konto:zmiana', function () {
+    profil = wczytajProfil(); odswiezProfil();
+    if (profil) { var z = log.querySelector('.kot__go--profil'); if (z) z.remove(); }
+  });
   function pokazProfil(tak) {
     root.classList.toggle('kot--profil', tak);
     if (tak) {
@@ -309,7 +333,10 @@
     img.onerror = function () { URL.revokeObjectURL(u); cb('Nie udało się odczytać obrazka.'); };
     img.src = u;
   }
-  prof.addEventListener('click', function () { pokazProfil(!root.classList.contains('kot--profil')); });
+  prof.addEventListener('click', function () {
+    if (window.Konto) { zamknij(false); profil ? window.Konto.otworz('meshuga') : window.Konto.zaloguj(); return; }
+    pokazProfil(!root.classList.contains('kot--profil'));
+  });
   pWybierz.addEventListener('click', function () { pPlik.click(); });
   pPlik.addEventListener('change', function () {
     obrazek(pPlik.files[0], function (err, d) {
