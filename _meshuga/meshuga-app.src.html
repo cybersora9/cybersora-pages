@@ -107,7 +107,7 @@ button { cursor:pointer; }
 .zwiniety .historia { visibility:hidden; }
 
 /* środek */
-.glowny { position:relative; display:flex; flex-direction:column; min-width:0; height:100%; overflow:hidden; }
+.glowny { position:relative; display:flex; flex-direction:column; min-width:0; min-height:0; height:100%; overflow:hidden; overflow:clip; } /* clip (+ min-height:0): scrollIntoView i focus nie przesuwają nagłówka */
 .tlo { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
 .tlo canvas, .tlo svg { position:absolute; inset:0; width:100%; height:100%; }
 .tlo-kod { -webkit-mask-image:linear-gradient(to top, #000 10%, transparent 85%); mask-image:linear-gradient(to top, #000 10%, transparent 85%); }
@@ -125,6 +125,10 @@ button { cursor:pointer; }
 .cialo { position:relative; z-index:2; flex:1; display:flex; flex-direction:column; min-height:0; }
 .przewijak { flex:1; overflow-y:auto; min-height:0; scrollbar-width:thin; }
 .kolumna { width:min(760px, 100%); margin-inline:auto; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); box-sizing:border-box; }
+
+/* klawiatura ekranowa (visualViewport): pole wpisu zostaje nad nią, w pustym stanie karty chowają się na czas pisania */
+.cialo { padding-bottom:var(--kb, 0px); }
+.klawiatura.pusty .karty-wrap, .klawiatura .mdl-karty { display:none !important; }
 
 /* pusty stan */
 .hero { display:none; flex-direction:column; align-items:center; text-align:center; gap:18px; padding-block:24px 22px; }
@@ -220,7 +224,7 @@ button { cursor:pointer; }
 .wyslij { width:44px; height:44px; border-radius:50%; border:0; display:grid; place-items:center; background:var(--fg); color:var(--bg); transition:opacity .2s, transform .2s var(--ease); }
 .wyslij:disabled { opacity:.35; cursor:default; }
 .wyslij svg { width:18px; height:18px; }
-.stopka { text-align:center; font-size:13px; color:var(--fg2); padding:6px 0 12px; }
+.stopka { text-align:center; font-size:13px; color:var(--fg2); padding:6px 0 max(12px, env(safe-area-inset-bottom,0px)); }
 .stopka .demo { color:var(--acc); font-family:var(--mono); font-size:13px; letter-spacing:.06em; }
 /* zrzut do oceny: chip nad polem, upuszczanie */
 .zal { display:flex; align-items:center; gap:10px; align-self:flex-start; max-width:100%; background:var(--bg); border:1px solid var(--line); border-radius:var(--r-s); padding:6px 6px 6px 6px; margin-top:2px; }
@@ -394,7 +398,7 @@ button { cursor:pointer; }
 .panel h3 { margin:0 0 4px; font-size:17px; }
 .panel p { margin:0 0 12px; color:var(--fg2); font-size:14px; }
 .panel-kontakt { top:calc(64px + env(safe-area-inset-top,0px)); right:max(16px, env(safe-area-inset-right,0px)); }
-.panel-ust { left:12px; bottom:calc(60px + env(safe-area-inset-bottom,0px)); }
+.panel-ust { left:max(12px, env(safe-area-inset-left,0px)); bottom:calc(106px + env(safe-area-inset-bottom,0px)); }
 .wiersz { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; border-top:1px solid var(--line); font-size:14px; }
 .wiersz:first-of-type { border-top:0; }
 .wiersz .seg button { min-height:36px; font-family:var(--f-sans); font-size:13px; }
@@ -409,7 +413,7 @@ button { cursor:pointer; }
 .konto-txt { display:flex; flex-direction:column; line-height:1.2; min-width:0; }
 .konto-txt b { font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; }
 .konto-txt small { font:500 11px var(--mono); color:var(--fg2); letter-spacing:.06em; text-transform:uppercase; }
-.panel-konto { left:12px; bottom:calc(112px + env(safe-area-inset-bottom,0px)); }
+.panel-konto { left:max(12px, env(safe-area-inset-left,0px)); bottom:calc(152px + env(safe-area-inset-bottom,0px)); }
 .kp-gora { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
 .kp-gora .awatar { width:44px; height:44px; font-size:18px; }
 .kp-gora h3 { margin:0; }
@@ -438,8 +442,9 @@ button { cursor:pointer; }
 /* telefon */
 @media (max-width: 860px) {
   .app, .app.zwiniety { grid-template-columns:1fr; }
-  .pasek { position:fixed; inset:0 auto 0 0; width:min(300px, 86vw); z-index:40; transform:translateX(-102%); transition:transform .35s var(--ease); box-shadow:0 0 60px rgb(0 0 0 / .5); }
-  .app.szuflada .pasek { transform:none; }
+  .pasek { position:fixed; inset:0 auto 0 0; width:min(300px, 86vw); z-index:40; transform:translateX(-102%); visibility:hidden; transition:transform .35s var(--ease), visibility 0s .35s; box-shadow:0 0 60px rgb(0 0 0 / .5); }
+  /* zamknięta szuflada jest za ekranem i niewidoczna (Tab nie wchodzi w ukryte linki); visibility gaśnie po animacji */
+  .app.szuflada .pasek { transform:none; visibility:visible; transition:transform .35s var(--ease); }
   .app.szuflada .zaslona { display:block; position:fixed; inset:0; background:rgb(0 0 0 / .5); z-index:35; }
   .zwiniety .pasek .ukr, .zwiniety .szukaj input { opacity:1; pointer-events:auto; }
   .zwiniety .pasek-gora { gap:10px; }
@@ -459,10 +464,8 @@ button { cursor:pointer; }
   .umiem-scena .ak { grid-column:1 !important; }
   .gorny .tryb-info { display:none; }
   .kontakt-btn { padding:0 12px; }
-  .panel-ust { left:12px; }
   /* szuflada paska ma z-index 40: panele otwierane z niej muszą leżeć wyżej, inaczej są pod spodem i nie da się w nie kliknąć */
   .panel-ust, .panel-konto { z-index:45; }
-  .cialo { padding-bottom:var(--kb, 0px); }
   .pusty .karty-wrap { order:1; margin-bottom:0; }
   .pusty .pole-wrap { order:2; margin-top:auto; }
   .pusty .przewijak { order:0; margin-top:0; flex:1 1 auto; }
@@ -479,6 +482,21 @@ button { cursor:pointer; }
   .swieta.pusty .hero { gap:8px; padding-top:6px; }
   .swieta .hero .mk { width:112px; }
   .kontakt-btn .dl { display:none; }
+}
+/* niskie okno (telefon poziomo): karty startowe w jednym rzędzie, szuflada przewijana, panele z paska od góry ekranu */
+@media (max-height: 500px) {
+  .karty { grid-template-columns:repeat(4, minmax(0,1fr)); }
+  .karty-wrap { padding-block:6px 8px; }
+  .pusty .mdl-karty { display:none; } /* model dalej w pigułce w polu */
+  .pasek { overflow-y:auto; }
+  .historia { flex:none; }
+  .panel-ust, .panel-konto { top:max(8px, env(safe-area-inset-top,0px)); bottom:auto; max-height:calc(100dvh - 16px); overflow-y:auto; }
+}
+@media (pointer: coarse) {
+  .pole { padding-top:0; }
+  .pole textarea { padding-top:16px; }
+  .wiersz .seg button, .zakladki button, .okno .linkowy, .kalk .opcje button, .akcje .ikonka, .kod-kopiuj, .log summary, .zal .ikonka { min-height:44px; }
+  .akcje .ikonka, .zal .ikonka, .seg button { min-width:44px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition:none !important; animation:none !important; } }
 </style>
@@ -1805,7 +1823,8 @@ button { cursor:pointer; }
   /* ---------- telefon: klawiatura ---------- */
   if (window.visualViewport) {
     var vv = window.visualViewport;
-    var kb = function () { var d = Math.max(0, window.innerHeight - vv.height - vv.offsetTop); document.documentElement.style.setProperty('--kb', d + 'px'); };
+    /* powiększenie palcami (scale > 1) też zmniejsza visualViewport, ale to nie klawiatura: wtedy bez dopełnienia */
+    var kb = function () { var d = vv.scale > 1.01 ? 0 : Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)); document.documentElement.style.setProperty('--kb', d + 'px'); app.classList.toggle('klawiatura', d > 80); };
     vv.addEventListener('resize', kb); vv.addEventListener('scroll', kb);
   }
 
