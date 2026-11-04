@@ -118,9 +118,6 @@
 .ov10 .ov-podglad{padding:20px;display:grid;gap:10px;align-content:start;border-right:1px solid var(--o-linia);min-width:0}
 .ov10 .ov-podglad .etyk{font:500 13px/1.4 var(--o-mono);letter-spacing:.06em;color:var(--o-mute);text-transform:uppercase;display:flex;justify-content:space-between;gap:8px;padding-right:120px}
 .ov10 .ov-wykroj{position:relative;border:1px solid var(--o-linia);border-radius:10px;background-repeat:no-repeat;background-color:var(--o-ink);width:100%;max-width:100%}
-.ov10 .ov-wykroj::before,.ov10 .ov-wykroj::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--o-hot);pointer-events:none}
-.ov10 .ov-wykroj::before{left:6px;top:6px;border-right:0;border-bottom:0}
-.ov10 .ov-wykroj::after{right:6px;bottom:6px;border-left:0;border-top:0}
 .ov10 .ov-opisek{padding:24px 24px 20px;display:grid;gap:12px;align-content:start;min-width:0}
 .ov10 .ov-opisek .kod{font:500 13px/1.4 var(--o-mono);letter-spacing:.06em;color:var(--o-hot);text-transform:uppercase}
 .ov10 .ov-opisek h3{font-size:22px;line-height:1.3;font-weight:600}

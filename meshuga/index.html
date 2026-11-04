@@ -14,7 +14,7 @@
 <style>
 @font-face{font-family:"Sora";src:url(/fonts/sora-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap;}@font-face{font-family:"Geist Mono";src:url(/fonts/geist-mono-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap;}
 /* Układ: lewy pasek (historia, Co umiem) + środek; pusty stan = kot w kółku, powitanie, pole-pigułka, karty startowe.
-   Cyberpunk wygładzony: miękkie rogi, kątowniki krew jako znaczniki, etykiety Geist Mono, bez poświaty. */
+   Cyberpunk wygładzony: miękkie rogi, etykiety Geist Mono, bez poświaty. */
 :root {
   --ink:#0e0e12; --krew:#e11d33; --hot:#ff3a52; --kosc:#f6f2f3;
   --bg:var(--ink);
@@ -24,7 +24,6 @@
   --fg:var(--kosc);
   --fg2:color-mix(in oklab, var(--kosc) 70%, var(--ink));
   --acc:var(--hot);
-  --kat:var(--krew);
   --kod:color-mix(in oklab, var(--ink) 90%, var(--kosc));
   --mk-futro:var(--ink); --mk-obrys:var(--kosc); --mk-disk:color-mix(in oklab, var(--ink) 90%, var(--kosc));
   --f-sans:"Sora", "Segoe UI", system-ui, sans-serif;
@@ -52,20 +51,6 @@ button { cursor:pointer; }
 :focus-visible { outline:2px solid var(--acc); outline-offset:2px; }
 .mono { font-family:var(--mono); letter-spacing:.04em; }
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
-
-/* kątowniki: znaczniki w rogach zaokrąglonego kafla */
-.kat { position:relative; }
-.kat::after { content:""; position:absolute; inset:6px; pointer-events:none; --k:10px; --g:1.5px;
-  background:
-    linear-gradient(var(--kat),var(--kat)) top left/var(--k) var(--g) no-repeat,
-    linear-gradient(var(--kat),var(--kat)) top left/var(--g) var(--k) no-repeat,
-    linear-gradient(var(--kat),var(--kat)) top right/var(--k) var(--g) no-repeat,
-    linear-gradient(var(--kat),var(--kat)) top right/var(--g) var(--k) no-repeat,
-    linear-gradient(var(--kat),var(--kat)) bottom left/var(--k) var(--g) no-repeat,
-    linear-gradient(var(--kat),var(--kat)) bottom left/var(--g) var(--k) no-repeat,
-    linear-gradient(var(--kat),var(--kat)) bottom right/var(--k) var(--g) no-repeat,
-    linear-gradient(var(--kat),var(--kat)) bottom right/var(--g) var(--k) no-repeat;
-  opacity:.9; transition:inset .3s var(--ease); }
 
 /* ---------- kot (moduł meshuga-kot.js) ---------- */
 .mk { position:relative; aspect-ratio:1; display:grid; place-items:center; }
@@ -288,7 +273,6 @@ button { cursor:pointer; }
   .karty .karta .gora, .karty .karta .str { display:none; }
   .karty .karta .kod { margin-top:0; }
 }
-.karty .karta.kat::after { --k:10px; background:linear-gradient(var(--kat),var(--kat)) top right/var(--k) var(--g) no-repeat, linear-gradient(var(--kat),var(--kat)) top right/var(--g) var(--k) no-repeat; inset:10px; opacity:0; }
 
 /* rozmowa */
 .feed { display:flex; flex-direction:column; gap:22px; padding-block:18px 12px; }
@@ -580,7 +564,7 @@ button { cursor:pointer; }
       </div>
     </div>
 
-    <div class="panel panel-kontakt kat" id="panelKontakt" hidden>
+    <div class="panel panel-kontakt" id="panelKontakt" hidden>
       <h3>Napisz do nas</h3>
       <p>Odpisujemy zwykle w ciągu jednego dnia roboczego. Kontakt tylko mailem albo formularzem na stronie.</p>
       <div class="adres" id="adres">cybersora@zohomail.eu</div>
@@ -598,7 +582,7 @@ button { cursor:pointer; }
     <div class="wiersz"><span>Historia</span><button class="btn" id="wyczysc">Wyczyść</button></div>
   </div>
 
-  <div class="panel panel-konto kat" id="panelKonto" hidden>
+  <div class="panel panel-konto" id="panelKonto" hidden>
     <div class="kp-gora"><span class="awatar" id="awatarPanel"></span><div><h3 id="kpNick"></h3><p id="kpOd">konto cybersory</p></div></div>
     <p id="kpWyloguj">Wylogowanie działa na wszystkich urządzeniach (strona i gra też).</p>
     <div class="rzad" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="wyloguj">Wyloguj</button></div>
@@ -606,7 +590,7 @@ button { cursor:pointer; }
 </div>
 
 <div class="okno-tlo" id="oknoKonto" hidden>
-  <div class="okno kat" role="dialog" aria-modal="true" aria-labelledby="oknoTytul">
+  <div class="okno" role="dialog" aria-modal="true" aria-labelledby="oknoTytul">
     <h3 id="oknoTytul">Konto cybersory</h3>
     <div class="zakladki" id="kZakladki" role="tablist" aria-label="Konto"><button type="button" role="tab" data-z="log" aria-selected="true">Zaloguj</button><button type="button" role="tab" data-z="rej" aria-selected="false">Załóż konto</button></div>
     <form id="fKonto" novalidate>
@@ -626,6 +610,6 @@ button { cursor:pointer; }
   </div>
 </div>
 
-<script src="/meshuga/meshuga.js?v=2c02870e1d"></script>
+<script src="/meshuga/meshuga.js?v=1772c1b0f3"></script>
 </body>
 </html>

@@ -1000,10 +1000,6 @@
       border-bottom:1px solid rgba(255,255,255,.07);
     }
     .hero__rail dd{margin:0;text-align:right;}
-    /* narozniki HUD (.hero::after, inset 26px) w niskim hero podstrony wchodzily
-       na ostatni wiersz pasa faktow w O nas (zmierzone: dd do x=351, naroznik
-       od x=342, ta sama wysokosc) — schodza do dolnego oddechu (3rem) */
-    .hero:not(.hero--start)::after{inset:26px 12px 14px;}
     /* DOPIESZCZENIE 1B (23.09, wariant A): hero PODSTRON skrojony na tresc.
        Byl pelny ekran (100svh = 844 px) przy 232-418 px tresci — pierwszy ekran
        to byl napis na pustym tle, nic z nastepnej sekcji nie wystawalo nad
@@ -1130,23 +1126,6 @@
     opacity:.45;
     transition:opacity .3s ease;
   }
-  /* corner brackets — subtle cyber-HUD framing, sharpen on hover */
-  .card::after{
-    content:"";
-    position:absolute;inset:9px;
-    border-radius:8px;
-    border:1px solid color-mix(in srgb, var(--cat, var(--th-accent)) 0%, transparent);
-    background:
-      linear-gradient(color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent),color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent)) top left / 14px 1.5px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent),color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent)) top left / 1.5px 14px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent),color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent)) bottom right / 14px 1.5px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent),color-mix(in srgb, var(--cat, var(--th-accent)) 70%, transparent)) bottom right / 1.5px 14px no-repeat;
-    background-repeat:no-repeat;
-    opacity:0;
-    transform:scale(.97);
-    transition:opacity .3s ease, transform .3s ease;
-    pointer-events:none;
-  }
   .card:hover{
     transform:translateY(-5px);
     border-color:color-mix(in srgb, var(--cat, var(--th-accent)) 55%, transparent);
@@ -1156,14 +1135,8 @@
     box-shadow:0 16px 34px -12px rgba(0,0,0,.6);
   }
   .card:hover::before{opacity:1;}
-  .card:hover::after{opacity:1;transform:scale(1);}
 
-  /* ---------- NAROZNIKI HUD SITEWIDE (PROPOZYCJA_WIZUAL.md krok 2, 21.09) ----------
-     Ten sam motyw co .card::after (dwa rogi, gora-lewo + dol-prawo), ale bez
-     wypelnienia i bez ukrywania na hover — .card nagradza kliknieciem, te tu
-     sa CICHYM, stalym podpisem tla (sekcja 3 planu: "narozniki, dzis tylko na
-     .card, rozciagniete na caly szkielet strony"). Dlatego nizsza, stala
-     opacity zamiast 0→1 przy hover. */
+  /* narozniki HUD usuniete 04.11 (maisa: bez katownikow) */
   .hero{position:relative;}
   /* Hero podstron ma jedna crimson kreske na dolnej krawedzi (23.09, wariant 2
      zamiast poswiaty). SPOJNOSC TLA S1 (03.10): kreska wygasa do bokow, a jasniejsza
@@ -1176,45 +1149,8 @@
   /* M8 Sesja 1 (29.09): hero podstron przezroczyste, bo inaczej zaslania tlo rysowane
      na canvas#map. Kolor i poswiate daje #stage (.bg), wspolne dla wszystkich tras. */
   html[data-route]:not([data-route="start"]) .hero:not(.hero--start){background:transparent;}
-  .hero::after{
-    content:"";
-    position:absolute;inset:26px;
-    pointer-events:none;
-    background:
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 22px 1.5px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 1.5px 22px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 22px 1.5px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 1.5px 22px no-repeat;
-    background-repeat:no-repeat;
-    opacity:.4;
-  }
   .manifest__item{position:relative;}
-  .manifest__item::after{
-    content:"";
-    position:absolute;inset:-18px;
-    pointer-events:none;
-    background:
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 16px 1.5px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) top left / 1.5px 16px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 16px 1.5px no-repeat,
-      linear-gradient(color-mix(in srgb, var(--th-accent) 55%, transparent),color-mix(in srgb, var(--th-accent) 55%, transparent)) bottom right / 1.5px 16px no-repeat;
-    background-repeat:no-repeat;
-    opacity:.32;
-  }
-  /* stopka: KRWISTE tlo, wiec akcent w --th-accent by zniknal — ciemny
-     znak jak tekst logotypu (.footer__brand: color:#0a0a0d). Jeden rog,
-     nie cztery: "stopka ma byc cicha, nie krzyczec" (sekcja 3 planu). */
   .footer__brand{position:relative;}
-  .footer__brand::after{
-    content:"";
-    position:absolute;inset:-10px -16px;
-    pointer-events:none;
-    background:
-      linear-gradient(color-mix(in srgb, #0a0a0d 55%, transparent),color-mix(in srgb, #0a0a0d 55%, transparent)) top left / 12px 1.5px no-repeat,
-      linear-gradient(color-mix(in srgb, #0a0a0d 55%, transparent),color-mix(in srgb, #0a0a0d 55%, transparent)) top left / 1.5px 12px no-repeat;
-    background-repeat:no-repeat;
-    opacity:.4;
-  }
   .card__tag{
     display:inline-flex;align-items:center;gap:.5em;
     font-family:var(--mono,ui-monospace,'SFMono-Regular',Consolas,monospace);
@@ -1271,13 +1207,6 @@
   }
   .sprout.is-open .sprout__backdrop{opacity:1;}
   .sprout.is-open .sprout__win{opacity:1;transform:none;}
-  /* narozniki jak w oknie systemu — jedyny "ozdobnik" ramki, w krwistym */
-  .sprout__win::before,.sprout__win::after{
-    content:"";position:absolute;width:18px;height:18px;z-index:3;pointer-events:none;
-    border-color:var(--th-hot);border-style:solid;
-  }
-  .sprout__win::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-top-left-radius:16px;}
-  .sprout__win::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-bottom-right-radius:16px;}
 
   .sprout__bar{
     flex:0 0 auto;position:relative;
@@ -1369,8 +1298,6 @@
       transform:translateY(100%);opacity:1;
       transition:transform .34s var(--ease-soft);
     }
-    .sprout__win::before{border-top-left-radius:18px;}
-    .sprout__win::after{display:none;}
     .sprout__bar{padding-top:.9rem;touch-action:none;}
     .sprout__grip{
       display:block;position:absolute;top:.4rem;left:50%;width:44px;height:4px;margin-left:-22px;
@@ -1985,9 +1912,8 @@
 
   /* ---------- PLYTKA ZNAKU: rama wokol sygnetu, bez ani jednej nowej petli ----------
      Dwie warstwy, obie darmowe:
-     1. CELOWNIK — osiem gradientow ustawionych w cztery naroznikowe katowniki.
-        Zero plikow, ostre na kazdym ekranie, kolor ze zmiennej motywu.
-     2. PRZEJAZD SKANERA — krwista smuga przechodzi przez plytke RAZ, kiedy pas
+     Celownik (kątowniki w rogach) usunięty 04.11 na prośbę maisy.
+     1. PRZEJAZD SKANERA — krwista smuga przechodzi przez plytke RAZ, kiedy pas
         wjezdza w kadr. To przejscie CSS podpiete pod istniejacy `.reveal`,
         czyli ZERO pracujacych petli: zasada "najwyzej dwie petle naraz"
         (mapa + kula) zostaje nietknieta. Skanlinie wyciete w serii N migaly
@@ -2010,25 +1936,6 @@
     box-shadow:0 10px 26px -10px rgba(0,0,0,.6);
     transition:background-color .25s ease;
   }
-  .pas__znak::before{
-    content:"";
-    position:absolute;inset:0;
-    --kat-dl:15px;    /* dlugosc ramienia katownika */
-    --kat-gr:1.5px;   /* grubosc */
-    --kat-kol:var(--th-hot);
-    background:
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 0 0/var(--kat-dl) var(--kat-gr) no-repeat,
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 0 0/var(--kat-gr) var(--kat-dl) no-repeat,
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 100% 0/var(--kat-dl) var(--kat-gr) no-repeat,
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 100% 0/var(--kat-gr) var(--kat-dl) no-repeat,
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 0 100%/var(--kat-dl) var(--kat-gr) no-repeat,
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 0 100%/var(--kat-gr) var(--kat-dl) no-repeat,
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 100% 100%/var(--kat-dl) var(--kat-gr) no-repeat,
-      linear-gradient(var(--kat-kol),var(--kat-kol)) 100% 100%/var(--kat-gr) var(--kat-dl) no-repeat;
-    opacity:.7;
-    pointer-events:none;
-    transition:opacity .25s ease;
-  }
   .pas__znak::after{
     content:"";
     position:absolute;top:0;bottom:0;left:0;width:36%;
@@ -2047,7 +1954,6 @@
   .pas.reveal{opacity:1;transform:none;}
 
   @media (hover:hover){
-    .pas:hover .pas__znak::before{opacity:1;}
     .pas:hover .pas__znak{background-color:color-mix(in srgb, var(--th-hot) 11%, transparent);}
   }
 

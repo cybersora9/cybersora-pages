@@ -500,7 +500,7 @@
 
   $('#umiemBtn').onclick = function () {
     przerwij(); app.classList.remove('pusty'); app.classList.add('widok-umiem'); this.classList.add('aktywna'); zamknijSzuflade();
-    var k = function (kod, h, p) { return '<article class="ak kat"><div class="kod">' + kod + '</div><h3>' + h + '</h3><p>' + p + '</p></article>'; };
+    var k = function (kod, h, p) { return '<article class="ak"><div class="kod">' + kod + '</div><h3>' + h + '</h3><p>' + p + '</p></article>'; };
     $('#umiem').innerHTML = '<div class="brw mono"><b>MESHUGA</b><span>CO UMIEM</span></div><h2 id="umiemH">W czym pomogę</h2><div class="umiem-scena"><canvas aria-hidden="true"></canvas><div class="umiem-grid"><div class="platek-slot" aria-hidden="true"></div>' +
       k('CENNIK', 'Podam ceny z góry', 'Znam cały cennik cybersory: od mikro-skryptu za 150 zł po aplikację na zamówienie. Pokażę cenę i termin na karcie.') +
       k('SKAN', 'Umówię darmowy skan', 'Sprawdzimy, czy Google widzi Twoją stronę i czy działa na telefonie. Raport w 2 dni robocze, 0 zł.') +
@@ -632,7 +632,7 @@
     return '<svg viewBox="' + vb + '"><defs><mask id="' + id + '" maskUnits="userSpaceOnUse" ' + r + '><use href="#ikZestaw"/></mask></defs><rect ' + r + ' fill="currentColor" mask="url(#' + id + ')"/></svg>';
   }
   STARTOWE.forEach(function (s, i) {
-    var b = document.createElement('button'); b.className = 'karta kat';
+    var b = document.createElement('button'); b.className = 'karta';
     b.innerHTML = '<span class="gora"><span class="ik" aria-hidden="true">' + ikona(s.kod, i) + '</span><span class="nr">0' + (i + 1) + '</span></span>' +
       '<span class="kod">' + s.kod + '</span><span class="q">' + esc(s.q) + '</span>' +
       '<span class="str" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>';
@@ -733,7 +733,7 @@
     return w.join('\n');
   }
   function kartaBriefu(b) {
-    var art = document.createElement('article'); art.className = 'ak kat brief';
+    var art = document.createElement('article'); art.className = 'ak brief';
     art.innerHTML = '<div class="kod">BRIEF #' + esc(b.nr) + '</div><h3>Twój brief</h3><p>Wszystko możesz poprawić. Nic stąd nie wychodzi, dopóki sam nie wyślesz.</p><div class="pola">' +
       PYTANIA.map(function (p) { return '<label><span>' + p[1] + '</span><textarea rows="2" data-k="' + p[0] + '"></textarea></label>'; }).join('') +
       '<label><span>Wycena z kalkulatora</span><textarea rows="2" data-k="wycena" placeholder="Dodaj z kalkulatora albo zostaw puste"></textarea></label></div>' +
@@ -802,7 +802,7 @@
     var wyb = spec.split('+'), typ = wyb.filter(function (x) { return K_TYPY.indexOf(x) > -1; })[0] || null;
     var dod = {}; wyb.forEach(function (x) { if (K_DOD.indexOf(x) > -1) dod[x] = true; });
     if (dod.pelny) delete dod.start;
-    var art = document.createElement('article'); art.className = 'ak kat kalk';
+    var art = document.createElement('article'); art.className = 'ak kalk';
     var guzik = function (id, grupa) { var c = CENNIK[id]; return '<button type="button" data-g="' + grupa + '" data-id="' + id + '"><span>' + esc(c.n) + '</span><small>' + esc(c.c) + '</small></button>'; };
     art.innerHTML = '<div class="kod">CN-KALKULATOR</div><h3>Policz swoją wycenę</h3>' +
       '<div class="gr"><div class="et">CO BUDUJEMY</div><div class="opcje">' + K_TYPY.map(function (id) { return guzik(id, 't'); }).join('') + '</div></div>' +
@@ -864,13 +864,13 @@
         box.appendChild(kalkulator(z.id));
       } else if (z.typ === 'KARTA' && CENNIK[z.id] && kart < 2) {
         kart++; var c = CENNIK[z.id];
-        box.insertAdjacentHTML('beforeend', '<article class="ak kat"><div class="kod">' + c.kod + '</div><h3>' + esc(c.n) + '</h3><p>' + esc(c.o) + '</p><div class="cena"><b>' + esc(c.c) + '</b><span>' + esc(c.t).toUpperCase() + '</span></div></article>');
+        box.insertAdjacentHTML('beforeend', '<article class="ak"><div class="kod">' + c.kod + '</div><h3>' + esc(c.n) + '</h3><p>' + esc(c.o) + '</p><div class="cena"><b>' + esc(c.c) + '</b><span>' + esc(c.t).toUpperCase() + '</span></div></article>');
       } else if (z.typ === 'PROJEKT' && PROJEKTY[z.id] && kart < 2) {
         kart++; var p = PROJEKTY[z.id];
-        box.insertAdjacentHTML('beforeend', '<article class="ak kat"><div class="kod">' + p.kod + '</div><h3>' + esc(p.n) + '</h3><p>' + esc(p.o) + '</p><dl class="fakty">' + p.f.map(function (f) { return '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl><div class="rzad"><a class="btn" href="https://cybersora.pl/#products" target="_blank" rel="noopener">Zobacz na stronie</a></div></article>');
+        box.insertAdjacentHTML('beforeend', '<article class="ak"><div class="kod">' + p.kod + '</div><h3>' + esc(p.n) + '</h3><p>' + esc(p.o) + '</p><dl class="fakty">' + p.f.map(function (f) { return '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl><div class="rzad"><a class="btn" href="https://cybersora.pl/#products" target="_blank" rel="noopener">Zobacz na stronie</a></div></article>');
       } else if (z.typ === 'ZESPOL' && !box.querySelector('.zespol')) {
         var opis = (biezacy ? biezacy.msgs.filter(function (m) { return m.r === 'user'; }).map(function (m) { return '• ' + m.t; }).join('\n') : '');
-        var art = document.createElement('article'); art.className = 'ak kat zespol';
+        var art = document.createElement('article'); art.className = 'ak zespol';
         art.innerHTML = '<div class="kod">DO-ZESPOLU</div><h3>Wyślij to do zespołu</h3><p>Złożyłem opis z naszej rozmowy. Popraw, skopiuj i wyślij na <span class="adres">' + EMAIL + '</span>.</p>' +
           '<label class="sr" for="opis' + Date.now() + '">Opis dla zespołu</label><textarea id="opis' + Date.now() + '"></textarea>' +
           '<div class="rzad"><button class="btn pelny" type="button">Kopiuj opis</button><a class="btn" href="mailto:' + EMAIL + '?subject=' + encodeURIComponent('Pomysł od Meshugi') + '">Otwórz pocztę</a></div>';

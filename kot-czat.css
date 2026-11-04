@@ -112,16 +112,6 @@ html[data-route="soraos"] .kot, html[data-route="polityka"] .kot{display:none;}
   transform:rotate(45deg);}
 .kot__tipRow{display:flex; gap:8px; margin-top:12px;}
 
-/* kątowniki krew (znaczniki, nie ścięcie) — wariant A kafla */
-.kot__tip::before, .kot__panel::before{
-  content:""; position:absolute; inset:6px; pointer-events:none;
-  background:
-    linear-gradient(var(--k-krew),var(--k-krew)) left top/12px 2px no-repeat,
-    linear-gradient(var(--k-krew),var(--k-krew)) left top/2px 12px no-repeat,
-    linear-gradient(var(--k-krew),var(--k-krew)) right bottom/12px 2px no-repeat,
-    linear-gradient(var(--k-krew),var(--k-krew)) right bottom/2px 12px no-repeat;
-}
-
 .kot__b{ /* przyciski w dymku i okienku */
   min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--k-line);
   background:transparent; color:var(--k-kosc); font:600 14px/1 var(--f-sans); cursor:pointer;
