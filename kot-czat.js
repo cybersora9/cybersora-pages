@@ -347,20 +347,22 @@
   function obrazek(plik, cb) {
     if (!plik || !/^image\/(jpeg|png|webp|gif|avif)$/.test(plik.type)) return cb('To nie jest obrazek. Wybierz JPG, PNG, WEBP albo GIF.');
     if (plik.size > 8e6) return cb('Obrazek jest za duży (najwyżej 8 MB).');
-    var u = URL.createObjectURL(plik), img = new Image();
+    // FileReader → data:, nie URL.createObjectURL → blob:, bo CSP strony (img-src 'self' data:) blokuje blob:
+    // i na żywo żaden awatar by się nie wczytał
+    var fr = new FileReader(), img = new Image(), zle = function () { cb('Nie udało się odczytać obrazka.'); };
     img.onload = function () {
       var c = document.createElement('canvas'); c.width = c.height = 128;
       var s = Math.min(img.naturalWidth, img.naturalHeight);
-      if (!s) { URL.revokeObjectURL(u); return cb('Nie udało się odczytać obrazka.'); }
+      if (!s) return zle();
       c.getContext('2d').drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 128, 128);
-      URL.revokeObjectURL(u);
       var d = c.toDataURL('image/webp', 0.85);
       if (d.indexOf('data:image/webp') !== 0) d = c.toDataURL('image/jpeg', 0.85);
-      if (!dobryAva(d)) return cb('Nie udało się odczytać obrazka.');
+      if (!dobryAva(d)) return zle();
       cb(null, d);
     };
-    img.onerror = function () { URL.revokeObjectURL(u); cb('Nie udało się odczytać obrazka.'); };
-    img.src = u;
+    img.onerror = zle; fr.onerror = zle;
+    fr.onload = function () { if (typeof fr.result === 'string' && fr.result.indexOf('data:image/') === 0) img.src = fr.result; else zle(); };
+    fr.readAsDataURL(plik);
   }
   prof.addEventListener('click', function () { pokazProfil(!root.classList.contains('kot--profil')); });
   pWybierz.addEventListener('click', function () { pPlik.click(); });
