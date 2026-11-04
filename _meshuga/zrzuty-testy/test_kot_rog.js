@@ -1,0 +1,120 @@
+// Kot w rogu cybersora.pl (wariant A, wybór maisy 04.11): żywy kot z meshuga-kot.js w kółku SVG z aplikacji
+// zamiast zdjęcia kot-128.webp w kółku CSS. Kopia strony z Documents\cybersora-pages z nagłówkami CSP cybersora.pl.
+// Stany: zamknięty, podpowiedź, otwarty, „pisze…”, po odpowiedzi; 1280/768/375; reduced-motion; brak modułu kota (fallback).
+// ETAP=przed|po (prefiks zrzutów). Zrzuty: cybersora-pages\zrzuty-testy\kot-rog.
+const { chromium } = require('playwright');
+const path = require('path');
+const fs = require('fs');
+const ROOT = process.env.STRONA_ROOT || 'C:\\Users\\maisa\\Documents\\cybersora-pages';
+const OUT = path.join(ROOT, 'zrzuty-testy', 'kot-rog');
+fs.mkdirSync(OUT, { recursive: true });
+const ETAP = process.env.ETAP || 'po';
+const CSP = "default-src 'self'; script-src 'self' https://web3forms.com https://hcaptcha.com https://*.hcaptcha.com; style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com https://hcaptcha.com https://*.hcaptcha.com https://dancycloud-ranking.dancycloud-ranking.workers.dev; frame-src https://hcaptcha.com https://*.hcaptcha.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com";
+const TYPY = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.woff2': 'font/woff2', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png', '.avif': 'image/avif', '.json': 'application/json', '.xml': 'application/xml' };
+
+(async () => {
+  const browser = await chromium.launch({ headless: process.env.PW_HEADLESS !== 'false' });
+  const wyn = { etap: ETAP, kroki: 0, zrzuty: 0, bledy: [], csp: 0, brak404: [], sprawdzenia: [] };
+  const ok = (n, w, i) => wyn.sprawdzenia.push((w ? 'OK  ' : 'BŁĄD ') + n + (i ? ' · ' + i : ''));
+  const zrzut = async (p, nazwa, loc) => { const o = { path: path.join(OUT, `${ETAP}_${nazwa}.png`) }; await (loc ? loc.screenshot(o) : p.screenshot(o)); wyn.zrzuty++; };
+
+  async function kontekst(w, opcje = {}) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: w === 375 ? 780 : 820 }, reducedMotion: opcje.reduce ? 'reduce' : 'no-preference', hasTouch: w === 375, isMobile: w === 375 });
+    await ctx.route(/^https?:\/\/(?!cybersora\.test).*/, r => r.abort());
+    await ctx.route('http://cybersora.test/**', async r => {
+      const u = new URL(r.request().url());
+      const f = decodeURIComponent(u.pathname.endsWith('/') ? u.pathname + 'index.html' : u.pathname);
+      if (opcje.bezKota && /meshuga-kot\.js$/.test(f)) return r.fulfill({ status: 404, body: 'brak' });
+      const plik = path.join(ROOT, f);
+      if (f.includes('..') || !fs.existsSync(plik) || fs.statSync(plik).isDirectory()) { if (!opcje.bezKota) wyn.brak404.push(f); return r.fulfill({ status: 404, body: 'brak' }); }
+      await r.fulfill({ status: 200, body: fs.readFileSync(plik), headers: { 'content-type': TYPY[path.extname(plik)] || 'application/octet-stream', 'content-security-policy': CSP } });
+    });
+    ctx.on('page', pg => {
+      pg.on('console', m => { if (m.type() !== 'error') return; const t = m.text(); if (/Content Security Policy/i.test(t)) wyn.csp++; else if (!/Failed to load resource/.test(t)) wyn.bledy.push(w + ': ' + t); });
+      pg.on('pageerror', e => wyn.bledy.push(w + ' pageerror: ' + e.message));
+    });
+    const p = await ctx.newPage();
+    await p.goto('http://cybersora.test/'); await p.waitForTimeout(1400); wyn.kroki++;
+    return { ctx, p };
+  }
+  const stan = p => p.evaluate(() => {
+    const b = document.querySelector('.kot__btn'), r = b.getBoundingClientRect(), mk = b.querySelector('.mk');
+    const slot = b.querySelector('.mk-ring-slot');
+    const bg = getComputedStyle(b).backgroundImage;
+    const ringAnims = slot ? slot.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length : 0;
+    const ringRot = slot ? getComputedStyle(slot).transform : 'none';
+    return {
+      btn: [Math.round(r.width), Math.round(r.height), Math.round(innerWidth - r.right), Math.round(innerHeight - r.bottom)],
+      mk: !!mk, kotSvg: !!b.querySelector('svg.mk-kot'), ringSvg: !!b.querySelector('svg.mk-ring-A'),
+      mkW: mk ? Math.round(mk.getBoundingClientRect().width) : 0,
+      zdjecie: /kot-128\.webp/.test(bg), squint: !!b.querySelector('.mk-squint'), staryRing: !!b.querySelector('.kot__ring, .kot__skan'),
+      dot: getComputedStyle(b.querySelector('.kot__dot')).display !== 'none', ringAnims, ringRot,
+      poziomy: document.documentElement.scrollWidth > innerWidth
+    };
+  });
+
+  for (const w of [1280, 768, 375]) {
+    const { ctx, p } = await kontekst(w);
+    let s = await stan(p);
+    ok(`${w} zamknięty: przycisk 64 px w tym samym miejscu (18 px od rogu)`, s.btn[0] === 64 && s.btn[1] === 64 && s.btn[2] === 18 && s.btn[3] === 18, s.btn.join('/'));
+    ok(`${w} zamknięty: żywy kot wektorowy w kółku A (84 px), bez zdjęcia i kółka CSS`, s.mk && s.kotSvg && s.ringSvg && s.mkW === 84 && !s.zdjecie && !s.staryRing, JSON.stringify({ mk: s.mk, svg: s.kotSvg, ring: s.ringSvg, mkW: s.mkW, zdjecie: s.zdjecie, stary: s.staryRing }));
+    ok(`${w} zamknięty: kółko się kręci`, s.ringAnims >= 2, s.ringAnims + ' animacji');
+    ok(`${w} bez poziomego przewijania`, !s.poziomy);
+    await zrzut(p, `${w}_zamkniety`);
+    await zrzut(p, `${w}_rog_zblizenie`, p.locator('.kot__btn'));
+    // podpowiedź: ruch na stronie + 4 s
+    await p.mouse.wheel(0, 40); await p.waitForTimeout(4400); wyn.kroki++;
+    s = await stan(p);
+    ok(`${w} podpowiedź: dymek i kropka`, s.dot && await p.locator('.kot__tip').isVisible(), 'kropka ' + s.dot);
+    await zrzut(p, `${w}_podpowiedz`);
+    await p.click('.kot__tip .kot__b:not(.kot__b--main)'); wyn.kroki++;
+    // otwarty
+    await p.click('.kot__btn'); await p.waitForTimeout(600); wyn.kroki++;
+    s = await stan(p);
+    if (w > 480) {
+      const m = /matrix\(([^,]+), ([^,]+)/.exec(s.ringRot), kat = m ? Math.round(Math.atan2(+m[2], +m[1]) * 180 / Math.PI) : 0;
+      ok(`${w} otwarty: kółko obrócone o 90°`, kat === 90, s.ringRot + ' · ' + kat + '°');
+    }
+    await zrzut(p, `${w}_otwarty`);
+    // pisze…
+    await p.fill('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Ile to kosztuje?');
+    await p.press('#kotPanel .kot__in[aria-label="Pytanie do Meshugi"]', 'Enter'); await p.waitForTimeout(120); wyn.kroki++;
+    s = await stan(p);
+    const pisze = await p.locator('.kot__pisze').count();
+    ok(`${w} „pisze…”: kot mruży oczy`, pisze === 1 && s.squint, 'pisze ' + pisze + ' · squint ' + s.squint);
+    if (w > 480) await zrzut(p, `${w}_pisze`); else { await p.click('.kot__x'); }
+    await p.waitForTimeout(700); wyn.kroki++;
+    s = await stan(p);
+    ok(`${w} po odpowiedzi: oczy otwarte`, !s.squint && (await p.locator('.kot__m--kot').count()) >= 2);
+    if (w <= 480) { await p.click('.kot__btn'); await p.waitForTimeout(600); }
+    await zrzut(p, `${w}_odpowiedz`);
+    // focus-visible
+    await p.keyboard.press('Escape'); await p.waitForTimeout(400);
+    const fokus = await p.evaluate(() => document.activeElement && document.activeElement.classList.contains('kot__btn') && getComputedStyle(document.activeElement).outlineStyle !== 'none');
+    ok(`${w} po zamknięciu fokus wraca na kota z widoczną obwódką`, fokus);
+    await ctx.close();
+  }
+  // reduced-motion: statyczny kot
+  {
+    const { ctx, p } = await kontekst(1280, { reduce: true });
+    const s = await stan(p);
+    ok(`reduced-motion: kot jest, kółko stoi`, s.kotSvg && s.ringAnims === 0, s.ringAnims + ' animacji');
+    await zrzut(p, `1280_reduced_rog`, p.locator('.kot__btn'));
+    await ctx.close();
+  }
+  // brak meshuga-kot.js: zostaje zdjęcie kota (nie pusty przycisk)
+  {
+    const { ctx, p } = await kontekst(1280, { bezKota: true });
+    const s = await stan(p);
+    ok(`bez modułu kota: zdjęcie kot-128.webp i kółko CSS`, !s.mk && s.zdjecie && s.staryRing, JSON.stringify({ mk: s.mk, zdjecie: s.zdjecie, stary: s.staryRing }));
+    await zrzut(p, `1280_fallback_rog`, p.locator('.kot__btn'));
+    await p.click('.kot__btn'); await p.waitForTimeout(500);
+    ok(`bez modułu kota: okienko dalej się otwiera`, await p.locator('#kotPanel').isVisible());
+    await ctx.close();
+  }
+  ok('zero błędów konsoli', wyn.bledy.length === 0, wyn.bledy.slice(0, 3).join(' | '));
+  ok('zero naruszeń CSP', wyn.csp === 0, String(wyn.csp));
+  ok('zero 404 (poza celowym)', wyn.brak404.length === 0, wyn.brak404.join(','));
+  await browser.close();
+  console.log(JSON.stringify(wyn, null, 1));
+})();

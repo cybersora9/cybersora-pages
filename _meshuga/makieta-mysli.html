@@ -1,0 +1,396 @@
+<title>Meshuga myśli</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Układ: pasek sterowania na górze, trzy karty wariantów (A/B/C); w każdej powitanie 188 px, róg strony 64 px i wiadomość z awatarem 40 px. */
+:root{
+  --ink:#0e0e12; --krew:#e11d33; --hot:#ff3a52; --kosc:#f6f2f3; --fg:var(--kosc);
+  --surf:color-mix(in oklab, var(--ink) 93%, var(--kosc));
+  --line:color-mix(in oklab, var(--ink) 80%, var(--kosc));
+  --dim:color-mix(in oklab, var(--kosc) 58%, var(--ink));
+  --mk-futro:var(--ink); --mk-obrys:var(--kosc); --mk-disk:color-mix(in oklab, var(--ink) 90%, var(--kosc));
+  --ease:cubic-bezier(.22,.8,.24,1);
+  --f-sans:"Sora",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--ink); color:var(--kosc); font-family:var(--f-sans);
+  padding-block:28px 60px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.wrap{max-width:1180px; margin:0 auto}
+h1{font-size:22px; margin:0 0 4px; text-wrap:balance}
+.sub{font:500 13px var(--mono); color:var(--dim); margin:0 0 20px}
+.ster{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; align-items:center}
+.ster .et{font:500 12px var(--mono); color:var(--dim); letter-spacing:.06em; text-transform:uppercase; margin-right:4px; min-width:56px}
+.ster button{min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--line); background:transparent;
+  color:var(--kosc); font:600 14px var(--f-sans); cursor:pointer; transition:background .2s var(--ease), border-color .2s var(--ease)}
+.ster button:hover{border-color:var(--dim)}
+.ster button[aria-pressed="true"]{background:var(--krew); border-color:var(--krew)}
+.ster button:focus-visible{outline:2px solid var(--hot); outline-offset:2px}
+.ster + .siatka{margin-top:22px}
+.siatka{display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:20px}
+.karta{background:var(--surf); border:1px solid var(--line); border-radius:18px; overflow:hidden; display:flex; flex-direction:column; min-width:0}
+.karta h2{margin:0; padding:16px 18px 2px; font-size:18px}
+.karta h2 b{color:var(--hot); font-family:var(--mono); font-weight:500; margin-right:8px}
+.karta > p{margin:0; padding:2px 18px 14px; font:500 13px/1.45 var(--mono); color:var(--dim)}
+
+/* powitanie: kot 188 + napis etapu pod nim; miejsce na wstęgę wokół (nic nie nachodzi na napis) */
+.hero{display:flex; flex-direction:column; align-items:center; gap:30px; padding:52px 12px 30px; border-top:1px solid var(--line); background:var(--ink)}
+.etap{display:flex; align-items:baseline; gap:8px; min-height:22px; font:500 14px var(--mono); color:var(--kosc); white-space:nowrap}
+.etap .zn{color:var(--krew)}
+.etap .tx{display:inline-block; transition:opacity .22s var(--ease), transform .22s var(--ease)}
+.etap .tx.zm{opacity:0; transform:translateY(-5px)}
+.etap .sek{color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums}
+.etap.off{visibility:hidden}
+
+.dol{display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--line); flex:1}
+.dol > div{position:relative; min-height:150px; background:var(--ink)}
+.dol > div + div{border-left:1px solid var(--line)}
+.dol .lab{position:absolute; left:12px; top:10px; font:500 11px var(--mono); color:var(--dim); letter-spacing:.06em; text-transform:uppercase}
+.rog .poz{position:absolute; right:22px; bottom:22px}
+.wiad{display:flex; align-items:center; gap:16px; padding:46px 12px 20px 22px}
+.wiad .etap{font-size:12.5px; white-space:normal; flex-wrap:wrap; row-gap:2px; min-width:0}
+
+/* ---- kot (style jak w aplikacji Meshugi) ---- */
+.mk{position:relative; aspect-ratio:1; display:grid; place-items:center; width:var(--w); flex:none}
+.mk-ring-slot{position:absolute; inset:0}
+.mk-ring{width:100%; height:100%; display:block; overflow:visible}
+.mk-disk{position:absolute; inset:0; border-radius:50%; overflow:hidden; background:var(--mk-disk)}
+.mk-has-ring .mk-disk{inset:12%}
+.mk-kot{position:absolute; left:4%; width:92%; bottom:0; overflow:visible}
+.mk-obrys{stroke:var(--mk-obrys); opacity:.9}
+.mk-wasy{stroke:var(--mk-obrys); opacity:.45}
+.mk-futro{fill:var(--mk-futro)}
+.mk-oko{fill:var(--hot); transform-box:fill-box; transform-origin:center; transition:transform .25s var(--ease)}
+.mk-squint .mk-oko{transform:scaleY(.42)}
+.mk-blysk{fill:var(--kosc); opacity:0}
+.mk-oczy{transition:transform .18s linear}
+.mk-ucho-p{transform-box:fill-box; transform-origin:20% 100%}
+.mk-krew{stroke:var(--krew)} .mk-kosc{stroke:var(--fg)} .mk-hot-f{fill:var(--hot)}
+/* wstęga myśli: tył pod dyskiem, przód nad nim */
+.mm-c{position:absolute; pointer-events:none}
+/* na czas myślenia kółko przygasa, główną rolę gra wstęga */
+.mk-ring-slot{transition:opacity .45s var(--ease)}
+.mk.mm-on .mk-ring-slot{opacity:.28}
+
+@media (max-width:420px){ .dol{grid-template-columns:1fr} .dol > div + div{border-left:0; border-top:1px solid var(--line)} }
+</style>
+
+<div class="wrap">
+<h1>Meshuga myśli</h1>
+<p class="sub">makieta · 04.11 · wybierz A, B albo C</p>
+
+<div class="ster" role="group" aria-label="Stan">
+  <span class="et">stan</span>
+  <button type="button" id="bMysli" aria-pressed="true">Myśli</button>
+  <button type="button" id="bGotowe">Gotowe (pierwsze słowo)</button>
+</div>
+<div class="ster" role="group" aria-label="Temat pytania">
+  <span class="et">temat</span>
+  <button type="button" data-temat="cena" aria-pressed="true">cena</button>
+  <button type="button" data-temat="kod" aria-pressed="false">kod</button>
+  <button type="button" data-temat="pomysl" aria-pressed="false">pomysł</button>
+  <button type="button" data-temat="projekt" aria-pressed="false">projekt</button>
+  <button type="button" data-temat="inne" aria-pressed="false">inne</button>
+</div>
+<div class="ster" role="group" aria-label="Opcje">
+  <span class="et">opcje</span>
+  <button type="button" id="bZrzut" aria-pressed="false">ze zrzutem</button>
+  <button type="button" id="bRuch" aria-pressed="false">ograniczony ruch</button>
+</div>
+
+<div class="siatka">
+  <section class="karta" data-v="A">
+    <h2><b>A</b>Wstęga</h2>
+    <p>jedna gruba wstęga krwi po spirali wokół kółka, ostra głowa, ogon z segmentów gaśnie do kości</p>
+    <div class="hero"><div class="slot" data-d="188" data-ring="1"></div><div class="etap off"></div></div>
+    <div class="dol">
+      <div class="rog"><span class="lab">róg strony · 64</span><div class="poz slot" data-d="64" data-ring="1"></div></div>
+      <div><span class="lab">wiadomość · 40</span><div class="wiad"><div class="slot" data-d="40"></div><div class="etap off"></div></div></div>
+    </div>
+  </section>
+  <section class="karta" data-v="B">
+    <h2><b>B</b>Dwie wstęgi</h2>
+    <p>krew i kość krążą w przeciwne strony po pochylonych orbitach, splatają się i rozplatają w rytmie oddechu</p>
+    <div class="hero"><div class="slot" data-d="188" data-ring="1"></div><div class="etap off"></div></div>
+    <div class="dol">
+      <div class="rog"><span class="lab">róg strony · 64</span><div class="poz slot" data-d="64" data-ring="1"></div></div>
+      <div><span class="lab">wiadomość · 40</span><div class="wiad"><div class="slot" data-d="40"></div><div class="etap off"></div></div></div>
+    </div>
+  </section>
+  <section class="karta" data-v="C">
+    <h2><b>C</b>Rój znaków</h2>
+    <p>ogon wstęgi ze znaków kodu, litery zostają na torze i gasną; na 64 i 40 px zamiast liter kwadraciki</p>
+    <div class="hero"><div class="slot" data-d="188" data-ring="1"></div><div class="etap off"></div></div>
+    <div class="dol">
+      <div class="rog"><span class="lab">róg strony · 64</span><div class="poz slot" data-d="64" data-ring="1"></div></div>
+      <div><span class="lab">wiadomość · 40</span><div class="wiad"><div class="slot" data-d="40"></div><div class="etap off"></div></div></div>
+    </div>
+  </section>
+</div>
+</div>
+
+<script src="meshuga-kot.js"></script>
+<script>
+(function () {
+  'use strict';
+  var KREW = [225, 29, 51], KOSC = [246, 242, 243], HOT = [255, 58, 82];
+  var ZNAKI = '{}<>;01/=()[]'.split('');
+  var reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function mix(a, b, u) { return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u]; }
+  function rgba(c, al) { return 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + al.toFixed(3) + ')'; }
+  function rad(d) { return d * Math.PI / 180; }
+  var TAU = Math.PI * 2;
+
+  /* tor: punkt na okręgu R, pochylony o alfa (oś X), obrócony o beta na ekranie; z>0 = przed kotem (dolny łuk) */
+  function rzut(R, phi, al, be) {
+    var x0 = R * Math.cos(phi), y0 = R * Math.sin(phi);
+    var y1 = y0 * Math.cos(al), z = y0 * Math.sin(al);
+    return { x: x0 * Math.cos(be) - y1 * Math.sin(be), y: x0 * Math.sin(be) + y1 * Math.cos(be), z: z / R };
+  }
+  var WARIANT = {
+    A: function (t) { return [{ al: rad(68 + 10 * Math.sin(TAU * t / 3.7)), be: rad(-16 + 24 * Math.sin(TAU * t / 6.1)), dir: 1, kol: KREW, kon: KOSC }]; },
+    B: function (t) {
+      var s = 0.5 + 0.5 * Math.sin(TAU * t / 4.4);       /* 0 = splecione, 1 = rozplecione */
+      return [
+        { al: rad(64), be: rad(6 + 34 * s), dir: 1, kol: KREW, kon: KREW, off: 0 },
+        { al: rad(64), be: rad(-6 - 34 * s), dir: -1, kol: KOSC, kon: KOSC, off: Math.PI }
+      ];
+    },
+    C: function (t) { return [{ al: rad(70), be: rad(-12 + 14 * Math.sin(TAU * t / 5)), dir: 1, kol: KREW, kon: KOSC }]; }
+  };
+
+  var wszystkie = [], raf = 0, last = 0;
+
+  function Mysl(host, kot, v, w) {
+    this.host = host; this.kot = kot; this.v = v; this.w = w; this.maly = w < 100;
+    this.pad = Math.ceil(w * 0.22);
+    var S = w + this.pad * 2, dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.S = S; this.dpr = dpr;
+    var self = this;
+    function c(cls) {
+      var el = document.createElement('canvas');
+      el.className = 'mm-c ' + cls; el.width = S * dpr; el.height = S * dpr;
+      el.style.cssText = 'left:' + (-self.pad) + 'px;top:' + (-self.pad) + 'px;width:' + S + 'px;height:' + S + 'px';
+      el.setAttribute('aria-hidden', 'true');
+      return el;
+    }
+    this.cb = c('mm-tyl'); this.cf = c('mm-przod');
+    host.insertBefore(this.cb, host.querySelector('.mk-disk'));
+    host.appendChild(this.cf);
+    this.xb = this.cb.getContext('2d'); this.xf = this.cf.getContext('2d');
+    this.stan = 'off'; this.k = 0; this.phi = 0; this.t = 0; this.hist = []; this.glify = []; this.emit = 0;
+    wszystkie.push(this);
+  }
+  Mysl.prototype.start = function () {
+    if (this.stan === 'on' || this.stan === 'in') return;
+    this.stan = 'in'; this.kot.squint(true); this.host.classList.add('mm-on');
+    if (reduce) { this.k = 1; this.statyczny(); return; }
+    petla();
+  };
+  Mysl.prototype.stop = function () {
+    if (this.stan === 'off' || this.stan === 'out') return;
+    this.host.classList.remove('mm-on');
+    if (reduce) { this.czysc(); this.stan = 'off'; this.k = 0; this.kot.squint(false); this.kot.flash(); return; }
+    this.stan = 'out'; this.host.classList.remove('mm-on'); petla();
+  };
+  Mysl.prototype.czysc = function () {
+    var S = this.S * this.dpr;
+    this.xb.setTransform(1, 0, 0, 1, 0, 0); this.xf.setTransform(1, 0, 0, 1, 0, 0);
+    this.xb.clearRect(0, 0, S, S); this.xf.clearRect(0, 0, S, S);
+    this.xb.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); this.xf.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  };
+  Mysl.prototype.phiAt = function (tq) {
+    var h = this.hist;
+    for (var i = h.length - 1; i > 0; i--) {
+      if (h[i - 1].t <= tq) { var a = h[i - 1], b = h[i], u = (tq - a.t) / ((b.t - a.t) || 1); return a.p + (b.p - a.p) * u; }
+    }
+    return h.length ? h[0].p : 0;
+  };
+  /* ograniczony ruch: jeden nieruchomy pierścień przerywany */
+  Mysl.prototype.statyczny = function () {
+    this.czysc();
+    var c = this.S / 2, R = this.w * 0.56, o = WARIANT[this.v](0)[0], n = 48;
+    for (var i = 0; i < n; i += 1) {
+      if (i % 2) continue;
+      var a = rzut(R, i / n * TAU, o.al, o.be), b = rzut(R, (i + 1) / n * TAU, o.al, o.be);
+      var x = (a.z + b.z) > 0 ? this.xf : this.xb;
+      x.strokeStyle = rgba(KREW, 0.9); x.lineWidth = Math.max(1.5, this.w * 0.018); x.lineCap = 'butt';
+      x.beginPath(); x.moveTo(c + a.x, c + a.y); x.lineTo(c + b.x, c + b.y); x.stroke();
+    }
+  };
+  Mysl.prototype.krok = function (dt) {
+    if (this.stan === 'in') { this.k = Math.min(1, this.k + dt / 0.55); if (this.k >= 1) this.stan = 'on'; }
+    if (this.stan === 'out') {
+      this.k = Math.max(0, this.k - dt / 0.45);
+      if (this.k <= 0) { this.stan = 'off'; this.czysc(); this.hist = []; this.glify = []; this.kot.squint(false); this.kot.flash(); return; }
+    }
+    this.t += dt;
+    var w0 = TAU / (this.maly ? 1.7 : 1.5);
+    this.phi += w0 * (1 + 0.5 * Math.sin(TAU * this.t / 2.6)) * dt;    /* oddech: przyspiesza i zwalnia */
+    this.hist.push({ t: this.t, p: this.phi });
+    while (this.hist.length > 2 && this.hist[1].t < this.t - 1.3) this.hist.shift();
+    this.rysuj(dt);
+  };
+  Mysl.prototype.rysuj = function (dt) {
+    this.czysc();
+    var e = 1 - Math.pow(1 - this.k, 3);
+    var c = this.S / 2, w = this.w, R = w * (0.36 + 0.2 * e), self = this;
+    var orb = WARIANT[this.v](this.t);
+    if (this.v === 'C') { this.roj(dt, e, c, R, orb[0]); return; }
+    var dwa = this.v === 'B';
+    orb.forEach(function (o) {
+      var N = self.maly ? 12 : 26, ogon = (dwa ? 0.6 : 0.8) * e;
+      var W = dwa ? Math.max(1.6, w * 0.03) : Math.max(2.2, w * 0.05);
+      var pts = [];
+      for (var k = 0; k <= N; k++) {
+        var tq = self.t - k * ogon / N;
+        var oo = WARIANT[self.v](tq)[orb.indexOf(o)];
+        var p = rzut(R, self.phiAt(tq) * o.dir + (o.off || 0), oo.al, oo.be);
+        pts.push(p);
+      }
+      for (k = N - 1; k >= 0; k--) {
+        var a = pts[k], b = pts[k + 1], u = k / N;
+        var x = (a.z + b.z) > 0 ? self.xf : self.xb;
+        var gl = 1 + 0.18 * (a.z + b.z) / 2;                       /* bliżej = grubiej */
+        x.strokeStyle = rgba(mix(o.kol, o.kon, Math.pow(u, 0.9)), Math.pow(1 - u, 1.25) * e);
+        x.lineWidth = W * Math.pow(1 - u, 0.7) * gl; x.lineCap = 'butt';
+        var bx = a.x + (b.x - a.x) * 0.72, by = a.y + (b.y - a.y) * 0.72;   /* przerwa = segmenty */
+        x.beginPath(); x.moveTo(c + a.x, c + a.y); x.lineTo(c + bx, c + by); x.stroke();
+      }
+      /* ostra głowa */
+      var h = pts[0], p1 = pts[1], dx = h.x - p1.x, dy = h.y - p1.y, d = Math.hypot(dx, dy) || 1;
+      dx /= d; dy /= d;
+      var L = W * 1.7, B = W * 0.62 * (1 + 0.18 * h.z), xh = h.z > 0 ? self.xf : self.xb;
+      xh.fillStyle = rgba(o.kol === KREW ? HOT : KOSC, e);
+      xh.beginPath();
+      xh.moveTo(c + h.x + dx * L, c + h.y + dy * L);
+      xh.lineTo(c + h.x - dy * B, c + h.y + dx * B);
+      xh.lineTo(c + h.x - dx * W * 0.5, c + h.y - dy * W * 0.5);
+      xh.lineTo(c + h.x + dy * B, c + h.y - dx * B);
+      xh.closePath(); xh.fill();
+    });
+  };
+  /* C: głowa + znaki kodu zostawiane na torze */
+  Mysl.prototype.roj = function (dt, e, c, R, o) {
+    var h = rzut(R, this.phi, o.al, o.be);
+    var co = this.maly ? 0.07 : 0.042;
+    if (this.stan !== 'out') {
+      this.emit += dt;
+      while (this.emit > co) { this.emit -= co; this.glify.push({ x: h.x, y: h.y, z: h.z, a: 0, ch: ZNAKI[(Math.random() * ZNAKI.length) | 0] }); }
+    }
+    var zycie = this.maly ? 0.7 : 1.0, fs = Math.max(8, this.w * 0.075), self = this;
+    this.glify = this.glify.filter(function (g) { g.a += dt / zycie; return g.a < 1; });
+    if (!this.maly) { this.xb.font = this.xf.font = '500 ' + fs.toFixed(1) + 'px "Geist Mono", ui-monospace, monospace'; }
+    [this.xb, this.xf].forEach(function (x) { x.textAlign = 'center'; x.textBaseline = 'middle'; });
+    for (var i = 0; i < this.glify.length; i++) {
+      var g = this.glify[i], x = g.z > 0 ? this.xf : this.xb;
+      var al = Math.pow(1 - g.a, 1.2) * e, col = rgba(mix(KREW, KOSC, Math.min(1, g.a * 1.4)), al);
+      if (this.maly) {
+        var s = Math.max(1.5, this.w * 0.045) * (1 - 0.5 * g.a);
+        x.fillStyle = col; x.fillRect(c + g.x - s / 2, c + g.y - s / 2, s, s);
+      } else {
+        var sc = (1 - 0.4 * g.a) * (1 + 0.15 * g.z);
+        x.save(); x.translate(c + g.x, c + g.y); x.scale(sc, sc); x.fillStyle = col; x.fillText(g.ch, 0, 0); x.restore();
+      }
+    }
+    /* głowa: kwadrat krwi obrócony wzdłuż toru */
+    var p1 = rzut(R, this.phi - 0.12, o.al, o.be), ang = Math.atan2(h.y - p1.y, h.x - p1.x);
+    var xh = h.z > 0 ? this.xf : this.xb, S = Math.max(3, this.w * 0.05) * (1 + 0.18 * h.z);
+    xh.save(); xh.translate(c + h.x, c + h.y); xh.rotate(ang + Math.PI / 4);
+    xh.fillStyle = rgba(HOT, e); xh.fillRect(-S / 2, -S / 2, S, S); xh.restore();
+  };
+
+  function petla() { if (!raf && !document.hidden) { last = 0; raf = requestAnimationFrame(klatka); } }
+  function klatka(ts) {
+    raf = 0;
+    var dt = last ? Math.min(0.05, (ts - last) / 1000) : 1 / 60; last = ts;
+    var dalej = false;
+    wszystkie.forEach(function (m) { if (m.stan !== 'off') { m.krok(dt); dalej = dalej || m.stan !== 'off'; } });
+    if (dalej && !document.hidden) raf = requestAnimationFrame(klatka);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else if (!reduce) petla();
+  });
+
+  /* --- montaż kotów --- */
+  var mysli = [];
+  document.querySelectorAll('.karta').forEach(function (karta) {
+    var v = karta.dataset.v;
+    karta.querySelectorAll('.slot').forEach(function (slot) {
+      var d = +slot.dataset.d, m = document.createElement('div');
+      m.className = 'mk'; m.style.setProperty('--w', d + 'px');
+      slot.appendChild(m);
+      var kot = MeshugaKot.mount(m, { ring: !!slot.dataset.ring });
+      mysli.push(new Mysl(m, kot, v, d));
+    });
+  });
+
+  /* --- napis „nad czym myśli”: tylko etapy, które znamy na pewno --- */
+  var TEMAT = { cena: 'przeglądam cennik', kod: 'czytam Twój kod', pomysl: 'rozkładam pomysł na kroki', projekt: 'szukam w projektach', inne: 'układam odpowiedź' };
+  var temat = 'cena', zrzut = false, etapy = [], ei = 0, t0 = 0, tEtap = 0, tick = 0;
+  var napisy = document.querySelectorAll('.etap');
+  napisy.forEach(function (n) { n.innerHTML = '<span class="zn">›</span><span class="tx"></span><span class="sek"></span>'; });
+  function ustawEtap(txt) {
+    napisy.forEach(function (n) {
+      var tx = n.querySelector('.tx');
+      if (reduce || !tx.textContent) { tx.textContent = txt; return; }
+      tx.classList.add('zm');
+      setTimeout(function () { tx.textContent = txt; tx.classList.remove('zm'); }, 200);
+    });
+  }
+  function sek() {
+    var s = Math.floor((performance.now() - t0) / 1000);
+    napisy.forEach(function (n) { n.querySelector('.sek').textContent = '· ' + s + ' s'; });
+    if (performance.now() - tEtap > 1100 && ei < etapy.length - 1) { ei++; tEtap = performance.now(); ustawEtap(etapy[ei]); }
+  }
+  function myslStart() {
+    etapy = ['czytam pytanie'];
+    if (zrzut) etapy.push('oglądam Twój zrzut');
+    etapy.push('przypominam sobie rozmowę', TEMAT[temat]);
+    ei = 0; t0 = tEtap = performance.now();
+    napisy.forEach(function (n) { n.querySelector('.tx').textContent = ''; n.classList.remove('off'); });
+    ustawEtap(etapy[0]); sek();
+    clearInterval(tick); tick = setInterval(sek, 250);
+    mysli.forEach(function (m) { m.start(); });
+  }
+  function myslStop() {
+    clearInterval(tick);
+    napisy.forEach(function (n) { n.classList.add('off'); });
+    mysli.forEach(function (m) { m.stop(); });
+  }
+
+  var bM = document.getElementById('bMysli');
+  bM.addEventListener('click', function () {
+    var on = bM.getAttribute('aria-pressed') !== 'true';
+    bM.setAttribute('aria-pressed', on); on ? myslStart() : myslStop();
+  });
+  document.getElementById('bGotowe').addEventListener('click', function () {
+    if (bM.getAttribute('aria-pressed') === 'true') bM.click();
+  });
+  document.querySelectorAll('[data-temat]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      temat = b.dataset.temat;
+      document.querySelectorAll('[data-temat]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+      if (bM.getAttribute('aria-pressed') === 'true') { myslStop(); setTimeout(myslStart, 520); }
+    });
+  });
+  var bZ = document.getElementById('bZrzut');
+  bZ.addEventListener('click', function () {
+    zrzut = !zrzut; bZ.setAttribute('aria-pressed', zrzut);
+    if (bM.getAttribute('aria-pressed') === 'true') { myslStop(); setTimeout(myslStart, 520); }
+  });
+  var bR = document.getElementById('bRuch');
+  if (reduce) bR.setAttribute('aria-pressed', 'true');
+  bR.addEventListener('click', function () {
+    var bylo = bM.getAttribute('aria-pressed') === 'true';
+    if (bylo) myslStop();
+    reduce = !reduce; bR.setAttribute('aria-pressed', reduce);
+    MeshugaKot.setMotion(!reduce);
+    setTimeout(function () { mysli.forEach(function (m) { m.stan = 'off'; m.k = 0; m.czysc(); }); if (bylo) myslStart(); }, 520);
+  });
+
+  /* stan startowy: myśli, żeby od razu było widać ruch */
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(myslStart);
+})();
+</script>
