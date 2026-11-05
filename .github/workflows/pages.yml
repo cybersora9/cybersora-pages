@@ -27,6 +27,8 @@ jobs:
         with:
           node-version: 22
       - run: npm ci --prefix .github/buduj
+      # Strażnik (05.11): pada, gdy w repo jest publiczny plik, którego nic na stronie nie wskazuje.
+      - run: node .github/buduj/sieroty.mjs .
       - run: node .github/buduj/buduj.mjs . _site
       - uses: actions/upload-pages-artifact@v5
         with:

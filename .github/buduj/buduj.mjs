@@ -2,7 +2,7 @@
 //
 // Źródło w repo zostaje czytelne (komentarze to dokumentacja decyzji). Ten skrypt robi
 // kopię strony do katalogu wydania i tylko tam minifikuje:
-//   - app.js, kula.js, js-flag.js, sonda.js  → esbuild --minify (bez zmiany składni, nazwy globalne zostają)
+//   - app.js, js-flag.js, sonda.js  → esbuild --minify (bez zmiany składni, nazwy globalne zostają)
 //   - views.css                               → lightningcss --minify
 //   - index.html: <style> → lightningcss, komentarze HTML precz, wcięcia przed tagami precz
 // Nie rusza: <script> (JSON-LD), <pre>, <textarea>, <figure data-pole="zrzut"> (soraos.js czyta
@@ -19,12 +19,14 @@ import { transform as cssTransform } from 'lightningcss';
 const [src, out] = process.argv.slice(2);
 if (!src || !out) { console.error('użycie: node buduj.mjs <źródło> <wydanie>'); process.exit(2); }
 
-const JS_MIN = ['app.js', 'kula.js', 'js-flag.js', 'sonda.js'];
+const JS_MIN = ['app.js', 'js-flag.js', 'sonda.js'];
 const CSS_MIN = ['views.css'];
 const HTML_MIN = ['index.html'];
 
 // Jak dotychczasowy Jekyll na GitHub Pages: pliki i katalogi z kropką lub podkreśleniem nie trafiają na stronę.
-const pomin = (rel) => rel.split(sep).some((s) => s.startsWith('.') || s.startsWith('_') || s === 'node_modules');
+// 05.11 (audyt): katalogi robocze (testy, zrzuty, podglądy) nie idą na stronę, nawet gdy ktoś je doda do repo.
+const ROBOCZE = new Set(['node_modules', 'zrzuty-testy', 'pycodemath-sceny', 'pycodemath-gif', 'zrzuty-projektow-v2']);
+const pomin = (rel) => rel.split(sep).some((s) => s.startsWith('.') || s.startsWith('_') || ROBOCZE.has(s));
 
 function kopiuj(dir) {
   for (const n of readdirSync(dir)) {

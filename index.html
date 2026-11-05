@@ -4634,27 +4634,11 @@ fingerprint(maszyna)</div>
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
 <script src="app.js?v=20261105h" defer></script>
-<!-- ============================================================
-     KULA SOMI (M2) — przeszczep modułu kuli z terminala SOMI
-     (Documents\SOMI\terminal_bridge\static\index.html, wariant maly
-     322x205). Bez warstwy OSC/WebSocket: tamta jest wyłącznie terminalowa,
-     tutaj kulą steruje ten sam kontrakt — SOMI_MOOD / SOMI_PULSE.
+<!-- KULA SOMI: usunięta 05.11 (audyt). Płótno #somiDemoOrb zniknęło 04.11 razem z kulą,
+     a kula.js dalej ściągał się przy każdym wejściu i kończył w 7. linii. Wyleciały kula.js,
+     vendor/three.min.js (r128) i assety/kula-plakat.webp. Powrót: z historii git (commit 3e9862b).
+     SOMI_MOOD / SOMI_PULSE zostają w app.js jako puste funkcje. -->
 
-     22.09: kulka w pasku (navOrb/.nav__mascot) USUNIETA na prosbe maisy —
-     zyje juz TYLKO duza kula na stronie SOMI (somiDemoOrb). Ladowacz nie
-     sprawdza wiec juz paska, tylko czy ta druga kula ma gdzie stanac
-     (#somiDemoOrb w DOM-ie); __somiOrbBoot i tak buduje obie instancje ze
-     wspolnego silnika (patrz komentarz przy makeOrb) — tu tylko decyzja,
-     czy w ogole warto sciagac three.js.
-
-     three.js ściąga się DOPIERO po `load`, nie tagiem w <head>. Biblioteka waży
-     590 KB, czyli trzy i pół raza więcej niż cała strona; wpięta normalnie
-     opóźniałaby pierwsze malowanie o tyle, ile trwa jej pobranie — a to ozdoba
-     strony SOMI, nie treść.
-     SZYBKOSC S1 (26.10): i to nie po kazdym `load`, tylko gdy SOMI jest blisko
-     (obserwator sceny / #somi / najechanie na link). Do tego czasu plakat.
-     ============================================================ -->
-<script src="kula.js?v=20261103a" defer></script>
 <!-- KOT CYBERSORY (03.11, makieta): przewodnik + czat w prawym dolnym rogu -->
 <link rel="stylesheet" href="konto.css?v=20261105b">
 <script src="konto-api.js?v=20261105b" defer></script>
