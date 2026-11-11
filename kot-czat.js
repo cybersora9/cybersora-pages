@@ -78,8 +78,10 @@
         return { t: 'SalonDesk prowadzi salon: grafik, klienci i kasa w jednym programie. Działa u klienta.', go: ['products', 'Zobacz projekty'] }; } },
     { k: /somi|asystent/i, f: function () {
         return { t: 'To ja, Meshuga, asystent AI cybersory. Sam szukam zleceń i pomagam w pracy.', go: ['somi', 'Poznaj mnie bliżej'] }; } },
+    { k: /umiesz|umiecie|umiejętn|umiejetn|full.?stack|technolog|docker|android|serwer|chmur|stack/i, f: function () {
+        return { t: 'Patryk robi wszystko sam, od pomysłu po wdrożenie: aplikacje na komputer i Androida, strony, serwery i chmurę, agentów AI, matematykę i szyfrowanie, testy, gry i grafikę. Każda umiejętność ma dowód w prawdziwym projekcie.', go: ['onas', 'Zobacz, co umie'] }; } },
     { k: /pycodemath|matemat|python/i, f: function () {
-        return { t: 'Pycodemath sprawdza matematykę w kodzie. Jest darmowy i publiczny.', go: ['products', 'Zobacz projekty'] }; } },
+        return { t: 'Pycodemath liczy pochodne, całki, równania i macierze i generuje z nich gotowy kod. Jest darmowy i publiczny, do zainstalowania z PyPI.', go: ['products', 'Zobacz projekty'] }; } },
     { k: /sora.?os|pulpit/i, f: function () {
         return { t: 'SORA//OS to nasz pulpit jak z gry: projekty, terminy, terminal i DancyCloud.', go: ['soraos', 'Otwórz SORA//OS'] }; } },
     { k: /meshug/i, f: function () {
