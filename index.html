@@ -38,8 +38,7 @@
   "email": "cybersora@zohomail.eu",
   "description": "Programy, aplikacje, skrypty i strony internetowe na zamówienie. Automatyzacje, aplikacje na komputer, wizytówki Google i audyty widoczności.",
   "founder": [
-    { "@type": "Person", "name": "Patryk Gwóźdź", "jobTitle": "Założyciel, projektant i programista" },
-    { "@type": "Person", "name": "Wojtek Zięba", "jobTitle": "Współzałożyciel, marketing manager i programista" }
+    { "@type": "Person", "name": "Patryk Gwóźdź", "jobTitle": "Założyciel, projektant i programista" }
   ],
   "areaServed": [
     { "@type": "City", "name": "Gorlice" },
@@ -2546,7 +2545,7 @@
         <a href="#soraos"    class="nav__link nav__link--duo nav__link--os" data-nav="soraos" aria-label="SORA//OS, nasz pulpit z grą"><span class="t" data-t="SORA//OS">SORA<i>//</i>OS</span><span class="nav__os-cur" aria-hidden="true">_</span></a>
       </div>
       <div class="nav__grp nav__grp--r">
-        <a href="#onas"      class="nav__link" data-nav="onas">O nas</a>
+        <a href="#onas"      class="nav__link" data-nav="onas">O mnie</a>
         <a href="#contact"   class="nav__link" data-nav="contact">Kontakt</a>
       </div>
       <!-- Sztuka ukryta z menu na prosbe maisy, 22.09, tymczasowo ("poki co") —
@@ -2566,7 +2565,7 @@
       </button>
     </div>
   </div>
-  <!-- PRZEWODNIK (03.10): teksty to propozycje, przepisuje je maisa. Od 05.10 forma "my", duet: Patryk Gwozdz i Wojtek Zieba (maisa 05.10: Wojtek zostaje na stronie, cala strona na "my"). -->
+  <!-- PRZEWODNIK (03.10): teksty to propozycje, przepisuje je maisa. 11.11: forma "ja", O nas -> O mnie. -->
   <div class="nav__panel" id="navPanel" role="region" aria-label="Przewodnik po stronie" inert>
     <div class="nav__panelClip"><div class="nav__panelIn">
       <div>
@@ -2578,7 +2577,7 @@
           <a class="nav__tile" href="#start" data-nav="start"><b>Start</b><span>Kim jesteśmy i co robimy, w skrócie.</span></a>
           <a class="nav__tile" href="#oferta" data-nav="oferta"><b>Oferta</b><span>Programy, aplikacje, strony i darmowy skan widoczności. Cennik usług z ceną z góry jest na drugiej karcie.</span></a>
           <a class="nav__tile" href="#products" data-nav="products"><b>Projekty</b><span>Nasze programy do pobrania za darmo oraz to, co dopiero rośnie w Sadzonkach.</span></a>
-          <a class="nav__tile" href="#onas" data-nav="onas"><b>O nas</b><span>Patryk Gwóźdź, Wojtek Zięba i nasz asystent Meshuga. Szukamy też partnerów do projektów.</span></a>
+          <a class="nav__tile" href="#onas" data-nav="onas"><b>O mnie</b><span>Patryk Gwóźdź i asystent AI Meshuga. Szukam też partnerów do projektów.</span></a>
           <a class="nav__tile" href="#contact" data-nav="contact"><b>Kontakt</b><span>Napisz, czego potrzebujesz. Na żywo widzisz, co do nas trafi.</span></a>
         </div>
       </div>
@@ -3826,18 +3825,18 @@ def fetch_offer_detail(url)</code></pre>
     </section>
   </section>
 
-  <!-- O NAS -->
-  <section class="view" data-view="onas" aria-label="O nas" hidden>
+  <!-- O MNIE (11.11: było O nas. Trasa zostaje "onas", żeby nie psuć linków.) -->
+  <section class="view" data-view="onas" aria-label="O mnie" hidden>
     <div class="hero">
       <div class="overlay">
-        <div class="eyebrow">kim jesteśmy</div>
-        <h1 class="slogan">O nas</h1>
-        <p class="stub">Za cybersorą stoi Patryk Gwóźdź. Zarządza wszystkim, wymyśla, projektuje i pisze kod, a każdy z naszych projektów powstał głównie przez niego. Wojtek Zięba, współzałożyciel, prowadzi marketing i też programuje. Pomaga nam Meshuga, asystent AI, którego zbudował Patryk. To program, nie trzecia osoba w zespole. Do projektów aktywnie szukamy partnerów.</p>
+        <div class="eyebrow">kim jestem</div>
+        <h1 class="slogan">O mnie</h1>
+        <p class="stub">Nazywam się Patryk Gwóźdź i stoję za cybersorą. Wymyślam, projektuję i piszę kod, od pierwszego szkicu po działający produkt. Każdy projekt na tej stronie zrobiłem ja. Pomaga mi Meshuga, asystent AI, którego sam zbudowałem. To program, nie druga osoba. Do projektów aktywnie szukam partnerów.</p>
         <!-- 05.10: liczby commitów (mierz_dorobek.py, 30.09) liczyły tylko commity Patryka, więc zdjęte. Pas faktów zostaje (tło-oscyloskop liczy z niego układ), ale niesie same prawdziwe fakty o zespole. -->
         <dl class="hero__rail">
-          <div class="hero__fact"><dt>Zespół</dt><dd>2 osoby + Meshuga</dd></div>
-          <div class="hero__fact"><dt>Założyciele</dt><dd>Patryk i Wojtek</dd></div>
-          <div class="hero__fact"><dt>Status</dt><dd>szukamy partnerów</dd></div>
+          <div class="hero__fact"><dt>Zespół</dt><dd>Patryk + Meshuga</dd></div>
+          <div class="hero__fact"><dt>Założyciel</dt><dd>Patryk Gwóźdź</dd></div>
+          <div class="hero__fact"><dt>Status</dt><dd>szukam partnerów</dd></div>
         </dl>
       </div>
     </div>
@@ -3868,29 +3867,6 @@ def fetch_offer_detail(url)</code></pre>
               <dl class="pas__meta">
                 <div><dt>wydał</dt><dd>SalonDesk, Pycodemath (PyPI), SoraEbookReader</dd></div>
               </dl>
-            </div>
-          </div>
-        </article>
-
-        <article class="pas reveal">
-          <div class="pas__marka">
-            <span class="duet__znak" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect width="100" height="100" rx="24" fill="#e11d33"/><rect x="1.5" y="1.5" width="97" height="97" rx="22.5" fill="none" stroke="#0e0e12" stroke-width="2" opacity=".4"/><g transform="translate(12.00 27.31) scale(0.5672)" fill="none" stroke-width="15" stroke-linejoin="miter" stroke-miterlimit="2.2"><path d="M7.5 0 V72.5 H18 L36 48 L54 72.5 H64.5 V0" stroke="#0e0e12"/><path d="M0 7.5 H46.5 V14 L7.5 66 V72.5 H54" transform="translate(80 0)" stroke="#f6f2f3"/><g fill="#e11d33" stroke="none"><rect x="-4" y="21" width="142" height="3.5"/><rect x="-4" y="59" width="142" height="3.5"/></g></g></svg></span>
-            <h3 class="pas__nazwa" data-hex="0x0A02">Wojtek Zięba</h3>
-            <p class="duet__rola">Współzałożyciel · marketing manager · Python/JS</p>
-          </div>
-          <div class="pas__tresc">
-            <p class="pas__co">Współzałożyciel cybersory i nasz marketing manager. Odpowiada za to, jak o nas słychać: media społecznościowe, treści, SEO i wzrost. Sam też programuje w Pythonie i JavaScripcie, buduje automatyzacje z AI, projektuje produkty od strony UI/UX i robi animacje w Remotion. Rozwija własne projekty: MelloDesk i kalendarz cybersora.</p>
-            <div class="duet__boks">
-              <span class="duet__etyk">umie</span>
-              <ul class="pas__lista">
-                <li>Marketing, media społecznościowe i treści</li>
-                <li>SEO i wzrost</li>
-                <li>Python i JavaScript</li>
-                <li>Automatyzacje z AI i narzędzia do modeli językowych</li>
-                <li>Aplikacje na komputer i w przeglądarce</li>
-                <li>Projekt produktu i UI/UX</li>
-                <li>Animacje w Remotion</li>
-              </ul>
             </div>
           </div>
         </article>
@@ -3929,13 +3905,13 @@ def fetch_offer_detail(url)</code></pre>
         <div class="cards">
           <article class="card bw">
             <span class="bw__top"><span class="card__tag">Zaplecze</span><span class="bw__id" aria-hidden="true">ON·01</span></span>
-            <h3 class="card__title">Meshuga pracuje z nami</h3>
-            <p class="card__body">Część rutyny i researchu przejmuje nasz asystent AI. Decyzje i odpowiedzialność za to, co trafia do klienta, zostają przy ludziach.</p>
+            <h3 class="card__title">Meshuga pracuje ze mną</h3>
+            <p class="card__body">Część rutyny i researchu przejmuje mój asystent AI. Decyzje i odpowiedzialność za to, co trafia do klienta, zostają przy mnie.</p>
           </article>
           <article class="card bw">
             <span class="bw__top"><span class="card__tag">Partnerzy</span><span class="bw__id" aria-hidden="true">ON·02</span></span>
-            <h3 class="card__title">Szukamy partnerów do projektów</h3>
-            <p class="card__body">Główny zespół jest stały. Do konkretnych projektów aktywnie szukamy partnerów: programistów, grafików i firm, z którymi zrobimy coś razem.</p>
+            <h3 class="card__title">Szukam partnerów do projektów</h3>
+            <p class="card__body">Do konkretnych projektów aktywnie szukam partnerów: programistów, grafików i firm, z którymi zrobimy coś razem.</p>
             <a class="card__go" href="#contact" data-nav="contact" data-topic="Współpraca / partnerstwo">Zostańmy partnerami &rarr;</a>
           </article>
         </div>
@@ -4000,24 +3976,24 @@ def fetch_offer_detail(url)</code></pre>
     <section class="services somi-bw">
       <div class="services__inner">
         <div class="services__head">
-          <div class="services__eyebrow" data-hex="0x5AF3">czym się różnimy</div>
-          <h2 class="services__title">Dlaczego jesteśmy inni</h2>
+          <div class="services__eyebrow" data-hex="0x5AF3">czym się różnię</div>
+          <h2 class="services__title">Dlaczego inaczej</h2>
         </div>
         <div class="cards">
           <article class="card bw">
-            <span class="bw__top"><span class="card__tag">Zespół</span><span class="bw__id" aria-hidden="true">ON·03</span></span>
-            <h3 class="card__title">Rozmawiasz z tymi, którzy to robią</h3>
-            <p class="card__body">Bez pośredników. Wszystko prowadzi Patryk, od pomysłu po kod, a Wojtek odpowiada za marketing i też programuje. Mniej warstw, szybsze decyzje.</p>
+            <span class="bw__top"><span class="card__tag">Bezpośrednio</span><span class="bw__id" aria-hidden="true">ON·03</span></span>
+            <h3 class="card__title">Rozmawiasz z tym, kto to robi</h3>
+            <p class="card__body">Bez pośredników. Wszystko prowadzę sam, od pomysłu po kod. Mniej warstw, szybsze decyzje.</p>
           </article>
           <article class="card bw">
             <span class="bw__top"><span class="card__tag">Produkt</span><span class="bw__id" aria-hidden="true">ON·04</span></span>
-            <h3 class="card__title">Budujemy to, czego sami używamy</h3>
-            <p class="card__body">Nasze radary, boty i narzędzia AI pracują u nas na co dzień, zanim trafią do oferty. Nie sprzedajemy niczego, czego sami nie przetestowaliśmy.</p>
+            <h3 class="card__title">Buduję to, czego sam używam</h3>
+            <p class="card__body">Moje radary, boty i narzędzia AI pracują u mnie na co dzień, zanim trafią do oferty. Nie sprzedaję niczego, czego sam nie przetestowałem.</p>
           </article>
           <article class="card bw">
             <span class="bw__top"><span class="card__tag">Rynek</span><span class="bw__id" aria-hidden="true">ON·05</span></span>
             <h3 class="card__title">Trzy rzeczy w jednym miejscu</h3>
-            <p class="card__body">Łączymy własne produkty AI, kod na zamówienie i marketing pod jedną marką. Bez udawania agencji, którą nie jesteśmy.</p>
+            <p class="card__body">Łączę własne produkty AI, kod na zamówienie i marketing pod jedną marką. Bez udawania agencji, którą nie jestem.</p>
           </article>
         </div>
       </div>
@@ -4516,7 +4492,7 @@ fingerprint(maszyna)</div>
         <a href="#cennik" data-nav="cennik">Cennik i usługi</a>
         <a href="#products" data-nav="products">Produkty</a>
         <a href="#meshuga" data-nav="somi">Meshuga</a>
-        <a href="#onas" data-nav="onas">O nas</a>
+        <a href="#onas" data-nav="onas">O mnie</a>
         <!-- Sztuka ukryta ze stopki na prosbe maisy, 22.09, tymczasowo ("poki co") —
              <a href="#sztuka" data-nav="sztuka">Sztuka</a> -->
         <a href="#rnd" data-nav="rnd">Sadzonki</a>

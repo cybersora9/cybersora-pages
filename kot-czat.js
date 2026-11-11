@@ -84,8 +84,8 @@
         return { t: 'SORA//OS to nasz pulpit jak z gry: projekty, terminy, terminal i DancyCloud.', go: ['soraos', 'Otwórz SORA//OS'] }; } },
     { k: /meshug/i, f: function () {
         return { t: 'Meshuga to ja, AI Chatbot cybersory. Tu odpowiadam krótko. Dłuższa rozmowa będzie w pełnej aplikacji pod przyciskiem „Czatuj”.' }; } },
-    { k: /kim|kto|o was|zespół|zespol|patryk|wojtek|firma/i, f: function () {
-        return { t: 'Jesteśmy duetem programistów, a ja, Meshuga, pomagam w pracy. Więcej o nas w zakładce O nas.', go: ['onas', 'O nas'] }; } },
+    { k: /kim|kto|o was|o tobie|zespół|zespol|patryk|firma/i, f: function () {
+        return { t: 'Za cybersorą stoi Patryk Gwóźdź, a ja, Meshuga, pomagam mu w pracy. Więcej w zakładce O mnie.', go: ['onas', 'O mnie'] }; } },
     { k: /stron|www|aplikacj|bot|program|zamówien|zamowien|zrobi|robicie/i, f: function () {
         return { t: 'Piszemy programy, aplikacje, boty i strony na zamówienie, od pierwszej rozmowy do wdrożenia. Napisz, co ma robić, a odpiszemy z wyceną.', go: ['contact', 'Opisz, co ma robić'] }; } },
     { k: /kontakt|mail|napisa|napisz|rozmow/i, f: function () {
