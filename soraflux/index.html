@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SoraFlux · darmowy konwerter wideo i audio</title>
+<meta name="description" content="SoraFlux: lokalny konwerter wideo, audio, obrazów i GIF na Windows. Polityka prywatności programu.">
+<link rel="canonical" href="https://cybersora.pl/soraflux/">
+<meta name="theme-color" content="#0e0e12">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/sora-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+<body>
+<style>
+@font-face{font-family:"Sora";src:url(/fonts/sora-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap;}@font-face{font-family:"Geist Mono";src:url(/fonts/geist-mono-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap;}
+/* Układ: jedna kolumna ~68 znaków na ink; karta programu u góry, polityka jako dokument z kotwicami #prywatnosc / #privacy. */
+:root{
+  --ink:#0e0e12; --panel:#17171d; --ramka:#2c2c36; --kosc:#f6f2f3; --kosc-2:#c9c4c6;
+  --krew:#e11d33; --hot:#ff3a52;
+  --f-sans:Sora,"Segoe UI",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+body{margin:0;background:var(--ink);color:var(--kosc);font:16px/1.65 var(--f-sans)}
+.strona{max-width:760px;margin:0 auto;padding-block:32px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:56px}
+a{color:var(--hot)} a:hover{color:var(--kosc)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--hot);outline-offset:3px;border-radius:6px}
+.pasek{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font:700 18px var(--f-sans);text-decoration:none}.logo .c{color:var(--kosc)}.logo .s{color:var(--krew)}
+.jezyki{display:flex;gap:16px;font:500 13px var(--mono);letter-spacing:.06em}
+.jezyki a{color:var(--kosc-2);text-decoration:none}.jezyki a:hover{color:var(--kosc)}
+.karta{background:var(--panel);border:1px solid var(--ramka);border-radius:20px;padding:32px;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.karta svg{width:96px;height:96px}
+.karta h1{margin:0;font:700 clamp(30px,6vw,40px)/1.1 var(--f-sans);text-wrap:balance}
+.karta p{margin:8px 0 0;color:var(--kosc-2)}
+.wersja{font:500 12px var(--mono);letter-spacing:.08em;color:var(--kosc-2)}
+.akcje{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.pobierz{display:inline-flex;align-items:center;gap:10px;background:var(--krew);color:var(--kosc);text-decoration:none;font:600 16px var(--f-sans);padding:12px 22px;border-radius:999px;min-height:44px;box-sizing:border-box}
+.pobierz:hover{background:var(--hot);color:var(--kosc)}
+.uwaga{font-size:14px;color:var(--kosc-2);margin:0}
+.dok{display:flex;flex-direction:column;gap:20px}
+.dok h2{margin:0;font:700 26px/1.25 var(--f-sans);text-wrap:balance}
+.dok h3{margin:12px 0 0;font:600 18px/1.35 var(--f-sans)}
+.dok p,.dok ul{margin:0;max-width:68ch}
+.dok ul{padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.etykieta{font:500 12px var(--mono);letter-spacing:.1em;color:var(--kosc-2);text-transform:uppercase}
+.sciezka{font:500 14px var(--mono);background:var(--panel);border:1px solid var(--ramka);border-radius:8px;padding:1px 6px;white-space:nowrap}
+.kontakt{background:var(--panel);border:1px solid var(--ramka);border-radius:16px;padding:20px 24px;display:flex;flex-direction:column;gap:4px}
+.kontakt .adres{font:500 16px var(--mono);user-select:all}
+.stopka{font:500 13px var(--mono);color:var(--kosc-2);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:520px){.karta{grid-template-columns:1fr;padding:24px}.karta svg{width:72px;height:72px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="strona">
+  <header class="pasek">
+    <a class="logo" href="https://cybersora.pl/"><span class="c">cyber</span><span class="s">sora</span></a>
+    <nav class="jezyki" aria-label="Język / Language"><a href="#prywatnosc">PRYWATNOŚĆ</a><a href="#privacy">PRIVACY (EN)</a></nav>
+  </header>
+
+  <section class="karta" aria-labelledby="sf-h">
+    <svg viewBox="0 0 120 120" role="img" aria-label="Ikona SoraFlux"><rect width="120" height="120" rx="26" fill="#1c1c22"/><g transform="translate(12 12) scale(.8)"><path d="M18 26H38L72 60L38 94H18L52 60Z" fill="#f6f2f3"/><path d="M48 26H68L102 60L68 94H48L82 60Z" fill="#e11d33"/></g></svg>
+    <div>
+      <span class="wersja">WERSJA 2.0.0 · WINDOWS 10/11 · DARMOWY</span>
+      <h1 id="sf-h">SoraFlux</h1>
+      <p>Konwerter wideo, audio, obrazów i GIF z pobieraniem z linku, przycinaniem i napisami. Działa na Twoim komputerze, bez konta i bez wysyłania plików.</p>
+    </div>
+    <div class="akcje">
+      <a class="pobierz" href="https://github.com/cybersora9/soraflux-wydania/releases/latest/download/SoraFlux-setup.exe">Pobierz SoraFlux-setup.exe</a>
+      <p class="uwaga">To program na Windows, nie strona. Na GitHubie nie pobieraj „Source code”.</p>
+    </div>
+  </section>
+
+  <article class="dok" id="prywatnosc" lang="pl">
+    <span class="etykieta">Polityka prywatności · SoraFlux 2.0.0 · 11.11.2026</span>
+    <h2>Co SoraFlux robi z Twoimi danymi</h2>
+    <p>Wszystko dzieje się na Twoim komputerze. Program nie ma konta, telemetrii, analityki ani raportów o błędach wysyłanych w tle. My nie dostajemy od niego żadnych danych.</p>
+
+    <h3>Kiedy łączy się z internetem</h3>
+    <ul>
+      <li><b>Aktualizacje:</b> gdy klikniesz „Sprawdź aktualizacje”, pobiera z GitHuba plik z numerem najnowszej wersji. Instaluje dopiero po Twojej zgodzie i sprawdza podpis.</li>
+      <li><b>Narzędzia:</b> ffmpeg (GyanD, GitHub) i Deno pobiera na Twoje kliknięcie. yt-dlp pobiera też sam, przy pierwszym otwarciu zakładki Pobierz, jeśli go brakuje albo jest starszy niż 30 dni. Każdy plik ma sprawdzaną sumę kontrolną, a yt-dlp dodatkowo podpis.</li>
+      <li><b>Model mowy do napisów:</b> z Hugging Face, dopiero gdy zgodzisz się w programie.</li>
+      <li><b>Link, który wkleisz:</b> yt-dlp łączy się z tym serwisem, żeby pobrać dane filmu i sam film. Podgląd pobiera miniaturę z serwera serwisu. Serwis widzi wtedy Twój adres IP, tak jak przy wejściu na jego stronę.</li>
+      <li><b>Instalator:</b> jeśli w systemie brakuje WebView2, pobiera go od Microsoftu.</li>
+    </ul>
+
+    <h3>Co zostaje na dysku</h3>
+    <p>W folderze <span class="sciezka">%APPDATA%\SoraConverter</span>: ustawienia, presety, 6 ostatnich folderów, dziennik błędów (z nazwami plików), lista filmów pobranych z playlist w trybie „tylko nowe”, pobrane narzędzia i modele mowy. Gotowe pliki zapisuje tam, gdzie wskażesz (domyślnie obok oryginału). Oryginałów nie zmienia i nie usuwa.</p>
+
+    <h3>Schowek i raport</h3>
+    <p>Gdy wracasz do okna, program sprawdza, czy w schowku jest link, i proponuje go wkleić. Nic nie zapisuje ani nie wysyła. Wyłączysz to w Ustawieniach. Raport diagnostyczny trafia tylko do schowka, gdy klikniesz „Kopiuj raport”; nazwa użytkownika jest w nim ukryta, nazwy plików zostają.</p>
+
+    <h3>Odinstalowanie</h3>
+    <p>Deinstalator usuwa program i wpis „Konwertuj w SoraFlux” z menu Eksploratora. Gdy zaznaczysz „Usuń też moje ustawienia, pobrane narzędzia i modele mowy”, usuwa też <span class="sciezka">%APPDATA%\SoraConverter</span>. Bez zaznaczenia dane zostają na wypadek ponownej instalacji; możesz skasować ten folder ręcznie.</p>
+
+    <h3>Kto odpowiada</h3>
+    <div class="kontakt">
+      <span>cybersora, marka prowadzona przez Patryka Gwoździa</span>
+      <span class="adres">cybersora@zohomail.eu</span>
+    </div>
+  </article>
+
+  <article class="dok" id="privacy" lang="en">
+    <span class="etykieta">Privacy policy · SoraFlux 2.0.0 · 11 Nov 2026</span>
+    <h2>What SoraFlux does with your data</h2>
+    <p>Everything happens on your computer. The app has no account, no telemetry, no analytics and no background crash reports. We receive no data from it.</p>
+
+    <h3>When it goes online</h3>
+    <ul>
+      <li><b>Updates:</b> when you click "Check for updates", it fetches the latest version number from GitHub. It installs only after you agree and checks the signature.</li>
+      <li><b>Tools:</b> ffmpeg (GyanD, GitHub) and Deno download when you click. yt-dlp also downloads on its own the first time you open the Download tab if it is missing or older than 30 days. Every file's checksum is verified, and yt-dlp's signature too.</li>
+      <li><b>Speech model for subtitles:</b> from Hugging Face, only after you agree in the app.</li>
+      <li><b>A link you paste:</b> yt-dlp contacts that site to get the video info and the video. The preview loads the thumbnail from the site's server. The site sees your IP address, as when you visit it.</li>
+      <li><b>Installer:</b> if WebView2 is missing, it downloads it from Microsoft.</li>
+    </ul>
+
+    <h3>What stays on disk</h3>
+    <p>In <span class="sciezka">%APPDATA%\SoraConverter</span>: settings, presets, the 6 most recent folders, an error log (with file names), the list of videos downloaded from playlists in "only new" mode, downloaded tools and speech models. Results are saved where you choose (next to the original by default). Originals are never changed or deleted.</p>
+
+    <h3>Clipboard and report</h3>
+    <p>When you return to the window, the app checks whether the clipboard holds a link and offers to paste it. Nothing is stored or sent. You can turn this off in Settings. The diagnostic report goes only to your clipboard when you click "Copy report"; your user name is hidden, file names stay.</p>
+
+    <h3>Uninstalling</h3>
+    <p>The uninstaller removes the app and the "Convert with SoraFlux" Explorer menu entry. If you tick "Also delete my settings, downloaded tools and speech models", it also removes <span class="sciezka">%APPDATA%\SoraConverter</span>. Unticked, your data stays for a reinstall; you can delete that folder by hand.</p>
+
+    <h3>Who is responsible</h3>
+    <div class="kontakt">
+      <span>cybersora, a brand run by Patryk Gwóźdź</span>
+      <span class="adres">cybersora@zohomail.eu</span>
+    </div>
+  </article>
+
+  <section class="dok" id="licencje">
+    <span class="etykieta">Licencja · Licence</span>
+    <h2>Darmowy, prawa zastrzeżone</h2>
+    <p>SoraFlux możesz bezpłatnie pobrać i używać, prywatnie i zawodowo. Kopiowanie poza oficjalnymi źródłami, sprzedaż, przeróbki i dekompilacja wymagają pisemnej zgody autora. <span lang="en">Free to use, privately and professionally. Copying outside official sources, selling, modifying and decompiling require the author's written permission.</span></p>
+    <h3>Składniki innych autorów / Third-party components</h3>
+    <ul>
+      <li>Tauri i biblioteki Rust / Rust crates: MIT lub/or Apache-2.0</li>
+      <li>Fonty Sora i Geist Mono: SIL Open Font License 1.1</li>
+      <li>Ikony Lucide: ISC (fragmenty Feather: MIT)</li>
+      <li>Pobierane osobno / downloaded separately: FFmpeg (LGPL/GPL), yt-dlp (Unlicense), Deno (MIT), whisper.cpp i modele (MIT)</li>
+    </ul>
+    <p>Pełny wykaz: plik THIRD_PARTY.md w folderze programu. / Full list: THIRD_PARTY.md in the app folder.</p>
+  </section>
+
+  <footer class="stopka"><span>© 2026 cybersora · Patryk Gwóźdź. Wszelkie prawa zastrzeżone.</span><a href="https://cybersora.pl/#polityka">Polityka prywatności strony cybersora.pl</a></footer>
+</div>
+
+</body>
+</html>

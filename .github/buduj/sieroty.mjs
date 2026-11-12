@@ -25,6 +25,7 @@ const WYJATKI = [
   [/^CNAME$/, 'domena GitHub Pages'],
   [/^sitemap\.xml$/, 'wskazana w robots.txt'],
   [/^LICENSE$/, 'prawa autorskie repo (11.11), czyta GitHub, nie strona'],
+  [/^soraflux\/index\.html$/, 'strona programu SoraFlux (12.11): linkują instalator, apka i wydania na GitHubie, jest w sitemap.xml'],
   [/^assety\/kot-awatar\/kot-(kosc|krew|szary)-(64|256)\.webp$/, 'konto.js kotUrl() składa nazwę'],
 ];
 
