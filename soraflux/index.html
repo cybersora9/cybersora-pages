@@ -66,7 +66,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--hot);outline-offset
     </div>
     <div class="akcje">
       <a class="pobierz" href="https://github.com/cybersora9/soraflux-wydania/releases/latest/download/SoraFlux-setup.exe">Pobierz SoraFlux-setup.exe</a>
-      <p class="uwaga">To program na Windows, nie strona. Na GitHubie nie pobieraj „Source code”.</p>
+      <p class="uwaga">To program na Windows, nie strona. Jak sprawdzić plik: <a href="#bezpieczenstwo">bezpieczne pobranie</a>.</p>
+      <p class="uwaga">Masz SoraFlux 1.4? Pobierz 2.0 raz stąd i zainstaluj na starą wersję, ustawienia zostaną. Kolejne aktualizacje przyjdą już same.</p>
     </div>
   </section>
 
@@ -129,6 +130,21 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--hot);outline-offset
       <span class="adres">cybersora@zohomail.eu</span>
     </div>
   </article>
+
+  <section class="dok" id="bezpieczenstwo">
+    <span class="etykieta">Bezpieczne pobranie · Safe download</span>
+    <h2>Pobieraj tylko z tych dwóch miejsc</h2>
+    <ul>
+      <li>ta strona: <span class="sciezka">cybersora.pl/soraflux</span></li>
+      <li><span class="sciezka" style="white-space:normal;overflow-wrap:anywhere">github.com/cybersora9/soraflux-wydania</span></li>
+    </ul>
+    <p>Kopia z innej strony może być podmieniona. Odcisk SHA-256 instalatora w wersji 2.0.0:</p>
+    <div class="kontakt"><span class="adres" style="overflow-wrap:anywhere">ED722756CD267E3C1EB45A8BF5E367330F4F48D9C72F67C99242418A5F4F8BC8</span></div>
+    <p>Sprawdzisz go w PowerShellu: <span class="sciezka">Get-FileHash .\SoraFlux-setup.exe</span>. Wynik musi być identyczny. Windows może pokazać „System Windows ochronił ten komputer”, bo instalator nie ma jeszcze certyfikatu wydawcy: kliknij <b>Więcej informacji → Uruchom mimo to</b>.</p>
+    <p lang="en">Download only from this page or github.com/cybersora9/soraflux-wydania. Check the SHA-256 above with <span class="sciezka">Get-FileHash .\SoraFlux-setup.exe</span>. If Windows says "Windows protected your PC": <b>More info → Run anyway</b>.</p>
+    <h3>Znalazłeś lukę? / Found a vulnerability?</h3>
+    <p>Napisz prywatnie, zanim opiszesz ją publicznie. / Please report privately first: <span class="sciezka">cybersora@zohomail.eu</span></p>
+  </section>
 
   <section class="dok" id="licencje">
     <span class="etykieta">Licencja · Licence</span>
