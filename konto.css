@@ -78,6 +78,8 @@ html[data-route="soraos"] .kn-dok,html[data-route="polityka"] .kn-dok{display:no
 .kn-dlg[open]{animation:kn-okno-in .32s var(--kn-sprezyna);}
 @keyframes kn-okno-in{from{opacity:0;transform:translateY(12px) scale(.98);}}
 .kn-dlg::backdrop{background:rgba(6,6,9,.5);}
+/* 15.11 maisa: przy otwartym oknie konta (logowanie, rejestracja, Moje konto) kot Meshugi z dymkiem nie wystaje zza okna */
+body:has(.kn-dlg[open]) .kot{visibility:hidden;}
 .kn-dlg__in{position:relative;display:flex;flex-direction:column;gap:16px;padding:12px;max-height:calc(100dvh - 32px);box-sizing:border-box;overflow:auto;border-radius:inherit;overscroll-behavior:contain;}
 .kn-x{position:absolute;right:16px;top:16px;z-index:1;}
 .kn-h{margin:0;font:600 20px/1.25 var(--kn-sans);letter-spacing:-.01em;}
