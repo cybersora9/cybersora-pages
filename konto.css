@@ -72,6 +72,12 @@ html[data-route="soraos"] .kn-dok,html[data-route="polityka"] .kn-dok{display:no
 .kn-wiersz:hover,.kn-wiersz:focus-visible{background:var(--kn-hover);outline:none;}
 .kn-wiersz:focus-visible{box-shadow:inset 0 0 0 2px var(--kn-hot);}
 .kn-wiersz__po{margin-left:auto;font:12px var(--kn-mono);color:var(--kn-szary);}
+/* 15.11 maisa: ikonki menu konta „lepszej jakości” — każda na kafelku 30 px jak w menu macOS, najechana = krew */
+.kn-menu .kn-wiersz{padding:0 10px;}
+.kn-menu .kn-wiersz>.kn-ico{width:30px;height:30px;padding:6px;box-sizing:border-box;border-radius:9px;background:#24242c;box-shadow:inset 0 0 0 1px rgba(246,242,243,.08);stroke-width:1.9;color:var(--kn-kosc);transition:background .18s ease,color .18s ease;}
+.kn-menu .kn-wiersz:hover>.kn-ico,.kn-menu .kn-wiersz:focus-visible>.kn-ico{background:var(--kn-krew);box-shadow:none;color:#fff;}
+.kn-menu .kn-wiersz[data-akcja="wyloguj"]>.kn-ico{color:var(--kn-hot);}
+.kn-menu .kn-wiersz[data-akcja="wyloguj"]:hover>.kn-ico,.kn-menu .kn-wiersz[data-akcja="wyloguj"]:focus-visible>.kn-ico{color:#fff;}
 .kn-pill{margin-left:auto;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--kn-krew);color:#fff;}
 .kn-sep{height:1px;margin:4px 12px;background:rgba(246,242,243,.1);}
 
