@@ -1253,7 +1253,8 @@
   var kZoomW = el('div', 'kn-zoom'); kZoomW.append(kMinus, kZoom, kPlus);
   var kKoty = el('div', 'kn-koty'); kKoty.appendChild(el('span', 'kn-lab', 'albo kot:'));
   [['kosc', 'Kot na jasnym tle'], ['krew', 'Kot na czerwonym tle'], ['szary', 'Kot na szarym tle']].forEach(function (k) {
-    var b = btn('kn-kot', null, k[1]); b.dataset.kot = k[0]; b.setAttribute('aria-pressed', 'false'); b.appendChild(img(kotUrl(k[0], 64), ''));
+    // 15.11: data-kn-kot, nie data-kot — data-kot łapie czat Meshugi (kot-czat.js) i wysyłał wybór kota jako pytanie
+    var b = btn('kn-kot', null, k[1]); b.dataset.knKot = k[0]; b.setAttribute('aria-pressed', 'false'); b.appendChild(img(kotUrl(k[0], 64), ''));
     kKoty.appendChild(b);
   });
   var kBlad = el('p', 'kn-blad'); kBlad.setAttribute('role', 'alert');
@@ -1276,7 +1277,7 @@
     kImg.hidden = kKolo.hidden = !maZdj; kPusto.hidden = maZdj; kInne.hidden = !maZdj;
     kZoom.disabled = kMinus.disabled = kPlus.disabled = !maZdj;
     scena.tabIndex = maZdj ? 0 : -1;
-    Array.prototype.forEach.call(kKoty.querySelectorAll('[data-kot]'), function (b) { b.setAttribute('aria-pressed', String(!maZdj && K.kot === b.dataset.kot)); });
+    Array.prototype.forEach.call(kKoty.querySelectorAll('[data-kn-kot]'), function (b) { b.setAttribute('aria-pressed', String(!maZdj && K.kot === b.dataset.knKot)); });
     kZapisz.disabled = !maZdj && !K.kot;
     if (!maZdj) return;
     przytnij();
@@ -1327,8 +1328,8 @@
   kMinus.addEventListener('click', function () { zoom(K.z - 0.25); });
   kPlus.addEventListener('click', function () { zoom(K.z + 0.25); });
   kKoty.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-kot]'); if (!b) return;
-    K.kot = b.dataset.kot; K.zrodlo = null; kImg.removeAttribute('src'); kBlad.textContent = ''; rysujKadr();
+    var b = e.target.closest('[data-kn-kot]'); if (!b) return;
+    K.kot = b.dataset.knKot; K.zrodlo = null; kImg.removeAttribute('src'); kBlad.textContent = ''; rysujKadr();
   });
   var wsk = {}, gest = null;
   function srodek(e) { var r = scena.getBoundingClientRect(); return { x: e.clientX - r.left - r.width / 2, y: e.clientY - r.top - r.height / 2 }; }
