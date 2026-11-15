@@ -129,7 +129,10 @@
     var dr = el('ol', 'pf-drabina'); dr.setAttribute('aria-label', 'Rangi cybersory');
     CS.rangi.forEach(function (x, j) {
       var li = el('li', j + 1 === r.nr ? 'pf-teraz' : j + 1 < r.nr ? 'pf-jest' : '');
-      li.appendChild(svgSpan(null, CS.svgGodla(j + 1, j + 1 > r.nr ? 'zab' : j + 1 === r.nr ? 'krew' : '')));
+      // 15.11 (maisa: „okropnie wyglądają”): w małym chipie sam znak rangi, bez kafla i kropek, kadr na znak
+      var zn = svgSpan('pf-dr__zn', CS.svgGodla(j + 1, j + 1 > r.nr ? 'zab' : j + 1 === r.nr ? 'krew' : ''));
+      var zs = zn.querySelector('svg'); if (zs) zs.setAttribute('viewBox', '18 14 86 66');
+      li.appendChild(zn);
       li.appendChild(D.createTextNode(x.pl));
       if (j + 1 === r.nr) li.setAttribute('aria-current', 'step');
       li.title = x.pl + ' · od ' + liczba(x.xp) + ' XP';

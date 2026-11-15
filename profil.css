@@ -87,6 +87,12 @@
 .pf-drabina li span{width:22px;height:22px;flex:none;}
 .pf-drabina .pf-jest{color:var(--kn-jasny);}
 .pf-drabina .pf-teraz{background:var(--kn-krew);color:#fff;}
+/* 15.11 maisa: chipy rang bez kafla-ikony (szare kwadraty „okropnie wyglądały”) — sam znak w kolorze tekstu chipa */
+.pf-drabina li .pf-dr__zn{width:22px;height:17px;}
+.pf-drabina .cg{--cg-k:currentColor;--cg-a:var(--kn-krew2);opacity:1;filter:none;}
+.pf-drabina .cg .cg-t,.pf-drabina .cg .cg-h,.pf-drabina .cg .cg-on,.pf-drabina .cg .cg-off{display:none;}
+.pf-drabina .pf-teraz .cg{--cg-a:var(--kn-ink);}
+.pf-drabina li:not(.pf-jest):not(.pf-teraz) .cg{--cg-a:currentColor;opacity:.75;}
 /* P1.1: „Skąd XP?” */
 .pf-skad summary{display:inline-flex;align-items:center;gap:8px;min-height:32px;font:500 12.5px var(--kn-mono);color:var(--kn-jasny);cursor:pointer;list-style:none;border-radius:8px;}
 .pf-skad summary::-webkit-details-marker{display:none;}
