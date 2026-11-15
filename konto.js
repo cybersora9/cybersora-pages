@@ -275,6 +275,51 @@
   var loWybor = el('div', 'kn-wybor'); loWybor.hidden = true;   // atrapa okna „wybierz klucz” przeglądarki
   lo.w.append(zamykacz(log), loH, loTaby, pLog, pRej, pOa, pPo, loBlad, loWybor);
 
+  /* 15.11 (maisa): oczy Meshugi zaglądają znad okna logowania i rejestracji. Źrenice idą za kursorem,
+     a przy pisaniu patrzą na pole z fokusem; co kilka sekund mrugnięcie (bez mrugania przy „ogranicz ruch”).
+     maisa: „w środku, nie na zewnątrz” — oczy stoją w oknie, nad tytułem. Treść statyczna, bez danych użytkownika. */
+  (function oczyMeshugi() {
+    var NS = 'http://www.w3.org/2000/svg';
+    var oko = function (s) {   // s = 1 lewe, -1 prawe (lustro); kąciki zewnętrzne w górę jak u kota
+      var x = function (v) { return s === 1 ? v : 200 - v; };
+      return 'M' + x(10) + ' 18 Q' + x(46) + ' 4 ' + x(84) + ' 26 Q' + x(66) + ' 50 ' + x(40) + ' 46 Q' + x(16) + ' 40 ' + x(10) + ' 18Z';
+    };
+    var svg = D.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'kn-oczy'); svg.setAttribute('viewBox', '0 0 200 52');
+    svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+    svg.innerHTML =
+      '<defs><radialGradient id="knOkoT" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#ff7a6b"/><stop offset=".45" stop-color="#ff3a52"/><stop offset="1" stop-color="#8c0f22"/></radialGradient>' +
+      '<clipPath id="knOkoL"><path d="' + oko(1) + '"/></clipPath><clipPath id="knOkoP"><path d="' + oko(-1) + '"/></clipPath></defs>' +
+      [[1, 'knOkoL', 48], [-1, 'knOkoP', 152]].map(function (o) {
+        return '<g class="kn-oko"><path d="' + oko(o[0]) + '" fill="url(#knOkoT)"/>' +
+          '<g clip-path="url(#' + o[1] + ')"><g class="kn-oko__zr" data-cx="' + o[2] + '"><ellipse cx="' + o[2] + '" cy="27" rx="4.6" ry="17" fill="#0e0e12"/>' +
+          '<circle cx="' + (o[2] + 7) + '" cy="20" r="2.4" fill="#f6f2f3" opacity=".85"/></g></g>' +
+          '<path d="' + oko(o[0]) + '" fill="none" stroke="#0e0e12" stroke-width="2.5"/></g>';
+      }).join('');
+    lo.w.insertBefore(svg, loH);
+    var zr = svg.querySelectorAll('.kn-oko__zr'), cel = null, klatka = 0;
+    function patrz(px, py) {
+      var r = svg.getBoundingClientRect(); if (!r.width) return;
+      var k = r.width / 200;
+      Array.prototype.forEach.call(zr, function (g) {
+        var cx = r.left + (+g.dataset.cx) * k, cy = r.top + 27 * k;
+        var dx = Math.max(-1, Math.min(1, (px - cx) / 260)), dy = Math.max(-1, Math.min(1, (py - cy) / 260));
+        g.setAttribute('transform', 'translate(' + (dx * 13).toFixed(1) + ' ' + (dy * 5).toFixed(1) + ')');
+      });
+    }
+    function naPunkt(px, py) { cel = [px, py]; if (!klatka) klatka = requestAnimationFrame(function () { klatka = 0; patrz(cel[0], cel[1]); }); }
+    log.addEventListener('pointermove', function (e) { if (e.pointerType !== 'touch') naPunkt(e.clientX, e.clientY); });
+    log.addEventListener('focusin', function (e) {
+      var r = e.target.getBoundingClientRect && e.target.getBoundingClientRect();
+      if (r && r.width) naPunkt(r.left + Math.min(r.width / 2, 60), r.top + r.height / 2);
+    });
+    log.addEventListener('input', function (e) {   // przy pisaniu oko idzie za kursorem tekstu (w przybliżeniu: długość wpisu)
+      var t = e.target; if (!t || t.tagName !== 'INPUT') return;
+      var r = t.getBoundingClientRect(); naPunkt(r.left + 14 + Math.min(t.value.length * 9, r.width - 28), r.top + r.height / 2);
+    });
+    log.addEventListener('close', function () { Array.prototype.forEach.call(zr, function (g) { g.removeAttribute('transform'); }); });
+  })();
+
   function turnstile() {
     // artefakt (i Worker z TURNSTILE=brak): atrapa widżetu, token jednorazowy z udawanego serwera.
     // P3c: gdy Worker mówi „wymagany”, w to miejsce wchodzi prawdziwy widżet Cloudflare (pokaz() przy otwarciu zakładki).
@@ -1412,9 +1457,15 @@
   function zamontuj() {
     // 06.11 (maisa, karta standardu zasada 13): konto w prawym dolnym rogu, w doku razem z dymkiem czatu (czat.js);
     // kot Meshugi przeszedł na jego dawne miejsce w pasku
-    var dok = D.getElementById('knDok');
-    if (!dok) { dok = el('div', 'kn-dok'); dok.id = 'knDok'; D.body.appendChild(dok); }
-    dok.appendChild(av);
+    // 15.11 (maisa, zasada 13 zmieniona): konto wraca do paska, na miejsce Przewodnika (przed „Napisz do nas”).
+    // Dok w rogu zostaje tylko jako zapas, gdy strona nie ma paska.
+    var side = D.querySelector('.nav__side');
+    if (side) side.insertBefore(av, side.querySelector('.nav__cta'));
+    else {
+      var dok = D.getElementById('knDok');
+      if (!dok) { dok = el('div', 'kn-dok'); dok.id = 'knDok'; D.body.appendChild(dok); }
+      dok.appendChild(av);
+    }
     D.body.append(menu, log, ark, kadr, toast);
     odswiezPasek();
     // ?polacz=KOD: program (np. czytnik) otworzył przeglądarkę z kodem urządzenia. Kod zdejmujemy z adresu od razu.

@@ -31,6 +31,9 @@
    06.11: w pasku stoi teraz kot Meshugi (kot-czat.js), konto zeszło do rogu. */
 @media (max-width:440px){.nav__side:has(.kot__btn){gap:.5rem;}}
 @media (max-width:410px){.nav__side:has(.kot__btn) .nav__cta{display:none;}}
+/* 15.11: konto znowu w pasku (przed CTA) — te same progi co dla kota */
+@media (max-width:440px){.nav__side:has(.kn-av){gap:.5rem;}}
+@media (max-width:410px){.nav__side:has(.kn-av) .nav__cta{display:none;}}
 
 /* ---------- 06.11: dok w prawym dolnym rogu = dymek czatu (czat.js) + konto (karta standardu, zasada 13) ----------
    Miejsce po kocie Meshugi: ta sama warstwa 40 (nad treścią i paskiem, pod oknami w warstwie górnej). */
@@ -80,6 +83,15 @@ html[data-route="soraos"] .kn-dok,html[data-route="polityka"] .kn-dok{display:no
 .kn-dlg::backdrop{background:rgba(6,6,9,.5);}
 /* 15.11 maisa: przy otwartym oknie konta (logowanie, rejestracja, Moje konto) kot Meshugi z dymkiem nie wystaje zza okna */
 body:has(.kn-dlg[open]) .kot{visibility:hidden;}
+/* 15.11 maisa: oczy Meshugi zaglądają znad okna logowania/rejestracji (konto.js oczyMeshugi) */
+.kn-oczy{display:block;flex:none;width:156px;height:41px;margin:10px auto -6px;pointer-events:none;overflow:visible;}
+.kn-oko{transform-box:fill-box;transform-origin:center;animation:kn-mrug 5.2s ease-in-out infinite;}
+.kn-oko:nth-child(3){animation-delay:.04s;}
+.kn-oko__zr{transition:transform .18s cubic-bezier(.2,.8,.2,1);}
+@keyframes kn-mrug{0%,91%,100%{transform:scaleY(1);}94%{transform:scaleY(.08);}97%{transform:scaleY(1);}}
+.kn-log[open] .kn-oczy{animation:kn-oczy-in .5s .12s cubic-bezier(.2,.8,.2,1) backwards;}
+@keyframes kn-oczy-in{from{opacity:0;transform:translateY(10px);}}
+@media (prefers-reduced-motion:reduce){.kn-oko,.kn-log[open] .kn-oczy{animation:none;}.kn-oko__zr{transition:none;}}
 .kn-dlg__in{position:relative;display:flex;flex-direction:column;gap:16px;padding:12px;max-height:calc(100dvh - 32px);box-sizing:border-box;overflow:auto;border-radius:inherit;overscroll-behavior:contain;}
 .kn-x{position:absolute;right:16px;top:16px;z-index:1;}
 .kn-h{margin:0;font:600 20px/1.25 var(--kn-sans);letter-spacing:-.01em;}

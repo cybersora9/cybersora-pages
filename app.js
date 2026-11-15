@@ -2600,7 +2600,8 @@
       const rg = document.createRange(); rg.selectNodeContents(el);
       const rr = rg.getBoundingClientRect(); return rr.width ? [rr.left - bi.left, rr.right - bi.left] : null;
     };
-    const b = tresc(document.querySelector('.nav__brand')), n = tresc(linksWrap), sd = tresc(document.querySelector('.nav__side'));
+    // 15.11: lewa strona = logo + Przewodnik, wosk zaczyna się za przyciskiem
+    const b = tresc(document.querySelector('.nav__left')), n = tresc(linksWrap), sd = tresc(document.querySelector('.nav__side'));
     const odstep = 18, H = 64;   // wosk nie podchodzi blizej niz 18 px do napisow; wysokosc paska bez splaszczenia
     const luki = [b && n ? [b[1] + odstep, n[0] - odstep] : null, n && sd ? [n[1] + odstep, sd[0] - odstep] : null];
     kolonie.forEach(({ svg, kule, g }, k) => {

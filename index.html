@@ -721,6 +721,14 @@
   /* ZMIERZONE 03.10: przy 920-1000 px pelny przycisk wpychal menu na logo (zapas -64 px).
      Ponizej 1200 px zostaje samo kolko "?" (nazwa w aria-label), zapas wraca na plus. */
   @media (max-width:1200px){.nav__guideT{display:none;}.nav__guide{padding:.45rem;}}
+  /* 15.11: Przewodnik stoi po lewej obok logo, więc lewa kolumna jest szersza niż dawniej.
+     Do 1340 px ciaśniejsze linki; 901–1180 px pasek liczy kolumny z treści, linki zostają na środku wolnego miejsca. */
+  @media (max-width:1340px){.nav__link{padding:.5rem .55rem;}}
+  @media (min-width:901px) and (max-width:1180px){
+    .nav__bar{grid-template-columns:auto minmax(0,1fr) auto;}
+    .nav__links{justify-self:center;}
+    .nav__link{padding:.5rem .45rem;white-space:nowrap;}
+  }
   .nav__panel{
     position:absolute;left:0;right:0;top:100%;
     display:grid;grid-template-rows:0fr;
@@ -2533,6 +2541,7 @@
         ("poki co"): sekcja Sztuka i jej CSS/JS zostaja nietkniete, to tylko wejscie.
         <button type="button" class="brand__second" data-nav="sztuka" aria-pressed="false" aria-label="deadsora — przełącz na Sztukę">/ deadsora</button>
         -->
+      <button class="nav__guide" type="button" id="navGuide" aria-expanded="false" aria-controls="navPanel" aria-label="Przewodnik"><span class="nav__guideQ" aria-hidden="true">?</span><span class="nav__guideT">Przewodnik</span></button>
     </div>
 
     <div class="nav__links" id="navlinks">
@@ -2560,7 +2569,7 @@
            co czytalo sie jako "niedokonczone" w pierwszym miejscu, na ktore patrzy oko.
            Miejsce na ikony socjali jest tutaj, czeka na adresy profili. -->
       <button class="nav__cart" type="button" id="navCart" aria-haspopup="dialog" aria-controls="koszyk" aria-label="Koszyk" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span class="nav__cartN" id="navCartN" aria-hidden="true">0</span></button>
-      <button class="nav__guide" type="button" id="navGuide" aria-expanded="false" aria-controls="navPanel" aria-label="Przewodnik"><span class="nav__guideQ" aria-hidden="true">?</span><span class="nav__guideT">Przewodnik</span></button>
+      <!-- 15.11 maisa: Przewodnik przeszedł na lewo (obok logo, przed lawą), tu stoi konto (konto.js wstawia #knAv przed CTA) -->
       <a href="#contact" class="nav__cta" data-nav="contact">Napisz do nas</a>
       <button class="nav__burger" type="button" aria-expanded="false" aria-controls="navPanel" aria-label="Otwórz menu">
         <span></span><span></span><span></span>
@@ -4676,7 +4685,7 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261105h" defer></script>
+<script src="app.js?v=20261115p" defer></script>
 <!-- KULA SOMI: usunięta 05.11 (audyt). Płótno #somiDemoOrb zniknęło 04.11 razem z kulą,
      a kula.js dalej ściągał się przy każdym wejściu i kończył w 7. linii. Wyleciały kula.js,
      vendor/three.min.js (r128) i assety/kula-plakat.webp. Powrót: z historii git (commit 3e9862b).
@@ -4685,13 +4694,13 @@ fingerprint(maszyna)</div>
 <!-- KOT CYBERSORY (03.11, makieta): przewodnik + czat w prawym dolnym rogu -->
 <!-- KONTA (15.11, ukryta beta): pliki z artefaktu v38 (P3a–P3c); widać je tylko po ?beta albo z sesją (meta konto-beta).
      Bez czatu ze znajomymi (czeka na serwer). Klucze dostępu: SimpleWebAuthn (MIT). -->
-<link rel="stylesheet" href="konto.css?v=20261115c">
+<link rel="stylesheet" href="konto.css?v=20261115p">
 <link rel="stylesheet" href="profil.css?v=20261115b">
 <script src="programy-slownik.js?v=20261115b" defer></script>
 <script src="vendor/simplewebauthn-browser-14.0.0.umd.min.js" defer></script>
 <script type="module" src="konto-reguly.js?v=20261115b"></script>
 <script src="konto-api.js?v=20261115b" defer></script>
-<script src="konto.js?v=20261115b" defer></script>
+<script src="konto.js?v=20261115p" defer></script>
 <script src="profil.js?v=20261115b" defer></script>
 <link rel="stylesheet" href="kot-czat.css?v=20261105g">
 <script src="meshuga-kot.js?v=20261105c" defer></script>
