@@ -361,7 +361,7 @@
       skrypt().then(function () {
         widzet = window.turnstile.render(cf, {
           sitekey: u.sitekey, action: u.akcja, theme: 'dark', language: 'pl', size: 'flexible', appearance: 'always',
-          callback: function (x) { token = x; w.dataset.stan = 'ok'; cf.removeAttribute('aria-invalid'); if (/botem|antyspam/i.test(loBlad.textContent)) loBlad.textContent = ''; },
+          callback: function (x) { token = x; w.dataset.stan = 'ok'; cf.removeAttribute('aria-invalid'); if (/nie jesteś botem|się nie załadował/.test(loBlad.textContent)) loBlad.textContent = ''; },   // 15.11: błędy serwera (np. „Antyspam nie odpowiada”) zostają widoczne po resecie widżetu
           'expired-callback': function () { token = null; w.dataset.stan = ''; },
           'error-callback': function () { token = null; w.dataset.stan = 'blad'; loBlad.textContent = 'Antyspam się nie załadował. Odśwież stronę i spróbuj jeszcze raz.'; return true; }
         });
