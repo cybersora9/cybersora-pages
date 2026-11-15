@@ -1,0 +1,217 @@
+/* profil.css (05.11.2026, P1): profil cybersory, układ A „Wizytówka”, oprawa linków: kapsuła (profil) + wiersz (ustawienia).
+   Tokeny kolorów z konto.css (--kn-*), skóra paneli jak na Starcie (panel #17171d, ramka #2c2c36, radius 20, boks 14).
+   Godła rang i ikony „linia” z programy-slownik.js. Bez kątowników, bez poświaty. */
+:root{--pf-panel:#17171d;--pf-boks:#1e1e26;--pf-boks2:#22222b;--pf-ramka:#2c2c36;--pf-ramka2:#3a3a46;--znak:#ffffff;}
+
+/* ---------- godła rang (kafel 120, rx 28) ---------- */
+.cg{display:block;width:100%;height:100%;--cg-t:var(--pf-boks);--cg-k:var(--kn-kosc);--cg-a:var(--kn-krew2);--cg-on:var(--kn-krew2);--cg-off:var(--pf-ramka);--cg-h:rgba(246,242,243,.09);}
+.cg--krew{--cg-t:var(--kn-krew2);--cg-a:var(--kn-ink);--cg-on:var(--kn-kosc);--cg-off:rgba(14,14,18,.32);--cg-h:rgba(14,14,18,.4);}
+.cg--zab{opacity:.34;filter:grayscale(1);}
+.cg .cg-t{fill:var(--cg-t);} .cg .cg-h{fill:none;stroke:var(--cg-h);stroke-width:2;}
+.cg .cg-k{fill:var(--cg-k);} .cg .cg-ks{stroke:var(--cg-k);} .cg .cg-a{fill:var(--cg-a);}
+.cg .cg-on{fill:var(--cg-on);} .cg .cg-off{fill:var(--cg-off);}
+/* ikony „linia”: zablokowana gasi też kropkę-węzeł */
+.ik-linia{display:block;}
+.pg-odz:not(.pg-odz--ma) .pg-odz__ik{--wezel:rgba(246,242,243,.3);}   /* K1 (Moje konto → Osiągnięcia) też w stylu „linia” */
+
+/* ---------- okno profilu ---------- */
+.kn-prof{width:min(1040px,calc(100vw - 32px));}
+.kn-prof .kn-dlg__in{padding:16px;gap:16px;}
+.kn-prof .kn-dlg__in > *{flex-shrink:0;}
+.pf{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.pf-pasek{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-right:56px;min-height:44px;}
+.pf-adres{font:500 13px var(--kn-mono);color:var(--kn-szary);overflow-wrap:anywhere;min-width:0;}
+.pf-chip{display:inline-flex;align-items:center;gap:6px;font:500 12.5px var(--kn-mono);padding:4px 10px;border-radius:999px;background:var(--kn-hover);color:var(--kn-jasny);white-space:nowrap;}
+.pf-chip svg{width:14px;height:14px;}
+.pf-chip--pub{color:var(--kn-kosc);}
+.pf-chip--pub svg{color:var(--kn-hot);}
+/* P1.1: akcje jednym rzędem pod wizytówką, kapsuły 44 px */
+.pf-akcje{display:flex;flex-wrap:wrap;gap:8px;}
+.pf-akcje .kn-btn{min-height:44px;padding:0 18px;font-size:14px;}
+.pf-akcje__link{display:contents;}
+/* P1.1: pasek trybu podglądu */
+.pf-tryb{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:8px 8px 8px 16px;margin-right:56px;border-radius:16px;
+  background:var(--kn-ink);box-shadow:inset 0 0 0 1px rgba(255,58,82,.45);}
+.pf-tryb__t{font:500 12.5px var(--kn-mono);letter-spacing:.08em;color:var(--kn-hot);}
+.pf-tryb .kn-btn{min-height:40px;padding:0 16px;font-size:14px;}
+.pf-znacznik{display:inline-flex;align-items:center;font:500 11px var(--kn-mono);letter-spacing:.08em;padding:2px 7px;border-radius:999px;color:var(--kn-hot);
+  box-shadow:inset 0 0 0 1px rgba(255,58,82,.45);white-space:nowrap;}
+.pf-glowa-k{display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+.pf-mala{min-height:40px;padding:0 16px;font-size:14px;}
+.pf-baner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:14px;background:rgba(255,58,82,.08);font-size:14px;line-height:1.5;color:var(--kn-jasny);}
+.pf-baner svg{width:18px;height:18px;flex:none;margin-top:2px;color:var(--kn-hot);}
+
+.pf-karta{background:var(--pf-panel);border:1px solid var(--pf-ramka);border-radius:20px;padding:20px;min-width:0;
+  box-shadow:inset 0 1px 0 rgba(246,242,243,.04),0 14px 32px -18px rgba(0,0,0,.75);}
+.pf-eyebrow{font:500 12.5px var(--kn-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--kn-szary);}
+.pf-eyebrow b{color:var(--kn-hot);font-weight:500;}
+.pf-glowa-s{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 12px;margin-bottom:14px;}
+.pf-meta{font:500 12.5px var(--kn-mono);color:var(--kn-szary);}
+
+/* wizytówka */
+.pf-wiz{display:flex;flex-wrap:wrap;align-items:center;gap:20px;}
+.pf-wiz__av{width:104px;height:104px;border-radius:999px;display:block;object-fit:cover;flex:none;background:var(--pf-boks);}
+.pf-wiz__tx{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 280px;}
+.pf-wiz h2{margin:0;font:700 26px/1.2 var(--kn-sans);letter-spacing:-.02em;overflow-wrap:anywhere;}
+.pf-bio{margin:0;color:var(--kn-jasny);max-width:56ch;white-space:pre-line;overflow-wrap:anywhere;}
+.pf-bio--pusto{color:var(--kn-szary);font-style:normal;}
+
+/* kapsuły linków: znak marki oryginalny i biały, nasz styl tylko w oprawie */
+.pf-linki{display:flex;flex-wrap:wrap;gap:8px;}
+/* P1.1: kapsuły na ink z ramką: znak LinkedIn 2,91 → 3,4:1, Discord 3,6 → 4,2:1 (znak bez zmian, karta zasada 12) */
+.pf-kaps{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 11px;border-radius:999px;border:0;background:var(--kn-ink);
+  box-shadow:inset 0 0 0 1px var(--pf-ramka);color:var(--kn-kosc);font:500 13px var(--kn-mono);text-decoration:none;cursor:pointer;
+  transition:background .2s ease,transform .2s var(--kn-sprezyna);max-width:100%;}
+.pf-kaps:hover{background:var(--pf-panel);box-shadow:inset 0 0 0 1px var(--pf-ramka2);}
+.pf-kaps:active{transform:scale(.97);}
+.pf-kaps:focus-visible{outline:2px solid var(--kn-hot);outline-offset:2px;}
+.pf-kaps > span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.pf-znak{display:block;flex:none;width:18px;height:18px;fill:var(--znak);}
+/* 05.11 maisa: znaki w oficjalnych kolorach platform (karta standardu, zasada 12); GitHub zostaje biały */
+.pf-znak--discord{fill:#5865F2;}
+.pf-znak--linkedin{fill:#0A66C2;}
+.pf-pot{width:14px;height:14px;flex:none;color:var(--kn-hot);}
+.pf-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+
+/* karta rangi cybersory */
+.pf-ranga{display:flex;flex-direction:column;gap:12px;}
+.pf-ranga__top{display:flex;flex-wrap:wrap;align-items:center;gap:16px;}
+.pf-godlo{width:72px;height:72px;flex:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5));}
+.pf-ranga__n{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.pf-ranga__n b{font:700 22px/1.2 var(--kn-sans);letter-spacing:-.01em;}
+.pf-xp{margin-left:auto;font:500 14px var(--kn-mono);color:var(--kn-jasny);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.pf-tor{height:8px;border-radius:999px;background:var(--kn-ink);overflow:hidden;}
+.pf-tor i{display:block;height:100%;border-radius:inherit;background:var(--kn-krew2);transition:width .6s var(--kn-sprezyna);}
+.pf-drabina{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0;}
+.pf-drabina li{display:inline-flex;align-items:center;gap:6px;font:500 12.5px var(--kn-mono);padding:3px 10px 3px 4px;border-radius:999px;background:var(--kn-ink);color:var(--kn-szary);}
+.pf-drabina li span{width:22px;height:22px;flex:none;}
+.pf-drabina .pf-jest{color:var(--kn-jasny);}
+.pf-drabina .pf-teraz{background:var(--kn-krew);color:#fff;}
+/* P1.1: „Skąd XP?” */
+.pf-skad summary{display:inline-flex;align-items:center;gap:8px;min-height:32px;font:500 12.5px var(--kn-mono);color:var(--kn-jasny);cursor:pointer;list-style:none;border-radius:8px;}
+.pf-skad summary::-webkit-details-marker{display:none;}
+.pf-skad summary::after{content:"+";color:var(--kn-hot);}
+.pf-skad[open] summary::after{content:"−";}
+.pf-skad summary:focus-visible{outline:2px solid var(--kn-hot);outline-offset:2px;}
+.pf-skad__l{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:2px;max-width:360px;}
+.pf-skad__l li{display:flex;justify-content:space-between;gap:16px;padding:6px 0;font:500 13px var(--kn-mono);color:var(--kn-jasny);border-top:1px solid var(--pf-ramka);}
+.pf-skad__l li:first-child{border-top:0;}
+.pf-skad__l b{font-weight:600;color:var(--kn-kosc);font-variant-numeric:tabular-nums;}
+.pf-skad__suma b{color:var(--kn-hot);}
+
+/* odznaki: boks 14 jak na płótnie P0 */
+.pf-siatka{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px;}
+.pf-odz{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:16px 8px 14px;border-radius:14px;
+  background:var(--pf-boks);border:1px solid var(--pf-ramka);min-width:0;transition:border-color .25s ease,background-color .25s ease;}
+.pf-odz__ik{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:rgba(225,29,51,.14);color:var(--kn-hot);
+  box-shadow:inset 0 1px 0 rgba(246,242,243,.06),0 8px 16px -8px rgba(0,0,0,.7);}
+.pf-odz__ik svg{width:30px;height:30px;}
+.pf-odz__n{font-size:13px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;}
+.pf-odz__d{font:500 12px var(--kn-mono);color:var(--kn-szary);}
+.pf-odz-pusto{grid-column:1/-1;padding:16px 4px;color:var(--kn-szary);font-size:14px;}
+
+/* gablota: zdobyte kafle + jeden kafel „Dodaj do gabloty” (P1.1: bez przerywanych pustych miejsc) */
+.pf-gablota{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;}
+.pf-gablota .pf-odz{background:var(--pf-boks);box-shadow:inset 0 1px 0 rgba(246,242,243,.16);}
+.pf-gablota .pf-odz__ik{width:60px;height:60px;background:var(--kn-ink);}
+.pf-dodaj-li{display:flex;min-width:0;}
+.pf-dodaj{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:132px;padding:12px 8px;border-radius:14px;
+  border:1px solid var(--pf-ramka);background:var(--pf-boks);color:var(--kn-jasny);font:600 13px/1.3 var(--kn-sans);cursor:pointer;transition:background .2s ease,border-color .2s ease;}
+.pf-dodaj:hover{background:var(--pf-boks2);border-color:var(--pf-ramka2);}
+.pf-dodaj:focus-visible{outline:2px solid var(--kn-hot);outline-offset:2px;}
+.pf-dodaj__plus{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--kn-ink);color:var(--kn-hot);}
+.pf-dodaj__plus svg{width:24px;height:24px;}
+
+/* filtr źródła: grupa radiowa, liczniki mono */
+.pf-filtr{display:flex;flex-wrap:wrap;gap:6px;}
+.pf-filtr button{display:inline-flex;align-items:center;gap:6px;min-height:36px;font:500 13px var(--kn-mono);color:var(--kn-przygaszony);background:var(--kn-ink);border:0;border-radius:999px;padding:0 12px;cursor:pointer;}
+.pf-filtr button:hover{color:var(--kn-kosc);}
+.pf-filtr button[aria-checked="true"]{background:var(--kn-kosc);color:var(--kn-ink);}
+.pf-filtr button:focus-visible{outline:2px solid var(--kn-hot);outline-offset:2px;}
+.pf-filtr__n{color:var(--kn-hot);}
+.pf-filtr button[aria-checked="true"] .pf-filtr__n{color:var(--kn-krew);}
+
+/* „Do zdobycia”: tylko właściciel, wiersze z warunkiem tekstem; ikona wygaszona, ale ≥ 3:1 */
+.pf-dozd > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:28px;cursor:pointer;list-style:none;border-radius:8px;}
+.pf-dozd > summary::-webkit-details-marker{display:none;}
+.pf-dozd > summary::after{content:"+";font-size:16px;color:var(--kn-hot);}
+.pf-dozd[open] > summary::after{content:"−";}
+.pf-dozd > summary:focus-visible{outline:2px solid var(--kn-hot);outline-offset:4px;}
+.pf-dozd__l{list-style:none;margin:12px 0 0;padding:0;}
+.pf-dozd__w{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--pf-ramka);}
+.pf-dozd__ik{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:rgba(246,242,243,.6);box-shadow:inset 0 0 0 1.5px rgba(246,242,243,.45);--wezel:rgba(246,242,243,.5);}
+.pf-dozd__ik svg{width:22px;height:22px;}
+.pf-dozd__t{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.pf-dozd__t b{font-size:14px;font-weight:600;overflow-wrap:anywhere;}
+.pf-dozd__t span{font-size:13.5px;line-height:1.45;color:var(--kn-jasny);}
+.pf-dozd__xp{font:500 12.5px var(--kn-mono);color:var(--kn-szary);white-space:nowrap;}
+
+/* stany: prywatny, brak (P1.1: wąskie okno, pełne tło panelu zamiast szkła) */
+.kn-prof.kn-prof--stan{width:min(480px,calc(100vw - 32px));background:var(--pf-panel);-webkit-backdrop-filter:none;backdrop-filter:none;}
+.pf-stan{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:40px 16px 24px;}
+.pf-stan img{width:88px;height:88px;border-radius:999px;opacity:.7;}
+.pf-stan h2{margin:0;font:600 22px var(--kn-sans);overflow-wrap:anywhere;}
+.pf-stan .pf-meta{overflow-wrap:anywhere;}
+.pf-stan__akcje{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px;}
+
+/* ---------- zakładka „Profil” w Moim koncie: wiersze linków ---------- */
+.pf-ust{display:flex;flex-direction:column;gap:12px;}
+.pf-wiersze{display:flex;flex-direction:column;gap:6px;}
+.pf-wiersz{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px;border-radius:12px;background:rgba(14,14,18,.5);}
+.pf-wiersz__kw{width:32px;height:32px;border-radius:10px;background:var(--kn-ink);display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--pf-ramka);}
+.pf-wiersz__kw .pf-znak{width:16px;height:16px;}
+.pf-wiersz__t{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.pf-wiersz__t label{font-size:14px;font-weight:600;}
+.pf-wiersz .kn-in{min-height:40px;font:15px var(--kn-mono);}
+.pf-wiersz .kn-blad{grid-column:2/-1;overflow-wrap:anywhere;}
+.pf-wiersz__po .kn-btn .pf-znacznik{margin-left:2px;}
+.pf-wiersz__po{align-self:end;}
+.pf-wiersz__po .kn-btn{min-height:40px;padding:0 14px;font-size:13px;}
+.pf-potw{display:inline-flex;align-items:center;gap:6px;min-height:40px;font:500 12.5px var(--kn-mono);padding:0 12px;border-radius:999px;background:var(--kn-hover);color:var(--kn-kosc);white-space:nowrap;}
+.pf-potw svg{width:14px;height:14px;color:var(--kn-hot);}
+.pf-bio-in{min-height:88px;padding:12px 14px;resize:vertical;line-height:1.5;}
+.pf-licznik{align-self:flex-end;font:12.5px var(--kn-mono);color:var(--kn-szary);}
+.pf-licznik--za{color:var(--kn-hot);}
+.pf-wybor{display:flex;flex-wrap:wrap;gap:8px;}
+.pf-wybor button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 8px;border-radius:999px;border:0;background:rgba(14,14,18,.6);
+  color:var(--kn-jasny);font:14px var(--kn-sans);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(246,242,243,.1);}
+.pf-wybor button span{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:var(--kn-hot);background:rgba(225,29,51,.14);}
+.pf-wybor button span svg{width:16px;height:16px;}
+/* P1.1: wybrana = czerwonawa jak kafel na profilu + numer miejsca (bez białej odwróconej pigułki) */
+.pf-wybor button[aria-pressed="true"]{background:rgba(225,29,51,.16);color:var(--kn-kosc);box-shadow:inset 0 0 0 1px rgba(255,58,82,.55);padding-right:8px;}
+.pf-wybor button[aria-pressed="true"] span{background:var(--kn-ink);}
+.pf-nr{display:grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:var(--kn-krew);color:#fff;font:600 12.5px var(--kn-mono);}
+.pf-wybor button:disabled{opacity:.45;cursor:not-allowed;}
+.pf-wybor button:focus-visible{outline:2px solid var(--kn-hot);outline-offset:2px;}
+.pf-og{display:block;width:100%;height:auto;border-radius:12px;background:var(--kn-ink);box-shadow:inset 0 0 0 1px rgba(246,242,243,.1);}
+/* pasek zapisu przyklejony do dołu: pełne tło panelu (zmierzone 05.11: półprzezroczyste prześwitywało błędem pola Discord na 375) */
+.pf-zapis{position:sticky;bottom:0;z-index:1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px;border-radius:16px;
+  background:var(--pf-panel);box-shadow:inset 0 1px 0 rgba(246,242,243,.08),0 -16px 28px rgba(8,8,11,.55);}
+.pf-zapis .kn-blad{flex:1 1 200px;}
+
+@media (max-width:600px){
+  /* arkusz od dołu na całą szerokość (konto.css); bez tego .kn-prof zostawał na 100vw − 32 px przyklejony do lewej */
+  .kn-prof{height:92dvh;width:100vw;}
+  .kn-prof.kn-prof--stan{height:fit-content;width:100vw;}   /* auto przy inset:0 wypełniał cały ekran */
+  .kn-prof .kn-dlg__in{padding:16px 12px calc(12px + env(safe-area-inset-bottom));}
+  .pf-pasek{padding-right:52px;}
+  .pf-tryb{margin-right:52px;}
+  .pf-akcje .kn-btn{flex:1 1 auto;padding:0 14px;}
+  .pf-karta{padding:16px;}
+  .pf-wiz{gap:14px;}
+  .pf-wiz__av{width:80px;height:80px;}
+  .pf-wiz h2{font-size:22px;}
+  .pf-xp{margin-left:0;}
+  .pf-gablota{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .pf-gablota .pf-odz{padding:12px 4px 10px;}
+  .pf-gablota .pf-odz__ik{width:48px;height:48px;}
+  .pf-dodaj{min-height:112px;}
+  .pf-dodaj__plus{width:44px;height:44px;}
+  .pf-siatka{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;}
+  .pf-wiersz{grid-template-columns:32px minmax(0,1fr);}
+  .pf-wiersz__po{grid-column:2;justify-self:start;}
+}
+@media (prefers-reduced-motion:reduce){
+  .pf-kaps,.pf-odz,.pf-tor i,.pf-dodaj{transition:none;}
+  .pf-kaps:active{transform:none;}
+}

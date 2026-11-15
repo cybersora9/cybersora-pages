@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="konto-api" content="/api/konto">
+<meta name="konto-beta" content="1">
 <script src="js-flag.js"></script>
 <title>cybersora — programy, aplikacje i strony na zamówienie · Gorlice</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -4681,9 +4683,16 @@ fingerprint(maszyna)</div>
      SOMI_MOOD / SOMI_PULSE zostają w app.js jako puste funkcje. -->
 
 <!-- KOT CYBERSORY (03.11, makieta): przewodnik + czat w prawym dolnym rogu -->
-<link rel="stylesheet" href="konto.css?v=20261105b">
-<script src="konto-api.js?v=20261105b" defer></script>
-<script src="konto.js?v=20261105b" defer></script>
+<!-- KONTA (15.11, ukryta beta): pliki z artefaktu v38 (P3a–P3c); widać je tylko po ?beta albo z sesją (meta konto-beta).
+     Bez czatu ze znajomymi (czeka na serwer). Klucze dostępu: SimpleWebAuthn (MIT). -->
+<link rel="stylesheet" href="konto.css?v=20261115b">
+<link rel="stylesheet" href="profil.css?v=20261115b">
+<script src="programy-slownik.js?v=20261115b" defer></script>
+<script src="vendor/simplewebauthn-browser-14.0.0.umd.min.js" defer></script>
+<script type="module" src="konto-reguly.js?v=20261115b"></script>
+<script src="konto-api.js?v=20261115b" defer></script>
+<script src="konto.js?v=20261115b" defer></script>
+<script src="profil.js?v=20261115b" defer></script>
 <link rel="stylesheet" href="kot-czat.css?v=20261105g">
 <script src="meshuga-kot.js?v=20261105c" defer></script>
 <script src="kot-czat.js?v=20261105g" defer></script>

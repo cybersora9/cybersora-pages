@@ -22,7 +22,12 @@
     wyjdz: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10"/>',
     x: '<path d="M6 6l12 12M18 6L6 18"/>',
     aparat: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
-    ok: '<path d="M5 12l5 5 9-10"/>'
+    ok: '<path d="M5 12l5 5 9-10"/>',
+    odznaka: '<circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.3 7 21l5-2.6 5 2.6-1.5-7.7"/>',
+    program: '<rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21h8M12 17v4"/>',
+    profil: '<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2.2"/><path d="M6 16c.6-1.4 1.8-2.2 3-2.2s2.4.8 3 2.2M14.5 10h4M14.5 13.5h3"/>',
+    klucz: '<circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16 7l2.5 2.5M13.5 9.5l2 2"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/>'
   };
   function ico(n) {
     var s = D.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -69,8 +74,13 @@
   var toastTimer = 0;
   function toastWidac() { return maPopover ? toast.matches(':popover-open') : !toast.hidden; }
   function schowajToast() { if (maPopover) { if (toastWidac()) toast.hidePopover(); } else toast.hidden = true; }
-  function powiedz(t) {
+  // blad = komunikat o błędzie: krzyżyk zamiast ptaszka, żeby odmowa nie wyglądała na sukces
+  function powiedz(t, blad) {
     toastT.textContent = t;
+    toast.classList.toggle('kn-toast--blad', !!blad);
+    toastOk.replaceChildren(ico(blad ? 'x' : 'ok'));
+    // P1.1: na telefonie komunikat stoi nad dolną krawędzią; gdy okno ma przyklejony pasek zapisu, idzie na górę, żeby go nie zasłaniać
+    toast.classList.toggle('kn-toast--gora', !!(window.matchMedia && matchMedia('(max-width:600px)').matches && D.querySelector('dialog[open] .pf-zapis')));
     // ponowne pokazanie przenosi komunikat na wierzch warstwy górnej (nad świeżo otwarte okno)
     if (maPopover) { schowajToast(); toast.showPopover(); } else toast.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(schowajToast, 5200);
@@ -118,6 +128,8 @@
     var ost = stan && stan.zamowienia[0];
     menu.append(
       pozycjaMenu('ja', 'Moje konto', 'przeglad'),
+      pozycjaMenu('profil', 'Mój profil', 'mojprofil'),
+      pozycjaMenu('odznaka', 'Osiągnięcia', 'osiagniecia', stan && stan.programy && stan.programy.czytnik ? el('span', 'kn-wiersz__po', 'R' + stan.programy.czytnik.ranga) : null),
       pozycjaMenu('koszyk', 'Koszyk', 'koszyk', el('span', 'kn-wiersz__po', String(n))),
       pozycjaMenu('zam', 'Zamówienia', 'zamowienia', ost ? el('span', 'kn-pill', ETYKIETA[ost.status] || ost.status) : null),
       pozycjaMenu('gra', 'Gra DancyCloud', 'gra', stan && stan.gra.najlepszy ? el('span', 'kn-wiersz__po', String(stan.gra.najlepszy)) : null),
@@ -128,7 +140,11 @@
   }
   function polozMenu() {
     var r = av.getBoundingClientRect();
-    menu.style.top = Math.round(r.bottom + 10) + 'px';
+    // 06.11: przycisk konta stoi w prawym dolnym rogu, więc menu otwiera się w górę (w pasku otwierało się w dół)
+    var wDole = r.top > innerHeight / 2;
+    menu.classList.toggle('kn-menu--gora', wDole);
+    menu.style.top = wDole ? 'auto' : Math.round(r.bottom + 10) + 'px';
+    menu.style.bottom = wDole ? Math.round(innerHeight - r.top + 10) + 'px' : 'auto';
     menu.style.right = Math.max(16, Math.round(innerWidth - r.right)) + 'px';
   }
   function elementyMenu() { return Array.prototype.slice.call(menu.querySelectorAll('[role="menuitem"]')); }
@@ -153,7 +169,9 @@
   menu.addEventListener('click', function (e) {
     var b = e.target.closest('[data-akcja]'); if (!b) return;
     var a = b.dataset.akcja; zamknijMenu(false);
-    if (a === 'wyloguj') wyloguj(); else otworzArkusz(a);
+    if (a === 'wyloguj') wyloguj();
+    else if (a === 'mojprofil') { var p = publiczny(); if (p && window.ProfilCS) window.ProfilCS.otworz(p.nick); }
+    else otworzArkusz(a);
   });
   D.addEventListener('pointerdown', function (e) { if (!menu.hidden && !menu.contains(e.target) && !av.contains(e.target)) zamknijMenu(false); });
   addEventListener('resize', function () { if (!menu.hidden) polozMenu(); });
@@ -171,127 +189,332 @@
     return x;
   }
   function zajety(b, tak, tekst) {
-    if (tak) { b.dataset.t = b.textContent; b.textContent = tekst; b.disabled = true; b.setAttribute('aria-busy', 'true'); }
-    else { b.textContent = b.dataset.t || b.textContent; b.disabled = false; b.removeAttribute('aria-busy'); }
+    // krok 2: przycisk z ikoną (klucz, znak GitHub/Discord) wraca razem z ikoną
+    if (tak) { if (!b._dzieci) b._dzieci = Array.prototype.slice.call(b.childNodes); b.textContent = tekst; b.disabled = true; b.setAttribute('aria-busy', 'true'); }
+    else { if (b._dzieci) { b.replaceChildren.apply(b, b._dzieci); b._dzieci = null; } b.disabled = false; b.removeAttribute('aria-busy'); }
   }
   function pole(id, etyk, typ, auto) {
     var p = el('div', 'kn-pole'), l = el('label', null, etyk), i = el('input', 'kn-in');
     l.htmlFor = id; i.id = id; i.type = typ; i.autocomplete = auto; i.required = true;
     if (typ === 'text') { i.autocapitalize = 'off'; i.spellcheck = false; }
-    p.append(l, i); return { p: p, i: i };
+    p.append(l, i); return { p: p, i: i, l: l };
   }
+  function check(id, tekst) {
+    var p = el('label', 'kn-check'), i = el('input'); i.type = 'checkbox'; i.id = id;
+    p.append(i, el('span', null, tekst)); return { p: p, i: i };
+  }
+  function albo() { var a = el('div', 'kn-albo'); a.appendChild(el('span', null, 'albo')); return a; }
+  // znaki GitHub/Discord bierzemy z profil.js (jedno źródło, oryginalne ścieżki Simple Icons); profil.js ładuje się po tym pliku
+  function znakMarki(s) { var P = window.ProfilCS; return P && P.znak ? P.znak(s) : null; }
+  function wstawZnaki(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-dostawca]'), function (b) {
+      if (b.querySelector('.pf-znak')) return;
+      var z = znakMarki(b.dataset.dostawca); if (z) b.insertBefore(z, b.firstChild);
+    });
+  }
+  var NAZWA_D = { github: 'GitHub', discord: 'Discord' };
 
-  /* ---------------- logowanie / rejestracja / odzyskiwanie ---------------- */
+  /* ---------------- logowanie i rejestracja: krok 2 serii KONTA BEZPIECZNIE (06.11), bez haseł ----------------
+     Klucz dostępu (passkey) na górze, pod nim „albo” → GitHub / Discord. Rejestracja: nick + 16+ + Turnstile + sposób.
+     W artefakcie: Turnstile i ekran zgody GitHub/Discord to atrapy; klucz prawdziwy, gdy przeglądarka pozwala (w ramce podglądu nie). */
   var lo = okno('kn-log', 'Konto cybersory'), log = lo.d;
   var loH = el('h2', 'kn-h', 'Konto cybersory');
   var loTaby = el('div', 'kn-taby'); loTaby.setAttribute('role', 'tablist'); loTaby.setAttribute('aria-label', 'Logowanie albo nowe konto');
   var tLog = btn('kn-tab', 'Zaloguj'), tRej = btn('kn-tab', 'Załóż konto');
   [tLog, tRej].forEach(function (t) { t.setAttribute('role', 'tab'); loTaby.appendChild(t); });
-  var loForm = el('form'); loForm.noValidate = true;
+  function uwagaAtrapy() {
+    var u = el('p', 'kn-uwaga'); u.hidden = true;
+    u.append(el('span', 'pf-znacznik', 'ATRAPA'), D.createTextNode('Podgląd blokuje prawdziwe klucze dostępu. Użyjemy klucza-atrapy z tej przeglądarki.'));
+    return u;
+  }
+  function oauthPrzyciski(cel) {
+    var w = el('div', 'kn-oauth');
+    ['github', 'discord'].forEach(function (s) {
+      var b = btn('kn-btn kn-btn--g kn-btn--szer', (cel === 'rej' ? 'Załóż konto przez ' : 'Zaloguj przez ') + NAZWA_D[s]);
+      b.dataset.dostawca = s;
+      b.addEventListener('click', function () { startOAuth(s, cel, b); });
+      w.appendChild(b);
+    });
+    return w;
+  }
+  /* panel: logowanie */
+  var pLog = el('div', 'kn-etap');
+  var bKlucz = btn('kn-btn kn-btn--p kn-btn--szer'); bKlucz.append(ico('klucz'), D.createTextNode('Zaloguj się kluczem dostępu'));
+  var cPam = check('knPamietaj', 'Zapamiętaj to urządzenie na 30 dni');
+  var uLog = uwagaAtrapy();
+  pLog.append(bKlucz, uLog, cPam.p, albo(), oauthPrzyciski('log'));
+  /* panel: rejestracja */
+  var pRej = el('form', 'kn-etap'); pRej.noValidate = true;
   var fNick = pole('knNick', 'Nick', 'text', 'username');
   fNick.i.maxLength = 20;
-  var fHaslo = pole('knHaslo', 'Hasło', 'password', 'current-password');
-  var fKod = pole('knKod', 'Kod odzyskiwania', 'text', 'off'); fKod.i.placeholder = 'XXXX-XXXX-XXXX'; fKod.i.classList.add('kn-mono');
+  var nLicz = el('span', 'kn-licznik kn-mono', '0/20'); nLicz.setAttribute('aria-hidden', 'true');
+  var nGlowa = el('div', 'kn-pole__glowa'); fNick.p.insertBefore(nGlowa, fNick.i); nGlowa.append(fNick.l, nLicz);
+  var nPodp = el('p', 'kn-podp'); nPodp.id = 'knNickPodp';
+  fNick.i.setAttribute('aria-describedby', 'knNickPodp');
+  fNick.p.appendChild(nPodp);
+  var cWiek = check('knWiek', 'Mam co najmniej 16 lat');
+  var ts = turnstile();
+  var bRej = el('button', 'kn-btn kn-btn--p kn-btn--szer'); bRej.type = 'submit'; bRej.append(ico('klucz'), D.createTextNode('Załóż konto z kluczem dostępu'));
+  var uRej = uwagaAtrapy();
+  pRej.append(fNick.p, cWiek.p, ts.w, bRej, uRej, albo(), oauthPrzyciski('rej'));
+  /* panel: zgoda u dostawcy (atrapa ekranu GitHub/Discord) */
+  var pOa = el('form', 'kn-etap'); pOa.noValidate = true;
+  var oaGlowa = el('div', 'kn-oa__glowa');
+  var oaCo = el('p', 'kn-pod');
+  var fLogin = pole('knOaLogin', 'Login', 'text', 'off'); fLogin.i.maxLength = 39;
+  var bOaOk = el('button', 'kn-btn kn-btn--p'); bOaOk.type = 'submit'; bOaOk.textContent = 'Autoryzuj';
+  var bOaWstecz = btn('kn-btn kn-btn--g', 'Wróć');
+  var oaRz = el('div', 'kn-rzad kn-rzad--k'); oaRz.append(bOaWstecz, bOaOk);
+  pOa.append(oaGlowa, oaCo, fLogin.p, oaRz);
+  /* panel: po założeniu konta (zachęta do drugiego sposobu: konto z jednym kluczem ginie razem z urządzeniem) */
+  var pPo = el('div', 'kn-etap');
+  var bPoDodaj = btn('kn-btn kn-btn--p', 'Dodaj drugi sposób'), bPoPozniej = btn('kn-btn kn-btn--g', 'Później');
+  var poRz = el('div', 'kn-rzad kn-rzad--k'); poRz.append(bPoPozniej, bPoDodaj);
+  pPo.append(el('p', 'kn-ostrz', 'Masz jeden sposób logowania. Dodaj drugi, żeby nie stracić konta razem z urządzeniem.'), poRz);
   var loBlad = el('p', 'kn-blad'); loBlad.setAttribute('role', 'alert'); loBlad.id = 'knLogBlad';
-  var loOk = el('button', 'kn-btn kn-btn--p', 'Zaloguj'); loOk.type = 'submit';
-  var loZapomnialem = btn('kn-link', 'Nie pamiętam hasła');
-  // 04.11 maisa: przy zakładaniu konta powiedzieć wprost, że maili na razie nie ma
-  var loBezMaila = el('p', 'kn-pod', 'Na razie bez maila: konto to sam nick i hasło.'); loBezMaila.id = 'knBezMaila';
-  loForm.append(fNick.p, fKod.p, fHaslo.p, loBezMaila, loBlad, loOk, loZapomnialem);
-  /* po rejestracji / odzyskaniu: kod */
-  var loKod = el('div'); loKod.hidden = true; loKod.style.cssText = 'display:flex;flex-direction:column;gap:14px';
-  var kodH = el('p', 'kn-pod', 'Twój kod odzyskiwania. Zapisz go teraz, drugi raz go nie pokażemy.');
-  var kodPole = el('div', 'kn-kod');
-  var kodKopiuj = btn('kn-btn kn-btn--g', 'Kopiuj kod');
-  var kodDalej = btn('kn-btn kn-btn--p', 'Zapisałem kod');
-  var kodRzad = el('div', 'kn-rzad kn-rzad--k'); kodRzad.append(kodKopiuj, kodDalej);
-  loKod.append(kodH, kodPole, kodRzad);
-  lo.w.append(zamykacz(log), loH, loTaby, loForm, loKod);
-  var trybLog = 'log';
+  var loWybor = el('div', 'kn-wybor'); loWybor.hidden = true;   // atrapa okna „wybierz klucz” przeglądarki
+  lo.w.append(zamykacz(log), loH, loTaby, pLog, pRej, pOa, pPo, loBlad, loWybor);
+
+  function turnstile() {
+    // artefakt (i Worker z TURNSTILE=brak): atrapa widżetu, token jednorazowy z udawanego serwera.
+    // P3c: gdy Worker mówi „wymagany”, w to miejsce wchodzi prawdziwy widżet Cloudflare (pokaz() przy otwarciu zakładki).
+    var w = el('div', 'kn-ts'), b = btn('kn-ts__pole'); b.id = 'knTs';
+    b.setAttribute('role', 'checkbox'); b.setAttribute('aria-checked', 'false');
+    var kw = el('span', 'kn-ts__kw'), t = el('span', null, 'Nie jestem botem');
+    b.append(kw, t);
+    var m = el('span', 'kn-ts__marka'); m.append(el('span', 'kn-mono', 'TURNSTILE'), el('span', 'pf-znacznik', 'ATRAPA'));
+    w.append(b, m);
+    var token = null, trwa = false, cf = null, widzet = null, ustawienia = null;
+    var o = { w: w, b: b, token: function () { return token; }, reset: reset, pokaz: pokaz };
+    function reset() {
+      token = null; trwa = false; w.dataset.stan = ''; b.setAttribute('aria-checked', 'false'); b.removeAttribute('aria-invalid'); t.textContent = 'Nie jestem botem'; kw.textContent = '';
+      // token Cloudflare też jest jednorazowy: po każdej próbie widżet bierze nowy
+      if (widzet !== null && window.turnstile) try { window.turnstile.reset(widzet); } catch (e) { /* widżet już zniknął */ }
+    }
+    b.addEventListener('click', function () {
+      if (token || trwa || cf) return;
+      trwa = true; w.dataset.stan = 'sprawdza'; t.textContent = 'Sprawdzam…'; b.removeAttribute('aria-invalid');
+      api.turnstile().then(function (x) {
+        token = x; trwa = false; w.dataset.stan = 'ok'; b.setAttribute('aria-checked', 'true'); t.textContent = 'Gotowe'; kw.replaceChildren(ico('ok'));
+        if (/botem/.test(loBlad.textContent)) loBlad.textContent = '';
+      }, function (e) { reset(); loBlad.textContent = e.message; });
+    });
+    function skrypt() {
+      if (window.turnstile) return Promise.resolve();
+      return new Promise(function (ok, zle) {
+        var s = D.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        s.onload = function () { window.turnstile ? ok() : zle(); };
+        s.onerror = zle;
+        D.head.appendChild(s);
+      });
+    }
+    function prawdziwy(u) {
+      cf = el('div', 'kn-ts__cf'); cf.tabIndex = -1; cf.setAttribute('aria-label', 'Antyspam Cloudflare Turnstile');
+      w.dataset.widget = 'cf'; b.hidden = true; m.hidden = true; w.insertBefore(cf, b);
+      o.b = cf;   // błąd „Potwierdź, że nie jesteś botem” wskazuje widżet
+      skrypt().then(function () {
+        widzet = window.turnstile.render(cf, {
+          sitekey: u.sitekey, action: u.akcja, theme: 'dark', language: 'pl', size: 'flexible', appearance: 'always',
+          callback: function (x) { token = x; w.dataset.stan = 'ok'; cf.removeAttribute('aria-invalid'); if (/botem|antyspam/i.test(loBlad.textContent)) loBlad.textContent = ''; },
+          'expired-callback': function () { token = null; w.dataset.stan = ''; },
+          'error-callback': function () { token = null; w.dataset.stan = 'blad'; loBlad.textContent = 'Antyspam się nie załadował. Odśwież stronę i spróbuj jeszcze raz.'; return true; }
+        });
+      }, function () { w.dataset.stan = 'blad'; loBlad.textContent = 'Antyspam się nie załadował. Sprawdź połączenie i odśwież stronę.'; });
+    }
+    function pokaz() {
+      if (api.tryb !== 'zywo' || ustawienia) return;
+      b.disabled = true;   // dopóki Worker nie powie, czy antyspam jest prawdziwy, atrapy nie da się kliknąć
+      ustawienia = api.turnstileUstawienia().then(function (u) { b.disabled = false; if (u && u.tryb === 'wymagany' && u.sitekey) prawdziwy(u); },
+        function () { b.disabled = false; ustawienia = null; /* następne otwarcie zakładki spróbuje jeszcze raz */ });
+    }
+    return o;
+  }
+
+  var trybLog = 'log', oa = null, wymusAtrapa = false;
+  function atrapaTryb() { return api.tryb === 'artefakt' && (wymusAtrapa || !api.kluczeMozliwe()); }
+  function odswiezAtrapy() { var on = atrapaTryb(); uLog.hidden = uRej.hidden = !on; }
+  function widok(v) {
+    pLog.hidden = v !== 'log'; pRej.hidden = v !== 'rej'; pOa.hidden = v !== 'oa'; pPo.hidden = v !== 'po';
+    loTaby.hidden = v === 'oa' || v === 'po';
+    loWybor.hidden = true;
+    // błąd stoi tuż przy tym, czego dotyczy: pod kluczem, nad „Załóż konto”, nad „Autoryzuj”
+    if (v === 'log') { pLog.insertBefore(loBlad, cPam.p); pLog.insertBefore(loWybor, cPam.p); }
+    else if (v === 'rej') pRej.insertBefore(loBlad, bRej);
+    else if (v === 'oa') pOa.insertBefore(loBlad, oaRz);
+    else pPo.appendChild(loBlad);
+  }
+  function czysc() {
+    loBlad.textContent = '';
+    [fNick.i, cWiek.i, ts.b, fLogin.i].forEach(function (i) { i.removeAttribute('aria-invalid'); });
+    fNick.i.setAttribute('aria-describedby', 'knNickPodp');
+  }
   function ustawTryb(t) {
     trybLog = t;
     tLog.setAttribute('aria-selected', String(t === 'log')); tRej.setAttribute('aria-selected', String(t === 'rej'));
     tLog.tabIndex = t === 'rej' ? -1 : 0; tRej.tabIndex = t === 'rej' ? 0 : -1;
-    loTaby.hidden = t === 'odz';
-    loH.textContent = t === 'odz' ? 'Nowe hasło' : 'Konto cybersory';
-    fKod.p.hidden = t !== 'odz';
-    fHaslo.p.querySelector('label').textContent = t === 'odz' ? 'Nowe hasło' : 'Hasło';
-    fHaslo.i.autocomplete = t === 'log' ? 'current-password' : 'new-password';
-    fHaslo.i.minLength = t === 'log' ? 0 : 8;
-    loOk.textContent = t === 'rej' ? 'Załóż konto' : t === 'odz' ? 'Ustaw nowe hasło' : 'Zaloguj';
-    loZapomnialem.textContent = t === 'odz' ? 'Wróć do logowania' : 'Nie pamiętam hasła';
-    loZapomnialem.hidden = t === 'rej';
-    loBezMaila.hidden = t !== 'rej';
-    loBlad.textContent = '';
-    [fNick.i, fHaslo.i, fKod.i].forEach(function (i) { i.removeAttribute('aria-invalid'); i.removeAttribute('aria-describedby'); });
+    loH.textContent = 'Konto cybersory';
+    widok(t); czysc(); odswiezAtrapy();
+    if (t === 'rej') { licz(); ts.pokaz(); }
   }
-  tLog.addEventListener('click', function () { ustawTryb('log'); fNick.i.focus(); });
+  tLog.addEventListener('click', function () { ustawTryb('log'); bKlucz.focus(); });
   tRej.addEventListener('click', function () { ustawTryb('rej'); fNick.i.focus(); });
   loTaby.addEventListener('keydown', function (e) {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault(); (trybLog === 'log' ? tRej : tLog).click(); (trybLog === 'log' ? tLog : tRej).focus();
   });
-  loZapomnialem.addEventListener('click', function () { ustawTryb(trybLog === 'odz' ? 'log' : 'odz'); fNick.i.focus(); });
   function pokazLogowanie(t) {
     zamknijMenu(false);
-    loForm.hidden = false; loKod.hidden = true; loForm.reset(); ustawTryb(t || 'log');
+    pRej.reset(); cPam.i.checked = false; ts.reset(); oa = null;
+    wstawZnaki(lo.w);
+    ustawTryb(t || 'log');
     if (!log.open) log.showModal();
-    fNick.i.focus();
+    (trybLog === 'rej' ? fNick.i : bKlucz).focus();
   }
   function bladPola(i, t) {
     loBlad.textContent = t;
-    if (i) { i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', 'knLogBlad'); i.focus(); }
+    if (i) { i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', (i === fNick.i ? 'knNickPodp ' : '') + 'knLogBlad'); i.focus(); }
   }
-  loForm.addEventListener('submit', function (e) {
+  /* nick: licznik i reguły na żywo (te same co na serwerze, konto-reguly.js); błąd dopiero od 3 znaków albo po wyjściu z pola */
+  function licz(naWyjscie) {
+    var v = fNick.i.value.trim(), n = Array.from(v).length;
+    nLicz.textContent = n + '/20';
+    var w = v ? api.walidacja.nick(v) : null;
+    nPodp.textContent = w && !w.ok && (n >= 3 || naWyjscie) ? w.blad : '';
+  }
+  fNick.i.addEventListener('input', function () { fNick.i.removeAttribute('aria-invalid'); if (loBlad.textContent) loBlad.textContent = ''; licz(); });
+  fNick.i.addEventListener('blur', function () { licz(true); });
+  cWiek.i.addEventListener('change', function () { cWiek.i.removeAttribute('aria-invalid'); });
+  // rejestracja: wspólne sprawdzenie dla klucza i dla GitHub/Discord
+  function daneRejestracji() {
+    czysc();
+    var w = api.walidacja.nick(fNick.i.value);
+    if (!fNick.i.value.trim()) { bladPola(fNick.i, 'Wpisz nick.'); return null; }
+    if (!w.ok) { bladPola(fNick.i, w.blad); return null; }
+    if (!cWiek.i.checked) { bladPola(cWiek.i, 'Zaznacz, że masz co najmniej 16 lat.'); return null; }
+    if (!ts.token()) { bladPola(ts.b, 'Potwierdź, że nie jesteś botem.'); return null; }
+    return { nick: w.wartosc, turnstile: ts.token(), wiek16: true };
+  }
+  function bladKluczaUI(e) {
+    if (e.atrapa) {   // ramka podglądu nie dopuszcza kluczy: przełączamy na atrapę i prosimy o jeszcze jedno kliknięcie
+      wymusAtrapa = true; odswiezAtrapy();
+      loBlad.textContent = 'Ten podgląd nie dopuszcza prawdziwych kluczy dostępu. Kliknij jeszcze raz: użyjemy klucza-atrapy.';
+      return;
+    }
+    bladPola(e.kod === 'nick' ? fNick.i : e.kod === 'wiek' ? cWiek.i : e.kod === 'turnstile' ? ts.b : null, e.message || 'Coś nie zagrało. Spróbuj jeszcze raz.');
+  }
+  pRej.addEventListener('submit', function (e) {
     e.preventDefault();
-    [fNick.i, fHaslo.i, fKod.i].forEach(function (i) { i.removeAttribute('aria-invalid'); });
-    var nick = fNick.i.value.trim(), haslo = fHaslo.i.value, kod = fKod.i.value.trim();
-    if (!nick) return bladPola(fNick.i, 'Wpisz nick.');
-    if (trybLog === 'odz' && !kod) return bladPola(fKod.i, 'Wpisz kod odzyskiwania.');
-    if (!haslo) return bladPola(fHaslo.i, 'Wpisz hasło.');
-    if (trybLog !== 'log' && haslo.length < 8) return bladPola(fHaslo.i, 'Hasło musi mieć co najmniej 8 znaków.');
-    loBlad.textContent = '';
+    var r = daneRejestracji(); if (!r) return;
     var gosc = koszykLokalny();
-    zajety(loOk, true, trybLog === 'rej' ? 'Zakładam konto…' : trybLog === 'odz' ? 'Sprawdzam kod…' : 'Loguję…');
-    var p = trybLog === 'rej' ? api.rejestracja(nick, haslo) : trybLog === 'odz' ? api.odzyskaj(nick, kod, haslo) : api.logowanie(nick, haslo);
-    p.then(function (r) {
-      stan = r.dane;
-      return scalKoszyk(gosc).then(function () { return r; });
-    }).then(function (r) {
-      zajety(loOk, false);
-      zmiana();
-      if (r.kod) {   // rejestracja albo odzyskanie: pokaż nowy kod
-        loForm.hidden = true; loTaby.hidden = true; loKod.hidden = false;
-        loH.textContent = trybLog === 'rej' ? 'Konto gotowe' : 'Hasło zmienione';
-        kodPole.textContent = r.kod;
-        kodDalej.dataset.nowe = trybLog === 'rej' ? '1' : '';
-        kodDalej.focus();
-      } else {
-        log.close();
-        if (toastWidac() && /koszyka gościa/.test(toastT.textContent)) return;
-        powiedz('Cześć, ' + stan.profil.nick + '.');
+    zajety(bRej, true, 'Czekam na klucz…');
+    api.rejestracjaKlucz(r.nick, r.turnstile, true, { atrapa: atrapaTryb() }).then(function (x) {
+      zajety(bRej, false); return poZalogowaniu(x, gosc, true);
+    }, function (er) { zajety(bRej, false); ts.reset(); bladKluczaUI(er); });   // token Turnstile jest jednorazowy
+  });
+  bKlucz.addEventListener('click', function () {
+    czysc();
+    if (!atrapaTryb()) return logujZ({});
+    var l = api.atrapyKluczy();
+    if (!l.length) return bladPola(null, 'Na tym urządzeniu nie ma klucza dostępu. Załóż konto albo zaloguj się przez GitHub lub Discord.');
+    if (l.length === 1) return logujZ({ atrapa: l[0].id });
+    // kilka kluczy: jak okno przeglądarki „wybierz klucz dostępu”
+    loWybor.replaceChildren(el('span', 'kn-lab', 'Wybierz klucz z tego urządzenia'));
+    l.forEach(function (a) {
+      var b = btn('kn-wiersz'); b.append(ico('klucz'), D.createTextNode(a.nick));
+      b.addEventListener('click', function () { loWybor.hidden = true; logujZ({ atrapa: a.id }); });
+      loWybor.appendChild(b);
+    });
+    loWybor.hidden = false; loWybor.querySelector('button').focus();
+  });
+  function logujZ(z) {
+    var gosc = koszykLokalny();
+    z.pamietaj = cPam.i.checked;
+    zajety(bKlucz, true, 'Czekam na klucz…');
+    api.logowanieKlucz(z).then(function (r) { zajety(bKlucz, false); return poZalogowaniu(r, gosc, false); },
+      function (e) { zajety(bKlucz, false); bladKluczaUI(e); bKlucz.focus(); });
+  }
+  /* GitHub / Discord: start (state) → ekran zgody u dostawcy (tu atrapa) → zwrot */
+  function startOAuth(s, cel, b) {
+    var z = { pamietaj: cPam.i.checked };
+    if (cel === 'rej') { var r = daneRejestracji(); if (!r) return; z.nick = r.nick; z.turnstile = r.turnstile; z.wiek16 = true; }
+    else czysc();
+    zajety(b, true, 'Łączę…');
+    api.oauthStart(s, cel, z).then(function (st) {
+      zajety(b, false); if (cel === 'rej') ts.reset();
+      pokazZgode(s, cel, st);
+    }, function (e) { zajety(b, false); if (e.kod === 'turnstile' || e.kod === 'limit') ts.reset(); bladKluczaUI(e); });
+  }
+  function pokazZgode(s, cel, st) {
+    oa = { dostawca: s, cel: cel, state: st };
+    oaGlowa.replaceChildren();
+    var z = znakMarki(s); if (z) oaGlowa.appendChild(z);
+    oaGlowa.append(el('b', null, NAZWA_D[s]), el('span', 'pf-znacznik', 'ATRAPA'));
+    oaCo.textContent = 'cybersora dostanie od ' + NAZWA_D[s] + ' tylko identyfikator i nazwę użytkownika.';
+    fLogin.l.textContent = s === 'github' ? 'Twój login na GitHubie' : 'Twoja nazwa na Discordzie';
+    fLogin.i.value = '';
+    loH.textContent = (cel === 'polacz' ? 'Połącz z ' : cel === 'rej' ? 'Załóż konto przez ' : 'Zaloguj przez ') + NAZWA_D[s];
+    widok('oa'); czysc();
+    if (!log.open) { zamknijMenu(false); log.showModal(); }
+    fLogin.i.focus();
+  }
+  fLogin.i.addEventListener('input', function () { fLogin.i.removeAttribute('aria-invalid'); });
+  pOa.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!oa) return;
+    czysc();
+    var w = api.walidacja.loginOAuth(oa.dostawca, fLogin.i.value);
+    if (!fLogin.i.value.trim()) return bladPola(fLogin.i, 'Wpisz login.');
+    if (!w.ok) return bladPola(fLogin.i, w.blad);
+    var gosc = koszykLokalny(), o = oa;
+    zajety(bOaOk, true, 'Autoryzuję…');
+    api.oauthZwrot(o.state, w.wartosc).then(function (r) {
+      zajety(bOaOk, false); oa = null;
+      if (o.cel === 'polacz') {
+        stan = r.dane; zmiana(); log.close();
+        powiedz(NAZWA_D[o.dostawca] + ' połączony. Link na profilu ma znaczek „potwierdzone”.');
+        return;
       }
-    }).catch(function (err) {
-      zajety(loOk, false);
-      bladPola(err.kod === 'haslo' ? fHaslo.i : err.kod === 'nick' || err.kod === 'dane' ? fNick.i : null, err.message || 'Coś nie zagrało. Spróbuj jeszcze raz.');
+      return poZalogowaniu(r, gosc, o.cel === 'rej' && !r.istnialo);
+    }, function (er) {
+      zajety(bOaOk, false); oa = null;
+      if (o.cel === 'polacz') { log.close(); powiedz(er.message, true); return; }
+      ustawTryb(o.cel === 'rej' && er.kod !== 'brak' ? 'rej' : 'log');   // state jest jednorazowy: wracamy do początku
+      bladPola(null, er.message);
     });
   });
-  kodKopiuj.addEventListener('click', function () {
-    var t = kodPole.textContent;
-    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(
-      function () { kodKopiuj.textContent = 'Skopiowane ✓'; },
-      function () { var r = D.createRange(); r.selectNodeContents(kodPole); var s = getSelection(); s.removeAllRanges(); s.addRange(r); kodKopiuj.textContent = 'Zaznaczone, skopiuj Ctrl+C'; });
+  bOaWstecz.addEventListener('click', function () {
+    var c = oa && oa.cel; oa = null;
+    if (c === 'polacz') { log.close(); return; }
+    ustawTryb(c === 'rej' ? 'rej' : 'log'); (c === 'rej' ? fNick.i : bKlucz).focus();
   });
-  kodDalej.addEventListener('click', function () {
-    var nowe = kodDalej.dataset.nowe === '1';
-    kodKopiuj.textContent = 'Kopiuj kod';
+  function polaczOAuth(s) {
+    if (!stan) return;
+    api.oauthStart(s, 'polacz', {}).then(function (st) { pokazZgode(s, 'polacz', st); }, function (e) { powiedz(e.message, true); });
+  }
+  function poZalogowaniu(r, gosc, nowe) {
+    stan = r.dane;
+    return scalKoszyk(gosc).then(function () {
+      zmiana();
+      if (nowe) { loH.textContent = 'Konto gotowe'; widok('po'); czysc(); bPoDodaj.focus(); return; }
+      log.close();
+      if (czekaKod) { otworzArkusz('programy'); return; }   // przyszedł z linku programu (?polacz=)
+      if (r.istnialo) { powiedz('To konto już istniało. Zalogowano jako ' + stan.profil.nick + '.'); return; }
+      if (toastWidac() && /koszyka gościa/.test(toastT.textContent)) return;
+      powiedz('Cześć, ' + stan.profil.nick + '.');
+    });
+  }
+  bPoDodaj.addEventListener('click', function () {
+    log.close(); otworzArkusz('ustawienia');
+    var s = D.getElementById('knSposoby'); if (s) s.scrollIntoView({ block: 'start' });
+  });
+  bPoPozniej.addEventListener('click', function () {
     log.close();
-    if (nowe) {
-      otworzArkusz('przeglad');
-      powiedz('Konto gotowe.' + (scalone ? ' Dodaliśmy ' + scalone + ' ' + pozycjeB(scalone) + ' z koszyka gościa.' : '') + ' Zdjęcie dodasz przyciskiem z aparatem.');
-    }
+    if (czekaKod) { otworzArkusz('programy'); return; }
+    otworzArkusz('przeglad');
+    powiedz('Konto gotowe.' + (scalone ? ' Dodaliśmy ' + scalone + ' ' + pozycjeB(scalone) + ' z koszyka gościa.' : '') + ' Zdjęcie dodasz przyciskiem z aparatem.');
   });
-  log.addEventListener('close', function () { if (!ark.open && !kadr.open) av.focus(); });
+  log.addEventListener('close', function () { oa = null; if (!ark.open && !kadr.open) av.focus(); });
 
   /* ---------------- koszyk: scalanie i synchronizacja ---------------- */
   var scalone = 0;   // ile pozycji gościa doszło przy ostatnim logowaniu (do komunikatu po rejestracji)
@@ -330,7 +553,7 @@
   var ao = okno('kn-ark', 'Moje konto'), ark = ao.d;
   var ETYKIETA = { wyslane: 'Wysłane', wycena: 'Wycena', praca: 'W pracy', gotowe: 'Gotowe' };
   var KROKI = ['wyslane', 'wycena', 'praca', 'gotowe'];
-  var ZAKLADKI = [['przeglad', 'Przegląd'], ['koszyk', 'Koszyk'], ['zamowienia', 'Zamówienia'], ['gra', 'Gra'], ['meshuga', 'Meshuga'], ['ustawienia', 'Ustawienia']];
+  var ZAKLADKI = [['przeglad', 'Przegląd'], ['profil', 'Profil'], ['osiagniecia', 'Osiągnięcia'], ['programy', 'Programy'], ['koszyk', 'Koszyk'], ['zamowienia', 'Zamówienia'], ['gra', 'Gra'], ['meshuga', 'Meshuga'], ['ustawienia', 'Ustawienia']];
   var zakladka = 'przeglad';
   var arkGlowa = el('div', 'kn-glowa');
   var arkTaby = el('div', 'kn-taby'); arkTaby.setAttribute('role', 'tablist'); arkTaby.setAttribute('aria-label', 'Sekcje konta');
@@ -339,27 +562,29 @@
     var t = btn('kn-tab', z[1]); t.setAttribute('role', 'tab'); t.dataset.z = z[0]; t.id = 'knTab-' + z[0]; t.setAttribute('aria-controls', 'knPanel');
     arkTaby.appendChild(t);
   });
-  var kat = el('span', 'kn-kat'); kat.setAttribute('aria-hidden', 'true');
-  ao.w.append(kat, zamykacz(ark, 'Zamknij konto'), arkGlowa, arkTaby, arkPanel);
-  arkTaby.addEventListener('click', function (e) { var t = e.target.closest('[data-z]'); if (t) { zakladka = t.dataset.z; rysujArkusz(); } });
+  // 06.11 (P1.1): kątownik .kn-kat wycięty (karta standardu, zasada 1: zero kątowników)
+  ao.w.append(zamykacz(ark, 'Zamknij konto'), arkGlowa, arkTaby, arkPanel);
+  // komunikat z poprzedniej zakładki nie wisi nad nową (P1.1)
+  arkTaby.addEventListener('click', function (e) { var t = e.target.closest('[data-z]'); if (t) { if (t.dataset.z !== zakladka) schowajToast(); zakladka = t.dataset.z; rysujArkusz(); } });
   arkTaby.addEventListener('keydown', function (e) {
     var t = Array.prototype.slice.call(arkTaby.children), i = t.indexOf(D.activeElement);
     var n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? t.length - 1 : null;
     if (n === null || i < 0) return;
     e.preventDefault(); n = (n + t.length) % t.length;
-    zakladka = t[n].dataset.z; rysujArkusz(); t[n].focus();
+    schowajToast(); zakladka = t[n].dataset.z; rysujArkusz(); t[n].focus();
   });
-  function idzDo(z) { zakladka = z; rysujArkusz(); var t = D.getElementById('knTab-' + z); if (t) t.focus(); }
+  function idzDo(z) { if (z !== zakladka) schowajToast(); zakladka = z; rysujArkusz(); var t = D.getElementById('knTab-' + z); if (t) t.focus(); }
 
   function otworzArkusz(z) {
     if (!api.sesja()) { pokazLogowanie('log'); return; }
     zakladka = z || 'przeglad';
+    if (!ark.open) narysowana = null;   // zdarzenie close przychodzi później niż ponowne otwarcie
     rysujArkusz();
     if (!ark.open) ark.showModal();
     var t = D.getElementById('knTab-' + zakladka); if (t) t.focus();
     if (!stan) wczytaj();
   }
-  ark.addEventListener('close', function () { if (!kadr.open) av.focus(); });
+  ark.addEventListener('close', function () { narysowana = null; if (!kadr.open) av.focus(); });
 
   function rysujArkusz() {
     arkGlowa.textContent = ''; arkPanel.textContent = '';
@@ -374,8 +599,10 @@
     aparat.addEventListener('click', function () { pokazKadr(); });
     avW.appendChild(aparat);
     arkGlowa.append(avW, el('h2', null, p.nick), el('span', 'kn-mono', p.nr + ' · od ' + data(p.od)));
-    ({ przeglad: pPrzeglad, koszyk: pKoszyk, zamowienia: pZamowienia, gra: pGra, meshuga: pMeshuga, ustawienia: pUstawienia })[zakladka]();
+    ({ przeglad: pPrzeglad, profil: pProfil, osiagniecia: pOsiagniecia, programy: pProgramy, koszyk: pKoszyk, zamowienia: pZamowienia, gra: pGra, meshuga: pMeshuga, ustawienia: pUstawienia })[zakladka]();
+    narysowana = zakladka;
   }
+  var narysowana = null;   // zakładka z poprzedniego rysowania (null po zamknięciu okna): Ustawienia odświeżają się tylko przy wejściu
   function karta(etyk, doZ) {
     var k = doZ ? btn('kn-karta') : el('div', 'kn-karta');
     if (doZ) k.addEventListener('click', function () { idzDo(doZ); });
@@ -411,8 +638,314 @@
     var k4 = karta('Meshuga · ostatnie pytanie', 'meshuga');
     if (r) { k4.append(el('span', null, '„' + r.q + '”'), el('span', 'kn-lab', data(r.kiedy, true))); }
     else k4.appendChild(el('span', 'kn-pod', 'Jeszcze nie rozmawialiście.'));
-    s.append(k1, k2, k3, k4);
+    var k0 = karta('Osiągnięcia', 'osiagniecia'); k0.classList.add('kn-karta--szer');
+    var cz = stan.programy && stan.programy.czytnik;
+    if (cz && SL) {
+      var r0 = el('div', 'pg-mini');
+      var e0 = el('span', 'pg-mini__em'); e0.innerHTML = SL.svgEmblematu('czytnik', cz.ranga, false);
+      var t0 = el('div'); t0.append(el('b', null, SL.programy.czytnik.rangi[cz.ranga - 1].pl), el('span', 'kn-mono', SL.programy.czytnik.nazwa + ' · R' + cz.ranga + ' · ' + liczba(cz.xp) + ' XP · ' + zdobyteStale(cz) + '/' + SL.programy.czytnik.odznaki.length + ' odznak'));
+      r0.append(e0, t0); k0.appendChild(r0);
+    } else k0.appendChild(el('span', 'kn-pod', 'Połącz SoraEbookReader, a jego ranga i odznaki pojawią się tutaj.'));
+    // krok 2: konto z jednym sposobem logowania (albo stare konto testowe z hasłem) dostaje ostrzeżenie na górze
+    var B = stan.bezpieczenstwo;
+    if (B && B.sposoby < 2) {
+      var kb = el('div', 'kn-karta kn-karta--uwaga');
+      var dod = btn('kn-btn kn-btn--p', B.sposoby ? 'Dodaj drugi sposób logowania' : 'Dodaj klucz dostępu');
+      dod.style.alignSelf = 'flex-start';
+      dod.addEventListener('click', function () { idzDo('ustawienia'); var x = D.getElementById('knSposoby'); if (x) x.scrollIntoView({ block: 'start' }); });
+      kb.append(el('p', 'kn-ostrz', B.sposoby ? 'Masz jeden sposób logowania. Zgubione urządzenie = stracone konto.' : 'To konto testowe miało hasło, którego już nie ma. Bez klucza dostępu po wylogowaniu nie wejdziesz.'), dod);
+      s.appendChild(kb);
+    }
+    s.append(k0, k1, k2, k3, k4);
     arkPanel.appendChild(s);
+  }
+
+  /* ---------------- K1: osiągnięcia programów i połączone programy ---------------- */
+  var SL = window.CybersoraProgramy || null;
+  var filtrOdz = 'wszystkie';
+  function liczba(n) { return Number(n).toLocaleString('pl-PL').replace(/\s/g, ' '); }
+  function dataMs(ms, zGodz) { return data(new Date(ms).toISOString(), zGodz); }
+  function zdobyteStale(p) { return p.odznaki.filter(function (o) { return !/^wyzwanie_/.test(o.klucz); }).length; }
+  function svgEl(cls, html) { var s = el('span', cls); s.setAttribute('aria-hidden', 'true'); s.innerHTML = html; return s; }   // html tylko ze słownika
+  function przelacznik(on, etyk, naZmiane) {
+    var b = btn('kn-switch'); b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', String(on));
+    b.append(el('span', 'kn-switch__t', etyk), el('span', 'kn-switch__s kn-mono', on ? 'PUBLICZNY' : 'PRYWATNY'), el('i'));
+    b.addEventListener('click', function () { naZmiane(b.getAttribute('aria-checked') !== 'true', b); });
+    return b;
+  }
+
+  /* P1: ustawienia profilu rysuje profil.js (wiersze linków, opis, gablota, widoczność, obrazek OG) */
+  function pProfil() {
+    if (window.ProfilCS) window.ProfilCS.ustawienia(arkPanel, stan);
+    else arkPanel.appendChild(el('p', 'kn-pusto', 'Profil jeszcze się wczytuje.'));
+  }
+  function pOsiagniecia() {
+    // P1: jedna flaga widoczności = cały profil publiczny (z osiągnięciami)
+    // P1.1: etykieta mówi, CO przełącza; stan obok (było „Profil publiczny … PRYWATNY”, przeczyło samo sobie)
+    var pub = przelacznik(!!stan.profil.osiagniecia_publiczne, 'Widoczność profilu', function (nowe, b) {
+      b.disabled = true;
+      api.widocznoscOsiagniec(nowe).then(function (d) {
+        stan = d; zmiana();
+        var x = arkPanel.querySelector('.kn-switch'); if (x) x.focus();
+        powiedz(nowe ? 'Profil jest publiczny.' : 'Profil jest prywatny. Widzisz go tylko Ty.');
+      }, function (e) { b.disabled = false; powiedz(e.message, true); });
+    });
+    arkPanel.appendChild(pub);
+    var programy = stan.programy || {};
+    var lista = Object.keys(programy).filter(function (p) { return SL && SL.programy[p]; });
+    if (!lista.length) {
+      var pusto = el('div', 'kn-karta pg-pusto');
+      pusto.appendChild(svgEl('pg-pusto__em', SL ? SL.svgEmblematu('czytnik', 1, true) : ''));
+      pusto.appendChild(el('p', 'kn-pusto', 'Jeszcze żadnych osiągnięć z programów.'));
+      var dp = btn('kn-btn kn-btn--p', 'Połącz SoraEbookReader');
+      dp.addEventListener('click', function () { idzDo('programy'); });
+      pusto.appendChild(dp);
+      arkPanel.appendChild(pusto);
+      return;
+    }
+    lista.forEach(function (p) { arkPanel.appendChild(blokProgramu(p, programy[p])); });
+  }
+
+  function blokProgramu(p, d) {
+    var def = SL.programy[p], R = def.rangi, maks = R.length;
+    var sek = el('section', 'pg-prog'); sek.setAttribute('aria-label', 'Osiągnięcia: ' + def.nazwa);
+    // karta rangi (jak .czyt-rank w czytniku)
+    var kr = el('div', 'kn-karta pg-ranga');
+    kr.appendChild(svgEl('pg-ranga__em', SL.svgEmblematu(p, d.ranga, false)));
+    var t = el('div', 'pg-ranga__t');
+    t.appendChild(el('span', 'pg-eyebrow kn-mono', def.nazwa.toUpperCase() + ' · RANGA R' + d.ranga + ' Z ' + maks));
+    t.appendChild(el('h3', null, R[d.ranga - 1].pl));
+    var nast = d.ranga < maks ? R[d.ranga] : null, od = R[d.ranga - 1].xp;
+    var proc = nast ? Math.max(0, Math.min(100, Math.round((d.xp - od) / (nast.xp - od) * 100))) : 100;
+    var xp = el('div', 'pg-xp');
+    var tor = el('div', 'pg-tor'); tor.setAttribute('role', 'progressbar'); tor.setAttribute('aria-valuemin', '0'); tor.setAttribute('aria-valuemax', '100');
+    tor.setAttribute('aria-valuenow', String(proc)); tor.setAttribute('aria-label', 'Postęp do następnej rangi');
+    var pas = el('i'); pas.style.width = proc + '%'; tor.appendChild(pas);
+    xp.append(tor, el('span', 'kn-mono', nast ? liczba(d.xp) + ' / ' + liczba(nast.xp) + ' XP' : liczba(d.xp) + ' XP'));
+    t.appendChild(xp);
+    t.appendChild(el('p', 'kn-pod', nast ? 'Do rangi ' + nast.pl + ' brakuje ' + liczba(nast.xp - d.xp) + ' XP.' : 'To najwyższa ranga.'));
+    var chipy = el('div', 'pg-chipy');
+    var n = zdobyteStale(d);
+    chipy.append(el('span', 'pg-chip kn-mono', n + ' Z ' + def.odznaki.length + ' ODZNAK'));
+    Object.keys(d.podsumowanie || {}).forEach(function (k) { if (def.podsumowanie[k]) chipy.appendChild(el('span', 'pg-chip kn-mono', liczba(d.podsumowanie[k]) + ' ' + def.podsumowanie[k].pl.toUpperCase())); });
+    t.appendChild(chipy);
+    kr.appendChild(t);
+    sek.appendChild(kr);
+
+    // nagłówek siatki + filtr
+    var glowa = el('div', 'pg-glowa');
+    var h = el('h4', null, 'Odznaki '); h.appendChild(el('span', 'kn-mono', n + ' Z ' + def.odznaki.length));
+    var seg = el('div', 'pg-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Pokaż odznaki');
+    [['wszystkie', 'Wszystkie'], ['zdobyte', 'Zdobyte'], ['do', 'Do zdobycia']].forEach(function (f) {
+      var b = btn('pg-seg__b', f[1]); b.setAttribute('aria-pressed', String(filtrOdz === f[0]));
+      b.addEventListener('click', function () { filtrOdz = f[0]; rysujSiatke(); Array.prototype.forEach.call(seg.children, function (x) { x.setAttribute('aria-pressed', String(x === b)); }); });
+      seg.appendChild(b);
+    });
+    glowa.append(h, seg);
+    sek.appendChild(glowa);
+
+    var ul = el('ul', 'pg-odznaki'); ul.setAttribute('aria-label', 'Odznaki ' + def.nazwa);
+    var zdob = {}; d.odznaki.forEach(function (o) { zdob[o.klucz] = o; });
+    // stałe w kolejności czytnika, potem zdobyte wyzwania roczne
+    var wszystkie = def.odznaki.map(function (o) { return { klucz: o.klucz, z: zdob[o.klucz] }; })
+      .concat(d.odznaki.filter(function (o) { return /^wyzwanie_/.test(o.klucz); }).map(function (o) { return { klucz: o.klucz, z: o }; }));
+    function rysujSiatke() {
+      ul.textContent = '';
+      var widac = wszystkie.filter(function (x) { return filtrOdz === 'wszystkie' || (filtrOdz === 'zdobyte') === !!x.z; });
+      if (!widac.length) { ul.appendChild(el('li', 'pg-odz-pusto', filtrOdz === 'zdobyte' ? 'Jeszcze żadnej.' : 'Wszystkie zdobyte.')); return; }
+      widac.forEach(function (x) {
+        var o = SL.opisOdznaki(p, x.klucz, x.z && x.z.prog);
+        if (!o) return;
+        var li = el('li', 'pg-odz' + (x.z ? ' pg-odz--ma' : ''));
+        li.appendChild(svgEl('pg-odz__ik', SL.svgIkony(o.ikona)));
+        var tt = el('div', 'pg-odz__t');
+        tt.append(el('b', null, o.nazwa), el('p', null, o.opis));
+        // jak w czytniku: krótka data dd.mm przy XP, pełna w dymku
+        var meta = el('span', 'kn-mono', x.z ? '+' + liczba(o.xp) + ' XP · ' + dataMs(x.z.zdobyta_ms).slice(0, 5) : liczba(o.xp) + ' XP');
+        if (x.z) meta.title = 'Zdobyta ' + dataMs(x.z.zdobyta_ms);
+        tt.appendChild(meta);
+        li.appendChild(tt);
+        li.setAttribute('aria-label', o.nazwa + (x.z ? ', zdobyta ' + dataMs(x.z.zdobyta_ms) : ', jeszcze nie zdobyta'));
+        ul.appendChild(li);
+      });
+    }
+    rysujSiatke();
+    sek.appendChild(ul);
+
+    // stopka: skąd i kiedy, usunięcie danych programu
+    var st = el('div', 'pg-stopka');
+    st.appendChild(el('span', 'kn-mono', 'WYSŁANE ' + dataMs(d.przyjete_ms, true) + ' · ' + def.nazwa + ' ' + d.wersja_programu));
+    var usun = btn('kn-link', 'Usuń dane ' + def.krotko + 'a z konta');
+    var potw = el('div', 'kn-ostrz pg-potw'); potw.hidden = true;
+    var tak = btn('kn-btn kn-btn--ostrz', 'Usuń'), nie = btn('kn-btn kn-btn--g', 'Anuluj');
+    var rz = el('div', 'kn-rzad'); rz.append(tak, nie);
+    potw.append(el('span', null, 'Usunąć rangę i odznaki ' + def.krotko + 'a z konta? Program dalej jest połączony i przy następnej wysyłce wyśle je znowu. Żeby przestał, odłącz go w zakładce Programy.'), rz);
+    usun.addEventListener('click', function () { potw.hidden = false; usun.hidden = true; tak.focus(); });
+    nie.addEventListener('click', function () { potw.hidden = true; usun.hidden = false; usun.focus(); });
+    tak.addEventListener('click', function () {
+      zajety(tak, true, 'Usuwam…');
+      api.usunDaneProgramu(p).then(function (dd) { stan = dd; zmiana(); powiedz('Dane ' + def.krotko + 'a usunięte z konta.'); D.getElementById('knTab-osiagniecia').focus(); },
+        function (e) { zajety(tak, false); powiedz(e.message, true); });
+    });
+    st.append(usun, potw);
+    sek.appendChild(st);
+    return sek;
+  }
+
+  /* zakładka Programy: kod z programu → zgoda → lista połączonych, odłączanie */
+  var czekaKod = '';           // kod z linku ?polacz= (program otworzył przeglądarkę)
+  var zgoda = null;            // { kod, program, nazwa_programu, nazwa, wersja_programu, wygasa_s, t0 } po „Dalej”
+  function pProgramy() {
+    var kp = el('form', 'kn-karta'); kp.noValidate = true;
+    if (zgoda) {
+      var def = SL && SL.programy[zgoda.program];
+      kp.classList.add('pg-zgoda');
+      kp.appendChild(el('span', 'kn-lab', 'Połączenie z programem'));
+      var kto = el('div', 'pg-urz');
+      kto.appendChild(svgEl('pg-urz__ik', SL ? SL.svgIkony(def ? def.ikona : 'read') : ''));
+      var mk = el('span', 'kn-mono', zgoda.nazwa + ' · '); mk.appendChild(el('span', 'pg-nw', 'KOD ' + zgoda.kod));   // kod nie łamie się na myślniku
+      var o = el('div'); o.append(el('b', null, zgoda.nazwa_programu + ' ' + zgoda.wersja_programu), mk);
+      kto.appendChild(o); kp.appendChild(kto);
+      kp.appendChild(el('h3', 'kn-h', 'Połączyć z kontem ' + stan.profil.nick + '?'));
+      var co = el('ul', 'pg-co');
+      ['ranga i XP', 'odznaki z datami zdobycia', 'liczba przeczytanych'].forEach(function (x) { var li = el('li'); li.append(ico('ok'), D.createTextNode(x)); co.appendChild(li); });
+      kp.appendChild(co);
+      kp.appendChild(el('p', 'kn-ostrz', 'Program nie wyśle tytułów, plików, zakreśleń, notatek ani czasu czytania. Odłączysz go tutaj w każdej chwili.'));
+      var zost = Math.max(0, zgoda.wygasa_s - Math.round((Date.now() - zgoda.t0) / 1000));
+      kp.appendChild(el('span', 'kn-mono pg-wazny', 'KOD WAŻNY JESZCZE ' + Math.floor(zost / 60) + ':' + ('0' + zost % 60).slice(-2)));
+      var bl = el('p', 'kn-blad'); bl.setAttribute('role', 'alert'); kp.appendChild(bl);
+      var ok = el('button', 'kn-btn kn-btn--p', 'Połącz'); ok.type = 'submit';
+      var nie = btn('kn-btn kn-btn--g', 'Odmów');
+      var rz = el('div', 'kn-rzad'); rz.append(ok, nie); kp.appendChild(rz);
+      var decyzja = function (tak, b) {
+        zajety(b, true, tak ? 'Łączę…' : 'Odmawiam…');
+        api.zatwierdzKod(zgoda.kod, tak).then(function () {
+          var nazwa = zgoda.nazwa_programu; zgoda = null; czekaKod = '';
+          rysujArkusz();
+          powiedz(tak ? 'Połączone. ' + nazwa + ' dokończy to sam w ciągu kilku sekund.' : 'Odmówione. Program nie dostał dostępu.');
+          wczytajPoChwili();
+        }, function (e) { zajety(b, false); bl.textContent = e.message; if (e.kod === 'kod') { zgoda = null; setTimeout(rysujArkusz, 1600); } });
+      };
+      kp.addEventListener('submit', function (e) { e.preventDefault(); decyzja(true, ok); });
+      nie.addEventListener('click', function () { decyzja(false, nie); });
+      arkPanel.appendChild(kp);
+      setTimeout(function () { ok.focus(); }, 0);
+    } else {
+      kp.appendChild(el('span', 'kn-lab', 'Połącz program'));
+      var pk = pole('knKodProg', 'Kod z programu', 'text', 'off');
+      pk.i.classList.add('kn-mono', 'pg-kodin'); pk.i.placeholder = 'XXXX-XXXX'; pk.i.maxLength = 9; pk.i.spellcheck = false;
+      pk.i.setAttribute('autocapitalize', 'characters'); pk.i.value = czekaKod;
+      var bl2 = el('p', 'kn-blad'); bl2.setAttribute('role', 'alert'); bl2.id = 'knKodProgBlad';
+      var dalej = el('button', 'kn-btn kn-btn--p', 'Dalej'); dalej.type = 'submit';
+      var rz2 = el('div', 'pg-kodrz'); rz2.append(pk.p, dalej);
+      kp.append(rz2, bl2);
+      pk.i.addEventListener('input', function () {
+        var s = pk.i.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+        pk.i.value = s.length > 4 ? s.slice(0, 4) + '-' + s.slice(4) : s;
+      });
+      kp.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (pk.i.value.replace(/-/g, '').length !== 8) { bl2.textContent = 'Kod ma 8 znaków, np. BCDF-2345.'; pk.i.setAttribute('aria-invalid', 'true'); pk.i.setAttribute('aria-describedby', 'knKodProgBlad'); pk.i.focus(); return; }
+        zajety(dalej, true, 'Sprawdzam…');
+        api.sprawdzKod(pk.i.value).then(function (r) {
+          r.t0 = Date.now(); zgoda = r; rysujArkusz();
+        }, function (er) { zajety(dalej, false); bl2.textContent = er.message; pk.i.setAttribute('aria-invalid', 'true'); pk.i.setAttribute('aria-describedby', 'knKodProgBlad'); pk.i.focus(); });
+      });
+      arkPanel.appendChild(kp);
+      if (czekaKod) {   // kod z linku sprawdzamy raz, sam; potem pole zostaje do ręcznej poprawki
+        czekaKod = '';
+        setTimeout(function () { if (kp.isConnected) dalej.click(); }, 0);
+      }
+    }
+
+    // połączone programy
+    var kl = el('div', 'kn-karta');
+    kl.appendChild(el('span', 'kn-lab', 'Połączone programy'));
+    var urz = stan.urzadzenia || [];
+    if (!urz.length) kl.appendChild(el('span', 'kn-pod', 'Żaden program nie jest połączony.'));
+    else {
+      var ul = el('ul', 'kn-lista pg-lista');
+      urz.forEach(function (u) {
+        var def = SL && SL.programy[u.program];
+        var li = el('li');
+        li.appendChild(svgEl('pg-urz__ik', SL ? SL.svgIkony(def ? def.ikona : 'read') : ''));
+        var o = el('div', 'pg-lista__t');
+        o.append(el('b', null, (def ? def.nazwa : u.program) + ' ' + u.wersja_programu),
+          el('span', 'kn-mono', u.nazwa + ' · OD ' + data(u.od) + ' · ' + (u.ostatnio ? 'WYSŁANE ' + data(u.ostatnio, true) : 'JESZCZE NIC NIE WYSŁAŁ')));
+        var od = btn('kn-btn kn-btn--g pg-odlacz', 'Odłącz', 'Odłącz ' + (def ? def.nazwa : u.program) + ' (' + u.nazwa + ')');
+        od.addEventListener('click', function () {
+          if (od.dataset.pewne !== '1') { od.dataset.pewne = '1'; od.textContent = 'Na pewno odłączyć?'; od.classList.add('kn-btn--ostrz'); return; }
+          zajety(od, true, 'Odłączam…');
+          api.odlaczUrzadzenie(u.id).then(function (d) { stan = d; zmiana(); powiedz('Odłączone. Program nie może już nic wysłać na konto.'); D.getElementById('knTab-programy').focus(); },
+            function (e) { zajety(od, false); powiedz(e.message, true); });
+        });
+        li.append(o, od);
+        ul.appendChild(li);
+      });
+      kl.appendChild(ul);
+      kl.appendChild(el('p', 'kn-pod pg-przyp', 'Odłączenie zatrzymuje wysyłkę. Osiągnięcia zostają na koncie, usuniesz je w zakładce Osiągnięcia.'));
+    }
+    arkPanel.appendChild(kl);
+    if (api.tryb === 'artefakt') arkPanel.appendChild(symulator());
+  }
+  function wczytajPoChwili() {
+    // program odbiera token przy następnym odpytaniu (co 5 s); potem odświeżamy listę
+    setTimeout(function () { if (stan) wczytaj(); }, 6500);
+  }
+
+  /* --- tylko artefakt: udawany SoraEbookReader (to, co w K3 zrobi apka w Rust) --- */
+  var SYM = { tok: null, kodUrz: null, kod: '', stan: 'brak', xp: 4120, timer: 0 };
+  function przykladOsiagniec() {
+    var t = Date.now(), dz = 86400000;
+    var odz = [
+      { klucz: 'pierwsza_strona', zdobyta_ms: t - 30 * dz }, { klucz: 'seria_7', zdobyta_ms: t - 21 * dz },
+      { klucz: 'nocny_marek', zdobyta_ms: t - 18 * dz }, { klucz: 'tysiac_stron', zdobyta_ms: t - 9 * dz },
+      { klucz: 'zakreslacz', zdobyta_ms: t - 6 * dz }, { klucz: 'caly_tom', zdobyta_ms: t - 4 * dz },
+      { klucz: 'klasyka', zdobyta_ms: t - 2 * dz }
+    ];
+    if (SYM.xp > 4120) odz.push({ klucz: 'maraton', zdobyta_ms: t - 60000 });
+    return { format: 'cybersora.osiagniecia', wersja: 1, program: 'czytnik', wersja_programu: '1.3.0', policzono_ms: t,
+      ranga: SL.rangaZXp('czytnik', SYM.xp), xp: SYM.xp, odznaki: odz, podsumowanie: { przeczytane: SYM.xp > 4120 ? 24 : 23 } };
+  }
+  function symulator() {
+    var k = el('div', 'kn-karta pg-sym');
+    k.appendChild(el('span', 'pg-eyebrow kn-mono', 'ARTEFAKT · UDAWANY SORAEBOOKREADER'));
+    var st = el('p', 'kn-pod'); st.setAttribute('aria-live', 'polite');
+    var rz = el('div', 'kn-rzad');
+    var b1 = btn('kn-btn kn-btn--g', SYM.stan === 'kod' ? 'Nowy kod' : 'Czytnik prosi o kod');
+    var b2 = btn('kn-btn kn-btn--g', 'Wyślij teraz');
+    b2.disabled = !SYM.tok;
+    if (SYM.stan === 'kod') {
+      var kd = el('div', 'kn-kod', SYM.kod); kd.setAttribute('aria-label', 'Kod z czytnika: ' + SYM.kod);
+      k.appendChild(kd);
+      st.textContent = 'Czytnik pokazuje ten kod i czeka na zgodę (pyta co 5 s).';
+    } else st.textContent = SYM.tok ? 'Czytnik połączony. Automatycznie wysyła najwyżej raz na kilka minut; „Wyślij teraz” od razu.' : 'Tu udajesz czytnik: poproś o kod, wpisz go wyżej i zatwierdź.';
+    b1.addEventListener('click', function () {
+      zajety(b1, true, 'Proszę o kod…');
+      api.program.kod('czytnik', '1.3.0', 'Laptop · Windows').then(function (r) {
+        SYM.kodUrz = r.kod_urzadzenia; SYM.kod = r.kod_uzytkownika; SYM.stan = 'kod'; SYM.tok = null;
+        clearTimeout(SYM.timer); SYM.timer = setTimeout(odpytaj, r.odstep_s * 1000);
+        rysujArkusz();
+      }, function (e) { zajety(b1, false); powiedz(e.message, true); });
+    });
+    b2.addEventListener('click', function () {
+      SYM.xp += 180; zajety(b2, true, 'Wysyłam…');
+      api.program.wyslij(SYM.tok, 'czytnik', przykladOsiagniec()).then(function () { zajety(b2, false); powiedz('Czytnik wysłał osiągnięcia.'); wczytaj(); },
+        function (e) { SYM.xp -= 180; zajety(b2, false); if (e.kod === 'token') { SYM.tok = null; rysujArkusz(); } powiedz(e.message, true); });
+    });
+    rz.append(b1, b2);
+    k.append(st, rz);
+    return k;
+  }
+  function odpytaj() {
+    if (!SYM.kodUrz) return;
+    api.program.token(SYM.kodUrz).then(function (r) {
+      SYM.tok = r.token_urzadzenia; SYM.kodUrz = null; SYM.stan = 'polaczony';
+      return api.program.wyslij(SYM.tok, 'czytnik', przykladOsiagniec());
+    }).then(function () { if (stan) wczytaj(); }, function (e) {
+      if (e.kod === 'czeka' || e.kod === 'zwolnij') { SYM.timer = setTimeout(odpytaj, 5000); return; }
+      SYM.kodUrz = null; SYM.stan = 'brak'; if (ark.open && zakladka === 'programy') rysujArkusz(); powiedz('Czytnik: ' + e.message);
+    });
   }
   function pKoszyk() {
     if (!stan.koszyk.length) {
@@ -475,39 +1008,183 @@
     arkPanel.append(ul, pisz);
   }
   function pUstawienia() {
+    // sesje i sposoby logowania zmieniają się poza tą kartą (inne urządzenie): przy wejściu dociągamy świeży stan,
+    // a przerysowujemy tylko, gdy coś się zmieniło (żeby nie zjadać tego, co ktoś właśnie wpisuje)
+    if (narysowana !== 'ustawienia') {
+      api.ja().then(function (d) {
+        // „ostatnio” zmienia się przy każdym zapytaniu, więc nie liczy się jako zmiana
+        var odcisk = function (b) { return JSON.stringify(b || null, function (k, v) { return k === 'ostatnio' ? undefined : v; }); };
+        var inne = odcisk(d.bezpieczenstwo) !== odcisk(stan && stan.bezpieczenstwo);
+        stan = d;
+        if (inne && ark.open && zakladka === 'ustawienia') rysujArkusz();
+      }, function () { /* zostaje stan z pamięci */ });
+    }
     var kz = el('div', 'kn-karta');
     var zm = btn('kn-btn kn-btn--g', 'Zmień zdjęcie'); zm.addEventListener('click', function () { pokazKadr(); });
     var rz = el('div', 'kn-rzad'); rz.appendChild(zm);
     kz.append(el('span', 'kn-lab', 'Zdjęcie'), rz);
-    var kw = el('div', 'kn-karta');
-    var wy = btn('kn-btn kn-btn--g', 'Wyloguj'); wy.addEventListener('click', function () { wyloguj(); });
-    var wszedzie = btn('kn-btn kn-btn--g', 'Wyloguj na wszystkich urządzeniach');
+    var B = stan.bezpieczenstwo || { klucze: [], oauth: {}, sesje: [], sposoby: 0, email: null };
+    arkPanel.append(kz, kartaSposobow(B), kartaEmail(B), kartaSesji(B), kartaUsun());
+    wstawZnaki(arkPanel);
+  }
+  /* krok 2: wiersz listy (ikona, tytuł, opis, akcja) wspólny dla kluczy, GitHub/Discord i sesji */
+  function wierszSp(ikona, tytul, opis, akcja) {
+    var li = el('li', 'kn-sp');
+    var kw = el('span', 'kn-sp__kw'); if (ikona) kw.appendChild(ikona);
+    var t = el('div', 'kn-sp__t'); var b = el('b', null, tytul); t.append(b, el('span', 'kn-lab', opis));
+    li.append(kw, t); if (akcja) li.appendChild(akcja);
+    return { li: li, b: b };
+  }
+  function poZmianie(t) { return function (d) { if (d) { stan = d; zmiana(); } powiedz(t); }; }
+  function bladAkcji(b) { return function (e) { zajety(b, false); powiedz(e.message, true); }; }
+  function kartaSposobow(B) {
+    var k = el('div', 'kn-karta'); k.id = 'knSposoby';
+    k.appendChild(el('span', 'kn-lab', 'Sposoby logowania'));
+    if (B.sposoby === 0) k.appendChild(el('p', 'kn-ostrz', 'To konto testowe miało hasło, którego już nie ma. Bez klucza dostępu po wylogowaniu nie wejdziesz.'));
+    else if (B.sposoby === 1) k.appendChild(el('p', 'kn-ostrz', 'Masz jeden sposób logowania. Dodaj drugi, żeby nie stracić konta razem z urządzeniem.'));
+    var ostatni = B.sposoby <= 1;
+    var ul = el('ul', 'kn-sposoby');
+    B.klucze.forEach(function (c) {
+      var u = btn('kn-btn kn-btn--g', 'Usuń', 'Usuń klucz ' + (c.nazwa || 'dostępu'));
+      if (ostatni) { u.disabled = true; u.title = 'To jedyny sposób logowania'; }
+      u.addEventListener('click', function () { zajety(u, true, 'Usuwam…'); api.usunKlucz(c.id).then(poZmianie('Klucz dostępu usunięty.'), bladAkcji(u)); });
+      var w = wierszSp(ico('klucz'), c.nazwa || 'Klucz dostępu', 'dodany ' + data(c.od) + (c.ostatnio ? ' · ostatnio ' + data(c.ostatnio, true) : ''), u);
+      if (c.atrapa) w.b.appendChild(el('span', 'pf-znacznik', 'ATRAPA'));
+      ul.appendChild(w.li);
+    });
+    ['github', 'discord'].forEach(function (s) {
+      var x = B.oauth && B.oauth[s], a;
+      if (x) {
+        a = btn('kn-btn kn-btn--g', 'Odłącz', 'Odłącz ' + NAZWA_D[s]);
+        if (ostatni) { a.disabled = true; a.title = 'To jedyny sposób logowania'; }
+        a.addEventListener('click', function () { zajety(a, true, 'Odłączam…'); api.odlaczOAuth(s).then(poZmianie(NAZWA_D[s] + ' odłączony.'), bladAkcji(a)); });
+      } else {
+        a = btn('kn-btn kn-btn--g', 'Połącz', 'Połącz ' + NAZWA_D[s]);
+        a.addEventListener('click', function () { polaczOAuth(s); });
+      }
+      var kw = el('span'); kw.dataset.dostawca = s;   // znak marki wstawia wstawZnaki()
+      var w = wierszSp(null, NAZWA_D[s], x ? 'połączony jako ' + x.login + ' · od ' + data(x.od) : 'niepołączony', a);
+      w.li.querySelector('.kn-sp__kw').appendChild(kw);
+      ul.appendChild(w.li);
+    });
+    k.appendChild(ul);
+    // nowy klucz: nazwa opcjonalna, żeby odróżnić laptop od telefonu
+    var f = el('form', 'kn-dodaj'); f.noValidate = true;
+    var nz = pole('knNazwaKlucza', 'Nazwa nowego klucza (nieobowiązkowa)', 'text', 'off'); nz.i.required = false; nz.i.maxLength = 32; nz.i.placeholder = 'np. Laptop';
+    var dk = el('button', 'kn-btn kn-btn--p'); dk.type = 'submit'; dk.append(ico('klucz'), D.createTextNode('Dodaj klucz dostępu'));
+    var ua = uwagaAtrapy(); ua.hidden = !atrapaTryb();
+    f.append(nz.p, dk, ua);
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var wn = api.walidacja.nazwaKlucza(nz.i.value);
+      if (!wn.ok) { powiedz(wn.blad, true); nz.i.focus(); return; }
+      zajety(dk, true, 'Czekam na klucz…');
+      api.dodajKlucz({ nazwa: wn.wartosc, atrapa: atrapaTryb() }).then(poZmianie('Klucz dostępu dodany.'), function (er) {
+        zajety(dk, false);
+        if (er.atrapa) { wymusAtrapa = true; ua.hidden = false; powiedz('Ten podgląd nie dopuszcza prawdziwych kluczy. Kliknij jeszcze raz: dodamy klucz-atrapę.', true); return; }
+        powiedz(er.message, true);
+      });
+    });
+    k.appendChild(f);
+    return k;
+  }
+  var kodEmailAtrapa = '';   // atrapa: kod „z maila” pokazany na ekranie, dopóki adres czeka na potwierdzenie
+  function kartaEmail(B) {
+    var k = el('div', 'kn-karta');
+    k.appendChild(el('span', 'kn-lab', 'E-mail (nieobowiązkowy)'));
+    var e = B.email;
+    if (!e) {
+      var f = el('form', 'kn-dodaj'); f.noValidate = true;
+      var pe = pole('knEmail', 'Adres e-mail', 'email', 'email'); pe.i.required = false;
+      var bl = el('p', 'kn-blad'); bl.setAttribute('role', 'alert'); bl.id = 'knEmailBlad'; pe.i.setAttribute('aria-describedby', bl.id);
+      var z = el('button', 'kn-btn kn-btn--g', 'Zapisz adres'); z.type = 'submit';
+      f.append(pe.p, bl, z);
+      f.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var w = api.walidacja.email(pe.i.value);
+        if (!w.ok) { bl.textContent = w.blad; pe.i.setAttribute('aria-invalid', 'true'); pe.i.focus(); return; }
+        zajety(z, true, 'Zapisuję…');
+        api.emailUstaw(w.wartosc).then(function (r) { kodEmailAtrapa = r.kod_atrapa || ''; stan = r.dane; zmiana(); powiedz('Adres zapisany. Potwierdź go kodem.'); var x = D.getElementById('knEmailKod'); if (x) x.focus(); },
+          function (er) { zajety(z, false); bl.textContent = er.message; pe.i.setAttribute('aria-invalid', 'true'); pe.i.focus(); });
+      });
+      k.appendChild(f);
+      return k;
+    }
+    var us = btn('kn-btn kn-btn--g', 'Usuń adres');
+    us.addEventListener('click', function () { zajety(us, true, 'Usuwam…'); kodEmailAtrapa = ''; api.emailUsun().then(poZmianie('Adres usunięty.'), bladAkcji(us)); });
+    var w0 = wierszSp(ico('mail'), e.adres, e.potwierdzony ? 'potwierdzony' : 'czeka na kod', us);
+    w0.b.appendChild(el('span', e.potwierdzony ? 'kn-pill kn-pill--ok' : 'kn-pill', e.potwierdzony ? 'POTWIERDZONY' : 'NIEPOTWIERDZONY'));
+    var ul = el('ul', 'kn-sposoby'); ul.appendChild(w0.li); k.appendChild(ul);
+    if (!e.potwierdzony) {
+      if (kodEmailAtrapa) {
+        var ka = el('p', 'kn-uwaga'); ka.append(el('span', 'pf-znacznik', 'ATRAPA'), D.createTextNode('Kod, który przyszedłby mailem: '), el('b', 'kn-mono', kodEmailAtrapa));
+        k.appendChild(ka);
+      }
+      var fk = el('form', 'kn-dodaj'); fk.noValidate = true;
+      var pk = pole('knEmailKod', 'Kod z maila', 'text', 'one-time-code'); pk.i.inputMode = 'numeric'; pk.i.maxLength = 6; pk.i.classList.add('kn-mono');
+      var bk = el('p', 'kn-blad'); bk.setAttribute('role', 'alert'); bk.id = 'knEmailKodBlad'; pk.i.setAttribute('aria-describedby', bk.id);
+      var ok = el('button', 'kn-btn kn-btn--p', 'Potwierdź'); ok.type = 'submit';
+      fk.append(pk.p, bk, ok);
+      fk.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        if (!/^\d{6}$/.test(pk.i.value.trim())) { bk.textContent = 'Kod ma 6 cyfr.'; pk.i.setAttribute('aria-invalid', 'true'); pk.i.focus(); return; }
+        zajety(ok, true, 'Sprawdzam…');
+        api.emailPotwierdz(pk.i.value.trim()).then(function (d) { kodEmailAtrapa = ''; poZmianie('Adres potwierdzony.')(d); },
+          function (er) { zajety(ok, false); bk.textContent = er.message; pk.i.setAttribute('aria-invalid', 'true'); pk.i.focus(); });
+      });
+      k.appendChild(fk);
+    }
+    return k;
+  }
+  function kartaSesji(B) {
+    var k = el('div', 'kn-karta');
+    k.appendChild(el('span', 'kn-lab', 'Sesje'));
+    var ul = el('ul', 'kn-sposoby');
+    B.sesje.forEach(function (s) {
+      var b = btn('kn-btn kn-btn--g', 'Wyloguj', s.ta ? 'Wyloguj to urządzenie' : 'Wyloguj ' + s.opis);
+      b.addEventListener('click', function () {
+        if (s.ta) { wyloguj(); return; }
+        zajety(b, true, 'Wylogowuję…'); api.wylogujSesje(s.id).then(poZmianie('Sesja zamknięta.'), bladAkcji(b));
+      });
+      var w = wierszSp(ico('program'), s.opis, 'od ' + data(s.od) + ' · ostatnio ' + data(s.ostatnio, true) + (s.pamietaj ? ' · zapamiętane' : ''), b);
+      if (s.ta) w.b.appendChild(el('span', 'kn-pill kn-pill--ok', 'TO URZĄDZENIE'));
+      ul.appendChild(w.li);
+    });
+    k.appendChild(ul);
+    var inne = btn('kn-btn kn-btn--g', 'Wyloguj pozostałe');
+    inne.disabled = B.sesje.length < 2;
+    inne.addEventListener('click', function () { zajety(inne, true, 'Wylogowuję…'); api.wylogujInne().then(poZmianie('Pozostałe sesje zamknięte.'), bladAkcji(inne)); });
+    var wszedzie = btn('kn-btn kn-btn--g', 'Wyloguj wszędzie');
     wszedzie.addEventListener('click', function () {
       zajety(wszedzie, true, 'Wylogowuję…');
-      api.wylogujWszedzie().then(function () { poWylogowaniu('Wylogowano na wszystkich urządzeniach.'); }, function (e) { zajety(wszedzie, false); powiedz(e.message); });
+      api.wylogujWszedzie().then(function () { poWylogowaniu('Wylogowano na wszystkich urządzeniach.'); }, bladAkcji(wszedzie));
     });
-    var rw = el('div', 'kn-rzad'); rw.append(wy, wszedzie);
-    kw.append(el('span', 'kn-lab', 'Sesje'), rw, el('p', 'kn-ostrz', 'Wylogowanie na wszystkich urządzeniach zamyka też tę kartę. Zalogujesz się nickiem i hasłem.'));
+    var rw = el('div', 'kn-rzad'); rw.append(inne, wszedzie);
+    k.appendChild(rw);
+    return k;
+  }
+  function kartaUsun() {
     var ku = el('div', 'kn-karta');
     var pokazUsun = btn('kn-btn kn-btn--ostrz', 'Usuń konto');
     var fu = el('form'); fu.noValidate = true; fu.hidden = true; fu.style.cssText = 'display:flex;flex-direction:column;gap:10px';
-    var uh = pole('knUsunHaslo', 'Hasło', 'password', 'current-password');
-    var ub = el('p', 'kn-blad'); ub.setAttribute('role', 'alert');
+    // krok 2: bez hasła potwierdzeniem jest wpisany nick
+    var un = pole('knUsunNick', 'Wpisz swój nick: ' + stan.profil.nick, 'text', 'off');
+    var ub = el('p', 'kn-blad'); ub.setAttribute('role', 'alert'); ub.id = 'knUsunBlad'; un.i.setAttribute('aria-describedby', ub.id);
     var uok = el('button', 'kn-btn kn-btn--p', 'Usuń konto na zawsze'); uok.type = 'submit';
     var uan = btn('kn-btn kn-btn--g', 'Anuluj');
     var ur = el('div', 'kn-rzad'); ur.append(uok, uan);
-    fu.append(el('p', 'kn-ostrz', 'Usuniemy konto, zdjęcie, koszyk, zamówienia i rozmowy. Tego nie da się cofnąć.'), uh.p, ub, ur);
-    pokazUsun.addEventListener('click', function () { fu.hidden = false; pokazUsun.hidden = true; uh.i.focus(); });
+    fu.append(el('p', 'kn-ostrz', 'Usuniemy konto, klucze dostępu, połączenia GitHub/Discord, zdjęcie, koszyk, zamówienia i rozmowy. Tego nie da się cofnąć.'), un.p, ub, ur);
+    pokazUsun.addEventListener('click', function () { fu.hidden = false; pokazUsun.hidden = true; un.i.focus(); });
     uan.addEventListener('click', function () { fu.hidden = true; pokazUsun.hidden = false; pokazUsun.focus(); });
     fu.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!uh.i.value) { ub.textContent = 'Wpisz hasło.'; uh.i.focus(); return; }
+      if (un.i.value.trim().toLowerCase() !== stan.profil.nick.toLowerCase()) { ub.textContent = 'Wpisz swój nick dokładnie.'; un.i.setAttribute('aria-invalid', 'true'); un.i.focus(); return; }
       zajety(uok, true, 'Usuwam…');
-      api.usunKonto(uh.i.value).then(function () { poWylogowaniu('Konto usunięte.'); },
-        function (er) { zajety(uok, false); ub.textContent = er.message; uh.i.setAttribute('aria-invalid', 'true'); uh.i.focus(); });
+      api.usunKonto(un.i.value.trim()).then(function () { poWylogowaniu('Konto usunięte.'); },
+        function (er) { zajety(uok, false); ub.textContent = er.message; un.i.setAttribute('aria-invalid', 'true'); un.i.focus(); });
     });
     ku.append(el('span', 'kn-lab', 'Usunięcie konta'), pokazUsun, fu);
-    arkPanel.append(kz, kw, ku);
+    return ku;
   }
 
   /* ---------------- kadrowanie zdjęcia ---------------- */
@@ -688,20 +1365,77 @@
     profil: publiczny,
     zaloguj: function () { pokazLogowanie('log'); },
     otworz: function (z) { otworzArkusz(z); },
+    // krok 2 (profil.js): „Potwierdź przez GitHub/Discord” = połączenie konta przez OAuth (w artefakcie atrapa ekranu zgody)
+    polaczOAuth: function (s) { polaczOAuth(s); },
+    // P1 (profil.js): stan konta, zapis nowego stanu z serwera, komunikat
+    stan: function () { return stan; },
+    ustaw: function (d) { if (d && d.profil) { stan = d; zmiana(); } },
+    powiedz: function (t, blad) { powiedz(t, blad); },
     zapiszPytanie: function (q) {
       if (!stan) return;
       api.rozmowa(q).then(function (r) { stan.rozmowy = r.rozmowy; }).catch(function () {});
     }
   };
 
+  /* P3b: powrót z GitHub/Discord (Worker przekierowuje na /?konto=… albo /?konto-blad=<kod>&dostawca=…) */
+  var NARZ_D = { github: 'GitHubem', discord: 'Discordem' };
+  function tekstPowrotu(kod, d) {
+    var N = NAZWA_D[d] || 'GitHub albo Discord', Z = NARZ_D[d] || 'tym kontem';
+    return ({
+      state: 'Logowanie trwało za długo albo zaczęło się w innej karcie. Zacznij jeszcze raz.',
+      brak: 'Nie ma konta połączonego z ' + (NARZ_D[d] ? 'tym ' + Z : 'tym kontem') + '. Załóż konto albo zaloguj się kluczem dostępu.',
+      zajete: 'To konto ' + N + ' jest już połączone z innym kontem cybersory.',
+      juz: 'Masz już połączone inne konto ' + N + '. Najpierw je odłącz.',
+      login: 'Nazwa konta ' + N + ' nie pasuje do zasad cybersory. Załóż konto kluczem dostępu.',
+      dostawca: N + ' nie potwierdził logowania. Spróbuj jeszcze raz.',
+      sesja: 'Sesja wygasła w trakcie łączenia. Zaloguj się i połącz jeszcze raz.',
+      anulowano: 'Anulowano. Nic się nie zmieniło.',
+      beta: 'Konta są na razie w zamkniętej becie.',
+      nick: 'Ten nick jest już zajęty. Wybierz inny.'
+    })[kod] || 'Coś poszło nie tak po stronie serwera. Spróbuj za chwilę.';
+  }
+  function pokazPowrot(p) {
+    if (p.ok && p.wynik === 'polaczono') {
+      otworzArkusz('ustawienia');
+      var sp = D.getElementById('knSposoby'); if (sp) sp.scrollIntoView({ block: 'start' });
+      powiedz((NAZWA_D[p.dostawca] || 'Konto') + ' połączony. Link na profilu ma znaczek „potwierdzone”.');
+      return Promise.resolve();
+    }
+    if (p.ok) return Promise.resolve(stan ? powiedz('Cześć, ' + stan.profil.nick + '.') : null);
+    if ((p.kod === 'zajete' || p.kod === 'juz') && stan) otworzArkusz('ustawienia');
+    else if (p.kod === 'brak' || p.kod === 'nick') pokazLogowanie('rej');
+    else if (p.kod === 'sesja') pokazLogowanie('log');
+    powiedz(tekstPowrotu(p.kod, p.dostawca), p.kod !== 'anulowano');
+    return Promise.resolve();
+  }
+
   function zamontuj() {
-    var strona = D.querySelector('.nav__side');
-    var koszyk = D.getElementById('navCart');
-    if (strona) strona.insertBefore(av, koszyk || strona.firstChild);
-    else { av.style.cssText = 'position:fixed;right:16px;top:16px;z-index:1100'; D.body.appendChild(av); }
+    // 06.11 (maisa, karta standardu zasada 13): konto w prawym dolnym rogu, w doku razem z dymkiem czatu (czat.js);
+    // kot Meshugi przeszedł na jego dawne miejsce w pasku
+    var dok = D.getElementById('knDok');
+    if (!dok) { dok = el('div', 'kn-dok'); dok.id = 'knDok'; D.body.appendChild(dok); }
+    dok.appendChild(av);
     D.body.append(menu, log, ark, kadr, toast);
     odswiezPasek();
-    wczytaj();
+    // ?polacz=KOD: program (np. czytnik) otworzył przeglądarkę z kodem urządzenia. Kod zdejmujemy z adresu od razu.
+    var q = null;
+    try { q = new URLSearchParams(location.search).get('polacz'); } catch (e) { /* stara przeglądarka */ }
+    if (q !== null) {
+      var s = String(q).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+      czekaKod = s.length === 8 ? s.slice(0, 4) + '-' + s.slice(4) : '';
+      try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (e) { /* bez historii */ }
+    }
+    var powrot = api.powrotOAuth ? api.powrotOAuth() : null;
+    // koszyk gościa trzeba złapać przed wczytaj(): po zalogowaniu koszyk konta nadpisuje lokalny
+    var gosc = powrot && powrot.ok && powrot.wynik === 'ok' ? koszykLokalny() : null;
+    wczytaj().then(function () {
+      if (powrot && gosc && stan) return scalKoszyk(gosc).then(function () { if (!scalone) pokazPowrot(powrot); });
+      if (powrot) return pokazPowrot(powrot);
+    }).then(function () {
+      if (!czekaKod) return;
+      if (api.sesja()) otworzArkusz('programy');
+      else { pokazLogowanie('log'); powiedz('Zaloguj się, żeby połączyć program z kontem.'); }
+    });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', zamontuj); else zamontuj();
 })();
