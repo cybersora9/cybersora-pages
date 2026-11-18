@@ -245,7 +245,7 @@
         bool rama = all(greaterThan(p, uOkno.xy - uB)) && all(lessThan(p, uOkno.zw + uB));
         if (szyba) {
           if (abs(p.x - s.x) < uB * 0.5 || abs(p.y - s.y) < uB * 0.5) c = blok(p - vec2(uB * 0.5, uB * 0.5)); // krzyż szprosów
-          else { vec4 k = texture2D(uKraj, (p - uOkno.xy) / (uOkno.zw - uOkno.xy)); if (k.a < 0.5) discard; c = k.rgb; }
+          else { vec4 k = texture2D(uKraj, (p - uOkno.xy) / (uOkno.zw - uOkno.xy)); if (k.a < 0.5) discard; c = k.rgb * 0.5; } // K5 maisy (19.11): miasto w szybie na pół jasności, nie ciągnie wzroku przed h1
         } else if (rama) c = blok(p);
         else { // cegły: 1,2 × 0,6, co drugi rząd przesunięty o pół; spoina nocą
           float r = floor(p.y / 0.6); vec2 f = fract(vec2(p.x / 1.2 + 0.5 * mod(r, 2.0), p.y / 0.6));

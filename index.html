@@ -1030,6 +1030,12 @@
   .choinka-sezon .hero--start .hint{display:none;}
   .choinka-sezon .hero--start .hero__ctas a{pointer-events:auto;}
   .choinka-sezon .hero--start .hero__stamp{display:none;} /* K3 maisy (19.11): stempel lezal na oknie sceny, w sezonie znika */
+  /* K6 maisy (19.11): linia sciana-podloga sceny 3D ciela h1 (y 531 na 1280x800). Linia stoi na ~0,66 wysokosci okna,
+     dol h1 na wysokosc minus stopka hero, wiec przesuniecie rosnie z wysokoscia: 60 px przy 800, 52 przy 768, 137 przy 1080
+     (pomiar 19.11, linia w przerwie h1/lead). Tylko przy scenie (iframe) i ukladzie komputera; obraz na telefonie linii nie ma. */
+  @media (min-width:901px){
+    .choinka-sezon .hero--start:has(> .hero__choinka iframe) .hero__type{transform:translateY(min(0px,calc(157px - 27.2vh)));}
+  }
   /* U1 maisy (19.11, wariant A z makiety): odliczanie do Wigilii w lewym gornym rogu hero, pod paskiem, w gutterze logotypu.
      Sama linia Geist Mono w kosci, bez tla, poswiaty i katownikow. Element strony (choinka-sezon.js), nie sceny. */
   .hero__odliczanie{
