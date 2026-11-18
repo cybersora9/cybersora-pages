@@ -1020,6 +1020,27 @@
     }
   }
 
+  /* ---- CHOINKA (18.11, sezon 1.12–6.01): choinka-sezon.js wstawia .hero__choinka jako pierwsze dziecko
+     hero Startu i klase .choinka-sezon na <html>. Wariant A maisy: scena jako tlo calego hero, h1 + lead
+     + przyciski zostaja z lewej, pas faktow i podpowiedz o mapie schowane na czas sezonu. Komputer =
+     iframe choinka/index.html#hero (scena 3D w trybie tla), telefon = obraz zapasowy. */
+  .hero__choinka{position:absolute;inset:0;z-index:0;overflow:hidden;background:#0e0e12;}
+  .hero__choinka iframe{display:block;width:100%;height:100%;border:0;}
+  .choinka-sezon .hero--start .hero__rail,
+  .choinka-sezon .hero--start .hint{display:none;}
+  .choinka-sezon .hero--start .hero__ctas a{pointer-events:auto;}
+  .choinka-sezon .hero--start .hero__stamp{z-index:1;}
+  .hero__choinka--obraz img{
+    position:absolute;left:50%;top:calc(65px + .5rem);transform:translateX(-50%);
+    width:auto;height:min(60svh,calc(100vw * 1.2));
+  }
+  /* telefon: tekst hero stoi na dole kadru, na dolnej polowie drzewa — kurtyna w ink od ~1/3 wysokosci
+     (kontrast mierzony: testy_playwright/pomiar-choinka-kontrast.js) */
+  .hero__choinka--obraz::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(14,14,18,0) 30%,rgba(14,14,18,.82) 46%,rgba(14,14,18,.94) 58%,#0e0e12 72%);
+  }
+
   /* ---- ZYWA STRONA sesja 1: tlo kanwy w sekcji (rejestr SEKCJE w app.js) ----
      isolation robi z sekcji kontekst warstw, wiec z-index:-1 kladzie kanwe nad tlem --ink,
      a pod trescia, bez ruszania dzieci. Kanwa sticky: najwyzej ekran wysokosci, w kadrze
@@ -2648,6 +2669,8 @@
 
       <div class="hint">rusz kursorem po mapie &rarr;</div>
     </div>
+    <!-- CHOINKA (18.11): w sezonie 1.12–6.01 wstawia scenę jako tło tego hero; poza sezonem nic nie pobiera -->
+    <script src="choinka-sezon.js?v=20261118a"></script>
 
     <!-- CO ZROBILIŚMY (ov10). 02.11 makieta 3HxqCoRS5HUQmZWF2ragus, 03.11 przeniesione z Oferty na Start
          w miejsce manifestu, pasa projektów i scen Pycodemath (pliki pycodemath-sceny\ zostają). Jeden egzemplarz.

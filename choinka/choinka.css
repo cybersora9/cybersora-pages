@@ -1,0 +1,110 @@
+/* Choinka cybersory, wersja 11 (bombki: nick z przodu i z tyłu, mała matowa naklejka z buźką u góry bombek nielekbestii i veena;
+   4 nowe ozdoby z pikselowymi buźkami: F1, G1, Reze i Toji w czapkach Mikołaja, tylko w palecie, bez nicku);
+   10 (etap 6: statyczny obraz choinki przy braku WebGL albo utracie kontekstu, pętla i muzyka stają, gdy scena jest poza ekranem
+   albo karta w tle, pad gasi oscylatory po przejściu na plik, skrypt gotowy do wyjęcia do pliku pod CSP);
+   9 (zawieszki z logo programów na sznurku od kokardy, kokarda rozwiązuje się przed otwarciem, ściana z bloków z oknem na klockowy krajobraz i zorzę,
+   twarze na bombkach nielekbestii i veena, odliczanie do Wigilii w karcie);
+   8 (muzyka: przycisk „muzyka”, pętla pliku albo pad, pasma niskie → zorza, średnie i wysokie → żarówki i hologram, dzwonki w tonacji);
+   7.1 (robocik z kocimi uszami i minami uwu zamiast znaku C·S na czubku, smaczki na bombkach nielekbestii i veena);
+   7: (otoczenie: odbicie w podłodze, mapa otoczenia bombek z żarówek i zorzy, nowa zorza z kodu, matowy śnieg, dane światła dla strony i krawędź karty;
+   6.1: przejście hologramu „skan” na stałe; 6: hologram C·S na czubku, przechodzi w logotyp „cybersora”; 5.3: ruch ustalony 50/50/50; 5.2: miękkie gałęzie, bombki ekipy, prezenty = produkty; 5.1: etap 2b; etap 2: ruch; etap 1: drzewo i światło).
+   Paleta zamknięta z karty standardu: ink / krew / hot / kość + neutralne strony. Wyjątek z 16.11: złoto tylko jako światło z otwartego prezentu. */
+:root {
+  --ink: #0e0e12;
+  --panel: #17171d;
+  --line: #2c2c36;
+  --krew: #e11d33;
+  --hot: #ff3a52;
+  --kosc: #f6f2f3;
+  --f-sans: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--ink); color: var(--kosc); font-family: var(--f-sans); overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#scena { position: fixed; inset: 0; background: var(--ink); touch-action: none; cursor: grab; }
+#scena.chwyt { cursor: grabbing; }
+#scena.nad { cursor: pointer; }
+#scena canvas { display: block; width: 100%; height: 100%; }
+
+.znak {
+  position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); top: calc(env(safe-area-inset-top, 0px) + 22px);
+  font-weight: 700; font-size: 26px; letter-spacing: -0.01em; pointer-events: none; user-select: none;
+}
+.znak b { font-weight: 700; color: var(--kosc); }
+.znak i { font-style: normal; color: var(--krew); }
+
+.nazwa-bombki {
+  position: fixed; left: 0; top: 0; transform: translate(-50%, -140%);
+  padding: 6px 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line);
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; color: var(--kosc);
+  pointer-events: none; opacity: 0; transition: opacity .15s; white-space: nowrap;
+}
+.nazwa-bombki.jest { opacity: 1; }
+
+.karta {
+  position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  width: min(430px, calc(100vw - 32px)); box-sizing: border-box;
+  border: 1px solid transparent; border-radius: 20px; padding: 20px 22px 18px;
+  /* v7: krawędź od strony drzewa łapie jego światło (--choinka-kolor, --choinka-moc z pętli; kąt liczony do środka drzewa). Tło karty zostaje panelem: kontrast tekstu bez zmian. */
+  background:
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    linear-gradient(var(--karta-kat, 60deg), var(--line) 38%, color-mix(in srgb, var(--line), rgb(var(--choinka-kolor, 246 242 243)) calc(var(--choinka-moc, 0) * 88%)) 100%) border-box;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+.karta .znacznik { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; color: var(--hot); text-transform: uppercase; }
+.karta h1 { margin: 8px 0 6px; font-size: 22px; line-height: 1.2; font-weight: 700; text-wrap: balance; }
+.karta p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--kosc); opacity: 0.72; }
+.karta .odlicz { margin: -2px 0 8px; font: 500 13px/1.4 var(--mono); letter-spacing: 0.04em; color: var(--kosc); opacity: 0.72; font-variant-numeric: tabular-nums; } /* v9 (C1): godziny i minuty do Wigilii pod tytułem */
+.karta .odlicz[hidden] { display: none; }
+.przyciski { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.przyciski button {
+  font: 500 13px/1 var(--mono); letter-spacing: 0.04em; color: var(--kosc); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; cursor: pointer;
+}
+.przyciski button[aria-pressed="true"] { border-color: var(--krew); color: var(--hot); }
+.przyciski button:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+.podpowiedz {
+  position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 28px);
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; color: var(--kosc); opacity: 0.6; text-align: right; pointer-events: none; transition: opacity .6s;
+}
+.podpowiedz.zgas { opacity: 0; } /* gaśnie po 8 s, zanim hologram pierwszy raz rozwinie szeroki logotyp (9 s) */
+.pomiar {
+  position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  font: 500 13px/1.5 var(--mono); color: var(--kosc); background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 10px 14px; white-space: pre; pointer-events: none; display: none;
+}
+.pomiar.jest { display: block; }
+/* v10: statyczny obraz choinki (render tej samej sceny), gdy WebGL nie wstanie albo zgubi kontekst; miejsce = wolny prostokąt kadru, liczony jak w rozmiar() */
+.zapas { position: fixed; left: 0; top: 0; object-fit: contain; pointer-events: none; user-select: none; }
+.zapas[hidden] { display: none; }
+/* bombki projektów dla klawiatury: niewidzialne przyciski, które stają na bombce, gdy mają fokus */
+.fb {
+  position: fixed; left: 0; top: 0; width: 40px; height: 40px; margin: 0; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; pointer-events: none; opacity: 0;
+}
+.fb:focus-visible { opacity: 1; outline: 2px solid var(--hot); outline-offset: 5px; }
+.wroc {
+  position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 78px);
+  font: 500 13px/1 var(--mono); letter-spacing: 0.04em; color: var(--kosc); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; cursor: pointer; display: none;
+}
+.wroc.jest { display: block; }
+.wroc:active { transform: scale(0.97); }
+.wroc:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+/* Wpięcie (18.11): #hero = scena jako tło hero cybersora.pl. Tekst i przyciski daje strona, więc bez karty, znaku i podpowiedzi. */
+.tryb-hero .karta, .tryb-hero .znak, .tryb-hero .podpowiedz { display: none; }
+@media (max-width: 640px) {
+  .podpowiedz { display: none; }
+  .wroc { top: calc(env(safe-area-inset-top, 0px) + 20px); }
+  .karta { width: calc(100vw - 32px); padding: 14px 16px 14px; border-radius: 18px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
+  .karta h1 { font-size: 18px; margin: 4px 0 0; }
+  .karta .odlicz { margin: 2px 0 0; font-size: 12px; }
+  .karta p { font-size: 13px; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .przyciski { margin-top: 10px; gap: 6px; flex-wrap: nowrap; justify-content: space-between; }
+  .przyciski button { padding: 9px 9px; letter-spacing: 0; flex: 0 1 auto; white-space: nowrap; }
+  .pomiar { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 64px); }
+}
