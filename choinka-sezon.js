@@ -17,19 +17,24 @@
 
   // ten sam warunek „telefonu” co w scenie (choinka.js)
   var telefon = Math.min(innerWidth, innerHeight) < 700 || !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+  // 19.11 (critique): „ogranicz ruch” na komputerze = hero jak poza sezonem (scena w trybie hero dalej rysuje śnieg i zorzę)
+  var malyRuch = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (malyRuch && !(telefon && !TELEFON_3D)) return;
   var tlo = document.createElement('div');
   tlo.className = 'hero__choinka';
+  tlo.setAttribute('aria-hidden', 'true'); // ozdoba za h1: czytnik ekranu zaczyna od nagłówka
   if (telefon && !TELEFON_3D) {
     var img = document.createElement('img');
     img.src = 'choinka/zapas.webp';
-    img.alt = 'Czarna choinka cybersory z czerwonymi i białymi bombkami, robocikiem z kocimi uszami na czubku i prezentami z logo naszych programów.';
+    img.alt = '';
     img.width = 703; img.height = 900; img.decoding = 'async';
     tlo.appendChild(img);
     tlo.classList.add('hero__choinka--obraz');
   } else {
     var ramka = document.createElement('iframe');
     ramka.src = 'choinka/index.html#hero';
-    ramka.title = 'Choinka cybersory 3D: przeciągnij, żeby obrócić, najedź na prezent albo bombkę';
+    ramka.title = 'Choinka cybersory';
+    ramka.tabIndex = -1; // Tab idzie od paska prosto do przycisków hero, nie przez 8 prezentów w scenie
     ramka.setAttribute('allow', 'autoplay');
     tlo.appendChild(ramka);
   }
