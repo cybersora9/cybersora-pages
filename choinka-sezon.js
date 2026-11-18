@@ -15,9 +15,36 @@
   var hero = document.querySelector('.hero--start');
   if (!hero) return;
 
+  // U1 maisy (19.11): odliczanie do Wigilii w lewym górnym rogu hero. Element strony, nie sceny: działa bez 3D, na telefonie
+  // i przy „ogranicz ruch”. Do 24.12 00:00 dni, godziny, minuty; 24–26.12 „wesołych świąt”; 27.12–6.01 nie ma go wcale.
+  // Poza sezonem (podgląd ?choinka=1) liczy do najbliższej Wigilii tego roku.
+  function odliczanie(now) {
+    var r = now.getFullYear(), mc = now.getMonth();
+    if (mc === 0 || now >= new Date(r, 11, 27)) return null;
+    if (now >= new Date(r, 11, 24)) return 'wesołych świąt';
+    var s = Math.floor((new Date(r, 11, 24) - now) / 1000), dni = Math.floor(s / 86400), dd = function (n) { return (n < 10 ? '0' : '') + n; };
+    return [dni + ' ' + (dni === 1 ? 'dzień' : 'dni') + ' ' + dd(Math.floor(s / 3600) % 24) + ' h ' + dd(Math.floor(s / 60) % 60) + ' min'];
+  }
+  if (odliczanie(d)) {
+    var odl = document.createElement('p'), opis = document.createElement('span'), czas = document.createElement('span');
+    odl.className = 'hero__odliczanie'; opis.className = 'hero__odliczanie-k';
+    odl.appendChild(opis); odl.appendChild(document.createTextNode(' ')); odl.appendChild(czas); // spacja w tekście, nie tylko odstęp: czytnik ekranu
+    var wpisz = function () {
+      var t = odliczanie(new Date());
+      if (!t) { odl.hidden = true; return; }           // strona otwarta przez północ 26/27.12
+      opis.hidden = typeof t === 'string';
+      opis.textContent = opis.hidden ? '' : 'do Wigilii';
+      czas.textContent = opis.hidden ? t : t[0];
+    };
+    wpisz();
+    hero.insertBefore(odl, hero.firstChild);
+    document.documentElement.classList.add('choinka-odl');
+    setInterval(wpisz, 15000);
+  }
+
   // ten sam warunek „telefonu” co w scenie (choinka.js)
   var telefon = Math.min(innerWidth, innerHeight) < 700 || !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
-  // 19.11 (critique): „ogranicz ruch” na komputerze = hero jak poza sezonem (scena w trybie hero dalej rysuje śnieg i zorzę)
+  // 19.11 (critique): „ogranicz ruch” na komputerze = hero jak poza sezonem (scena w trybie hero dalej rysuje śnieg i zorzę); odliczanie zostaje
   var malyRuch = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   if (malyRuch && !(telefon && !TELEFON_3D)) return;
   var tlo = document.createElement('div');

@@ -1521,8 +1521,6 @@
   const Y_CZUBKA = Y_EMIT + PRZERWA + BOK / 2;
   const J_ROB = BOK / 150;                              // 1 j. robocika w świecie
   const SZCZYT = Y_CZUBKA + (120 - 7) * J_ROB + 0.1;    // najwyższy punkt sceny (kadr): kulka anteny
-  const RAMA = [[BOK, BOK], [3.6, 1.0]];                 // rama głowy robocika i rama logotypu „cybersora”
-  const TXT_W = 3.3, TXT_H = TXT_W / 4;
   const robJ = (x, y) => [(x - 120) * J_ROB, (120 - y) * J_ROB]; // 240 j. → układ hologramu
   // miny uwu: oczy z pikseli (siatka 8 j., piksel 7 j.), kolejność w cyklu z decyzji 18.11
   const MINY = [["uwu", "^", "^"], ["owo", "o", "o"], ["mrug", "^", "-"], ["ściska", ">", "<"], ["śpi", "-", "-"]];
@@ -1571,48 +1569,31 @@
     for (const [z, s, rola] of lista) for (const [x, y] of [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]]) { p.push(x, y, z); sk.push(s, rola); }
     const g = new T.BufferGeometry(); g.setAttribute("position", new T.Float32BufferAttribute(p, 3)); g.setAttribute("aSK", new T.Float32BufferAttribute(sk, 2)); return g;
   };
-  // logotyp: tekst Sora 700 w płótnie, kanał czerwony = „cyber”, zielony = „sora” (to maska, nie kolory: barwi shader, kość i krew)
-  const logoC = document.createElement("canvas"); logoC.width = 2048; logoC.height = 512;
-  const logoTex = new T.CanvasTexture(logoC); logoTex.anisotropy = 8;
-  function rysujLogo() {
-    const c = logoC.getContext("2d"); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, 2048, 512);
-    c.font = '700 300px "Sora", "Segoe UI", sans-serif'; c.textBaseline = "middle";
-    const w1 = c.measureText("cyber").width, w2 = c.measureText("sora").width, sk = Math.min(1, 1960 / (w1 + w2));
-    c.setTransform(sk, 0, 0, sk, 1024 - (w1 + w2) * sk / 2, 262);
-    c.fillStyle = "rgb(255,0,0)"; c.fillText("cyber", 0, 0); c.fillStyle = "rgb(0,255,0)"; c.fillText("sora", w1, 0);
-    logoTex.needsUpdate = true;
-  }
-  rysujLogo(); if (document.fonts) document.fonts.load('700 300px "Sora"').then(rysujLogo, () => {});
-  const HU = { uT: U.uT, uP: { value: 0 }, uOd: { value: 0 }, uRuch: { value: 1 }, uMig: { value: 1 }, uPrzod: { value: 0 }, uW: { value: BOK }, uH: { value: BOK }, uLogo: { value: logoTex }, uTwarz: { value: twarze[0] } };
+  // 11.1 (19.11): bez logotypu „cybersora” i bez przejścia: rama ma stały bok głowy robocika
+  const HU = { uT: U.uT, uMig: { value: 1 }, uPrzod: { value: 0 }, uW: { value: BOK }, uH: { value: BOK }, uTwarz: { value: twarze[0] } };
   const PRZOD = (N_PL - 1.5).toFixed(1);
   const GLSL_HOLO = `
-    uniform float uP, uOd, uRuch, uMig, uPrzod, uW, uH, uT;
-    // ile widać robocika (x) i logotypu (y); v = 0 u góry ramy, 1 na dole. Przejście „skan” (wybór 18.11): nad linią już nowy stan.
-    // „Ogranicz ruch” (uRuch = 0): samo przenikanie, bez jadącej linii.
-    vec2 wagi(float v){
-      float od = uP <= 0.0 ? 1.0 : (uRuch > 0.5 ? step(uP, v) : 1.0 - smoothstep(0.42, 0.58, uP));
-      return uOd < 0.5 ? vec2(od, 1.0 - od) : vec2(1.0 - od, od);
-    }
+    uniform float uMig, uPrzod, uW, uH, uT;
     float alfaPl(float k){ return k > ${PRZOD} ? 1.0 : (1.0 - uPrzod) * mix(0.12, 0.34, k / ${(N_PL - 1).toFixed(1)}); } // przedni plasterek pełny, głębsze coraz ciemniejsze (osobne warstwy, nie smuga)`;
   const holoZnakMat = new T.ShaderMaterial({
     uniforms: HU, transparent: true, depthWrite: false,
     vertexShader: `
-      attribute vec2 aG; attribute vec2 aSK; varying vec2 vG; varying vec2 vSK; varying float vV;
+      attribute vec2 aG; attribute vec2 aSK; varying vec2 vG; varying vec2 vSK;
       ${GLSL_HOLO}
-      void main(){ vG = aG; vSK = aSK; vV = 0.5 - position.y / uH; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      void main(){ vG = aG; vSK = aSK; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: `
       precision highp float;
       ${GLSL_PALETA}
       ${GLSL_HOLO}
       uniform sampler2D uTwarz;
-      varying vec2 vG; varying vec2 vSK; varying float vV;
+      varying vec2 vG; varying vec2 vSK;
       void main(){
         vec4 tx = texture2D(uTwarz, vec2(vG.x / 240.0, 1.0 - vG.y / 240.0));
         float n = min(tx.r, min(tx.g, tx.b)); vec3 k = tx.rgb - n; float sw = k.r + k.g + k.b; // maska: kanały barw, szary = ekran, reszta = ink
         vec3 c; float a;
         if (vSK.x > ${PRZOD}) { c = k.r * KOSC + k.g * KREW + k.b * HOT + max(0.0, 1.0 - sw) * INK; a = tx.a; } // przód: pełny obraz z ciemnym wypełnieniem; ekran w ink (hot na ink 5,08:1, na noc tylko 4,7)
         else { if (sw < 0.02) discard; c = (k.r * KOSC + k.g * KREW + k.b * HOT) / sw; a = tx.a * min(1.0, sw); }           // głębia: same świecące linie i piksele
-        a *= alfaPl(vSK.x) * wagi(vV).x;
+        a *= alfaPl(vSK.x);
         if (vSK.x < ${PRZOD}) a *= mix(0.4, 1.0, step(0.45, fract(vG.y * 0.22 + uT * 0.9))); // prążki skanowania płyną w górę, tylko w głębi
         a *= uMig; if (a < 0.004) discard;
         gl_FragColor = vec4(c, a);
@@ -1628,25 +1609,13 @@
       precision highp float;
       ${GLSL_PALETA}
       ${GLSL_HOLO}
-      uniform sampler2D uLogo; varying vec2 vP; varying vec2 vSK;
+      varying vec2 vP; varying vec2 vSK;
       void main(){
         vec2 b = vec2(uW, uH) * 0.5; float r = min(uW, uH) * 0.25;   // zaokrąglenie kafla jak w faviconie: rx 8/32
         vec2 q = abs(vP) - b + r; float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r, fw = fwidth(d);
         if (vSK.y > 0.5) { float a = (1.0 - smoothstep(-fw, fw, d)) * 0.97; if (a < 0.004) discard; gl_FragColor = vec4(INK, a); return; } // ciemne tło kafla: znak czytelny na każdej zorzy
-        float aPl = alfaPl(vSK.x), v = 0.5 - vP.y / uH;
-        float a = (1.0 - smoothstep(${(LW / 2).toFixed(4)} - fw, ${(LW / 2).toFixed(4)} + fw, abs(d + ${(LW / 2).toFixed(4)}))) * aPl * (vSK.x < 0.5 || vSK.x > ${PRZOD} ? 1.0 : 0.0); // świetlna rama: ostra linia na przednim i tylnym plasterku, bez poświaty
+        float a = (1.0 - smoothstep(${(LW / 2).toFixed(4)} - fw, ${(LW / 2).toFixed(4)} + fw, abs(d + ${(LW / 2).toFixed(4)}))) * alfaPl(vSK.x) * (vSK.x < 0.5 || vSK.x > ${PRZOD} ? 1.0 : 0.0); // świetlna rama: ostra linia na przednim i tylnym plasterku, bez poświaty
         vec3 c = KREW;
-        vec2 uv = vP / vec2(${TXT_W.toFixed(3)}, ${TXT_H.toFixed(3)}) + 0.5;
-        if (uv.x > 0.0 && uv.x < 1.0 && uv.y > 0.0 && uv.y < 1.0) { // logotyp „cybersora”: cyber kość, sora krew
-          vec4 tx = texture2D(uLogo, uv);
-          float al = tx.a * aPl * wagi(v).y;
-          if (vSK.x < ${PRZOD}) al *= mix(0.4, 1.0, step(0.45, fract(v * 9.0 + uT * 0.9)));
-          c = mix(tx.r > tx.g ? KOSC : KREW, c, a); a = a + al * (1.0 - a);
-        }
-        if (uRuch > 0.5 && uP > 0.0 && vSK.x > ${PRZOD}) { // linia skanu przy przejściu
-          float s = (1.0 - smoothstep(0.0, 1.5 * fwidth(v), abs(v - uP))) * step(abs(vP.x), b.x - ${LW});
-          c = mix(c, KOSC, s); a = max(a, s);
-        }
         a *= uMig; if (a < 0.004) discard;
         gl_FragColor = vec4(c, a);
       }`,
@@ -1655,7 +1624,7 @@
   const mPlyta = new T.Mesh(geoKafla([[-GLEB / 2 - 0.02, 0, 1]]), holoRamaMat);
   const mZnak = new T.Mesh(geoZn, holoZnakMat);
   const mRama = new T.Mesh(geoKafla(Array.from({ length: N_PL }, (_, s) => [GLEB * (s / (N_PL - 1) - 0.5), s, 0])), holoRamaMat);
-  [mPlyta, mZnak, mRama].forEach((m, i) => { m.frustumCulled = false; m.renderOrder = 20 + i; holo.add(m); }); // tył kafla, znak, ramy i logotyp: zawsze po drzewie, od tyłu
+  [mPlyta, mZnak, mRama].forEach((m, i) => { m.frustumCulled = false; m.renderOrder = 20 + i; holo.add(m); }); // tył kafla, znak i ramy: zawsze po drzewie, od tyłu
   scena.add(holo);
   // emiter: pierścień na szczycie przewodnika, jedzie z jego ugięciem (to samo poleD co igły)
   const emiter = new T.Group();
@@ -1670,11 +1639,11 @@
   const geoD = new T.BufferGeometry(); geoD.setAttribute("position", new T.BufferAttribute(dPos, 3));
   const drobiny = new T.Points(geoD, new T.PointsMaterial({ color: KOLOR.kosc, size: 0.035, sizeAttenuation: true, transparent: true, opacity: 0.8, depthWrite: false }));
   [wiazka, drobiny].forEach((o) => { o.frustumCulled = false; o.renderOrder = 19; scena.add(o); });
-  // stan hologramu: faza (od: 0 = robocik, 1 = „cybersora”; p = postęp przejścia), sprężyny obrotu, migotanie, mina (krok cyklu, wymuszona z testów, klik)
-  const hol = { od: 0, p: 0, tNast: 9, reczny: false, zamr: false, migOn: true, mig0: -9, tMig: 12, yaw: 0, vYaw: 0, pit: 0.05, vPit: 0, wid: true, offY: 0, offP: 0,
+  // stan hologramu: sprężyny obrotu, migotanie, mina (krok cyklu, wymuszona z testów, klik)
+  const hol = { zamr: false, migOn: true, mig0: -9, tMig: 12, yaw: 0, vYaw: 0, pit: 0.05, vPit: 0, wid: true, offY: 0, offP: 0,
     mina: 0, krok: 0, tMina: 0, wymus: null, tKlik: 0 };
   function ustawMine(i) { if (i !== hol.mina) { hol.mina = i; HU.uTwarz.value = twarze[i]; } }
-  const HOL_OM = 7, HOL_DZ = 0.62, HOL_MAX = 70 * Math.PI / 180, CZAS_PRZ = 0.9, CZAS_CS = 11, CZAS_LOGO = 4.5;
+  const HOL_OM = 7, HOL_DZ = 0.62, HOL_MAX = 70 * Math.PI / 180;
   const zawin = (a) => Math.atan2(Math.sin(a), Math.cos(a));
   const hC = new T.Vector3(), hT = new T.Vector3(), hN = new T.Vector3();
   function srodekHolo(out) { // środek ramy w świecie: nad emiterem, z dźwignią ugięcia przewodnika
@@ -1682,11 +1651,6 @@
     return out.set(dx * c + dz * s, Y_CZUBKA, -dx * s + dz * c);
   }
   function hologram(dt, t) {
-    // faza: robocik 11 s → przejście 0,9 s → „cybersora” 4,5 s → przejście → robocik
-    if (!hol.reczny && !stan.pauza) {
-      if (hol.p > 0) { hol.p += dt / CZAS_PRZ; if (hol.p >= 1) { hol.od = 1 - hol.od; hol.p = 0; hol.tNast = t + (hol.od ? CZAS_LOGO : CZAS_CS); } }
-      else if (t > hol.tNast) hol.p = 1e-4;
-    }
     // mina: co 1,6 s następna z cyklu; po kliku >ω< na 1,2 s; „ogranicz ruch” = stała uwu; w pauzie i po zamrożeniu stoi
     if (hol.tKlik < 0) hol.tKlik = t + CZAS_KLIK;
     if (hol.wymus !== null) ustawMine(hol.wymus);
@@ -1694,9 +1658,6 @@
       if (t > hol.tMina) { hol.krok = (hol.krok + 1) % CYKL_MIN.length; hol.tMina = t + CZAS_MINY; }
       ustawMine(t < hol.tKlik ? 3 : mniejRuchu ? 0 : CYKL_MIN[hol.krok]);
     }
-    const e = hol.p * hol.p * (3 - 2 * hol.p), A = RAMA[hol.od], B = RAMA[1 - hol.od];
-    HU.uW.value = lerp(A[0], B[0], e); HU.uH.value = lerp(A[1], B[1], e);
-    HU.uP.value = hol.p; HU.uOd.value = hol.od; HU.uRuch.value = mniejRuchu ? 0 : 1;
     // migotanie: rzadkie (co 7–15 s) i krótkie (0,16 s)
     if (hol.migOn && !mniejRuchu && !stan.pauza && t > hol.tMig) { hol.mig0 = t; hol.tMig = t + 7 + Math.random() * 8; }
     const wm = t - hol.mig0; HU.uMig.value = hol.migOn && wm >= 0 && wm < 0.16 ? (Math.sin(wm * 190) > 0 ? 1 : 0.45) : 1;
@@ -1744,8 +1705,7 @@
     const ex = dx * c + dz * s, ez = -dx * s + dz * c;
     U.uHo.value.set(ex, Y_EMIT + 0.1, ez, hol.wid ? 0.42 * (HU.uMig.value < 1 ? 0.4 : 1) * (1 + U.uPoziom.value * 0.6) : 0);
   }
-  function holoKlik() { // klik w hologram: przełącza napis, robocik ściska oczy >ω< i trąca wierzchołek
-    if (hol.p === 0) hol.p = 1e-4;
+  function holoKlik() { // klik w hologram: robocik ściska oczy >ω< i trąca wierzchołek
     hol.tKlik = -1;
     if (!mniejRuchu) { const a = Math.random() * 6.283; LID.fx = Math.cos(a) * 4; LID.fz = Math.sin(a) * 4; }
   }
@@ -2059,7 +2019,7 @@
     stan.zoomCel = (i >= ND0 ? 3.4 : 2.1) / bazaR; stan.elCel = 0.1; stan.omKam = 6;
   }
   // podlot i powrót to długa droga kamery: wolniejsza sprężyna (ok. 1 s), kółko i gest palcami zostają szybkie
-  function lecDoCzubka() { celCel.set(0, Y_CZUBKA, 0); stan.zoomCel = Math.max(6.5, (RAMA[1][0] / 2 + 0.35) / (Math.tan((FOV / 2) * Math.PI / 180) * kamera.aspect)) / bazaR; // cała rama logotypu mieści się też na wąskim ekranie
+  function lecDoCzubka() { celCel.set(0, Y_CZUBKA, 0); stan.zoomCel = Math.max(6.5, (120 * J_ROB + 0.35) / (Math.tan((FOV / 2) * Math.PI / 180) * kamera.aspect)) / bazaR; // cały robocik (240 j. ze śrubami) mieści się też na wąskim ekranie
   stan.elCel = 0.08; stan.omKam = 6; stan.ost = performance.now() / 1000; }
   function wroc() { celCel.copy(dom); stan.zoomCel = 1; stan.elCel = 0.17; stan.omKam = 6; }
   const bWroc = document.getElementById("bWroc"); bWroc.addEventListener("click", wroc);
@@ -2199,7 +2159,6 @@
   }
   setInterval(odliczaj, 15000);
   function lecDoPrezentu(i) { const p = prezenty[i]; celCel.set(p.x, p.h + 0.7, p.z); stan.zoomCel = 5.5 / bazaR; stan.elCel = 0.3; stan.omKam = 6; stan.ost = performance.now() / 1000; }
-  setTimeout(() => document.querySelector(".podpowiedz").classList.add("zgas"), 8000);
   const przel = (id, k, po) => { const b = document.getElementById(id); b.addEventListener("click", () => { stan[k] = !stan[k]; b.setAttribute("aria-pressed", String(stan[k])); if (po) po(); }); b.setAttribute("aria-pressed", String(stan[k])); };
   przel("bSwiatla", "swiatla"); przel("bSnieg", "snieg"); przel("bObrot", "obrot");
   przel("bMuzyka", "dzwiek", () => (stan.dzwiek ? startDzwiek() : stopDzwiek()));
@@ -2407,12 +2366,11 @@
     },
     fokus: () => (fokusP >= 0 ? prezenty[fokusP].prod.nazwa : null),
     holo: { // hologram na czubku: stan, pomiary i sterowanie do testów etapu 3
-      stan: () => ({ od: hol.od, p: +hol.p.toFixed(3), yaw: hol.yaw, pit: hol.pit, lid: [U.uLid.value.x, U.uLid.value.y], emiter: [emiter.position.x, emiter.position.z] }),
+      stan: () => ({ yaw: hol.yaw, pit: hol.pit, lid: [U.uLid.value.x, U.uLid.value.y], emiter: [emiter.position.x, emiter.position.z] }),
       odchylenie: () => { // kąt między normalną znaku a kierunkiem do kamery; „lustro” = widać go od tyłu (S odwrócone)
         hN.set(0, 0, 1).applyQuaternion(holo.quaternion); hT.copy(kamera.position).sub(holo.position).normalize();
         const d = clamp(hN.dot(hT), -1, 1); return { kat: +(Math.acos(d) / RAD).toFixed(3), lustro: d <= 0 };
       },
-      faza: (od, p) => { if (od === null || od === undefined) { hol.reczny = false; hol.p = 0; hol.tNast = performance.now() / 1000 + 3; return; } hol.reczny = true; hol.od = od; hol.p = p || 0; },
       mig: (tak) => { hol.migOn = tak; hol.mig0 = -9; },
       zamroz: (tak) => { hol.zamr = tak; },
       tylkoPrzod: (tak) => { HU.uPrzod.value = tak ? 1 : 0; }, // pomiar ostrości samej krawędzi: warstwy w głębi wyłączone
@@ -2423,11 +2381,11 @@
         const hb = host.getBoundingClientRect(), na = (z) => { hT.set(BOK * 0.4, BOK * 0.4, z); holo.localToWorld(hT).project(kamera); return { x: ((hT.x + 1) / 2) * hb.width, y: ((1 - hT.y) / 2) * hb.height }; };
         return { przod: na(GLEB / 2), tyl: na(-GLEB / 2) };
       },
-      probki: () => { // punkty do pomiaru kontrastu: piksel oka uwu (C, kość), piksel ust ω (S, hot), ekran między oczami (tło); to samo dla logotypu; prostokąt ramy; czubek ucha i kulka anteny
+      probki: () => { // punkty do pomiaru kontrastu: piksel oka uwu (C, kość), piksel ust ω (S, hot), ekran między oczami (tło); prostokąt ramy; czubek ucha i kulka anteny
         const hb = host.getBoundingClientRect(), px = (x, y, z = GLEB / 2) => { hT.set(x, y, z); holo.localToWorld(hT).project(kamera); return [((hT.x + 1) / 2) * hb.width, ((1 - hT.y) / 2) * hb.height]; };
         const g = (x, y) => px(...robJ(x, y));
         const r0 = px(-HU.uW.value / 2, HU.uH.value / 2), r1 = px(HU.uW.value / 2, -HU.uH.value / 2);
-        return { C: g(93.5, 103.5), S: g(103.5, 145.5), tlo: g(120, 125), ucho: [g(63, 22), g(177, 22)], antena: g(120, 15), cyber: [px(-TXT_W * 0.48, TXT_H * 0.3), px(-0.05, -TXT_H * 0.3)], sora: [px(0.15, TXT_H * 0.3), px(TXT_W * 0.48, -TXT_H * 0.3)], tloLogo: px(0, -TXT_H * 0.47),
+        return { C: g(93.5, 103.5), S: g(103.5, 145.5), tlo: g(120, 125), ucho: [g(63, 22), g(177, 22)], antena: g(120, 15),
           ramka: [Math.min(r0[0], r1[0]), Math.min(r0[1], r1[1]), Math.abs(r1[0] - r0[0]), Math.abs(r1[1] - r0[1])] };
       },
     },

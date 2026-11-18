@@ -1,4 +1,6 @@
-/* Choinka cybersory, wersja 11 (bombki: nick z przodu i z tyłu, mała matowa naklejka z buźką u góry bombek nielekbestii i veena;
+/* Choinka cybersory, wersja 11.1 (szlif 19.11: robocik stoi na czubku na stałe, bez napisu i przejścia w logotyp „cybersora”,
+   bo logotyp jest już w pasku strony; podpowiedź nie gaśnie);
+   11 (bombki: nick z przodu i z tyłu, mała matowa naklejka z buźką u góry bombek nielekbestii i veena;
    4 nowe ozdoby z pikselowymi buźkami: F1, G1, Reze i Toji w czapkach Mikołaja, tylko w palecie, bez nicku);
    10 (etap 6: statyczny obraz choinki przy braku WebGL albo utracie kontekstu, pętla i muzyka stają, gdy scena jest poza ekranem
    albo karta w tle, pad gasi oscylatory po przejściu na plik, skrypt gotowy do wyjęcia do pliku pod CSP);
@@ -69,9 +71,8 @@ body {
 .przyciski button:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
 .podpowiedz {
   position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 28px);
-  font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; color: var(--kosc); opacity: 0.6; text-align: right; pointer-events: none; transition: opacity .6s;
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; color: var(--kosc); opacity: 0.6; text-align: right; pointer-events: none;
 }
-.podpowiedz.zgas { opacity: 0; } /* gaśnie po 8 s, zanim hologram pierwszy raz rozwinie szeroki logotyp (9 s) */
 .pomiar {
   position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
   font: 500 13px/1.5 var(--mono); color: var(--kosc); background: var(--panel); border: 1px solid var(--line); border-radius: 14px;

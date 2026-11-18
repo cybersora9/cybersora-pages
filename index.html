@@ -1030,6 +1030,16 @@
   .choinka-sezon .hero--start .hint{display:none;}
   .choinka-sezon .hero--start .hero__ctas a{pointer-events:auto;}
   .choinka-sezon .hero--start .hero__stamp{display:none;} /* K3 maisy (19.11): stempel lezal na oknie sceny, w sezonie znika */
+  /* U1 maisy (19.11, wariant A z makiety): odliczanie do Wigilii w lewym gornym rogu hero, pod paskiem, w gutterze logotypu.
+     Sama linia Geist Mono w kosci, bez tla, poswiaty i katownikow. Element strony (choinka-sezon.js), nie sceny. */
+  .hero__odliczanie{
+    position:absolute;z-index:2;left:var(--hero-pad);top:calc(64px + clamp(.9rem,2.4vh,1.6rem));margin:0;
+    display:flex;align-items:baseline;gap:.7em;white-space:nowrap;pointer-events:none;
+    font-family:var(--mono);font-size:var(--t-instrument);letter-spacing:.04em;color:#f6f2f3;
+  }
+  .hero__odliczanie-k{color:rgba(246,242,243,.68);}
+  /* telefon: obraz zapasowy zjezdza o wysokosc linii, inaczej odliczanie wchodzi na glowe robocika */
+  .choinka-odl .hero__choinka--obraz img{top:calc(64px + 3.4rem);}
   .hero__choinka--obraz img{
     position:absolute;left:50%;top:calc(65px + .5rem);transform:translateX(-50%);
     width:auto;height:min(60svh,calc(100vw * 1.2));
@@ -2670,7 +2680,7 @@
       <div class="hint">rusz kursorem po mapie &rarr;</div>
     </div>
     <!-- CHOINKA (18.11): w sezonie 1.12–6.01 wstawia scenę jako tło tego hero; poza sezonem nic nie pobiera -->
-    <script src="choinka-sezon.js?v=20261119a"></script>
+    <script src="choinka-sezon.js?v=20261119b"></script>
 
     <!-- CO ZROBILIŚMY (ov10). 02.11 makieta 3HxqCoRS5HUQmZWF2ragus, 03.11 przeniesione z Oferty na Start
          w miejsce manifestu, pasa projektów i scen Pycodemath (pliki pycodemath-sceny\ zostają). Jeden egzemplarz.
