@@ -53,7 +53,7 @@
   tlo.setAttribute('aria-hidden', 'true'); // ozdoba za h1: czytnik ekranu zaczyna od nagłówka
   if (telefon && !TELEFON_3D) {
     var img = document.createElement('img');
-    img.src = 'choinka/zapas.webp';
+    img.src = 'choinka/zapas.webp?v=12'; // podbić przy każdym nowym obrazie (bez tego telefon dostaje starą kopię z pamięci podręcznej)
     img.alt = '';
     img.width = 703; img.height = 900; img.decoding = 'async';
     tlo.appendChild(img);

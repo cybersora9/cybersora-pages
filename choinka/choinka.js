@@ -298,12 +298,16 @@
   const texHor = new T.CanvasTexture(horC); texHor.magFilter = T.NearestFilter; texHor.minFilter = T.LinearFilter; texHor.generateMipmaps = false;
   const HORYZ = { z: -38, w: 190 }; // 320 × 14 bloków → 190 × 8,3 j.; dół pod linią śniegu
   const horyzont = new T.Mesh(new T.PlaneGeometry(HORYZ.w, HORYZ.w * 14 / 320), new T.ShaderMaterial({
-    uniforms: { uKraj: { value: texHor } },
+    uniforms: { uKraj: { value: texHor }, uRes: zorzaZnakiMat.uniforms.uRes, uHero: zorzaZnakiMat.uniforms.uHero },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
     fragmentShader: `
       precision highp float;
-      uniform sampler2D uKraj; varying vec2 vUv;
-      void main(){ vec4 k = texture2D(uKraj, vUv); if (k.a < 0.5) discard; gl_FragColor = vec4(k.rgb * 0.42, 1.0); }`, // przygaszony jak miasto w szybie (K5)
+      uniform sampler2D uKraj; uniform vec2 uRes; uniform float uHero; varying vec2 vUv;
+      void main(){
+        vec4 k = texture2D(uKraj, vUv); if (k.a < 0.5) discard;
+        float x = gl_FragCoord.x / uRes.x, tl = mix(1.0, mix(0.3, 1.0, smoothstep(0.35, 0.62, x)), uHero); // #hero: za h1 strony przygaszone jak niebo
+        gl_FragColor = vec4(k.rgb * 0.42 * tl, 1.0); // przygaszony jak miasto w szybie (K5)
+      }`,
   }));
   horyzont.position.set(0, HORYZ.w * 14 / 320 * 0.5 - 1.6, HORYZ.z); horyzont.renderOrder = -9; scena.add(horyzont);
   // księżyc z klocków na niebie (ten sam co w dawnym oknie): mała płaszczyzna daleko, po lewej
