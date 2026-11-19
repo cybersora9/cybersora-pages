@@ -1,4 +1,4 @@
-/* Choinka na Starcie (sezon 1.12–6.01). Decyzje maisy 18.11: choinka zamiast tła hero (wariant A:
+/* Choinka na Starcie (sezon 19.11–6.01). Decyzje maisy 18.11: choinka zamiast tła hero (wariant A:
    h1, lead i przyciski zostają z lewej, pas faktów schowany), telefon dostaje obraz zapasowy.
    Poza sezonem ten plik nic nie robi: bez three.min.js (670 KB) i choinka.js (190 KB).
    Data = czas lokalny przeglądarki. ?choinka=1 / ?choinka=0 wymusza włączenie / wyłączenie (podgląd przed sezonem).
@@ -10,7 +10,8 @@
 
   var wym = /[?&]choinka=([01])/.exec(location.search);
   var d = new Date(), m = d.getMonth(), dz = d.getDate();
-  var sezon = wym ? wym[1] === '1' : (m === 11) || (m === 0 && dz <= 6);
+  // 19.11 maisa: start sezonu od razu (od 19.11), nie od 1.12.
+  var sezon = wym ? wym[1] === '1' : (m === 10 && dz >= 19) || (m === 11) || (m === 0 && dz <= 6);
   if (!sezon) return;
   var hero = document.querySelector('.hero--start');
   if (!hero) return;
