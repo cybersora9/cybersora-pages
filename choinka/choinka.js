@@ -135,40 +135,49 @@
       ${GLSL_PALETA}
       varying vec2 vUv; uniform float uT, uAsp, uBoost;
       ${GLSL_SZUM}
+      // v12.1 (19.11 maisa: „zorza meh, zrób lepszą, czerwoną”): prawdziwa zorza polarna zamiast pionowych kolumn.
+      // Trzy wstęgi ciągną się przez całe niebo w łagodnych esach; każda ma ostrą, jasną dolną krawędź i ciało z miękkich
+      // promieni gasnących ku górze. Wzdłuż wstęg płyną fale jasności, w zgięciach fałdu wstęga jaśnieje, miejscami się rwie.
+      float krawedz(float x, float t, float fk){ // dolna krawędź wstęgi k (wysokość na ekranie)
+        return 0.64 + 0.085 * fk + (0.12 - 0.03 * fk) * sin(x * 1.25 + t * 0.045 + fk * 2.1) + 0.04 * sin(x * 3.2 - t * 0.07 + fk * 5.0)
+             + (vn(vec2(x * 0.9 + fk * 9.0, t * 0.03)) - 0.5) * 0.09;
+      }
       float kurtyny(vec2 uv){
         float t = uT, x = uv.x * uAsp, I = 0.0;
-        for(int k=0;k<2;k++){
+        for(int k=0;k<3;k++){
           float fk = float(k);
-          // dolna krawędź kurtyny: fałdy w kilku skalach, płyną powoli
-          float a1 = x * 2.3 + t * 0.09 + fk * 2.0, a2 = x * 5.3 - t * 0.13 + fk * 4.1;
-          float y0 = 0.70 - 0.13 * fk + 0.05 * sin(a1) + 0.022 * sin(a2) + (vn(vec2(x * 1.6 + fk * 5.0, t * 0.05)) - 0.5) * 0.08;
-          float stroma = abs(0.115 * cos(a1) + 0.117 * cos(a2));      // w zgięciu fałdu kurtyna jest widziana z boku: jaśniej
-          float d = uv.y - y0;
-          float kr = smoothstep(-0.012, 0.004, d);
-          // promienie: cienkie pionowe smugi w grupach (odcinki kurtyny), każda innej długości; dryfują powoli w bok
-          float xs = x * (42.0 + fk * 9.0) + fk * 31.0 + 1.5 * sin(x * 1.7 + t * 0.07);
-          float grupa = smoothstep(0.3, 0.75, vn(vec2(x * 2.4 + fk * 7.0, t * 0.06)));
-          float pr = pow(vn(vec2(xs, t * 0.1)), 4.0) * 2.2 * grupa;
-          float dl = 1.8 + 4.5 * vn(vec2(xs * 0.5 + 3.0, fk));                    // długość promienia
-          I += kr * (0.05 * exp(-max(d, 0.0) * 16.0) + pr * (0.6 + stroma * 3.5) * exp(-max(d, 0.0) * (dl + fk))) * (1.0 - 0.5 * fk); // druga, niższa kurtyna słabsza: bez ściany za drzewem
+          float y0 = krawedz(x, t, fk), d = uv.y - y0;
+          float stroma = clamp(abs(krawedz(x + 0.02, t, fk) - y0) * 45.0, 0.0, 1.6); // zgięcie fałdu: kurtyna widziana z boku, jaśniej
+          float dol = smoothstep(-0.018, 0.006, d);                                     // ostra dolna granica
+          float wys = 0.16 + 0.26 * vn(vec2(x * 1.1 + fk * 3.0, t * 0.04));             // wysokość kurtyny zmienia się wzdłuż wstęgi
+          float cialo = exp(-max(d, 0.0) / wys);
+          float kier = mod(fk, 2.0) * 2.0 - 1.0;                                        // sąsiednie wstęgi płyną w przeciwne strony
+          float pr = 0.3 + 0.7 * pow(vn(vec2(x * (24.0 + fk * 7.0) + t * 0.22 * kier, t * 0.12 + fk)), 1.6); // pionowe promienie
+          pr *= 0.7 + 0.3 * vn(vec2(x * 70.0 + fk * 13.0, t * 0.5));
+          float fala = 0.5 + 0.5 * sin(x * 2.1 - t * 0.32 * kier + fk * 1.7 + 2.5 * vn(vec2(x * 0.5, t * 0.05))); // fale jasności wzdłuż wstęgi
+          float sila = (1.0 - 0.3 * fk) * smoothstep(0.25, 0.65, vn(vec2(x * 0.55 + fk * 4.0, t * 0.02)) + 0.2); // wstęga miejscami się rwie
+          float m = dol * sila * (0.35 + 0.65 * fala);
+          I += m * cialo * pr * (1.3 + stroma * 1.2);
+          I += m * exp(-max(d, 0.0) * 45.0) * 0.8;                                     // jasny rąbek dolnej krawędzi
         }
+        I += 0.14 * exp(-abs(uv.y - 0.6) * 6.0);                                       // czerwona łuna nad horyzontem
         return I;
       }
       void main(){
         float I = min(kurtyny(vUv) * (1.0 + uBoost * 1.3), 1.7);          // przycięte: przy głośnej muzyce zorza jaśnieje, ale nie bieleje
-        vec3 c = mix(KREW, HOT, smoothstep(0.25, 0.95, I)); c = mix(c, KOSC, 0.3 * smoothstep(1.0, 1.7, I));
-        gl_FragColor = vec4(c * I * 0.42, I / 1.7);                       // najjaśniej ok. 0,7 krwi/hot: daleko od bieli
+        vec3 c = mix(KREW * 0.55, HOT, smoothstep(0.35, 1.05, I)); c = mix(c, KOSC, 0.32 * smoothstep(1.1, 1.7, I));
+        gl_FragColor = vec4(c * I * 0.66, I / 1.7);                       // jaśniej niż v11, ale rąbek zostaje różowy, nie biały
       }`,
   });
   { const q = new T.Mesh(new T.PlaneGeometry(2, 2), zorzaMat); q.frustumCulled = false; zorzaScena.add(q); }
   const zorzaZnakiMat = new T.ShaderMaterial({ // przebieg 2: pełny ekran, tło z tekstury i spadające znaki
     depthTest: false, depthWrite: false,
-    uniforms: { uT: zorzaMat.uniforms.uT, uRes: { value: new T.Vector2(1280, 800) }, uCell: { value: 22 }, uZ: { value: zorzaRT.texture }, uGlyph: { value: texGlif }, uZnaki: { value: 1 } },
+    uniforms: { uT: zorzaMat.uniforms.uT, uRes: { value: new T.Vector2(1280, 800) }, uCell: { value: 22 }, uZ: { value: zorzaRT.texture }, uGlyph: { value: texGlif }, uZnaki: { value: 1 }, uHero: { value: /hero/.test(location.hash) ? 1 : 0 } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 1.0, 1.0); }",
     fragmentShader: `
       precision highp float;
       ${GLSL_PALETA}
-      varying vec2 vUv; uniform float uT, uCell, uZnaki; uniform vec2 uRes; uniform sampler2D uZ, uGlyph;
+      varying vec2 vUv; uniform float uT, uCell, uZnaki, uHero; uniform vec2 uRes; uniform sampler2D uZ, uGlyph;
       ${GLSL_SZUM}
       void main(){
         vec3 baza = texture2D(uZ, vUv).rgb;
@@ -179,13 +188,15 @@
         vec2 id = vec2(kol, floor(yy)), f = vec2(fract(vUv.x * cells.x), fract(yy));
         vec2 sc = vec2((kol + 0.5) / cells.x, (id.y + 0.5 - uT * sp) / cells.y); // środek komórki na ekranie
         float Ic = texture2D(uZ, sc).a * 1.7;
-        float jest = step(0.38, h21(id + 7.3)) * uZnaki;              // przerwy w kolumnie: znaki jadą ciągami, nie pełną ścianą
+        float jest = step(0.74, h21(id + 7.3)) * uZnaki * 0.6;        // v12.1: znaki kodu rzadkie i ciche, pierwsza gra zorza
         float gi = floor(h21(id + floor(uT * 0.4 * (0.3 + h21(id.yx)))) * 16.0);
         vec2 gc = vec2(mod(gi, 4.0), floor(gi / 4.0));
         float gl = texture2D(uGlyph, (gc + vec2(f.x, 1.0 - f.y)) / 4.0).r;
         float ga = gl * smoothstep(0.16, 0.6, Ic) * jest;
         vec3 gk = mix(KREW, HOT, smoothstep(0.3, 0.9, Ic)); gk = mix(gk, KOSC, smoothstep(0.9, 1.5, Ic));
-        gl_FragColor = vec4(mix(baza, gk, ga * 0.95), 1.0);
+        // v12 (19.11, na zewnątrz): niebo na cały kadr; w #hero lewa część (h1 strony) przygaszona, żeby zorza i znaki nie szły za tekstem
+        float tlum = mix(1.0, mix(0.22, 1.0, smoothstep(0.3, 0.62, vUv.x)), uHero);
+        gl_FragColor = vec4(mix(baza, gk, ga * 0.95) * tlum, 1.0);
       }`,
   });
   const zorza = new T.Mesh(new T.PlaneGeometry(2, 2), zorzaZnakiMat);
@@ -227,8 +238,7 @@
     for (let r = 0; r < 4; r++) for (let a = r; a < 7 - r; a++) blok(hx + a, hp - 5 - r, r === 0 ? C.kosc : C.krew);
     blok(hx + 2, hp - 3, C.hot); blok(hx + 4, hp - 3, C.hot); blok(hx + 2, hp - 2, C.hot, 0.7); blok(hx + 4, hp - 2, C.hot, 0.7);
     for (let i = 0; i < 26; i++) blok(Math.floor(Rk() * kol), Math.floor(Rk() * wier * 0.55), C.kosc, 0.35 + Rk() * 0.5); // płatki
-    g.fillStyle = C.kosc; g.globalAlpha = 0.9; g.fillRect(0, krajC.height - 3, krajC.width, 3); g.globalAlpha = 1; // śnieg na parapecie, od środka szyby
-  })();
+  })(); // v12: bez parapetu (nie ma już okna)
   const texKraj = new T.CanvasTexture(krajC); texKraj.magFilter = T.NearestFilter; texKraj.minFilter = T.LinearFilter; texKraj.generateMipmaps = false;
   const sciana = new T.Mesh(new T.PlaneGeometry(90, 44), new T.ShaderMaterial({
     uniforms: { uKraj: { value: texKraj }, uOkno: { value: new T.Vector4(OKNO.x0, OKNO.y0, OKNO.x1, OKNO.y1) }, uB: { value: OKNO.B }, uSw: U.uSw },
@@ -258,7 +268,50 @@
       }`,
   }));
   sciana.position.set(0, 22, OKNO.z); sciana.renderOrder = -11; scena.add(sciana);
-  zorzaZnakiMat.depthTest = true; // zorza (z = 1, za wszystkim) rysuje się tylko tam, gdzie ściana nie zapisała głębi: w szybie
+  // v12 (19.11 maisa: „na zewnątrz, śnieg pod choinką”): ściany i okna nie ma; zorza na całym niebie, klockowy krajobraz
+  // stoi daleko na horyzoncie, a pod drzewem leży śnieg (podloga niżej). Ściana zostaje w kodzie wyłączona (API widoczne()).
+  sciana.visible = false; zorzaZnakiMat.depthTest = false;
+  // Horyzont: osobne płótno, niski pas zaśnieżonych pagórków z klocków (192 × 16 bloków), choinki i chatka z oknami; księżyc wyżej na niebie
+  const horC = document.createElement("canvas"); horC.width = 320 * 8; horC.height = 14 * 8;
+  (function horyzontRys() {
+    const g = horC.getContext("2d"), B = 8, kol = 320, wier = 14, Rk = mulberry(11), C = { panel: hex6(KOLOR.panel), noc: hex6(KOLOR.noc), linia: hex6(KOLOR.linia), ink: hex6(KOLOR.ink), kosc: hex6(KOLOR.kosc), krew: hex6(KOLOR.krew), hot: hex6(KOLOR.hot) };
+    const blok = (cx, cy, c, a = 1) => { g.globalAlpha = a; g.fillStyle = c; g.fillRect(cx * B, cy * B, B, B); g.globalAlpha = 1; };
+    const plany = [[0.32, C.panel, 0.16, 11], [0.55, C.noc, 0.12, 7], [0.78, C.linia, 0.07, 5]], wys = [];
+    plany.forEach(([baza, c, amp, okres], pi) => {
+      const h = [];
+      for (let x = 0; x < kol; x++) {
+        h[x] = Math.max(1, Math.floor(wier * (baza - amp * (Math.sin(x / okres + 3 * (pi + 1)) + 0.5 * Math.sin(x / (okres * 0.43) + pi)))));
+        for (let y = h[x]; y < wier; y++) blok(x, y, c);
+        blok(x, h[x], C.kosc, 0.5 + pi * 0.2); // śnieg na grzbiecie
+      }
+      wys.push(h);
+    });
+    const choinka = (x, h, pl) => { const pod = wys[pl][x]; for (let r = 0; r < h; r++) { const sz = Math.floor((h - r) / 2); for (let d = -sz; d <= sz; d++) blok(x + d, pod - 1 - r, C.ink); if (r % 2 === 0 && sz > 0) { blok(x - sz, pod - 1 - r, C.kosc, 0.7); blok(x + sz, pod - 1 - r, C.kosc, 0.7); } } blok(x, pod - 1 - h, C.kosc, 0.8); };
+    for (let i = 2; i < kol; i += 4 + Math.floor(Rk() * 7)) choinka(i, 2 + Math.floor(Rk() * 3), Rk() < 0.5 ? 1 : 2);
+    for (const hx of [52, 214]) { // dwie chatki z zapalonymi oknami
+      const hp = wys[2][hx + 2];
+      for (let a = 0; a < 5; a++) for (let b = 1; b <= 3; b++) blok(hx + a, hp - b, C.noc);
+      for (let r = 0; r < 3; r++) for (let a = r; a < 5 - r; a++) blok(hx + a, hp - 4 - r, r === 0 ? C.kosc : C.krew);
+      blok(hx + 1, hp - 2, C.hot); blok(hx + 3, hp - 2, C.hot);
+    }
+  })();
+  const texHor = new T.CanvasTexture(horC); texHor.magFilter = T.NearestFilter; texHor.minFilter = T.LinearFilter; texHor.generateMipmaps = false;
+  const HORYZ = { z: -38, w: 190 }; // 320 × 14 bloków → 190 × 8,3 j.; dół pod linią śniegu
+  const horyzont = new T.Mesh(new T.PlaneGeometry(HORYZ.w, HORYZ.w * 14 / 320), new T.ShaderMaterial({
+    uniforms: { uKraj: { value: texHor } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `
+      precision highp float;
+      uniform sampler2D uKraj; varying vec2 vUv;
+      void main(){ vec4 k = texture2D(uKraj, vUv); if (k.a < 0.5) discard; gl_FragColor = vec4(k.rgb * 0.42, 1.0); }`, // przygaszony jak miasto w szybie (K5)
+  }));
+  horyzont.position.set(0, HORYZ.w * 14 / 320 * 0.5 - 1.6, HORYZ.z); horyzont.renderOrder = -9; scena.add(horyzont);
+  // księżyc z klocków na niebie (ten sam co w dawnym oknie): mała płaszczyzna daleko, po lewej
+  const ksC = document.createElement("canvas"); ksC.width = ksC.height = 40;
+  { const g = ksC.getContext("2d"); for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (a * a + b * b <= 5) { g.fillStyle = hex6((a === -1 && b === 0) || (a === 1 && b === 1) ? KOLOR.linia : KOLOR.kosc); g.fillRect((a + 2) * 8, (b + 2) * 8, 8, 8); } }
+  const texKs = new T.CanvasTexture(ksC); texKs.magFilter = T.NearestFilter;
+  const ksiezyc = new T.Mesh(new T.PlaneGeometry(3.2, 3.2), new T.MeshBasicMaterial({ map: texKs, transparent: true, alphaTest: 0.5, color: new T.Color(KOLOR.kosc).multiplyScalar(0.7), depthWrite: false }));
+  ksiezyc.position.set(-27, 13.5, HORYZ.z + 0.5); ksiezyc.renderOrder = -9; scena.add(ksiezyc);
 
   // ================= ŚRODOWISKO DLA ODBIĆ BOMBEK: budowane niżej z rozkładu żarówek i pasa zorzy (budujOtoczenie) =================
   const pmrem = new T.PMREMGenerator(renderer);
@@ -581,9 +634,11 @@
   const pien = new T.Mesh(new T.CylinderGeometry(0.04, 0.36, WYS - 0.7, 12), new T.MeshBasicMaterial({ color: KOLOR.ink }));
   pien.position.y = (WYS - 0.7) / 2 + 0.4; choinka.add(pien);
   // podest zamiast doniczki: dwa niskie stopnie, ink z połyskiem
-  const matPodest = new T.MeshStandardMaterial({ color: KOLOR.panel, roughness: 0.35, metalness: 0.2, envMap: envTex, envMapIntensity: 0.35 });
-  const st1 = new T.Mesh(new T.CylinderGeometry(2.0, 2.06, 0.42, 72), matPodest); st1.position.y = 0.21; scena.add(st1);
-  const st2 = new T.Mesh(new T.CylinderGeometry(1.25, 1.3, 0.36, 72), matPodest); st2.position.y = 0.6; scena.add(st2);
+  // v12: na zewnątrz podest to zaspa śniegu (matowa kość, bez połysku)
+  const matPodest = new T.MeshStandardMaterial({ color: new T.Color(KOLOR.kosc).multiplyScalar(0.3), roughness: 1, metalness: 0, envMap: envTex, envMapIntensity: 0.08 });
+  // zaspa pod pniem: spłaszczona półkula (stopni podestu nie ma, ale nazwy zostają dla API i testów)
+  const st1 = new T.Mesh(new T.SphereGeometry(2.7, 64, 16, 0, Math.PI * 2, 0, Math.PI / 2), matPodest); st1.scale.y = 0.24; scena.add(st1);
+  const st2 = new T.Object3D(); scena.add(st2);
   // podłoga: bez linii obwodu, wtapia się w tło; światło choinki jako plama na powierzchni.
   // v7: wypolerowana. Odbicie drzewa z osobnego przebiegu (kamera lustrzana, ułamek rozdzielczości, uproszczone drzewo),
   // odbicie zorzy liczone wprost: kierunek odbity od podłogi rzutowany na ekran i odczytany z tekstury zorzy. Bez rozmycia.
@@ -591,29 +646,40 @@
   const podlogaMat = new T.ShaderMaterial({
     transparent: true, depthWrite: false,
     uniforms: { uSw: U.uSw, uPoziom: U.uPoziom, uPrez: { value: Array.from({ length: 8 }, () => new T.Vector3(0, 0, 0)) },
-      uOdb: { value: odbRT.texture }, uOdbOn: { value: 1 }, uZ: { value: zorzaRT.texture }, uRes: { value: new T.Vector2(1280, 800) }, uPV: { value: new T.Matrix4() } },
+      uOdb: { value: odbRT.texture }, uOdbOn: { value: 1 }, uZ: { value: zorzaRT.texture }, uRes: { value: new T.Vector2(1280, 800) }, uPV: { value: new T.Matrix4() }, uHero: { value: /hero/.test(location.hash) ? 1 : 0 } },
     vertexShader: "varying vec3 vW; void main(){ vec4 wp = modelMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }",
     fragmentShader: `
       precision highp float;
       ${GLSL_PALETA}
-      uniform float uSw, uPoziom, uOdbOn; uniform vec3 uPrez[8]; uniform sampler2D uOdb, uZ; uniform vec2 uRes; uniform mat4 uPV; varying vec3 vW;
+      uniform float uSw, uPoziom, uOdbOn, uHero; uniform vec3 uPrez[8]; uniform sampler2D uOdb, uZ; uniform vec2 uRes; uniform mat4 uPV; varying vec3 vW;
+      ${GLSL_SZUM}
+      // v12 (19.11 maisa): śnieg zamiast wypolerowanych paneli. Matowy (bez odbicia), zaspy z szumu oświetlone z boku światłem klucza,
+      // plama ciepłego światła choinki, iskierki kryształków migające przy obrocie kamery, w dali gaśnie w noc pod horyzontem.
+      float zaspa(vec2 p){ return vn(p * 0.22) * 0.65 + vn(p * 0.7 + 7.0) * 0.35; } // tylko duże, miękkie fale: śnieg, nie żwir
       void main(){
         float r = length(vW.xz);
-        float plama = uSw * (0.85 + 0.6 * uPoziom) * exp(-r * 0.2) * smoothstep(1.2, 4.6, r);
-        vec3 c = mix(INK * 0.8, mix(KOSC, HOT, 0.3), plama * 0.5);
+        vec2 e = vec2(0.15, 0.0);
+        float h0 = zaspa(vW.xz), gx = zaspa(vW.xz + e.xy) - h0, gz = zaspa(vW.xz + e.yx) - h0;
+        vec3 N = normalize(vec3(-gx * 5.0, e.x, -gz * 5.0));                         // nachylenie zasp: miękkie cienie bez geometrii
+        float ks = 0.2 + 0.12 * clamp(dot(N, normalize(vec3(-0.45, 0.8, 0.4))), 0.0, 1.0); // księżyc z lewej góry
+        ks *= 0.97 + 0.06 * h21(floor(vW.xz * 40.0));                                 // ziarno śniegu: ledwie widoczne
+        float plama = uSw * (0.85 + 0.6 * uPoziom) * exp(-r * 0.19);
+        vec3 c = KOSC * ks + mix(KOSC, HOT, 0.22) * plama * 0.7;
         vec3 V = normalize(cameraPosition - vW);
-        float fr = (0.2 + 0.55 * pow(1.0 - V.y, 3.0)) * (1.0 - smoothstep(3.5, 11.0, r)); // połysk: mocniej pod ostrym kątem, gaśnie ku brzegom
-        vec2 sc = gl_FragCoord.xy / uRes;
-        c += texture2D(uOdb, vec2(1.0 - sc.x, sc.y)).rgb * fr * uOdbOn;                 // kamera lustrzana widzi świat odwrócony w poziomie
-        vec4 kz = uPV * vec4(reflect(-V, vec3(0.0, 1.0, 0.0)), 0.0);                   // kierunek odbity: punkt w nieskończoności, jak zorza
-        if (kz.w > 0.0) { vec2 uz = kz.xy / kz.w * 0.5 + 0.5; c += texture2D(uZ, clamp(uz, 0.0, 1.0)).rgb * fr * 0.9 * (1.0 - smoothstep(0.98, 1.15, uz.y)); }
-        float zl = 0.0; // otwarte prezenty świecą na podłogę wokół siebie (uPrez: x, z, moc)
+        vec2 kom = floor(vW.xz * 22.0); float los = h21(kom);                        // kryształki: rzadkie, migają zależnie od kierunku patrzenia
+        float blysk = step(0.986, los) * pow(max(0.0, sin(dot(V, vec3(13.0, 7.0, 11.0)) * 3.0 + los * 60.0)), 18.0);
+        c += KOSC * blysk * (0.25 + plama) * (1.0 - smoothstep(4.0, 12.0, r));
+        float zl = 0.0; // otwarte prezenty świecą na śnieg wokół siebie (uPrez: x, z, moc)
         for (int i = 0; i < 8; i++) { vec2 d = vW.xz - uPrez[i].xy; zl += uPrez[i].z * exp(-dot(d, d) * 0.55); }
         c = mix(c, ZLOTO, min(zl, 1.0) * 0.42);
-        gl_FragColor = vec4(c, 1.0 - smoothstep(8.5, 15.5, r));
+        c = mix(c, INK * 1.4, smoothstep(9.0, 34.0, r));                              // dal: śnieg gaśnie w noc pod pagórkami
+        // #hero: pod tekstem strony śnieg przygaszony (kontrast przycisków strony ≥ 4,5:1): szeroki kadr = lewa część, wąski = dół
+        vec2 sp = gl_FragCoord.xy / uRes; float tl = uRes.x / uRes.y > 1.35 ? smoothstep(0.4, 0.62, sp.x) : smoothstep(0.3, 0.55, sp.y);
+        c *= mix(1.0, mix(0.3, 1.0, tl), uHero);
+        gl_FragColor = vec4(c, 1.0 - smoothstep(36.0, 44.0, r));
       }`,
   });
-  const podloga = new T.Mesh(new T.CircleGeometry(16, 96), podlogaMat);
+  const podloga = new T.Mesh(new T.CircleGeometry(46, 128), podlogaMat);
   podloga.rotation.x = -Math.PI / 2; podloga.renderOrder = -5; scena.add(podloga);
 
   // ---------- prezenty pod choinką (v5.2, decyzja maisy 16.11): każdy prezent to produkt z cybersora.pl ----------
@@ -2195,7 +2261,7 @@
   const kamOdb = new T.PerspectiveCamera(); kamOdb.matrixAutoUpdate = false; kamOdb.matrixWorldAutoUpdate = false;
   const LUSTRO = new T.Matrix4().makeScale(1, -1, 1), ODWR = new T.Matrix4().makeScale(-1, 1, 1);
   const BEZ_ODB = [zorza, snieg, podloga, drobiny, sciana, sznurki9]; // v9: ściana poza odbiciem (stała jasność na podłodze zagłuszała gaśnięcie żarówek, etap4 test 1; i jeden przebieg mniej)
-  let odbOn = true, zorzaWid = true;
+  let odbOn = false, zorzaWid = true; // v12: śnieg jest matowy, przebieg odbicia wyłączony (oszczędza ~1 ms klatki)
   function odbicieKlatka() {
     const Q = POZIOMY[poziom], on = odbOn && Q.odb > 0; podlogaMat.uniforms.uOdbOn.value = on ? 1 : 0; if (!on) return;
     kamOdb.projectionMatrix.copy(kamera.projectionMatrix); kamOdb.projectionMatrix.elements[8] *= -1; kamOdb.projectionMatrixInverse.copy(kamOdb.projectionMatrix).invert();
@@ -2386,7 +2452,7 @@
     },
     tlo: { // v9 (T1): ściana i okno; prostokąt szyby na ekranie, wyłącznik ściany
       okno: () => { const hb = host.getBoundingClientRect(), xs = [], ys = []; for (const x of [OKNO.x0, OKNO.x1]) for (const y of [OKNO.y0, OKNO.y1]) { wek.set(x, y, OKNO.z).project(kamera); xs.push(((wek.x + 1) / 2) * hb.width + hb.left); ys.push(((1 - wek.y) / 2) * hb.height + hb.top); } return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys), B: OKNO.B }; },
-      widoczne: (tak) => { sciana.visible = tak; zorzaZnakiMat.depthTest = tak; },
+      widoczne: (tak) => { horyzont.visible = tak; ksiezyc.visible = tak; }, // v12: tło = horyzont i księżyc (ściany nie ma)
       plotno: () => krajC.toDataURL(),
     },
     fokus: () => (fokusP >= 0 ? prezenty[fokusP].prod.nazwa : null),

@@ -1031,6 +1031,15 @@
   html.choinka-sezon:not([data-route]) .bg > *,
   html.choinka-sezon[data-route="start"] .bg > *{visibility:hidden;}
   .hero__choinka.gotowa iframe{opacity:1;}
+  /* v12 (19.11): zanim scena 3D wstanie, w jej miejscu stoi obraz tej samej choinki (zapas.webp: drzewo, snieg, zorza).
+     Szeroki kadr sceny: drzewo w prawych 54% (srodek 73% szerokosci), od 76 px do dolu minus 20 px (wolnyKadr w scenie). */
+  @media (min-aspect-ratio:135/100){
+    .hero__choinka:not(.hero__choinka--obraz)::before{
+      content:"";position:absolute;left:73%;top:76px;height:calc(100% - 96px);aspect-ratio:703/900;transform:translateX(-50%);
+      background:url(choinka/zapas.webp) center/contain no-repeat;pointer-events:none;
+    }
+    .hero__choinka iframe{position:relative;}
+  }
   @media (prefers-reduced-motion:reduce){.hero__choinka iframe{transition:none;}}
   .choinka-sezon .hero--start .hero__rail,
   .choinka-sezon .hero--start .hint{display:none;}
@@ -2692,7 +2701,7 @@
       <div class="hint">rusz kursorem po mapie &rarr;</div>
     </div>
     <!-- CHOINKA (18.11): w sezonie 1.12–6.01 wstawia scenę jako tło tego hero; poza sezonem nic nie pobiera -->
-    <script src="choinka-sezon.js?v=20261119d"></script>
+    <script src="choinka-sezon.js?v=20261119e"></script>
 
     <!-- CO ZROBILIŚMY (ov10). 02.11 makieta 3HxqCoRS5HUQmZWF2ragus, 03.11 przeniesione z Oferty na Start
          w miejsce manifestu, pasa projektów i scen Pycodemath (pliki pycodemath-sceny\ zostają). Jeden egzemplarz.
