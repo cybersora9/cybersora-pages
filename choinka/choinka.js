@@ -1881,6 +1881,9 @@
   const dom = new T.Vector3(0, (SZCZYT + DOL) / 2, 0), cel = dom.clone(), celCel = dom.clone(), celV = new T.Vector3();
   const karta = document.getElementById("karta");
   let bazaR = 22;
+  // hitbox w #hero (19.11): prostokąt drzewa w pikselach okna sceny; „aktywny” po kliknięciu w nim = kółko przybliża
+  const hitboxEl = document.getElementById("hitbox"), hitboxTxt = document.getElementById("hitboxTekst");
+  const hit = { x0: 0, x1: 0, y0: 0, y1: 0, nad: false, aktywny: false };
   // sprężyna krytycznie tłumiona, rozwiązanie dokładne: niezależna od liczby klatek i przerywalna (nowy cel przejmuje bieżącą prędkość)
   function gladko(o, kx, kv, c, om, dt) {
     const d = o[kx] - c, e = Math.exp(-om * dt), t = (o[kv] + om * d) * dt;
@@ -1925,6 +1928,11 @@
     if (stan.zoomCel > 0.999) celCel.copy(dom);
     bazaR = Math.max(((SZCZYT - DOL) / 2) / (tf * ((y1 - y0) / h)), (TW / 2) / (tf * aspekt * ((x1 - x0) / w))) * 1.015;
     kamera.setViewOffset(w, h, -((x0 + x1) / 2 - w / 2), -((y0 + y1) / 2 - h / 2), w, h);
+    if (HERO) { // hitbox: rzut korony z prezentami (TW × SZCZYT–DOL) z kamery w domu, z zapasem 6% na ozdoby i kołysanie
+      const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, pw = (TW / 2) / (bazaR * tf * aspekt) * (w / 2) * 1.06, ph = ((SZCZYT - DOL) / 2) / (bazaR * tf) * (h / 2) * 1.06;
+      hit.x0 = Math.max(4, cx - pw); hit.x1 = Math.min(w - 4, cx + pw); hit.y0 = Math.max(70, cy - ph); hit.y1 = Math.min(h - 4, cy + ph);
+      Object.assign(hitboxEl.style, { left: hit.x0 + "px", top: hit.y0 + "px", width: (hit.x1 - hit.x0) + "px", height: (hit.y1 - hit.y0) + "px" });
+    }
     kamera.updateProjectionMatrix();
     const bs = renderer.getDrawingBufferSize(new T.Vector2());
     zorzaZnakiMat.uniforms.uRes.value.copy(bs); zorzaMat.uniforms.uAsp.value = aspekt; zorzaZnakiMat.uniforms.uCell.value = 22 * renderer.getPixelRatio();
@@ -2029,7 +2037,23 @@
   let szczD = 0, ostTap = { t: 0, x: 0, y: 0 }, ostRuch = { x: 0, y: 0, t: 0 }, vKur = 0;
   // chwyt zaczyna się od bieżącego położenia i bieżącej prędkości drzewa: złapane w locie hamuje pod ręką, bez skoku
   const chwyc = () => { stan.drag = true; stan.chwyt = stan.obr; stan.elSur = stan.elCel; stan.obrCel = null; };
+  const wHitboxie = (e) => e.clientX >= hit.x0 && e.clientX <= hit.x1 && e.clientY >= hit.y0 && e.clientY <= hit.y1;
+  const TXT_NAD = "przeciągnij: obróć · kliknij: przybliżaj kółkiem", TXT_AKT = "kółko: przybliż · dwuklik albo Esc: wróć";
+  function ustawHit(nad, akt) {
+    if (nad === hit.nad && akt === hit.aktywny) return;
+    if (hit.aktywny && !akt && (stan.zoomCel < 0.95 || celCel.distanceToSquared(dom) > 0.01)) wroc(); // wyjście z ramki: kadr hero wraca
+    hit.nad = nad; hit.aktywny = akt;
+    hitboxEl.classList.toggle("nad", nad && !akt); hitboxEl.classList.toggle("aktywny", akt);
+    host.classList.toggle("nad-drzewem", nad);
+    hitboxTxt.textContent = akt ? TXT_AKT : nad ? TXT_NAD : hitboxTxt.textContent;
+  }
+  if (HERO) {
+    host.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse" && !stan.drag) { const w = wHitboxie(e); ustawHit(w, w && hit.aktywny); } });
+    host.addEventListener("pointerleave", () => { if (!stan.drag) ustawHit(false, false); });
+    addEventListener("blur", () => ustawHit(false, false));
+  }
   host.addEventListener("pointerdown", (e) => {
+    if (HERO && e.pointerType === "mouse") { if (!wHitboxie(e)) return; ustawHit(true, true); } // w hero chwyt tylko w ramce drzewa
     host.setPointerCapture(e.pointerId); palce.set(e.pointerId, { x: e.clientX, y: e.clientY });
     stan.obrCel = null; stan.ost = performance.now() / 1000;
     if (palce.size === 2) { const [a, b] = [...palce.values()]; szczD = Math.hypot(a.x - b.x, a.y - b.y); stan.drag = false; stan.elCel = clamp(stan.elCel, EL_MIN, EL_MAX); ruszono = 99; host.classList.remove("chwyt"); return; }
@@ -2100,7 +2124,8 @@
   host.addEventListener("pointerup", (e) => koniec(e, false));
   host.addEventListener("pointercancel", (e) => koniec(e, true));
   host.addEventListener("pointerleave", () => mysz.set(-9, -9));
-  host.addEventListener("wheel", (e) => { if (HERO) return; e.preventDefault(); zoomO(Math.exp(e.deltaY * 0.0012), e.clientX, e.clientY); }, { passive: false });
+  // hero: kółko przybliża tylko po kliknięciu w ramkę drzewa, inaczej przewija stronę
+  host.addEventListener("wheel", (e) => { if (HERO && !(hit.aktywny && wHitboxie(e))) return; e.preventDefault(); zoomO(Math.exp(e.deltaY * 0.0012), e.clientX, e.clientY); }, { passive: false });
 
   // ----- klawiatura: strzałki obracają i podnoszą kamerę, + i − przybliżają, Esc wraca; Tab chodzi po bombkach projektów -----
   addEventListener("keydown", (e) => {

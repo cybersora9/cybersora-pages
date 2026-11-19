@@ -64,6 +64,8 @@
     ramka.title = 'Choinka cybersory';
     ramka.tabIndex = -1; // Tab idzie od paska prosto do przycisków hero, nie przez 8 prezentów w scenie
     ramka.setAttribute('allow', 'autoplay');
+    // 19.11: scena wchodzi dopiero po załadowaniu (skrypty sceny są synchroniczne, pierwsza klatka zaraz po load)
+    ramka.addEventListener('load', function () { setTimeout(function () { tlo.classList.add('gotowa'); }, 120); });
     tlo.appendChild(ramka);
   }
   hero.insertBefore(tlo, hero.firstChild);

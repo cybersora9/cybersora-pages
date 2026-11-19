@@ -98,6 +98,18 @@ body {
 .wroc:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
 /* Wpięcie (18.11): #hero = scena jako tło hero cybersora.pl. Tekst i przyciski daje strona, więc bez karty, znaku i podpowiedzi. */
 .tryb-hero .karta, .tryb-hero .znak, .tryb-hero .podpowiedz { display: none; }
+/* 19.11 maisa: hitbox wokół choinki w #hero. Poza nim kursor zwykły i kółko przewija stronę; w nim przeciąganie obraca,
+   a po kliknięciu kółko przybliża. Ramka i podpowiedź widać tylko, gdy kursor jest nad drzewem. */
+.tryb-hero #scena { cursor: default; }
+.tryb-hero #scena.nad-drzewem { cursor: grab; }
+.tryb-hero #scena.chwyt { cursor: grabbing; }
+.hitbox { display: none; position: fixed; pointer-events: none; border: 1px solid rgba(246, 242, 243, 0); border-radius: 22px; transition: border-color .25s ease, background-color .25s ease; }
+.tryb-hero .hitbox { display: block; }
+.hitbox.nad { border-color: rgba(246, 242, 243, 0.2); }
+.hitbox.aktywny { border-color: rgba(246, 242, 243, 0.42); background: rgba(246, 242, 243, 0.02); }
+.hitbox span { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font: 500 12px/1.4 var(--mono); letter-spacing: 0.04em; color: var(--kosc); opacity: 0; transition: opacity .25s ease; white-space: nowrap; text-shadow: 0 1px 6px rgba(14, 14, 18, 0.9); }
+.hitbox.nad span, .hitbox.aktywny span { opacity: 0.78; }
+@media (prefers-reduced-motion: reduce) { .hitbox, .hitbox span { transition: none; } }
 @media (max-width: 640px) {
   .podpowiedz { display: none; }
   .wroc { top: calc(env(safe-area-inset-top, 0px) + 20px); }
