@@ -80,17 +80,21 @@
 
   // ================= POZIOMY JAKOŚCI =================
   const POZIOMY = [
-    { nazwa: "wysoka", galazki: 1, zarowki: 4200, dpr: 2, snieg: 1100, odb: 0.5, odbGal: 0.36 },  // odb: rozdzielczość odbicia w podłodze (ułamek ekranu), odbGal: ile gałązek w odbiciu
-    { nazwa: "średnia", galazki: 0.6, zarowki: 2200, dpr: 1.5, snieg: 700, odb: 0.35, odbGal: 0.2 },
+    // 20.11 (lagi): DPR 2 → 1.5 i 1.5 → 1.25. Scena jest tłem hero za tekstem, a DPR 2 na ekranie 1440p+ to ~4× więcej pikseli niż DPR 1
+    { nazwa: "wysoka", galazki: 1, zarowki: 4200, dpr: 1.5, snieg: 1100, odb: 0.5, odbGal: 0.36 },  // odb: rozdzielczość odbicia w podłodze (ułamek ekranu), odbGal: ile gałązek w odbiciu
+    { nazwa: "średnia", galazki: 0.6, zarowki: 2200, dpr: 1.25, snieg: 700, odb: 0.35, odbGal: 0.2 },
     { nazwa: "niska", galazki: 0.36, zarowki: 1000, dpr: 1, snieg: 400, odb: 0, odbGal: 0 },        // najniższy poziom: sama plama światła, bez odbicia
   ];
-  const telefon = Math.min(innerWidth, innerHeight) < 700 || (window.matchMedia && matchMedia("(pointer: coarse)").matches);
+  // 20.11: w #hero (sandbox, osobny proces) ramka startuje czasem z innerWidth 0, co dawało „telefon” i jakość średnią na komputerze.
+  // Telefon w hero i tak dostaje obraz zamiast sceny (choinka-sezon.js), więc tu wystarczy dotykowy wskaźnik
+  const telefon = (window.matchMedia && matchMedia("(pointer: coarse)").matches) || (!HERO && Math.min(innerWidth, innerHeight) < 700);
   const wym = /poziom=(\d)/.exec(FLAGI);
   let poziom = wym ? clamp(+wym[1], 0, 2) : (telefon ? 1 : 0);
 
   const host = document.getElementById("scena");
   let renderer;
-  try { renderer = new T.WebGLRenderer({ antialias: true, powerPreference: "high-performance", preserveDrawingBuffer: /zrzut/.test(FLAGI) }); }
+  // 20.11 (lagi): MSAA tylko na ekranach DPR < 1.5; na gęstszych krawędzie i tak są gładkie, a MSAA kosztuje pamięć i przepustowość GPU
+  try { renderer = new T.WebGLRenderer({ antialias: (window.devicePixelRatio || 1) < 1.5, powerPreference: "high-performance", preserveDrawingBuffer: /zrzut/.test(FLAGI) }); }
   catch (e) { bez3D("brak"); return; } // three rzuca „Error creating WebGL context”, gdy getContext zwraca null
   host.appendChild(renderer.domElement);
   const scena = new T.Scene();
@@ -1989,6 +1993,7 @@
   };
   function rozmiar() {
     const w = host.clientWidth, h = host.clientHeight, aspekt = w / h;
+    if (!w || !h) return; // 20.11: ramka w osobnym procesie (sandbox) potrafi wystartować, zanim dostanie rozmiar; 0×0 dawało NaN w kadrze. Wróci „resize”
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, POZIOMY[poziom].dpr));
     renderer.setSize(w, h, false); kamera.aspect = aspekt;
     // kadr: drzewo wypełnia wolny prostokąt (na szerokim ekranie na prawo od karty, na wąskim nad kartą)
@@ -2302,7 +2307,7 @@
 
   // ================= PĘTLA + STRAŻNIK KLATEK =================
   const wek = new T.Vector3(), kamS = { x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0 };
-  let poprz = performance.now() / 1000, oknoSuma = 0, oknoN = 0, rozbieg = 0, wrocWidac = false, nastDrg = 0, drgOn = true;
+  let poprz = performance.now() / 1000, oknoSuma = 0, oknoN = 0, oknoWolne = 0, rozbieg = 0, wrocWidac = false, nastDrg = 0, drgOn = true;
   const hud = document.getElementById("pomiar"); let hudT = 0, hudN = 0;
   if (/pomiar/.test(FLAGI)) hud.classList.add("jest");
   { // v10: pomiar na telefonie bez znacznika w adresie (artefakt może go nie przekazać): 3 stuknięcia w logotyp = licznik + poziom niski; kolejne 3 chowają licznik
@@ -2315,10 +2320,11 @@
   function aktywna() { return !document.hidden && naEkranie && !utracony; }
   function wznow() {
     if (!petlaStoi || stan.pauza || !aktywna()) return;
-    petlaStoi = false; poprz = performance.now() / 1000; rozbieg = 0; oknoSuma = 0; oknoN = 0; requestAnimationFrame(klatka);
+    petlaStoi = false; poprz = performance.now() / 1000; rozbieg = 0; oknoSuma = 0; oknoN = 0; oknoWolne = 0; requestAnimationFrame(klatka);
   }
   const zmianaWidocznosci = () => { dzwiekZaScena(); wznow(); };
   document.addEventListener("visibilitychange", zmianaWidocznosci);
+  addEventListener("resize", wznow); // 20.11: ramka, która wystartowała jako 0×0, rusza pętlę, gdy dostanie rozmiar
   if (window.IntersectionObserver) new IntersectionObserver((w) => { naEkranie = w[w.length - 1].isIntersecting; zmianaWidocznosci(); }).observe(host);
   renderer.domElement.addEventListener("webglcontextlost", () => { utracony = true; bez3D("utrata"); }); // three sam woła preventDefault, więc kontekst może wrócić
   renderer.domElement.addEventListener("webglcontextrestored", () => { // three odtwarza programy, bufory i tekstury; mapy otoczenia (render do celu) trzeba upiec od nowa
@@ -2326,11 +2332,14 @@
     zakryjZapas(); if (stan.pauza) klatka(); else wznow();
   });
   function klatka() {
+    // 20.11 (lagi): limit ~60 kl./s. Monitor 120/144 Hz rysował scenę 2–2,4× częściej bez widocznej różnicy (144 Hz → co druga klatka = 72, 120 Hz → 60)
+    if (!stan.pauza && performance.now() / 1000 - poprz < 1 / 90) { if (aktywna()) requestAnimationFrame(klatka); else petlaStoi = true; return; }
     const t = performance.now() / 1000, dtP = t - poprz, dt = Math.min(0.05, dtP); poprz = t;
-    // strażnik: średnia z 2 s powyżej 22 ms → poziom jakości w dół (nigdy w górę, żeby nie pływało)
+    // strażnik (20.11): w oknie 2 s co najmniej 1/4 klatek wolniejszych niż 25 ms (< 40 kl./s) → poziom jakości w dół (nigdy w górę, żeby nie pływało).
+    // Wcześniej średnia > 22 ms: przy limicie 60 kl./s jedno zacięcie na starcie (kompilacja shaderów) zrzucało jakość, a stałe 45 kl./s jej nie ruszało
     if (!stan.pauza && dtP < 0.25) {
       rozbieg += dtP;
-      if (rozbieg > 1.5) { oknoSuma += dtP; oknoN++; if (oknoSuma >= 2) { if (oknoSuma / oknoN > 0.022 && poziom < 2) ustawPoziom(poziom + 1); oknoSuma = 0; oknoN = 0; } }
+      if (rozbieg > 1.5) { oknoSuma += dtP; oknoN++; if (dtP > 0.025) oknoWolne++; if (oknoSuma >= 2) { if (oknoWolne > oknoN / 4 && poziom < 2) ustawPoziom(poziom + 1); oknoSuma = 0; oknoN = 0; oknoWolne = 0; } }
     }
     const obrA = stan.obr, omA = stan.vObr;
     if (!stan.pauza) ruchDrzewa(dt, t);

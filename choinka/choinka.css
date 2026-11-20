@@ -105,8 +105,8 @@ body {
 .tryb-hero #scena.chwyt { cursor: grabbing; }
 .hitbox { display: none; position: fixed; pointer-events: none; border: 1px solid rgba(246, 242, 243, 0); border-radius: 22px; transition: border-color .25s ease, background-color .25s ease; }
 .tryb-hero .hitbox { display: block; }
-.hitbox.nad { border-color: rgba(246, 242, 243, 0.2); }
-.hitbox.aktywny { border-color: rgba(246, 242, 243, 0.42); background: rgba(246, 242, 243, 0.02); }
+/* 20.11 maisa: ramka hitboxu niewidoczna (strefa działa jak wcześniej; zostaje kursor „grab” i podpowiedź na dole) */
+.hitbox.nad, .hitbox.aktywny { border-color: transparent; background: none; }
 .hitbox span { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font: 500 12px/1.4 var(--mono); letter-spacing: 0.04em; color: var(--kosc); opacity: 0; transition: opacity .25s ease; white-space: nowrap; text-shadow: 0 1px 6px rgba(14, 14, 18, 0.9); }
 .hitbox.nad span, .hitbox.aktywny span { opacity: 0.78; }
 @media (prefers-reduced-motion: reduce) { .hitbox, .hitbox span { transition: none; } }

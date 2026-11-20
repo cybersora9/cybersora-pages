@@ -60,11 +60,14 @@
     tlo.classList.add('hero__choinka--obraz');
   } else {
     var ramka = document.createElement('iframe');
-    ramka.src = 'choinka/index.html#hero';
+    ramka.src = 'choinka/index.html?v=20261120a#hero'; // ?v= podbijać razem ze zmianą sceny (HTML sceny też siedzi w pamięci podręcznej)
     ramka.title = 'Choinka cybersory';
     ramka.tabIndex = -1; // Tab idzie od paska prosto do przycisków hero, nie przez 8 prezentów w scenie
     ramka.setAttribute('allow', 'autoplay');
     // 19.11: scena wchodzi dopiero po załadowaniu (skrypty sceny są synchroniczne, pierwsza klatka zaraz po load)
+    // 20.11 (lagi): sandbox bez allow-same-origin = osobny proces (Chrome/Edge 117+). Scena 3D nie dzieli już wątku ze stroną,
+    // więc jej klatki i budowanie sceny nie blokują przewijania. Scena nie sięga do rodzica ani do localStorage; fonty idą z ACAO: *.
+    ramka.setAttribute('sandbox', 'allow-scripts');
     ramka.addEventListener('load', function () { setTimeout(function () { tlo.classList.add('gotowa'); }, 120); });
     tlo.appendChild(ramka);
   }
