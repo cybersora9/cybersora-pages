@@ -44,10 +44,39 @@
     [16.238627,50.697733],[15.490972,50.78473]
   ];
 
-  const _lons = POLAND_LL.map(p => p[0]);
-  const _lats = POLAND_LL.map(p => p[1]);
-  const _lonMin = Math.min(..._lons), _lonMax = Math.max(..._lons);
-  const _latMin = Math.min(..._lats), _latMax = Math.max(..._lats);
+  /* MAPA 2.0 (24.11): granice 16 wojewodztw z mapa-pl.js (window.MAPA_PL; kwantyzacja 0,002 st., delta base36).
+     Bez tego pliku (blad sieci) zostaje stary 44-punktowy kontur i kropki jak dawniej. */
+  const MP = window.MAPA_PL || null;
+  const REG = MP ? MP.w.map(([n, st, d]) => {
+    const a = st.split(','), q = [parseInt(a[0], 36), parseInt(a[1], 36)], t = d ? d.split(' ') : [];
+    let x = q[0], y = q[1];
+    for (let i = 0; i + 1 < t.length; i += 2) { x += parseInt(t[i], 36); y += parseInt(t[i + 1], 36); q.push(x, y); }
+    return { n, q, ll: null };
+  }) : null;
+  if (REG) {
+    // krawedz wspolna dwoch wojewodztw: rysowana raz (f=1), kopia pomijana (f=2); krawedz zewnetrzna = granica Polski (f=0)
+    const seen = new Map();
+    REG.forEach(r => {
+      const n = r.q.length / 2; r.f = new Uint8Array(n);
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n, ax = r.q[2 * i], ay = r.q[2 * i + 1], bx = r.q[2 * j], by = r.q[2 * j + 1];
+        const k = (ax < bx || (ax === bx && ay < by)) ? ax + ',' + ay + '|' + bx + ',' + by : bx + ',' + by + '|' + ax + ',' + ay;
+        seen.set(k, (seen.get(k) || 0) + 1);
+        r.k = r.k || []; r.k[i] = k;
+      }
+    });
+    const done = new Set();
+    REG.forEach(r => {
+      for (let i = 0; i < r.f.length; i++) {
+        const k = r.k[i];
+        r.f[i] = seen.get(k) === 1 ? 0 : (done.has(k) ? 2 : (done.add(k), 1));
+      }
+      r.k = null;
+    });
+  }
+  const _src = REG ? REG.reduce((acc, r) => { for (let i = 0; i < r.q.length; i += 2) acc.push([r.q[i] / MP.q, r.q[i + 1] / MP.q]); return acc; }, []) : POLAND_LL;
+  let _lonMin = 1e9, _lonMax = -1e9, _latMin = 1e9, _latMax = -1e9;
+  _src.forEach(p => { if (p[0] < _lonMin) _lonMin = p[0]; if (p[0] > _lonMax) _lonMax = p[0]; if (p[1] < _latMin) _latMin = p[1]; if (p[1] > _latMax) _latMax = p[1]; });
   const _kx = Math.cos(((_latMin + _latMax) / 2) * Math.PI / 180);
   const OUTLINE = POLAND_LL.map(([lon, lat]) => [
     (lon - _lonMin) * _kx,
@@ -55,6 +84,8 @@
   ]);
   const RAW_W = (_lonMax - _lonMin) * _kx;
   const RAW_H = (_latMax - _latMin);
+  // lon/lat -> jednostki konturu (przed skala)
+  const projX = lon => (lon - _lonMin) * _kx, projY = lat => _latMax - lat;
 
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
   let W = 0, H = 0;
@@ -62,7 +93,7 @@
      je co klatke, a przy 4x CPU dostep do pol obiektow byl polowa skryptu Startu. PN = liczba kropek. */
   const DRYF_K = 1024 / (2 * Math.PI), DRYF = new Float32Array(1024);   // 1,6 * sin; cos = przesuniecie o 256
   for (let i = 0; i < 1024; i++) DRYF[i] = Math.sin(i / DRYF_K) * 1.6;
-  let PN = 0, PX = new Float32Array(0), PY = PX, PVX = PX, PVY = PX, PHX = PX, PHY = PX, PPH = PX, PSP = PX, PR = PX, PCD = PX;
+  let PN = 0, PX = new Float32Array(0), PY = PX, PVX = PX, PVY = PX, PHX = PX, PHY = PX, PPH = PX, PSP = PX, PR = PX, PCD = PX, PREG = new Uint8Array(0);
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* SZYBKOSC S4 (krok 7): tryb LITE dla slabego telefonu (dotyk i <= 4 rdzenie albo <= 4 GB RAM) albo
      oszczedzania danych. Tla tras i sekcji jak przy "ogranicz ruch" (jedna statyczna klatka), bez iskier
@@ -142,20 +173,32 @@
     const uzyjMapy = !route || route === 'start';
 
     let mapW, mapH, scale;
+    const mob = !!(REG && uzyjMapy && W < 700);   // MAPA 2.0: telefon = mapa jako osobny blok pod paskiem, tekst pod nia
+    mapaW.mob = mob;
     if (uzyjMapy) {
-      mapH = Math.min(H * 0.72, W * 0.62);
-      scale = mapH / RAW_H;
-      mapW = RAW_W * scale;
+      if (mob) { mapW = Math.min(W - 28, 480); scale = mapW / RAW_W; mapH = RAW_H * scale; }
+      else {
+        mapH = Math.min(H * 0.72, W * 0.62);
+        scale = mapH / RAW_H;
+        mapW = RAW_W * scale;
+      }
     } else {
       mapW = mapH = 0;
     }
-    const offX = (W - mapW) / 2;
-    const offY = (H - mapH) / 2;
+    /* MAPA 2.0: na szerokim ekranie mapa przesunieta w prawo (tekst hero z lewej nie lezy juz na zachodzie kraju);
+       prawy skraj zostawia luz na pionowy stempel. Waski ekran: jak dotad, na srodku. */
+    const offX = W >= 1000 ? Math.max((W - mapW) / 2, Math.min(W * 0.6 - mapW / 2, W - mapW - 120)) : (W - mapW) / 2;
+    const offY = mob ? 76 : (H - mapH) / 2;
+    {   // wysokosc bloku mapy dla CSS (padding-top hero na telefonie); bez zmiany wartosci nie dotykamy stylu
+      const blok = mob ? Math.round(offY + mapH + 30) + 'px' : '', st = document.documentElement.style;
+      if (st.getPropertyValue('--mapa-blok') !== blok) { if (blok) st.setProperty('--mapa-blok', blok); else st.removeProperty('--mapa-blok'); }
+    }
 
     mapBox.x = offX; mapBox.y = offY; mapBox.w = mapW; mapBox.h = mapH;
     pulse.cx = offX + mapW / 2;
     pulse.cy = offY + mapH / 2;
     pulse.maxR = Math.hypot(mapW, mapH) / 2 + 60;
+    mapaWarstwyBuduj(uzyjMapy, offX, offY, scale);   // MAPA 2.0: granice, miasta, Gorlice (fala biegnie z Gorlic)
 
     if (fontsReady) glyphAtlas();   // atlas znakow niezalezny od trasy
     bgBuild();                      // tlo trasy z rejestru BG (na somi: M1)
@@ -165,45 +208,378 @@
     const rh = Math.max(1, Math.ceil(mapH));
     const off = document.createElement('canvas');
     off.width = rw; off.height = rh;
-    const octx = off.getContext('2d');
-    octx.fillStyle = '#000';
-    octx.beginPath();
-    OUTLINE.forEach(([x, y], i) => {
-      const px = x * scale, py = y * scale;
-      i ? octx.lineTo(px, py) : octx.moveTo(px, py);
-    });
-    octx.closePath();
-    octx.fill();
-    const data = octx.getImageData(0, 0, rw, rh).data;
-
-    const step = Math.max(6, Math.round(mapH / 78));
+    const octx = off.getContext('2d', { willReadFrequently: true });
+    const step = mob ? 8.5 : Math.max(6, Math.round(mapH / 78));
+    const rk = mob ? 1.4 : 1;   // telefon: mniej, ale wieksze kropki
     const pts = [];
-    for (let y = 0; y < rh; y += step) {
-      for (let x = 0; x < rw; x += step) {
-        const jx = x + (Math.random() - 0.5) * step * 0.7;
-        const jy = y + (Math.random() - 0.5) * step * 0.7;
-        const sx = Math.min(rw - 1, Math.max(0, jx | 0));
-        const sy = Math.min(rh - 1, Math.max(0, jy | 0));
-        if (data[(sy * rw + sx) * 4 + 3] > 128) {
-          pts.push({
-            hx: offX + jx, hy: offY + jy,
-            x: offX + jx, y: offY + jy,
-            vx: 0, vy: 0,
-            ph: Math.random() * Math.PI * 2,
-            sp: 0.6 + Math.random() * 0.9,
-            r: 0.9 + Math.random() * 1.1,
-            cd: Math.hypot(offX + jx - pulse.cx, offY + jy - pulse.cy)
-          });
+    if (REG) {
+      // kazde wojewodztwo wypelnione swoim "numerem" w kanale R, potem szczelina na granicach (kropki nie wchodza na kreske)
+      const sciezki = REG.map((r, i) => {
+        const p = regPath(r, scale, 0, 0);
+        octx.fillStyle = 'rgb(' + (i * 14 + 14) + ',0,0)';
+        octx.fill(p);
+        return p;
+      });
+      octx.globalCompositeOperation = 'destination-out';
+      octx.lineWidth = Math.max(2.4, step * 0.5); octx.lineJoin = 'round';
+      sciezki.forEach(p => octx.stroke(p));
+      octx.globalCompositeOperation = 'source-over';
+      const data = octx.getImageData(0, 0, rw, rh).data;
+      const dy = step * 0.866;
+      for (let y = 0, row = 0; y < rh; y += dy, row++) {
+        for (let x = (row & 1) * step * 0.5; x < rw; x += step) {
+          const jx = x + (Math.random() - 0.5) * step * 0.32;
+          const jy = y + (Math.random() - 0.5) * step * 0.32;
+          const sx = Math.min(rw - 1, Math.max(0, jx | 0));
+          const sy = Math.min(rh - 1, Math.max(0, jy | 0));
+          const o = (sy * rw + sx) * 4;
+          if (data[o + 3] > 128) {
+            const id = Math.min(REG.length - 1, Math.max(0, Math.round((data[o] - 14) / 14)));
+            pts.push({ hx: offX + jx, hy: offY + jy, ph: Math.random() * Math.PI * 2, sp: 0.6 + Math.random() * 0.9,
+              r: (0.8 + Math.random() * 1.0) * rk, reg: id, cd: Math.hypot(offX + jx - pulse.cx, offY + jy - pulse.cy) });
+          }
+        }
+      }
+    } else {
+      octx.fillStyle = '#000';
+      octx.beginPath();
+      OUTLINE.forEach(([x, y], i) => {
+        const px = x * scale, py = y * scale;
+        i ? octx.lineTo(px, py) : octx.moveTo(px, py);
+      });
+      octx.closePath();
+      octx.fill();
+      const data = octx.getImageData(0, 0, rw, rh).data;
+      for (let y = 0; y < rh; y += step) {
+        for (let x = 0; x < rw; x += step) {
+          const jx = x + (Math.random() - 0.5) * step * 0.7;
+          const jy = y + (Math.random() - 0.5) * step * 0.7;
+          const sx = Math.min(rw - 1, Math.max(0, jx | 0));
+          const sy = Math.min(rh - 1, Math.max(0, jy | 0));
+          if (data[(sy * rw + sx) * 4 + 3] > 128) {
+            pts.push({ hx: offX + jx, hy: offY + jy, ph: Math.random() * Math.PI * 2, sp: 0.6 + Math.random() * 0.9,
+              r: 0.9 + Math.random() * 1.1, reg: 255, cd: Math.hypot(offX + jx - pulse.cx, offY + jy - pulse.cy) });
+          }
         }
       }
     }
     PN = pts.length;
     PX = new Float32Array(PN); PY = new Float32Array(PN); PVX = new Float32Array(PN); PVY = new Float32Array(PN);
     PHX = new Float32Array(PN); PHY = new Float32Array(PN); PPH = new Float32Array(PN); PSP = new Float32Array(PN);
-    PR = new Float32Array(PN); PCD = new Float32Array(PN);
+    PR = new Float32Array(PN); PCD = new Float32Array(PN); PREG = new Uint8Array(PN);
     for (let i = 0; i < PN; i++) {
       const q = pts[i];
-      PX[i] = PHX[i] = q.hx; PY[i] = PHY[i] = q.hy; PPH[i] = q.ph; PSP[i] = q.sp; PR[i] = q.r; PCD[i] = q.cd;
+      PX[i] = PHX[i] = q.hx; PY[i] = PHY[i] = q.hy; PPH[i] = q.ph; PSP[i] = q.sp; PR[i] = q.r; PCD[i] = q.cd; PREG[i] = q.reg;
+    }
+  }
+
+  /* ===================== MAPA 2.0 (24.11): granice wojewodztw, miasta, Gorlice, pakiety, samoloty =====================
+     Statyczna warstwa (kreski granic, kropki i podpisy miast) rysowana RAZ do bufora, w klatce jedno drawImage.
+     Dynamika (kilkanascie lukow, pakiety z ogonem, sygnal Gorlic, kilka samolotow, wojewodztwo pod kursorem/palcem)
+     to kilka sciezek na klatke, zero shadowBlur, zero alokacji w petli. Poza Startem (PN = 0) i bez mapa-pl.js
+     wszystko wylaczone (zostaje dawna mapa z kropek). Telefon (W < 700): mapa jako osobny blok nad tekstem. */
+  const mapaW = { on: false, mob: false, stat: null, sx: 0, sy: 0, sw: 0, sh: 0, city: [], arcs: [], gor: null,
+    hover: -1, hx: -1e9, hy: -1e9, tap: null, rev0: 0, rv: 1, flights: [], slots: [], rings: [], sprite: null };
+  const MOB_LAB = new Set(['Warszawa', 'Gdańsk', 'Wrocław', 'Poznań', 'Szczecin', 'Lublin']);
+  function regPath(r, scale, ox, oy) {
+    const p = new Path2D(), n = r.q.length / 2, Q = MP.q;
+    for (let i = 0; i < n; i++) {
+      const x = projX(r.q[2 * i] / Q) * scale + ox, y = projY(r.q[2 * i + 1] / Q) * scale + oy;
+      i ? p.lineTo(x, y) : p.moveTo(x, y);
+    }
+    p.closePath();
+    return p;
+  }
+  // sylwetka samolotu z gory, nos w +X; sprite z poswiata wypalona w buforze (zamiast shadowBlur)
+  const SAMOLOT = new Path2D('M10 0 L2.4 -1.5 L-0.6 -7.2 L-3 -7.2 L-1.4 -1.3 L-5.8 -1.1 L-7.4 -3.1 L-9 -3.1 L-8 0 L-9 3.1 L-7.4 3.1 L-5.8 1.1 L-1.4 1.3 L-3 7.2 L-0.6 7.2 L2.4 1.5 Z');
+  function mapaSprite() {
+    const c = document.createElement('canvas'), S = 32;
+    c.width = c.height = Math.ceil(S * dpr);
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr); g.translate(S / 2, S / 2);
+    g.fillStyle = 'rgba(255,58,82,0.16)'; g.beginPath(); g.arc(0, 0, 13, 0, 6.2832); g.fill();
+    g.fillStyle = 'rgba(255,58,82,0.12)'; g.beginPath(); g.arc(0, 0, 8, 0, 6.2832); g.fill();
+    g.fillStyle = '#fff2f4'; g.fill(SAMOLOT);
+    mapaW.sprite = c;
+  }
+  const KOD = { Warszawa: 'WAW', Kraków: 'KRK', Wrocław: 'WRO', Poznań: 'POZ', Gdańsk: 'GDN', Szczecin: 'SZZ', Lublin: 'LUZ', Katowice: 'KTW', Rzeszów: 'RZE', Bydgoszcz: 'BZG', Olsztyn: 'SZY', Łódź: 'LCJ' };
+  // trasy: pary miast (krajowe) albo miasto -> kierunek zagraniczny [lon, lat, kod]; lot konczy sie zanikiem przy krawedzi kadru
+  const LOTY = [
+    ['Warszawa', 'Gdańsk'], ['Warszawa', 'Kraków'], ['Warszawa', 'Wrocław'], ['Katowice', 'Gdańsk'], ['Poznań', 'Rzeszów'],
+    ['Lublin', 'Szczecin'], ['Kraków', 'Gdańsk'], ['Wrocław', 'Gdańsk'],
+    ['Warszawa', [-0.45, 51.47, 'LHR']], ['Gdańsk', [11.1, 60.2, 'OSL']], ['Wrocław', [2.55, 49.0, 'CDG']],
+    ['Kraków', [12.24, 41.8, 'FCO']], ['Katowice', [28.75, 41.28, 'IST']], ['Szczecin', [17.9, 59.65, 'ARN']], ['Gdańsk', [8.56, 50.04, 'FRA']]
+  ];
+  function lutAt(l, s, o) {
+    let i = 1; const n = l.len.length - 1;
+    while (i < n && l.len[i] < s) i++;
+    const d = l.len[i] - l.len[i - 1] || 1, f = Math.min(1, Math.max(0, (s - l.len[i - 1]) / d));
+    const ax = l.px[i - 1], ay = l.py[i - 1], bx = l.px[i], by = l.py[i];
+    o.x = ax + (bx - ax) * f; o.y = ay + (by - ay) * f; o.a = Math.atan2(by - ay, bx - ax);
+  }
+  function mapaWarstwyBuduj(uzyj, offX, offY, scale) {
+    mapaW.on = !!(REG && uzyj);
+    if (!mapaW.on) { mapaW.stat = null; mapaW.rev0 = 0; mapaW.flights = []; mapaW.slots = []; return; }
+    if (!mapaW.rev0) mapaW.rev0 = performance.now();
+    const Q = MP.q;
+    mapaW.scale = scale; mapaW.offX = offX; mapaW.offY = offY;
+    mapaW.city = MP.m.map(c => ({ n: c[0], x: offX + projX(c[1]) * scale, y: offY + projY(c[2]) * scale, lon: c[1] }));
+    const g = mapaW.city[0];
+    mapaW.gor = g;
+    // fala z Gorlic: "stad pisza do calej Polski"
+    pulse.cx = g.x; pulse.cy = g.y;
+    const bx = mapBox.x, by = mapBox.y, bw = mapBox.w, bh = mapBox.h;
+    pulse.maxR = Math.max(Math.hypot(g.x - bx, g.y - by), Math.hypot(g.x - bx - bw, g.y - by),
+      Math.hypot(g.x - bx, g.y - by - bh), Math.hypot(g.x - bx - bw, g.y - by - bh)) + 60;
+    // luki Gorlice -> reszta miast: punkt kontrolny wyniesiony w bok od ciecyvy
+    mapaW.arcs = mapaW.city.slice(1).map((c, i) => {
+      const mx = (g.x + c.x) / 2, my = (g.y + c.y) / 2, dx = c.x - g.x, dy = c.y - g.y, d = Math.hypot(dx, dy) || 1;
+      const lift = d * 0.2;
+      return { x0: g.x, y0: g.y, cx: mx + (dy / d) * lift, cy: my - (dx / d) * lift - d * 0.05, x1: c.x, y1: c.y,
+        ph: (i * 0.173) % 1, sp: 0.1 + (i % 4) * 0.014 };
+    });
+    // samoloty: luk kwadratowy + tablica dlugosci (stala predkosc po luku), liczone raz na rozmiar
+    const byN = {}; mapaW.city.forEach(c => { byN[c.n] = c; });
+    const Lmax = Math.max(bw, bh) * 0.62;
+    mapaW.flights = LOTY.map((df, k) => {
+      const a = byN[df[0]];
+      let b, kb, ob = false;
+      if (Array.isArray(df[1])) {
+        const fx = offX + projX(df[1][0]) * scale - a.x, fy = offY + projY(df[1][1]) * scale - a.y, d = Math.hypot(fx, fy) || 1;
+        b = { x: a.x + fx / d * Lmax, y: a.y + fy / d * Lmax }; kb = df[1][2]; ob = true;
+      } else { b = byN[df[1]]; kb = KOD[df[1]]; }
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+      const lift = d * 0.16 * (k % 2 ? 1 : -1), cx = mx + (dy / d) * lift, cy = my - (dx / d) * lift;
+      const N = 28, px = new Float32Array(N + 1), py = new Float32Array(N + 1), len = new Float32Array(N + 1);
+      for (let i = 0; i <= N; i++) {
+        const t = i / N, w = 1 - t;
+        px[i] = w * w * a.x + 2 * w * t * cx + t * t * b.x; py[i] = w * w * a.y + 2 * w * t * cy + t * t * b.y;
+        if (i) len[i] = len[i - 1] + Math.hypot(px[i] - px[i - 1], py[i] - py[i - 1]);
+      }
+      return { a, b, ka: KOD[df[0]], kb, ob, lut: { px, py, len }, L: len[N] };
+    });
+    mapaW.slots = []; mapaW.rings = [];
+    for (let i = 0; i < 6; i++) mapaW.slots.push({ f: -1, t0: 0, dur: 1, rev: false, wait: 0.6 + i * 1.1 + Math.random(), lab: '' });
+    mapaSprite();
+    // sciezki ekranowe wojewodztw (podswietlenie pod kursorem), srodek do podpisu, wielokat do trafienia
+    REG.forEach(r => {
+      r.path = regPath(r, scale, offX, offY);
+      const n = r.q.length / 2; r.sx = new Float32Array(n); r.sy = new Float32Array(n);
+      let cx = 0, cy = 0;
+      for (let i = 0; i < n; i++) {
+        r.sx[i] = offX + projX(r.q[2 * i] / Q) * scale; r.sy[i] = offY + projY(r.q[2 * i + 1] / Q) * scale;
+        cx += r.sx[i]; cy += r.sy[i];
+      }
+      r.cx = cx / n; r.cy = cy / n;
+    });
+    mapaW.hover = -1; mapaW.hx = mapaW.hy = -1e9;
+    mapaStatBuduj();
+  }
+  function mapaStatBuduj() {
+    if (!mapaW.on) return;
+    const M = 110, sx = Math.floor(mapBox.x - M), sy = Math.floor(mapBox.y - 40), sw = Math.ceil(mapBox.w + 2 * M), sh = Math.ceil(mapBox.h + 80);
+    const cv = mapaW.stat || document.createElement('canvas');
+    cv.width = Math.floor(sw * dpr); cv.height = Math.floor(sh * dpr);
+    const c = cv.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, -sx * dpr, -sy * dpr);
+    const Q = MP.q, sc = mapaW.scale, ox = mapaW.offX, oy = mapaW.offY, k = mapaW.mob ? 1.5 : 1;
+    const X = i => ox + projX(i / Q) * sc, Y = i => oy + projY(i / Q) * sc;
+    c.lineJoin = 'round'; c.lineCap = 'round';
+    // granice wewnetrzne (cienkie), potem zewnetrzna (jasna z poswiata); na telefonie grubsze
+    const seg = (flag, w, col) => {
+      c.beginPath();
+      REG.forEach(r => {
+        const n = r.f.length;
+        for (let i = 0; i < n; i++) {
+          if (r.f[i] !== flag) continue;
+          const j = (i + 1) % n;
+          c.moveTo(X(r.q[2 * i]), Y(r.q[2 * i + 1])); c.lineTo(X(r.q[2 * j]), Y(r.q[2 * j + 1]));
+        }
+      });
+      c.lineWidth = w; c.strokeStyle = col; c.stroke();
+    };
+    seg(1, 1 * k, 'rgba(255,58,82,' + (mapaW.mob ? 0.34 : 0.26) + ')');
+    seg(0, 7 * k, 'rgba(225,29,51,0.10)');
+    seg(0, 3.2 * k, 'rgba(225,29,51,0.22)');
+    seg(0, 1.3 * k, 'rgba(255,92,110,0.9)');
+    // miasta: kropka + podpis (Geist Mono); Gorlice: wiekszy podpis, sama kropka rysowana dynamicznie
+    c.textBaseline = 'middle';
+    mapaW.city.forEach((m, i) => {
+      const lewo = (m.lon < 18.7 && m.n !== 'Szczecin') || m.lon > 22.3;   // podpis od strony wnetrza kraju, nie na granicy
+      c.textAlign = lewo ? 'right' : 'left';
+      const tx = m.x + (lewo ? -9 : 9);
+      if (i === 0) {
+        c.font = '500 ' + (mapaW.mob ? 12 : 11) + 'px "Geist Mono", ui-monospace, monospace';
+        c.fillStyle = 'rgba(255,255,255,0.95)'; c.fillText('GORLICE', tx, m.y + 14);
+        c.font = '500 ' + (mapaW.mob ? 10.5 : 9.5) + 'px "Geist Mono", ui-monospace, monospace';
+        c.fillStyle = 'rgba(255,214,218,0.75)'; c.fillText('tu piszemy kod', tx, m.y + 27);
+      } else {
+        c.fillStyle = 'rgba(255,200,205,0.9)';
+        c.beginPath(); c.arc(m.x, m.y, mapaW.mob ? 2.6 : 2.1, 0, 6.2832); c.fill();
+        if (mapaW.mob && !MOB_LAB.has(m.n)) return;   // telefon: tylko wieksze miasta, wieksza czcionka
+        c.font = '500 ' + (mapaW.mob ? 11 : 10) + 'px "Geist Mono", ui-monospace, monospace';
+        c.fillStyle = 'rgba(255,214,218,0.66)'; c.fillText(m.n.toUpperCase(), tx, m.y);
+      }
+    });
+    mapaW.stat = cv; mapaW.sx = sx; mapaW.sy = sy; mapaW.sw = sw; mapaW.sh = sh;
+  }
+  // wojewodztwo pod kursorem/palcem: punkt w wielokacie (16 wielokatow, tylko gdy punkt sie przesunal)
+  function mapaTrafienie(x, y) {
+    if (Math.abs(x - mapaW.hx) + Math.abs(y - mapaW.hy) < 2) return;
+    mapaW.hx = x; mapaW.hy = y;
+    let hit = -1;
+    if (x > mapBox.x && x < mapBox.x + mapBox.w && y > mapBox.y && y < mapBox.y + mapBox.h) {
+      for (let k = 0; k < REG.length && hit < 0; k++) {
+        const sx = REG[k].sx, sy = REG[k].sy, n = sx.length;
+        let w = false;
+        for (let i = 0, j = n - 1; i < n; j = i++) {
+          if ((sy[i] > y) !== (sy[j] > y) && x < (sx[j] - sx[i]) * (y - sy[i]) / (sy[j] - sy[i]) + sx[i]) w = !w;
+        }
+        if (w) hit = k;
+      }
+    }
+    mapaW.hover = hit;
+  }
+  const _lp = { x: 0, y: 0, a: 0 }, _lt = { x: 0, y: 0, a: 0 };
+  // samoloty: kilka naraz, kazdy startuje po losowej przerwie na wolnej trasie; zanikaja przy krawedzi kadru
+  function mapaLoty(time, rv) {
+    const FL = mapaW.flights, S = mapaW.slots, nS = slabyCpu ? 3 : (mapaW.mob ? 4 : 6), v = mapaW.mob ? 40 : 58;
+    const spr = mapaW.sprite, sk = (mapaW.mob ? 1.2 : 1) * 32 / 32;
+    for (let i = 0; i < nS; i++) {
+      const s = S[i];
+      if (s.f < 0) {
+        if (time < s.wait || rv < 0.9) continue;
+        let r = (Math.random() * FL.length) | 0, tries = 0;
+        for (; tries < FL.length; tries++, r = (r + 1) % FL.length) {
+          let used = false; for (let j = 0; j < nS; j++) if (S[j].f === r) used = true;
+          if (!used) break;
+        }
+        if (tries === FL.length) continue;
+        const f = FL[r];
+        s.f = r; s.t0 = time; s.dur = f.L / v; s.rev = f.ob ? Math.random() < 0.45 : Math.random() < 0.5;
+        s.lab = (i === 0 || i === 3) ? 'CS ' + (100 + ((Math.random() * 900) | 0)) + ' > ' + (s.rev ? f.ka : f.kb) : '';
+        if (!f.ob || s.rev) mapaW.rings.push({ x: s.rev ? f.b.x : f.a.x, y: s.rev ? f.b.y : f.a.y, t0: time, r: 8 });
+      }
+      const f = FL[s.f], p = (time - s.t0) / s.dur;
+      if (p >= 1) {
+        const lx = s.rev ? f.a.x : f.b.x, ly = s.rev ? f.a.y : f.b.y;
+        if (!f.ob || s.rev) mapaW.rings.push({ x: lx, y: ly, t0: time, r: 15 });
+        s.f = -1; s.wait = time + 0.5 + Math.random() * 2.4; continue;
+      }
+      const e = 0.5 * p + 0.5 * p * p * (3 - 2 * p), d = (s.rev ? 1 - e : e) * f.L;
+      lutAt(f.lut, d, _lp);
+      // przezroczystosc: wejscie 8%, zejscie 16% (lot za kadr znika, krajowy gasnie przy ladowaniu)
+      const al = Math.min(1, p / 0.08, (1 - p) / 0.16) * rv;
+      const ang = s.rev ? _lp.a + Math.PI : _lp.a;
+      // smuga: 3 odcinki za samolotem o malejacej alfie
+      const back = s.rev ? 1 : -1;
+      let ox = _lp.x, oy = _lp.y;
+      for (let q = 1; q <= 3; q++) {
+        lutAt(f.lut, Math.min(f.L, Math.max(0, d + back * q * 9)), _lt);
+        ctx.strokeStyle = 'rgba(255,92,110,' + (0.5 * al / q).toFixed(3) + ')';
+        ctx.lineWidth = 1.6 - q * 0.3;
+        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(_lt.x, _lt.y); ctx.stroke();
+        ox = _lt.x; oy = _lt.y;
+      }
+      ctx.globalAlpha = al;
+      ctx.save(); ctx.translate(_lp.x, _lp.y); ctx.rotate(ang);
+      ctx.drawImage(spr, -16 * sk, -16 * sk, 32 * sk, 32 * sk);
+      ctx.restore();
+      if (s.lab) {
+        ctx.save();
+        ctx.font = '500 ' + (mapaW.mob ? 10 : 9.5) + 'px "Geist Mono", ui-monospace, monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'rgba(255,230,233,0.85)'; ctx.fillText(s.lab, _lp.x + 12, _lp.y - 11);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
+    // pierscienie przy starcie i ladowaniu
+    const R = mapaW.rings;
+    for (let i = R.length - 1; i >= 0; i--) {
+      const q = R[i], f = (time - q.t0) / 1.0;
+      if (f >= 1) { R[i] = R[R.length - 1]; R.pop(); continue; }
+      ctx.strokeStyle = 'rgba(255,92,110,' + (0.75 * (1 - f)).toFixed(3) + ')';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(q.x, q.y, 2 + f * q.r, 0, 6.2832); ctx.stroke();
+    }
+  }
+  // dynamika: luki z ogonem, uderzenia w miasta, samoloty, sygnal Gorlic, wojewodztwo/miasto pod kursorem lub palcem
+  function mapaDraw(time, mA, mx, my) {
+    if (!mapaW.on || !PN) return;
+    const rv = mapaW.rv;
+    if (mapaW.stat) { ctx.globalAlpha = rv; ctx.drawImage(mapaW.stat, mapaW.sx, mapaW.sy, mapaW.sw, mapaW.sh); ctx.globalAlpha = 1; }
+    const hot = themeState.hot, a = themeState.a, A = mapaW.arcs, lw = mapaW.mob ? 1.3 : 1;
+    if (rv >= 0.6) {
+      const ra = Math.min(1, (rv - 0.6) / 0.4);
+      ctx.lineWidth = lw;
+      ctx.strokeStyle = rgba(a, 0.2 * ra);
+      ctx.beginPath();
+      for (let i = 0; i < A.length; i++) { const e = A[i]; ctx.moveTo(e.x0, e.y0); ctx.quadraticCurveTo(e.cx, e.cy, e.x1, e.y1); }
+      ctx.stroke();
+      if (!stoi) {
+        // pakiety: jasna glowa + ogon komety (7 punktow), po dojsciu blysk i dwa pierscienie na miescie
+        for (let i = 0; i < A.length; i++) {
+          const e = A[i], u = (time * e.sp + e.ph) % 1;
+          for (let k = 0; k < 7; k++) {
+            const t = u - k * 0.016; if (t < 0) break;
+            const w = 1 - t, px = w * w * e.x0 + 2 * w * t * e.cx + t * t * e.x1, py = w * w * e.y0 + 2 * w * t * e.cy + t * t * e.y1;
+            ctx.fillStyle = rgba(k === 0 ? [255, 235, 238] : hot, (k === 0 ? 0.95 : 0.55 / (k + 0.5)) * ra);
+            ctx.beginPath(); ctx.arc(px, py, k === 0 ? 2.1 : 1.6 - k * 0.12, 0, 6.2832); ctx.fill();
+          }
+          if (u < 0.28) {
+            const f = u / 0.28;
+            ctx.fillStyle = rgba(hot, 0.38 * (1 - f) * ra);
+            ctx.beginPath(); ctx.arc(e.x1, e.y1, 3 + f * 5, 0, 6.2832); ctx.fill();
+            ctx.strokeStyle = rgba(hot, 0.7 * (1 - f) * ra);
+            ctx.beginPath(); ctx.arc(e.x1, e.y1, 3 + f * 14, 0, 6.2832); ctx.stroke();
+            if (f > 0.25) { ctx.strokeStyle = rgba(hot, 0.45 * (1 - f) * ra); ctx.beginPath(); ctx.arc(e.x1, e.y1, 2 + (f - 0.25) * 18, 0, 6.2832); ctx.stroke(); }
+          }
+        }
+        mapaLoty(time, rv);
+      }
+    }
+    // Gorlice: rdzen + dwa pierscienie sygnalu
+    const g = mapaW.gor;
+    if (!stoi) {
+      for (let k = 0; k < 2; k++) {
+        const f = ((time / 2.6) + k * 0.5) % 1;
+        ctx.strokeStyle = rgba(hot, 0.8 * (1 - f));
+        ctx.lineWidth = lw;
+        ctx.beginPath(); ctx.arc(g.x, g.y, 4 + f * 26, 0, 6.2832); ctx.stroke();
+      }
+    }
+    ctx.fillStyle = rgba(hot, 0.35); ctx.beginPath(); ctx.arc(g.x, g.y, 7, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.beginPath(); ctx.arc(g.x, g.y, mapaW.mob ? 3.4 : 3, 0, 6.2832); ctx.fill();
+    // wskazanie: kursor (komputer) albo ostatni tap (telefon, ~3 s)
+    let act = mA, ex = mx, ey = my;
+    const tp = mapaW.tap;
+    if (!act && tp && time - tp.t < 3) { act = true; ex = tp.x; ey = tp.y; }
+    if (act) mapaTrafienie(ex, ey); else if (mapaW.hover !== -1) { mapaW.hover = -1; mapaW.hx = -1e9; }
+    const h = mapaW.hover;
+    if (h >= 0) {
+      const r = REG[h];
+      ctx.fillStyle = rgba(hot, 0.07); ctx.fill(r.path);
+      ctx.lineWidth = 1.6; ctx.strokeStyle = rgba(hot, 0.9); ctx.stroke(r.path);
+      ctx.save();
+      ctx.font = '500 ' + (mapaW.mob ? 12 : 11) + 'px "Geist Mono", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.fillText(r.n.toUpperCase(), r.cx, r.cy - 16);
+      ctx.restore();
+    }
+    // najblizsze miasto w zasiegu palca/kursora: pierscien i jasny podpis
+    if (act) {
+      const C = mapaW.city, rad = mapaW.mob ? 26 : 14;
+      let best = -1, bd = rad * rad;
+      for (let i = 0; i < C.length; i++) { const dx = C[i].x - ex, dy = C[i].y - ey, d2 = dx * dx + dy * dy; if (d2 < bd) { bd = d2; best = i; } }
+      if (best >= 0) {
+        const c = C[best], f = (time * 1.4) % 1;
+        ctx.strokeStyle = rgba(hot, 0.9 * (1 - f)); ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.arc(c.x, c.y, 4 + f * 10, 0, 6.2832); ctx.stroke();
+        ctx.save();
+        ctx.font = '500 ' + (mapaW.mob ? 12 : 11) + 'px "Geist Mono", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff'; ctx.fillText(c.n.toUpperCase(), c.x, c.y - 15);
+        ctx.restore();
+      }
     }
   }
 
@@ -363,7 +739,7 @@
       for (let i = 0; i < GLYPHS.length; i++) actx.fillText(GLYPHS[i], i * cell + cell / 2, k * cell + cell / 2);
     }
   }
-  const fontsDone = () => { fontsReady = true; atlasKey = ''; if (W) { glyphAtlas(); bgBuild(); } };
+  const fontsDone = () => { fontsReady = true; atlasKey = ''; if (W) { glyphAtlas(); bgBuild(); mapaStatBuduj(); } };
   if (document.fonts && document.fonts.load) document.fonts.load('500 18px "Geist Mono"').then(fontsDone, fontsDone);
   else fontsReady = true;
 
@@ -1777,6 +2153,14 @@
     nearCount = 0;
     pbFit(); pbCnt.fill(0);
     const mA = mouse.active, mx = mouse.x, my = mouse.y;
+    const hovR = mapaW.on ? mapaW.hover : -1;
+    // intro: kropki odslaniaja sie fala od Gorlic (~2 s po wejsciu na Start); bez animacji od razu w calosci
+    let revR = 1e9;
+    if (mapaW.on && !stoi) {
+      const pr = Math.min(1, (t - mapaW.rev0 - 250) / 2000);
+      mapaW.rv = pr <= 0 ? 0 : pr;
+      if (pr < 1) revR = (pr <= 0 ? 0 : 1 - (1 - pr) * (1 - pr)) * pulse.maxR;
+    } else mapaW.rv = 1;
     for (let i = 0; i < PN; i++) {
       let tx = PHX[i], ty = PHY[i];
       if (!stoi) {
@@ -1834,6 +2218,8 @@
           rad += f * 0.9;
         }
       }
+      if (revR < 1e8) { const dd = revR - PCD[i]; if (dd < 0) rad = 0; else if (dd < 36) { b = PW; rad += 0.7; } }
+      if (hovR >= 0 && PREG[i] === hovR) { if (b < 4) b = 4; rad += 0.35; }
       pbB[i] = b; pbR[i] = rad; pbCnt[b]++;
     }
     /* P1 (30.09): kropki mapy hurtem. Bylo: fillStyle (nowy string rgba) + beginPath + arc + fill
@@ -1861,6 +2247,8 @@
         ctx.fill();
       }
     }
+
+    mapaDraw(time, mA, mx, my);   // MAPA 2.0: granice, luki z Gorlic, pakiety, wojewodztwo pod kursorem
 
     // circuit-link lines: cursor wakes the map into a live neural net, not just glowing dots
     // P1: odcinki w LB kubelkach alfy, jeden stroke na kubelek (bylo: stroke + string na odcinek)
@@ -2006,6 +2394,15 @@
     if (!e.relatedTarget) { mouse.active = false; mouse.x = mouse.y = -9999; }
   });
   window.addEventListener('touchend', () => { mouse.active = false; });
+  // MAPA 2.0: dotyk zamiast hovera. Tap na mape = wojewodztwo i najblizsze miasto swieca ~3 s; pionowy swipe dalej przewija
+  window.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' || !mapaW.on) return;
+    const r = canvas.getBoundingClientRect();
+    mapaW.tap = { x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() * 0.001 };
+    mapaW.hx = -1e9;
+    mouseT = performance.now();
+    if (LITE) liteBudz();
+  }, { passive: true });
 
   /* ===================== glass nav + magic-line + SPA routing ===================== */
   const bar = document.querySelector('.nav__bar');

@@ -11,7 +11,8 @@
   var wym = /[?&]choinka=([01])/.exec(location.search);
   var d = new Date(), m = d.getMonth(), dz = d.getDate();
   // 19.11 maisa: start sezonu od razu (od 19.11), nie od 1.12.
-  var sezon = wym ? wym[1] === '1' : (m === 10 && dz >= 19) || (m === 11) || (m === 0 && dz <= 6);
+  // 24.11 maisa: choinka za dlugo sie laduje, wracamy do mapy Polski w hero. Sezon wylaczony; ?choinka=1 nadal ja pokazuje (podglad).
+  var sezon = wym ? wym[1] === '1' : false;
   if (!sezon) return;
   var hero = document.querySelector('.hero--start');
   if (!hero) return;

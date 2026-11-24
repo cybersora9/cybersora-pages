@@ -1020,6 +1020,13 @@
     }
   }
 
+  /* MAPA 2.0 (24.11): telefon. Mapa Polski jest osobnym blokiem pod paskiem (canvas, app.js buildParticles liczy jego
+     wysokosc do --mapa-blok), tekst hero zaczyna sie pod nia, bez kurtyny — mapa dostaje pelny kontrast. */
+  @media (max-width:700px){
+    .hero--start::before{display:none;}
+    html:root:root .hero--start{padding-top:var(--mapa-blok,76px);}   /* kot-czat.css ma html:root .hero--start{padding-top:76px} */
+  }
+
   /* ---- CHOINKA (18.11, sezon 1.12–6.01): choinka-sezon.js wstawia .hero__choinka jako pierwsze dziecko
      hero Startu i klase .choinka-sezon na <html>. Wariant A maisy: scena jako tlo calego hero, h1 + lead
      + przyciski zostaja z lewej, pas faktow i podpowiedz o mapie schowane na czas sezonu. Komputer =
@@ -2701,7 +2708,7 @@
       <div class="hint">rusz kursorem po mapie &rarr;</div>
     </div>
     <!-- CHOINKA (18.11): w sezonie 1.12–6.01 wstawia scenę jako tło tego hero; poza sezonem nic nie pobiera -->
-    <script src="choinka-sezon.js?v=20261120a"></script>
+    <script src="choinka-sezon.js?v=20261124a"></script>
 
     <!-- CO ZROBILIŚMY (ov10). 02.11 makieta 3HxqCoRS5HUQmZWF2ragus, 03.11 przeniesione z Oferty na Start
          w miejsce manifestu, pasa projektów i scen Pycodemath (pliki pycodemath-sceny\ zostają). Jeden egzemplarz.
@@ -4739,7 +4746,8 @@ fingerprint(maszyna)</div>
           zewnetrzne pliki tylko lokalnie.
      POWROT (razem z PRODUKTY_WIDOCZNE = true): przywrocic ten jeden tag. -->
 
-<script src="app.js?v=20261115p" defer></script>
+<script src="mapa-pl.js?v=20261124a" defer></script>
+<script src="app.js?v=20261124b" defer></script>
 <!-- KULA SOMI: usunięta 05.11 (audyt). Płótno #somiDemoOrb zniknęło 04.11 razem z kulą,
      a kula.js dalej ściągał się przy każdym wejściu i kończył w 7. linii. Wyleciały kula.js,
      vendor/three.min.js (r128) i assety/kula-plakat.webp. Powrót: z historii git (commit 3e9862b).
