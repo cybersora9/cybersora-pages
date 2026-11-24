@@ -112,7 +112,7 @@
      Wysyłka: własny fetch do API Web3Forms (bez ich skryptu). Klucz jest publiczny z założenia: widać go w każdym
      żądaniu z przeglądarki, a pozwala tylko wysłać wiadomość na skrzynkę cybersory. hCaptcha (skrypt Web3Forms)
      ładuje się dopiero przy pierwszym dotknięciu formularza, tak jak mówi polityka prywatności. */
-  const form = $('#formularz');
+  const form = $('form#formularz');
   if (form) {
     const KLUCZ = 'c4523b4b-92d5-4d0e-ac9b-e7c4de8b4000';
     const POCZTA = 'cybersora@zohomail.eu';
