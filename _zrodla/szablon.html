@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/js-flag.js?v={{v:js-flag.js}}"></script>
+<title>{{tytul}}</title>
+<meta name="description" content="{{opis}}">
+<meta name="robots" content="{{robots}}">
+<link rel="canonical" href="https://cybersora.pl{{kanon}}">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/favicon-180.png">
+<meta property="og:url" content="https://cybersora.pl{{kanon}}">
+<meta property="og:type" content="{{typ}}">
+<meta property="og:site_name" content="cybersora">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="{{tytul}}">
+<meta property="og:description" content="{{opis}}">
+<meta property="og:image" content="https://cybersora.pl/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0e0e12">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="preload" href="/fonts/sora-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styl.css?v={{v:styl.css}}">
+{{glowa}}
+</head>
+<body class="{{cialo}}">
+<a class="skok" href="#tresc">Przejdź do treści</a>
+
+<header class="nav" id="nav">
+  <div class="nav__bar">
+    <a class="nav__brand" href="/" aria-label="cybersora, strona główna"><img class="nav__kot" src="/assety/kot-72.webp" width="30" height="30" alt="">cyber<b>sora</b></a>
+    <nav class="nav__links" id="menu" aria-label="Główna nawigacja">
+      <a class="nav__link" href="/oferta/"{{menu:oferta}}>Oferta</a>
+      <a class="nav__link" href="/projekty/"{{menu:projekty}}>Projekty</a>
+      <a class="nav__link" href="/o-mnie/"{{menu:o-mnie}}>O mnie</a>
+      <a class="nav__link" href="/kontakt/"{{menu:kontakt}}>Kontakt</a>
+      <button class="nav__link nav__link--pyt" type="button" data-pyt-otworz>Szybkie pytania</button>
+    </nav>
+    <div class="nav__side">
+      <a class="nav__cta" href="/kontakt/">Napisz do mnie</a>
+      <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otwórz menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="tresc">
+{{tresc}}
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__col">
+      <nav class="footer__nav" aria-label="Stopka">
+        <a href="/">Start</a>
+        <a href="/oferta/">Oferta</a>
+        <a href="/projekty/">Projekty</a>
+        <a href="/o-mnie/">O mnie</a>
+        <a href="/kontakt/">Kontakt</a>
+        <a href="/soraos/">SORA//OS</a>
+        <a href="/polityka/">Polityka prywatności</a>
+      </nav>
+      <a class="footer__mail" href="mailto:{{>email}}">{{>email}}</a>
+      <div class="footer__soc">
+        <a class="soc" href="https://www.facebook.com/cybersora" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="12" fill="currentColor"/><path class="znak" d="M13.36 20.5v-6.72h2.26l.34-2.62h-2.6V9.49c0-.76.21-1.28 1.3-1.28h1.39V5.86c-.24-.03-1.07-.1-2.03-.1-2.01 0-3.39 1.23-3.39 3.48v1.92H8.36v2.62h2.27v6.72h2.73z"/></svg></a>
+        <a class="soc" href="https://www.instagram.com/cybersora9" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="12" fill="currentColor"/><rect class="obrys" x="6.6" y="6.6" width="10.8" height="10.8" rx="3.4"/><circle class="obrys" cx="12" cy="12" r="2.9"/><circle class="znak" cx="15.75" cy="8.3" r="1.05"/></svg></a>
+        <a class="soc" href="https://github.com/cybersora9" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+        <a class="soc" href="https://www.linkedin.com/in/cybersora" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="12" fill="currentColor"/><rect class="znak" x="6.3" y="10" width="2.5" height="8"/><circle class="znak" cx="7.55" cy="7.4" r="1.5"/><path class="znak" d="M10.7 10h2.4v1.1h.03c.34-.62 1.16-1.28 2.38-1.28 2.54 0 3.01 1.63 3.01 3.8V18h-2.5v-3.88c0-.92-.02-2.11-1.29-2.11-1.29 0-1.49 1-1.49 2.04V18h-2.54V10z"/></svg></a>
+      </div>
+      <div class="footer__line">Made in Poland &middot; &copy; 2026 cybersora</div>
+    </div>
+    <div class="footer__brand"><svg class="footer__mark" viewBox="0 0 134 100" width="20" height="15" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="17" stroke="#0a0a0d"><path d="M52 10 H24 L10 24 V56 L24 70 H52" transform="translate(4 10) scale(1.05)"/><path d="M50 10 H24 L12 22 V28 L24 40 H36 L48 52 V58 L36 70 H10" transform="translate(66 10) scale(1.05)"/></g></svg>cyber<b>sora</b></div>
+  </div>
+</footer>
+
+<!-- SZYBKIE PYTANIA: gotowe odpowiedzi z cennika (_zrodla/dane.mjs). To nie jest czat ani AI. -->
+<button class="pyt__guzik" type="button" data-pyt-otworz aria-haspopup="dialog" aria-controls="pytania"><img src="/assety/kot-128.webp" width="48" height="48" alt="" loading="lazy" decoding="async"><span>Szybkie pytania</span></button>
+<dialog class="pyt" id="pytania" aria-labelledby="pytH">
+  <div class="pyt__glowa"><h2 id="pytH">Szybkie pytania</h2><button class="pyt__x" type="button" data-pyt-zamknij aria-label="Zamknij">&#x2715;</button></div>
+  <p class="pyt__info">Gotowe odpowiedzi na to, o co pytacie najczęściej. Po resztę napisz do mnie.</p>
+  <div class="pyt__lista">
+      {{>pytania}}
+  </div>
+  <a class="btn btn--pelny" href="/kontakt/">Napisz do mnie &rarr;</a>
+</dialog>
+
+{{skrypty}}
+<script src="/app.js?v={{v:app.js}}" defer></script>
+<!-- LICZNIK ODWIEDZIN (przygotowany 24.11.2026, WYŁĄCZONY; włącza tylko Sora, bo to nowa usługa zewnętrzna).
+     Cloudflare Web Analytics: bez ciasteczek i bez zapisu w przeglądarce. Żeby włączyć:
+       1. Cloudflare → Analytics & Logs → Web Analytics → dodaj cybersora.pl, skopiuj token.
+       2. Odkomentuj linię niżej i wklej token w miejsce TOKEN.
+       3. W nagłówku Content-Security-Policy (reguła w Cloudflare) dopisz: script-src https://static.cloudflareinsights.com
+          oraz connect-src https://cloudflareinsights.com. Bez tego przeglądarka zablokuje licznik.
+       4. W _zrodla/strony/polityka.html zamień akapit „Licznik odwiedzin” na wersję „włączony” (jest w komentarzu obok) i zmień datę.
+       5. node .github/buduj/sklej.mjs, commit, push.
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "TOKEN"}'></script>
+-->
+
+</body>
+</html>

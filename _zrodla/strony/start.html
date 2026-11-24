@@ -1,0 +1,174 @@
+<!--{"wyjscie":"index.html","tytul":"cybersora: programy, strony i automatyzacje na zamówienie","opis":"Programy, strony, automatyzacje i wizytówki Google dla firm z całej Polski. Praca zdalna, cena z góry. Zacznij od darmowego skanu widoczności w Google.","kanon":"/","cialo":"start"}-->
+<!--GLOWA-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "@id": "https://cybersora.pl/#firma",
+  "name": "cybersora",
+  "url": "https://cybersora.pl/",
+  "logo": "https://cybersora.pl/favicon-180.png",
+  "image": "https://cybersora.pl/og-image.png",
+  "email": "{{>email}}",
+  "description": "Programy, aplikacje, skrypty i strony internetowe na zamówienie. Automatyzacje, wizytówki Google i audyty widoczności. Praca zdalna dla firm z całej Polski.",
+  "founder": [
+    { "@type": "Person", "name": "Patryk Gwóźdź", "jobTitle": "Założyciel, projektant i programista" }
+  ],
+  "areaServed": [
+    { "@type": "Country", "name": "Polska" }
+  ],
+  "knowsLanguage": "pl",
+  "sameAs": [
+    "https://useme.com/pl/roles/contractor/songbird,657683/",
+    "https://github.com/cybersora9"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Oferta cybersory",
+    "itemListElement": [
+{{>schema-oferty}},
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Strony internetowe" } }
+    ]
+  }
+}
+</script>
+<!--/GLOWA-->
+<!--SKRYPTY-->
+<script src="/mapa-pl.js?v={{v:mapa-pl.js}}" defer></script>
+<!--/SKRYPTY-->
+  <!-- HERO: mapa Polski (app.js, blok MAPA) jako tło; na telefonie mapa jest osobnym blokiem nad tekstem (miejsce rezerwuje CSS) -->
+  <section class="hero" aria-labelledby="heroH">
+    <div class="hero__tlo" id="stage"><canvas id="map"></canvas></div>
+    <span class="hero__stamp" aria-hidden="true">made in poland</span>
+    <div class="hero__type">
+      <h1 class="hero__h" id="heroH">Programy, strony i&nbsp;automatyzacje<span class="thin">dla firm z całej Polski</span></h1>
+      <p class="hero__lead">Piszę programy na zamówienie, robię strony i wizytówki Google. Pracuję zdalnie, a cenę znasz, zanim zacznę. Najprościej zacząć od darmowego skanu: w 2 dni robocze wiesz, co Google widzi u Ciebie i co poprawić najpierw.</p>
+      <div class="hero__ctas">
+        <a class="btn" href="#skan">Zamów darmowy skan</a>
+        <a class="btn btn--obrys" href="/oferta/#cennik">Zobacz ceny</a>
+      </div>
+    </div>
+    <dl class="hero__rail">
+      <div class="hero__fact"><dt>Ceny z góry</dt><dd>wizytówka Google {{>cena-start}}</dd></div>
+      <div class="hero__fact"><dt>Odpowiedź</dt><dd>zwykle w 24 godziny</dd></div>
+      <div class="hero__fact"><dt>Po odbiorze</dt><dd>14 dni poprawek w cenie</dd></div>
+    </dl>
+  </section>
+
+  <section class="sekcja reveal" id="skan" aria-labelledby="skanH">
+    <div class="sekcja__w skan">
+      <div class="skan__txt">
+        <p class="nadtytul">darmowy skan</p>
+        <h2 class="tytul" id="skanH">Czy Google widzi Twoją firmę?</h2>
+        <p class="akapit">Podajesz adres strony, a ja sprawdzam, czy Google ją widzi i umie pokazać w wynikach, czy działa na telefonie i czy szybko się ładuje.</p>
+        <div class="rzad">
+          <a class="btn" href="#napisz" data-temat="Darmowy skan widoczności">Poproś o skan &rarr;</a>
+          <a class="lacze" href="/oferta/#google">Co jest po skanie</a>
+        </div>
+      </div>
+      <div class="kafel skan__karta">
+        <p class="skan__cena"><b>{{>cena-skan}}</b><span>do 2 dni roboczych</span></p>
+        <ul class="lista lista--ptaszki">
+          <li>raport z listą usterek, zwykłym językiem</li>
+          <li>kolejność: co poprawić najpierw</li>
+          <li>nic nie musisz potem kupować</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekcja reveal" aria-labelledby="uslH">
+    <div class="sekcja__w">
+      <div class="sekcja__glowa">
+        <p class="nadtytul">co robię</p>
+        <h2 class="tytul" id="uslH">Trzy rzeczy, cena z góry</h2>
+      </div>
+      <div class="trojka">
+        <article class="kafel trojka__k">
+          <h3>Widoczność w Google</h3>
+          <p>Wizytówka Google i poprawki strony, żeby klienci trafiali do Ciebie, a nie do konkurencji.</p>
+          <dl class="ceny">
+            <div><dt>Skan widoczności</dt><dd>{{>cena-skan}}</dd></div>
+            <div><dt>Wizytówka i poprawki strony</dt><dd>{{>cena-start}}</dd></div>
+            <div><dt>Pełna widoczność</dt><dd>{{>cena-pelny}}</dd></div>
+          </dl>
+          <a class="lacze" href="/oferta/#google">Szczegóły &rarr;</a>
+        </article>
+        <article class="kafel trojka__k">
+          <h3>Automatyzacje</h3>
+          <p>Skrypty i boty, które robią za Ciebie powtarzalną robotę: raporty, zbieranie danych, powiadomienia.</p>
+          <dl class="ceny">
+            <div><dt>Mikro-skrypt</dt><dd>{{>cena-mikro}}</dd></div>
+            <div><dt>Skrypt</dt><dd>{{>cena-skrypt}}</dd></div>
+            <div><dt>Bot</dt><dd>{{>cena-bot}}</dd></div>
+          </dl>
+          <a class="lacze" href="/oferta/#kod">Szczegóły &rarr;</a>
+        </article>
+        <article class="kafel trojka__k">
+          <h3>Programy i strony</h3>
+          <p>Program pisany pod jedną firmę albo strona bez szablonu. Dostajesz kod i prawa do niego.</p>
+          <dl class="ceny">
+            <div><dt>Aplikacja</dt><dd>{{>cena-app}}</dd></div>
+            <div><dt>Strona internetowa</dt><dd>wycena po rozmowie</dd></div>
+          </dl>
+          <a class="lacze" href="/oferta/#kod">Szczegóły &rarr;</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekcja reveal" aria-labelledby="sdH">
+    <div class="sekcja__w">
+      <div class="sekcja__glowa">
+        <p class="nadtytul">wdrożenie</p>
+        <h2 class="tytul" id="sdH">Program, który działa w salonie codziennie</h2>
+      </div>
+      <article class="wdroz">
+        <div class="wdroz__txt">
+          <span class="pigulka">działa u klienta na co dzień</span>
+          <h3 class="wdroz__h">Salon<b>Desk</b></h3>
+          <p class="akapit">Salon beauty prowadził grafik, karty klientek i kasę w kilku miejscach naraz. Napisałem jeden program na komputer, który zbiera to w jednym miejscu i działa bez internetu.</p>
+          <ul class="lista">
+            <li>grafik zespołu, kasa, magazyn i karty klientek</li>
+            <li>dane zostają na komputerze salonu</li>
+            <li>używany w salonie codziennie</li>
+          </ul>
+          <div class="rzad">
+            <a class="btn" href="/kontakt/?temat=Aplikacja%20na%20zam%C3%B3wienie">Chcę coś podobnego &rarr;</a>
+            <a class="lacze" href="/projekty/#salondesk">Zobacz więcej ekranów</a>
+          </div>
+        </div>
+        <figure class="wdroz__zrzut">
+          <img src="/zrzuty_projektow/salondesk-01-pulpit.webp?v=2" alt="SalonDesk: cały dzień salonu na jednym ekranie, wizyty, zespół i sprawy do załatwienia." width="1600" height="1132" loading="lazy" decoding="async">
+          <figcaption>Pulpit SalonDeska. Zrzut na danych pokazowych.</figcaption>
+        </figure>
+      </article>
+    </div>
+  </section>
+
+  <section class="sekcja reveal" aria-labelledby="jakH">
+    <div class="sekcja__w">
+      <div class="sekcja__glowa">
+        <p class="nadtytul">jak pracuję</p>
+        <h2 class="tytul" id="jakH">Co się dzieje po Twojej wiadomości</h2>
+      </div>
+      <ol class="kroki">
+        <li class="kafel krok"><span class="krok__czas">dziś</span><h3><small>1</small>Piszesz</h3><p>Dwa zdania o tym, co chcesz zrobić albo co Cię spowalnia.</p></li>
+        <li class="kafel krok"><span class="krok__czas">zwykle 24 h · max 2 dni rob.</span><h3><small>2</small>Odpisuję</h3><p>Biorę zlecenie, dopytuję albo odmawiam z krótkim powodem. Jeśli biorę, dostajesz wiążącą cenę.</p></li>
+        <li class="kafel krok"><span class="krok__czas">bez zobowiązań</span><h3><small>3</small>Decydujesz</h3><p>Ruszam dopiero po Twoim „tak”. Wtedy ustalamy termin i płatność. Odmowa nic nie kosztuje.</p></li>
+        <li class="kafel krok"><span class="krok__czas">po odbiorze · 14 dni</span><h3><small>4</small>Odbierasz</h3><p>Dostajesz gotową pracę z instrukcją, a przez 14 dni poprawiam bezpłatnie.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sekcja reveal" id="napisz" aria-labelledby="napiszH">
+    <div class="sekcja__w napisz">
+      <div class="napisz__txt">
+        <p class="nadtytul">kontakt</p>
+        <h2 class="tytul" id="napiszH">Napisz, w czym pomóc</h2>
+        <p class="akapit">Dwa zdania wystarczą. Możesz też napisać prosto na <a href="mailto:{{>email}}">{{>email}}</a>.</p>
+        <p class="akapit akapit--maly">Wolisz od razu znać cenę programu? <a href="/kontakt/#konfigurator">Policz orientacyjnie w konfiguratorze &rarr;</a></p>
+      </div>
+      {{>formularz}}
+    </div>
+  </section>

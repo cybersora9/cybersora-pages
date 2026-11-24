@@ -26,7 +26,7 @@ const WYJATKI = [
   [/^sitemap\.xml$/, 'wskazana w robots.txt'],
   [/^LICENSE$/, 'prawa autorskie repo (11.11), czyta GitHub, nie strona'],
   [/^vendor\/simplewebauthn-browser-LICENSE\.md$/, 'licencja MIT SimpleWebAuthn (15.11): musi jechać razem z biblioteką, strona jej nie linkuje'],
-  [/^soraflux\/index\.html$/, 'strona programu SoraFlux (12.11): linkują instalator, apka i wydania na GitHubie, jest w sitemap.xml'],
+  [/^404\.html$/, 'strona błędu: podaje ją GitHub Pages, nic jej nie linkuje'],
   [/^assety\/kot-awatar\/kot-(kosc|krew|szary)-(64|256)\.webp$/, 'konto.js kotUrl() składa nazwę'],
 ];
 
@@ -38,8 +38,11 @@ const sieroty = [];
 for (const p of pliki.filter(publiczny)) {
   if (WYJATKI.some(([re]) => re.test(p))) continue;
   const nazwa = posix.basename(p), kat = posix.dirname(p);
+  // 24.11: podstrona katalog/index.html jest wskazywana adresem "/katalog/" (menu, stopka, sitemap.xml)
+  const adres = nazwa === 'index.html' && kat !== '.' ? '/' + kat + '/' : null;
   const ma = tresci.some(({ p: q, t }) => q !== p &&
-    (t.includes(p) || (posix.dirname(q) === kat && t.includes(nazwa))));
+    (t.includes(p) || (posix.dirname(q) === kat && t.includes(nazwa)) ||
+      (adres && (t.includes('href="' + adres + '"') || t.includes('cybersora.pl' + adres + '<')))));
   if (!ma) sieroty.push(p);
 }
 

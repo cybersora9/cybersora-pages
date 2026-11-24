@@ -1,0 +1,24 @@
+<form class="form" id="formularz" novalidate>
+  <input type="text" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="form__pulapka">
+  <input type="hidden" name="temat" value="">
+  <input type="hidden" name="konfigurator" value="">
+  <p class="form__temat" id="formTemat" hidden><span>Temat: <b></b></span><button type="button" data-temat-usun aria-label="Usuń temat">&#x2715;</button></p>
+  <p class="form__temat" id="formKonf" hidden><span>Dołączona wycena z konfiguratora: <b></b></span><button type="button" data-konf-usun aria-label="Usuń wycenę">&#x2715;</button></p>
+  <noscript><p class="form__status blad">Formularz wymaga włączonego JavaScriptu. Bez niego napisz na {{>email}}.</p></noscript>
+  <label class="form__pole">
+    <span>Imię</span>
+    <input type="text" name="imie" required autocomplete="name" placeholder="np. Anna">
+  </label>
+  <label class="form__pole">
+    <span>E-mail albo telefon</span>
+    <input type="text" name="kontakt" required autocomplete="email" inputmode="email" placeholder="na co mam odpisać">
+  </label>
+  <label class="form__pole">
+    <span>W czym pomóc</span>
+    <textarea name="wiadomosc" rows="5" required placeholder="np. chcę, żeby moją firmę było widać w Google"></textarea>
+  </label>
+  <div class="h-captcha" data-captcha="true"></div>
+  <button class="btn" type="submit">Wyślij &rarr;</button>
+  <p class="form__status" id="formStatus" role="status" aria-live="polite" tabindex="-1"></p>
+  <p class="form__nota">Odpisuję zwykle w 24 godziny, najdalej w 2 dni robocze. Co robię z tymi danymi: <a href="/polityka/">polityka prywatności</a>.</p>
+</form>

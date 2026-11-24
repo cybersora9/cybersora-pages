@@ -1,0 +1,247 @@
+<section data-soraos-app="projekty">
+  <h2>Co zrobiliśmy</h2>
+  <ul>
+    <li data-id="salondesk" data-plik="salondesk.app" data-usluga="app" data-znacznik="wersja 1.5.0">
+      <article data-roboczy>
+        <h3>SalonDesk</h3>
+        <p data-pole="krotko">Program dla salonów beauty</p>
+        <p data-pole="lead">Kasa, magazyn, kalendarz i karty klientek w jednym programie na komputer. Działa bez internetu, dane zostają w salonie.</p>
+        <figure data-pole="zrzut"><picture><source srcset="/zrzuty_projektow/salondesk.webp" type="image/webp"><img src="/zrzuty_projektow/salondesk.webp" alt="SalonDesk: pulpit i kalendarz na danych pokazowych" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
+        <pre data-pole="kod" data-zrodlo="fragment ze strony"><code>zapis.klient = &quot;Klientka&quot;
+zapis.status = &quot;OPLACONE&quot;
+kasa.dodaj(zapis, kwota)</code></pre>
+        <h4>Gotowe klocki</h4>
+        <ul data-pole="klocki">
+          <li data-sciezka="app/salondesk/data/repozytoria.py" data-linie="2795" data-uslugi="app">
+            <h5>Baza danych salonu</h5>
+            <p data-pole="co">Wszystkie dane salonu w jednym pilnowanym miejscu: klientki, wizyty, paragony, magazyn. Działa bez internetu.</p>
+            <p data-pole="dla">Dla Ciebie: program z klientami, wizytami i magazynem startuje z gotowego fundamentu.</p>
+          </li>
+          <li data-sciezka="app/salondesk/app/nazwane.py" data-linie="1261" data-uslugi="app skrypt">
+            <h5>Raporty nazwane</h5>
+            <p data-pole="co">9 gotowych odpowiedzi zamiast tabel, np. ile salon zarobił w miesiącu albo kto dawno nie wrócił.</p>
+            <p data-pole="dla">Dla Ciebie: raporty pod Twoją firmę dopasowujemy, a nie piszemy od zera.</p>
+          </li>
+          <li data-sciezka="app/salondesk/domain/reguly.py" data-linie="1028" data-uslugi="app">
+            <h5>Reguły i ceny</h5>
+            <p data-pole="co">Liczy paragon z bonami, pakietami i kilkoma formami płatności naraz.</p>
+            <p data-pole="dla">Dla Ciebie: kasa i rozliczenia, które się nie mylą.</p>
+          </li>
+          <li data-sciezka="app/salondesk/domain/wizyty.py" data-linie="736" data-uslugi="app bot">
+            <h5>Kalendarz dnia</h5>
+            <p data-pole="co">Widzi kolizje wizyt, zajętość gabinetów i wolne okna.</p>
+            <p data-pole="dla">Dla Ciebie: grafik, rezerwacje i zapisy mają gotową logikę.</p>
+          </li>
+        </ul>
+        <a href="/kontakt/" data-konf="app">Zapytaj o podobne</a>
+      </article>
+    </li>
+    <li data-id="somi" data-plik="somi.ai" data-usluga="bot" data-znacznik="działa codziennie">
+      <article data-roboczy>
+        <h3>Meshuga</h3>
+        <p data-pole="krotko">Asystent AI: agent, terminal, bot, głos</p>
+        <p data-pole="lead">Nasz asystent AI. Prowadzi bota społeczności, mówi głosem i pracuje w terminalu razem z nami.</p>
+        <figure data-pole="zrzut"><picture><source srcset="/zrzuty_projektow/somi.webp" type="image/webp"><img src="/zrzuty_projektow/somi.webp" alt="Meshuga: największe klocki i ostatnie commity" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
+        <pre data-pole="kod" data-zrodlo="discord_bot.py"><code>async def watch_loop()
+def parse_watchdog_line(line: str)
+def save_state(state: Dict[str, Any])</code></pre>
+        <h4>Gotowe klocki</h4>
+        <ul data-pole="klocki">
+          <li data-sciezka="discord_bot.py" data-linie="4523" data-uslugi="bot">
+            <h5>Bot Discorda</h5>
+            <p data-pole="co">Pilnuje serwera, powiadamia i odpowiada całą dobę.</p>
+            <p data-pole="dla">Dla Ciebie: Bot od 1 200 zł stoi na kodzie, który u nas działa codziennie.</p>
+          </li>
+          <li data-sciezka="astralheart.py" data-linie="3701" data-uslugi="bot">
+            <h5>Samonaprawa (AstralHeart)</h5>
+            <p data-pole="co">Sama diagnozuje błędy w swoim kodzie i proponuje poprawki.</p>
+            <p data-pole="dla">Dla Ciebie: bot, który zgłasza problem, zanim go zauważysz.</p>
+          </li>
+          <li data-sciezka="modules/agent.py" data-linie="2089" data-uslugi="bot skrypt">
+            <h5>Agent z narzędziami</h5>
+            <p data-pole="co">Łączy model AI z narzędziami: czyta i pisze pliki, wykonuje zadanie krok po kroku.</p>
+            <p data-pole="dla">Dla Ciebie: narzędzia z AI, które coś robią, a nie tylko odpowiadają.</p>
+          </li>
+          <li data-sciezka="modules/file_bridge.py" data-linie="1435" data-uslugi="skrypt mikro">
+            <h5>Bezpieczny dostęp do plików</h5>
+            <p data-pole="co">AI pracuje na plikach tylko tam, gdzie wolno.</p>
+            <p data-pole="dla">Dla Ciebie: automatyzacja na Twoich plikach, która niczego nie kasuje bez Twojej zgody.</p>
+          </li>
+        </ul>
+        <a href="/kontakt/" data-konf="bot">Zapytaj o podobne</a>
+      </article>
+    </li>
+    <li data-id="moonsora" data-plik="moonsora.exe" data-usluga="app" data-znacznik="używamy co dzień">
+      <article data-roboczy>
+        <h3>MoonSora</h3>
+        <p data-pole="krotko">Terminal do pracy z agentami AI</p>
+        <p data-pole="lead">Terminal na Windows, w którym pracujemy z agentami AI na co dzień: karty, podgląd przeglądarki, tryb telefon/komputer.</p>
+        <figure data-pole="zrzut"><picture><source srcset="/zrzuty_projektow/moonsora.webp" type="image/webp"><img src="/zrzuty_projektow/moonsora.webp" alt="MoonSora: asystent przy błędzie testu" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
+        <pre data-pole="kod" data-zrodlo="src-tauri/src"><code>pub fn new(app: &amp;AppHandle, root: PathBuf)
+pub fn dir_for(&amp;self, profile: &amp;str, keep: bool)
+fn free_port()</code></pre>
+        <h4>Gotowe klocki</h4>
+        <ul data-pole="klocki">
+          <li data-sciezka="crates/moonsora-core/src/agentapi.rs" data-linie="3059" data-uslugi="app bot">
+            <h5>API agenta</h5>
+            <p data-pole="co">Agent AI widzi terminal i może zapytać człowieka w okienku, zanim coś zrobi.</p>
+            <p data-pole="dla">Dla Ciebie: automatyzacja, która pyta o zgodę przy ważnych krokach.</p>
+          </li>
+          <li data-sciezka="crates/moonsora-core/src/cdpproxy.rs" data-linie="2369" data-uslugi="skrypt mikro">
+            <h5>Sterowanie przeglądarką</h5>
+            <p data-pole="co">Program sam otwiera i klika strony, a dostęp ma tylko ten, kto ma klucz.</p>
+            <p data-pole="dla">Dla Ciebie: skrypt, który zbiera dane ze stron albo wypełnia formularze.</p>
+          </li>
+          <li data-sciezka="crates/moonsora-core/src/agent_stream.rs" data-linie="955" data-uslugi="app">
+            <h5>Panel AI na żywo</h5>
+            <p data-pole="co">Odpowiedź AI płynie na ekran na bieżąco.</p>
+            <p data-pole="dla">Dla Ciebie: asystent w Twoim programie bez czekania na całą odpowiedź.</p>
+          </li>
+        </ul>
+        <a href="/kontakt/" data-konf="app">Zapytaj o podobne</a>
+      </article>
+    </li>
+    <li data-id="pycodemath" data-plik="pycodemath.py" data-usluga="skrypt" data-znacznik="PyPI 0.5.0">
+      <article data-roboczy>
+        <h3>Pycodemath</h3>
+        <p data-pole="krotko">Silnik matematyczny, publicznie na PyPI</p>
+        <p data-pole="lead">Silnik matematyki symbolicznej dla agentów AI. Liczy pochodne, całki i równania, a wzór zamienia w gotowy kod.</p>
+        <figure data-pole="zrzut"><picture><source srcset="/zrzuty_projektow/pycodemath.webp" type="image/webp"><img src="/zrzuty_projektow/pycodemath.webp" alt="Pycodemath: wzór, gotowy kod i prawdziwe wyniki" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
+        <pre data-pole="kod" data-zrodlo="fragment ze strony"><code>d/dx sin(x) = cos(x)
+solve(x**2 - 4, x)
+generuj_kod(wzor)</code></pre>
+        <h4>Gotowe klocki</h4>
+        <ul data-pole="klocki">
+          <li data-sciezka="pycodemath/engine/numerics.py" data-linie="2136" data-uslugi="skrypt mikro">
+            <h5>Silnik obliczeń</h5>
+            <p data-pole="co">Liczy numerycznie tam, gdzie sam wzór nie wystarcza.</p>
+            <p data-pole="dla">Dla Ciebie: kalkulatory i wyceny dla Twojej branży.</p>
+          </li>
+          <li data-sciezka="pycodemath/verify/certify.py" data-linie="1171" data-uslugi="skrypt">
+            <h5>Sprawdzanie wyniku</h5>
+            <p data-pole="co">Każdy wynik sprawdza drugą, niezależną drogą.</p>
+            <p data-pole="dla">Dla Ciebie: obliczenia, którym można zaufać, np. w ofertach i rozliczeniach.</p>
+          </li>
+          <li data-sciezka="pycodemath/verify/steps.py" data-linie="711" data-uslugi="mikro">
+            <h5>Szukanie błędu w krokach</h5>
+            <p data-pole="co">Pokazuje, który krok wyliczenia jest pierwszym błędnym.</p>
+            <p data-pole="dla">Dla Ciebie: sprawdzenie cudzych arkuszy i obliczeń.</p>
+          </li>
+        </ul>
+        <a href="/kontakt/" data-konf="skrypt">Zapytaj o podobne</a>
+      </article>
+    </li>
+    <li data-id="rodzina" data-plik="sora-rodzina/" data-usluga="app" data-znacznik="wkrótce">
+      <article data-roboczy>
+        <h3>Rodzina Sora</h3>
+        <p data-pole="krotko">Darmowe programy na Windows</p>
+        <p data-pole="lead">Cztery małe programy na jednym wspólnym rdzeniu. Każdy robi jedną rzecz i działa w całości na Twoim komputerze.</p>
+        <p data-pole="extra" data-etykieta="linii wspólnego rdzenia">9 603</p>
+        <figure data-pole="zrzut"></figure>
+        <pre data-pole="kod" data-zrodlo="sora-rdzen"><code>pub fn oczysc_nazwe(nazwa: &amp;str) -&gt; String
+pub fn suma_sha256(sciezka: &amp;Path) -&gt; io::Result&lt;String&gt;
+pub fn sprzataj(folder: &amp;Path)</code></pre>
+        <h4>W rodzinie</h4>
+        <ul data-pole="klocki" data-rodzina>
+          <li data-sciezka="apps/sorafoto" data-linie="17539" data-uslugi="app">
+            <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#zn-sorafoto"/></svg>
+            <h5>SoraFoto</h5>
+            <p data-pole="co">Usuwa lokalizację GPS ze zdjęć, porządkuje nazwy i sortuje po dacie.</p>
+          </li>
+          <li data-sciezka="apps/sorashot" data-linie="23514" data-uslugi="app">
+            <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#zn-sorashot"/></svg>
+            <h5>SoraShot</h5>
+            <p data-pole="co">Sam zamazuje maile, numery i nazwiska na zrzutach ekranu, zanim je wyślesz.</p>
+          </li>
+          <li data-sciezka="apps/sorapdf" data-linie="24213" data-uslugi="app">
+            <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#zn-sorapdf"/></svg>
+            <h5>SoraPDF</h5>
+            <p data-pole="co">Łączy, dzieli, obraca i zmniejsza PDF-y. Prościej niż w kombajnach.</p>
+          </li>
+          <li data-sciezka="apps/soraczytnik" data-linie="15746" data-uslugi="app">
+            <svg class="rd-zn" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><path d="M18 0H120V102L102 120H0V18Z" fill="#0e0e12"/><path d="M26 22H44V102H26Z" fill="#e11d33"/><path d="M50 22H98V80H50Z" fill="#f6f2f3"/><path d="M56 86H92L98 92V102H56Z" fill="#f6f2f3"/><path d="M66 14H86V56L76 46L66 56Z" fill="#e11d33"/></svg>
+            <h5>SoraCzytnik</h5>
+            <p data-pole="co">Czyta e-booki i komiksy: EPUB, CBZ, także pismo pionowe.</p>
+          </li>
+        </ul>
+        <a href="/projekty/">Zobacz w Produktach</a>
+      </article>
+    </li>
+    <li data-id="oracle" data-plik="oracle.sys" data-usluga="app" data-znacznik="wczesny etap">
+      <article data-roboczy>
+        <h3>Sora Oracle</h3>
+        <p data-pole="krotko">Antywirus z lokalnym AI</p>
+        <p data-pole="lead">Antywirus, który sprawdza pliki regułami YARA i lokalnym modelem AI, bez wysyłania niczego do chmury. Wczesny etap.</p>
+        <p data-pole="extra" data-etykieta="reguły YARA">8 268</p>
+        <figure data-pole="zrzut"><picture><source srcset="/zrzuty_projektow/sora-oracle.webp" type="image/webp"><img src="/zrzuty_projektow/sora-oracle.webp" alt="Sora Oracle: stan wyjściowy usługi" width="1600" height="1000" loading="lazy" decoding="async"></picture></figure>
+        <pre data-pole="kod" data-zrodlo="src/"><code>public DetectionEvent Decide(DetectionEvent evt)
+public Availability Check()</code></pre>
+        <h4>Gotowe klocki</h4>
+        <ul data-pole="klocki">
+          <li data-sciezka="src/SoraOracle.Service/Detection/Sigma/SigmaRuleLoader.cs" data-linie="146" data-uslugi="app">
+            <h5>Reguły Sigma</h5>
+            <p data-pole="co">Czyta reguły wykrywania podejrzanych zachowań programów.</p>
+            <p data-pole="dla">Dla Ciebie: pokazujemy, nad czym pracujemy, zanim trafi do oferty.</p>
+          </li>
+          <li data-sciezka="src/SoraOracle.Service/Detection/Yara/LibYaraScanner.cs" data-linie="105" data-uslugi="app">
+            <h5>Skaner YARA</h5>
+            <p data-pole="co">Sprawdza plik tysiącami reguł wykrywania zagrożeń, lokalnie.</p>
+            <p data-pole="dla">Dla Ciebie: kontrola plików w firmie bez wysyłania ich do chmury.</p>
+          </li>
+          <li data-sciezka="src/SoraOracle.Service/Watch/DownloadsWatcher.cs" data-linie="89" data-uslugi="app">
+            <h5>Strażnik Pobranych</h5>
+            <p data-pole="co">Sprawdza nowy plik w chwili, gdy trafi do folderu Pobrane.</p>
+            <p data-pole="dla">Dla Ciebie: ochrona tam, gdzie najczęściej wpada coś złego.</p>
+          </li>
+        </ul>
+        <a href="/kontakt/" data-konf="app">Zapytaj o podobne</a>
+      </article>
+    </li>
+    <li data-id="skrypty" data-plik="skrypty/" data-usluga="mikro" data-znacznik="pracują u nas" data-linie-opis="audyt widoczności">
+      <article data-roboczy>
+        <h3>Skrypty i roboty</h3>
+        <p data-pole="krotko">Audyt widoczności, radary ofert, boty</p>
+        <p data-pole="lead">Małe programy, które robią za nas powtarzalną robotę. Największy to audyt widoczności: mierzy stronę firmy pod Google i składa raport.</p>
+        <figure data-pole="zrzut"></figure>
+        <pre data-pole="kod" data-zrodlo="job_scraper.py"><code>def scrape_useme(pages=1, delay=1.0, query=None)
+def fetch_offer_detail(url)</code></pre>
+        <h4>Gotowe klocki</h4>
+        <ul data-pole="klocki">
+          <li data-sciezka="audyt/klienci.py" data-linie="715" data-uslugi="mikro">
+            <h5>Śledzenie klientów</h5>
+            <p data-pole="co">Pamięta, kto się odezwał, co dostał i kto zapłacił.</p>
+            <p data-pole="dla">Dla Ciebie: prosty spis klientów pod Twoją firmę jako mikro-skrypt.</p>
+          </li>
+          <li data-sciezka="audyt/przelot.py" data-linie="356" data-uslugi="audyt start pelny">
+            <h5>Przelot po stronie</h5>
+            <p data-pole="co">Mierzy stronę firmy bez żadnych kluczy: tytuły, nagłówki, wersję na telefon, sitemap.</p>
+            <p data-pole="dla">Dla Ciebie: darmowy skan Twojej strony robi właśnie ten moduł.</p>
+          </li>
+          <li data-sciezka="audyt/raport.py" data-linie="324" data-uslugi="audyt start pelny">
+            <h5>Raport</h5>
+            <p data-pole="co">Składa wyniki w czytelny raport z listą poprawek.</p>
+            <p data-pole="dla">Dla Ciebie: dostajesz listę „co poprawić najpierw”, a nie surowe liczby.</p>
+          </li>
+        </ul>
+        <a href="/kontakt/" data-konf="mikro">Zapytaj o podobne</a>
+      </article>
+    </li>
+  </ul>
+</section>
+<section data-soraos-app="terminy">
+  <h2>Update patch notes</h2>
+  <ul>
+    <li><b>31.10</b> Pycodemath 0.5.0: sprawdza matematykę w kodzie, daje dowód albo przykład błędu.</li>
+    <li><b>07.10</b> DancyCloud v3: gra w Terminalu dostała bossów.</li>
+    <li><b>06.10</b> SORA//OS: Marketplace jako komputer, na którym właśnie jesteś.</li>
+    <li><b>06.10</b> MoonSora 0.11.0: nowa wersja naszego terminala do pracy z agentami AI.</li>
+    <li><b>05.10</b> SalonDesk 1.5.0: działy salonu jako kafle w oknie wizyty.</li>
+    <li><b>30.09</b> Pycodemath 0.4.0 na PyPI.</li>
+  </ul>
+</section>
+<section data-soraos-app="terminal">
+  <h2>Terminal</h2>
+  <ul>
+    <li data-opcja="dancycloud"><h3>DancyCloud</h3><p>Gra: unikasz linijek naszego kodu.</p></li>
+  </ul>
+</section>

@@ -16,7 +16,7 @@
   function ik(n) { return SL.svgIkony(n); }
   function liczba(n) { return Number(n || 0).toLocaleString('pl-PL').replace(/\s/g, ' '); }
   function data(ms) { var d = new Date(ms); if (isNaN(d)) return ''; return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear(); }
-  function kotUrl(kot, r) { return 'assety/kot-awatar/kot-' + (kot || 'kosc') + '-' + (r || 256) + '.webp'; }
+  function kotUrl(kot, r) { return '/assety/kot-awatar/kot-' + (kot || 'kosc') + '-' + (r || 256) + '.webp'; }
   function konto() { return window.Konto || null; }
   function powiedz(t, blad) { var k = konto(); if (k && k.powiedz) k.powiedz(t, blad); }
   function mojNick() { var s = api.sesja(); return s ? s.nick : ''; }

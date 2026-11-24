@@ -2,9 +2,9 @@
 //
 // Źródło w repo zostaje czytelne (komentarze to dokumentacja decyzji). Ten skrypt robi
 // kopię strony do katalogu wydania i tylko tam minifikuje:
-//   - app.js, js-flag.js, sonda.js  → esbuild --minify (bez zmiany składni, nazwy globalne zostają)
-//   - views.css                               → lightningcss --minify
-//   - index.html: <style> → lightningcss, komentarze HTML precz, wcięcia przed tagami precz
+//   - własne moduły JS (lista JS_MIN)  → esbuild --minify (bez zmiany składni, nazwy globalne zostają)
+//   - arkusze (lista CSS_MIN)          → lightningcss --minify
+//   - strony HTML (lista HTML_MIN): komentarze i wcięcia precz, styl.css wklejony jako <style>
 // Nie rusza: <script> (JSON-LD), <pre>, <textarea>, <figure data-pole="zrzut"> (soraos.js czyta
 // z niego komentarz jako opis zrzutu), soraos.* (już zminifikowane), obrazów, nazw plików i ?v=.
 //
@@ -19,9 +19,19 @@ import { transform as cssTransform } from 'lightningcss';
 const [src, out] = process.argv.slice(2);
 if (!src || !out) { console.error('użycie: node buduj.mjs <źródło> <wydanie>'); process.exit(2); }
 
-const JS_MIN = ['app.js', 'js-flag.js', 'sonda.js'];
-const CSS_MIN = ['views.css'];
-const HTML_MIN = ['index.html'];
+// 24.11: strony w repo muszą odpowiadać źródłom w _zrodla/. Budowanie pada, gdy ktoś zmienił źródło i nie uruchomił sklej.mjs
+// (kontrola stoi tutaj, a nie jako osobny krok w pages.yml, żeby nie zmieniać pliku workflow).
+{
+  const { execFileSync } = await import('node:child_process');
+  const { fileURLToPath } = await import('node:url');
+  execFileSync(process.execPath, [fileURLToPath(new URL('./sklej.mjs', import.meta.url)), '--sprawdz'], { stdio: 'inherit' });
+}
+
+// 24.11 (po cięciu): wszystkie własne moduły. soraos.js i vendor/ są już zminifikowane, dancycloud.js to gotowa paczka gry.
+const JS_MIN = ['app.js', 'js-flag.js', 'mapa-pl.js', 'konfigurator.js', 'soraos-start.js', 'soraos-pulpit.js', 'ranking.js', 'konto-api.js', 'konto.js', 'profil.js', 'programy-slownik.js'];
+const CSS_MIN = ['styl.css', 'konfigurator.css', 'soraos-strona.css', 'soraos-pulpit.css', 'konto.css', 'profil.css'];
+// strony składane przez sklej.mjs; styl.css jest w nie wklejany jako <style> (jedno żądanie mniej przed pierwszym malowaniem)
+const HTML_MIN = ['index.html', '404.html', 'oferta/index.html', 'projekty/index.html', 'o-mnie/index.html', 'kontakt/index.html', 'polityka/index.html', 'soraos/index.html'];
 
 // Jak dotychczasowy Jekyll na GitHub Pages: pliki i katalogi z kropką lub podkreśleniem nie trafiają na stronę.
 // 05.11 (audyt): katalogi robocze (testy, zrzuty, podglądy) nie idą na stronę, nawet gdy ktoś je doda do repo.
@@ -70,6 +80,12 @@ for (const n of JS_MIN) {
   zapisz(n, kod, r.code);
 }
 for (const n of CSS_MIN) { const kod = readFileSync(join(src, n), 'utf8'); zapisz(n, kod, minCss(kod, n)); }
-for (const n of HTML_MIN) { const kod = readFileSync(join(src, n), 'utf8'); zapisz(n, kod, minHtml(kod)); }
+const stylMin = minCss(readFileSync(join(src, 'styl.css'), 'utf8'), 'styl.css');
+const LINK_STYL = /<link rel="stylesheet" href="\/styl\.css\?v=[0-9a-f]+">/;
+for (const n of HTML_MIN) {
+  const kod = readFileSync(join(src, n), 'utf8');
+  if (!LINK_STYL.test(kod)) throw new Error(n + ': brak <link> do styl.css');
+  zapisz(n, kod, minHtml(kod).replace(LINK_STYL, () => '<style>' + stylMin + '</style>'));
+}
 
 for (const [n, a, b] of raport) console.log(`${n.padEnd(12)} ${String(a).padStart(7)} → ${String(b).padStart(7)} B (${Math.round(100 * (b - a) / a)}%)`);

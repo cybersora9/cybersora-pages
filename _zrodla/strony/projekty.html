@@ -1,0 +1,116 @@
+<!--{"wyjscie":"projekty/index.html","tytul":"Projekty: SalonDesk, SoraFlux, SoraPDF, Pycodemath | cybersora","opis":"Programy, które napisałem: SalonDesk dla salonu beauty oraz darmowe SoraFlux, SoraPDF i Pycodemath do pobrania.","kanon":"/projekty/","menu":"projekty"}-->
+  <header class="naglowek">
+    <div class="naglowek__w">
+      <p class="nadtytul">projekty</p>
+      <h1 class="naglowek__h">Projekty</h1>
+      <p class="naglowek__lead">Programy, które napisałem. Jeden powstał na zamówienie i pracuje u klienta, pozostałe pobierasz za darmo.</p>
+      <nav class="skroty" aria-label="Na tej stronie"><a href="#salondesk">SalonDesk</a><a href="#pobierz">Do pobrania</a><a href="#meshuga">Meshuga</a></nav>
+    </div>
+  </header>
+
+  <section class="sekcja sekcja--ciasna" id="salondesk" aria-labelledby="sdH">
+    <div class="sekcja__w">
+      <article class="prog">
+        <div class="prog__txt">
+          <span class="pigulka">na zamówienie · działa u klienta</span>
+          <h2 class="prog__h" id="sdH">Salon<b>Desk</b></h2>
+          <p class="akapit">Program dla salonu beauty. Wszystko działa na komputerze salonu, bez internetu.</p>
+          <ul class="lista">
+            <li>grafik zespołu, urlopy i wnioski w jednym miejscu</li>
+            <li>kasa z bonami i pakietami, magazyn sam mówi, co zamówić</li>
+            <li>karty klientek i sprawy dnia na jednym pulpicie</li>
+          </ul>
+          <div class="rzad">
+            <a class="btn" href="/kontakt/?temat=Aplikacja%20na%20zam%C3%B3wienie">Zapytaj o taki program &rarr;</a>
+            <span class="drobne">Windows · zrzuty na danych pokazowych</span>
+          </div>
+        </div>
+        {{>galeria-salondesk}}
+      </article>
+      <details class="szczegoly">
+        <summary>Szczegóły techniczne SalonDeska</summary>
+        <div class="szczegoly__w">
+          <div><h3>Kalendarz i grafik</h3><p>Wizyty przeciągane myszą, kolizje i wolne okna liczone od razu. Urlopy, choroby i przerwy zespołu w tym samym widoku.</p></div>
+          <div><h3>Kasa</h3><p>Jeden paragon można opłacić kilkoma formami: gotówką, kartą, bonem i pakietem. Pomyłkę przy kasie cofa storno paragonu.</p></div>
+          <div><h3>Pakiety, bony, magazyn</h3><p>Licznik zabiegów z karnetu, a pakiet płaci za konkretny zabieg. Magazyn ze stanem, przyjęciami i remanentem.</p></div>
+          <div><h3>Raporty i Excel</h3><p>Obłożenie gabinetów, wpływ do kasy i porównanie okresów. W pliku Excela są te same liczby co na ekranie.</p></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja--ciasna reveal" id="pobierz" aria-labelledby="pobH">
+    <div class="sekcja__w">
+      <div class="sekcja__glowa">
+        <p class="nadtytul">za darmo</p>
+        <h2 class="tytul" id="pobH">Do pobrania</h2>
+      </div>
+      <div class="trojka">
+        <article class="kafel trojka__k">
+          <span class="pigulka">Windows · wydany</span>
+          <h3>SoraFlux</h3>
+          <p>Darmowy konwerter wideo, audio, obrazów i GIF-ów. Pliki zostają na Twoim komputerze.</p>
+          <a class="lacze" href="/soraflux/">Strona programu i instalator &rarr;</a>
+        </article>
+        <article class="kafel trojka__k">
+          <span class="pigulka">Windows · wersja 1.0.0</span>
+          <h3>SoraPDF</h3>
+          <p>Łączy, dzieli, obraca i zmniejsza PDF-y. Pliki zostają na Twoim komputerze.</p>
+          <a class="lacze" href="https://github.com/cybersora9/SoraPDF/releases/latest" target="_blank" rel="noopener noreferrer">Pobierz z GitHuba &#8599;</a>
+        </article>
+        <article class="kafel trojka__k">
+          <span class="pigulka">Python · MIT</span>
+          <h3>Pycodemath</h3>
+          <p>Sprawdza matematykę w kodzie: dowodzi, że funkcja liczy to, co wzór, albo podaje dane, dla których się myli.</p>
+          <a class="lacze" href="https://pypi.org/project/pycodemath/" target="_blank" rel="noopener noreferrer">Zobacz na PyPI &#8599;</a>
+          <a class="lacze" href="https://github.com/cybersora9/pycodemath" target="_blank" rel="noopener noreferrer">Kod na GitHubie &#8599;</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja--ciasna reveal" id="czytnik" aria-labelledby="czH">
+    <div class="sekcja__w">
+      <article class="prog">
+        <div class="prog__txt">
+          <span class="pigulka">w przygotowaniu</span>
+          <h2 class="prog__h" id="czH">Sora<b>EbookReader</b></h2>
+          <p class="akapit">Czytnik e-booków i mang na Windows. Wszystko działa na Twoim komputerze, bez internetu.</p>
+          <ul class="lista">
+            <li>książki, light novel i mangi na jednej półce</li>
+            <li>zakreślenia, notatki i postęp bez rozpraszania</li>
+            <li>manga w rozkładówkach, od prawej do lewej</li>
+          </ul>
+          <p class="drobne">Program nie jest jeszcze wydany. Link do pobrania pojawi się tutaj.</p>
+        </div>
+        {{>galeria-czytnik}}
+      </article>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja--ciasna reveal" id="meshuga" aria-labelledby="mshH">
+    <div class="sekcja__w">
+      <article class="prog prog--waski">
+        <img class="prog__kot" src="/assety/kot-320.webp" width="160" height="160" alt="" loading="lazy" decoding="async">
+        <div class="prog__txt">
+          <span class="pigulka">moje zaplecze</span>
+          <h2 class="prog__h" id="mshH">Meshuga</h2>
+          <p class="akapit">Asystent AI, którego zbudowałem dla siebie. To program, nie druga osoba: pomaga mi przy kodzie i researchu, a za każdą pracę, która trafia do klienta, odpowiadam ja.</p>
+          <ul class="lista">
+            <li>prowadzi bota społeczności na Discordzie przez całą dobę</li>
+            <li>przegląda nowe zlecenia i ocenia, które pasują</li>
+            <li>na tym samym kodzie stoją boty, które piszę na zamówienie</li>
+          </ul>
+          <a class="lacze" href="/oferta/#usl-bot">Bot na zamówienie {{>cena-bot}} &rarr;</a>
+        </div>
+      </article>
+      <p class="akapit akapit--maly">Poza tym, dla zabawy: <a href="/soraos/">SORA//OS</a>, pulpit w przeglądarce z grą DancyCloud.</p>
+    </div>
+  </section>
+
+  <section class="sekcja reveal" aria-label="Kontakt">
+    <div class="sekcja__w pas">
+      <p class="pas__txt">Potrzebujesz programu pod swoją firmę? Napisz, co ma robić. Cenę podaję z góry.</p>
+      <a class="btn" href="/kontakt/?temat=Aplikacja%20na%20zam%C3%B3wienie">Zapytaj o program &rarr;</a>
+    </div>
+  </section>

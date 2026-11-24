@@ -1,0 +1,11 @@
+/* soraos-strona.css — tylko strona /soraos/: miejsce na komputer SORA//OS (soraos.js) i okno gry DancyCloud. */
+.soraos-strona .pyt__guzik{display:none;}
+/* lista źródłowa jest tylko dla modułu; bez niego zostaje nagłówek z linkami */
+.soraos-tresc{display:none;}
+.view.soraos:has(> .soraos-lista [data-soraos-tresc][hidden]) > .hero{display:none;}
+.view.soraos:has(> .soraos-lista [data-soraos-tresc][hidden]){padding-top:65px;}
+.sx-1s:has(> [aria-label="DancyCloud"][role="region"]){max-width:none;}
+[aria-label="DancyCloud"][role="region"]:not(.gra-pelny){height:clamp(300px,calc(100vh - 380px),720px);display:block;position:relative;}
+[aria-label="DancyCloud"][role="region"]:not(.gra-pelny) .dcg-tk{grid-template-columns:minmax(0,1fr);}
+.gra-pelny{position:fixed !important;inset:0;z-index:500;width:auto !important;height:auto !important;max-width:none !important;background:#0b0b0e;}
+html.gra-pelny-on{overflow:hidden;}

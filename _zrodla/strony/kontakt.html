@@ -1,0 +1,42 @@
+<!--{"wyjscie":"kontakt/index.html","tytul":"Kontakt: napisz, w czym pomóc | cybersora","opis":"Napisz w dwóch zdaniach, czego potrzebujesz. Odpisuję zwykle w 24 godziny, najdalej w 2 dni robocze, z konkretną ceną.","kanon":"/kontakt/","menu":"kontakt"}-->
+  <header class="naglowek">
+    <div class="naglowek__w">
+      <p class="nadtytul">kontakt</p>
+      <h1 class="naglowek__h">Napisz, w czym pomóc</h1>
+      <p class="naglowek__lead">Dwa zdania wystarczą. Odpisuję zwykle w 24 godziny, najdalej w 2 dni robocze.</p>
+    </div>
+  </header>
+
+  <section class="sekcja sekcja--ciasna" aria-label="Formularz kontaktowy">
+    <div class="sekcja__w napisz">
+      {{>formularz}}
+      <aside class="napisz__bok">
+        <div class="kafel">
+          <h2 class="napisz__h">Co dalej</h2>
+          <ol class="dalej">
+            <li>Czytam wiadomość i odpisuję: biorę zlecenie, dopytuję albo odmawiam z krótkim powodem.</li>
+            <li>Jeśli biorę, dostajesz wiążącą cenę. Ruszam dopiero po Twoim „tak”.</li>
+            <li>Po odbiorze masz 14 dni bezpłatnych poprawek.</li>
+          </ol>
+        </div>
+        <div class="kafel">
+          <h2 class="napisz__h">Wolisz e-mail?</h2>
+          <p><a href="mailto:{{>email}}">{{>email}}</a></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja--ciasna" id="konfigurator" aria-labelledby="konfSekH">
+    <div class="sekcja__w">
+      <div class="sekcja__glowa">
+        <p class="nadtytul">opcjonalnie</p>
+        <h2 class="tytul" id="konfSekH">Policz orientacyjną cenę programu</h2>
+        <p class="akapit">Konfigurator w kilku krokach pyta o to, co najbardziej zmienia nakład pracy przy skrypcie, bocie albo aplikacji, i pokazuje orientacyjną cenę. Wynik możesz dołączyć do wiadomości. Niczego sam nie wysyła.</p>
+      </div>
+      <div id="konfMiejsce" data-css="/konfigurator.css?v={{v:konfigurator.css}}" data-js="/konfigurator.js?v={{v:konfigurator.js}}">
+        <button class="btn btn--obrys" type="button" id="konfStart">Otwórz konfigurator</button>
+        <noscript><p class="drobne">Konfigurator wymaga włączonego JavaScriptu. Formularz powyżej działa także bez niego: wyślij wiadomość na {{>email}}.</p></noscript>
+      </div>
+    </div>
+  </section>

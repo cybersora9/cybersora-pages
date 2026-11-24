@@ -1,0 +1,30 @@
+<!--{"wyjscie":"soraos/index.html","tytul":"SORA//OS: pulpit w przeglądarce i gra DancyCloud | cybersora","opis":"SORA//OS to pulpit jak z gry, zrobiony dla zabawy: okna, terminal i gra DancyCloud z rankingiem.","kanon":"/soraos/","cialo":"soraos-strona"}-->
+<!--GLOWA-->
+<meta name="konto-api" content="/api/konto">
+<meta name="konto-beta" content="1">
+<link rel="stylesheet" href="/soraos-strona.css?v={{v:soraos-strona.css}}">
+<!--/GLOWA-->
+<!--SKRYPTY-->
+<script src="/soraos-start.js?v={{v:soraos-start.js}}" defer></script>
+<!--/SKRYPTY-->
+  <!-- SORA//OS: moduł soraos.js buduje komputer nad listą [data-soraos-tresc]. Bez JS zostaje ten nagłówek. -->
+  <section class="view" data-view="soraos" aria-label="SORA//OS">
+    <div class="hero">
+      <header class="naglowek">
+        <div class="naglowek__w">
+          <p class="nadtytul">dla zabawy</p>
+          <h1 class="naglowek__h">SORA//OS</h1>
+          <p class="naglowek__lead">Pulpit jak z gry: okna, terminal i gra DancyCloud. Ten ekran potrzebuje włączonego JavaScriptu. Ofertę w zwykłej postaci znajdziesz w cenniku.</p>
+          <div class="rzad"><a class="btn" href="/oferta/#cennik">Zobacz cennik</a><a class="btn btn--obrys" href="/projekty/">Projekty</a></div>
+        </div>
+      </header>
+    </div>
+    <section class="soraos-lista" aria-label="Pulpit SORA//OS">
+      <div data-soraos-miejsce>
+        <div class="soraos-tresc" data-soraos-tresc>
+      {{>soraos-uslugi}}
+{{>soraos-reszta}}
+        </div>
+      </div>
+    </section>
+  </section>

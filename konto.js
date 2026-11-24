@@ -44,7 +44,7 @@
     var s = ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
     return zGodz ? s + ', ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) : s;
   }
-  function kotUrl(kot, r) { return 'assety/kot-awatar/kot-' + (kot || 'kosc') + '-' + (r || 256) + '.webp'; }
+  function kotUrl(kot, r) { return '/assety/kot-awatar/kot-' + (kot || 'kosc') + '-' + (r || 256) + '.webp'; }
   function avaUrl(p, r) { return (r === 64 ? p.ava64 : p.ava256) || kotUrl(p.kot, r === 64 ? 64 : 256); }
   function koszykLokalny() { try { var k = JSON.parse(localStorage.getItem(CART_KEY)); return Array.isArray(k) ? k : []; } catch (e) { return []; } }
   function koszykUstaw(lista) {
