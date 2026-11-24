@@ -198,7 +198,7 @@
     pulse.cx = offX + mapW / 2;
     pulse.cy = offY + mapH / 2;
     pulse.maxR = Math.hypot(mapW, mapH) / 2 + 60;
-    mapaWarstwyBuduj(uzyjMapy, offX, offY, scale);   // MAPA 2.0: granice, miasta, Gorlice (fala biegnie z Gorlic)
+    mapaWarstwyBuduj(uzyjMapy, offX, offY, scale);   // MAPA 2.0: granice, miasta, siec lukow
 
     if (fontsReady) glyphAtlas();   // atlas znakow niezalezny od trasy
     bgBuild();                      // tlo trasy z rejestru BG (na somi: M1)
@@ -273,13 +273,13 @@
     }
   }
 
-  /* ===================== MAPA 2.0 (24.11): granice wojewodztw, miasta, Gorlice, pakiety, samoloty =====================
+  /* ===================== MAPA 2.0 (24.11): granice wojewodztw, miasta, siec lukow z pakietami =====================
      Statyczna warstwa (kreski granic, kropki i podpisy miast) rysowana RAZ do bufora, w klatce jedno drawImage.
-     Dynamika (kilkanascie lukow, pakiety z ogonem, sygnal Gorlic, kilka samolotow, wojewodztwo pod kursorem/palcem)
+     Dynamika (kilkanascie lukow miedzy miastami, pakiety z ogonem, wojewodztwo pod kursorem/palcem)
      to kilka sciezek na klatke, zero shadowBlur, zero alokacji w petli. Poza Startem (PN = 0) i bez mapa-pl.js
      wszystko wylaczone (zostaje dawna mapa z kropek). Telefon (W < 700): mapa jako osobny blok nad tekstem. */
-  const mapaW = { on: false, mob: false, stat: null, sx: 0, sy: 0, sw: 0, sh: 0, city: [], arcs: [], gor: null,
-    hover: -1, hx: -1e9, hy: -1e9, tap: null, rev0: 0, rv: 1, flights: [], slots: [], rings: [], sprite: null };
+  const mapaW = { on: false, mob: false, stat: null, sx: 0, sy: 0, sw: 0, sh: 0, city: [], arcs: [],
+    hover: -1, hx: -1e9, hy: -1e9, tap: null, rev0: 0, rv: 1 };
   const MOB_LAB = new Set(['Warszawa', 'Gdańsk', 'Wrocław', 'Poznań', 'Szczecin', 'Lublin']);
   function regPath(r, scale, ox, oy) {
     const p = new Path2D(), n = r.q.length / 2, Q = MP.q;
@@ -290,77 +290,27 @@
     p.closePath();
     return p;
   }
-  // sylwetka samolotu z gory, nos w +X; sprite z poswiata wypalona w buforze (zamiast shadowBlur)
-  const SAMOLOT = new Path2D('M10 0 L2.4 -1.5 L-0.6 -7.2 L-3 -7.2 L-1.4 -1.3 L-5.8 -1.1 L-7.4 -3.1 L-9 -3.1 L-8 0 L-9 3.1 L-7.4 3.1 L-5.8 1.1 L-1.4 1.3 L-3 7.2 L-0.6 7.2 L2.4 1.5 Z');
-  function mapaSprite() {
-    const c = document.createElement('canvas'), S = 32;
-    c.width = c.height = Math.ceil(S * dpr);
-    const g = c.getContext('2d');
-    g.scale(dpr, dpr); g.translate(S / 2, S / 2);
-    g.fillStyle = 'rgba(255,58,82,0.16)'; g.beginPath(); g.arc(0, 0, 13, 0, 6.2832); g.fill();
-    g.fillStyle = 'rgba(255,58,82,0.12)'; g.beginPath(); g.arc(0, 0, 8, 0, 6.2832); g.fill();
-    g.fillStyle = '#fff2f4'; g.fill(SAMOLOT);
-    mapaW.sprite = c;
-  }
-  const KOD = { Warszawa: 'WAW', Kraków: 'KRK', Wrocław: 'WRO', Poznań: 'POZ', Gdańsk: 'GDN', Szczecin: 'SZZ', Lublin: 'LUZ', Katowice: 'KTW', Rzeszów: 'RZE', Bydgoszcz: 'BZG', Olsztyn: 'SZY', Łódź: 'LCJ' };
-  // trasy: pary miast (krajowe) albo miasto -> kierunek zagraniczny [lon, lat, kod]; lot konczy sie zanikiem przy krawedzi kadru
-  const LOTY = [
-    ['Warszawa', 'Gdańsk'], ['Warszawa', 'Kraków'], ['Warszawa', 'Wrocław'], ['Katowice', 'Gdańsk'], ['Poznań', 'Rzeszów'],
-    ['Lublin', 'Szczecin'], ['Kraków', 'Gdańsk'], ['Wrocław', 'Gdańsk'],
-    ['Warszawa', [-0.45, 51.47, 'LHR']], ['Gdańsk', [11.1, 60.2, 'OSL']], ['Wrocław', [2.55, 49.0, 'CDG']],
-    ['Kraków', [12.24, 41.8, 'FCO']], ['Katowice', [28.75, 41.28, 'IST']], ['Szczecin', [17.9, 59.65, 'ARN']], ['Gdańsk', [8.56, 50.04, 'FRA']]
-  ];
-  function lutAt(l, s, o) {
-    let i = 1; const n = l.len.length - 1;
-    while (i < n && l.len[i] < s) i++;
-    const d = l.len[i] - l.len[i - 1] || 1, f = Math.min(1, Math.max(0, (s - l.len[i - 1]) / d));
-    const ax = l.px[i - 1], ay = l.py[i - 1], bx = l.px[i], by = l.py[i];
-    o.x = ax + (bx - ax) * f; o.y = ay + (by - ay) * f; o.a = Math.atan2(by - ay, bx - ax);
-  }
   function mapaWarstwyBuduj(uzyj, offX, offY, scale) {
     mapaW.on = !!(REG && uzyj);
-    if (!mapaW.on) { mapaW.stat = null; mapaW.rev0 = 0; mapaW.flights = []; mapaW.slots = []; return; }
+    if (!mapaW.on) { mapaW.stat = null; mapaW.rev0 = 0; return; }
     if (!mapaW.rev0) mapaW.rev0 = performance.now();
     const Q = MP.q;
     mapaW.scale = scale; mapaW.offX = offX; mapaW.offY = offY;
     mapaW.city = MP.m.map(c => ({ n: c[0], x: offX + projX(c[1]) * scale, y: offY + projY(c[2]) * scale, lon: c[1] }));
-    const g = mapaW.city[0];
-    mapaW.gor = g;
-    // fala z Gorlic: "stad pisza do calej Polski"
-    pulse.cx = g.x; pulse.cy = g.y;
+    // fala intro i puls biegna ze srodka mapy (pulse.cx/cy ustawione wyzej), bez wyroznionego miasta
+    const g = { x: pulse.cx, y: pulse.cy };
     const bx = mapBox.x, by = mapBox.y, bw = mapBox.w, bh = mapBox.h;
     pulse.maxR = Math.max(Math.hypot(g.x - bx, g.y - by), Math.hypot(g.x - bx - bw, g.y - by),
       Math.hypot(g.x - bx, g.y - by - bh), Math.hypot(g.x - bx - bw, g.y - by - bh)) + 60;
-    // luki Gorlice -> reszta miast: punkt kontrolny wyniesiony w bok od ciecyvy
-    mapaW.arcs = mapaW.city.slice(1).map((c, i) => {
-      const mx = (g.x + c.x) / 2, my = (g.y + c.y) / 2, dx = c.x - g.x, dy = c.y - g.y, d = Math.hypot(dx, dy) || 1;
+    // luki miedzy miastami (siec na cala Polske): punkt kontrolny wyniesiony w bok od cieciwy
+    const C = mapaW.city, nC = C.length;
+    mapaW.arcs = C.map((p, i) => {
+      const c = C[(i * 5 + 3) % nC];
+      const mx = (p.x + c.x) / 2, my = (p.y + c.y) / 2, dx = c.x - p.x, dy = c.y - p.y, d = Math.hypot(dx, dy) || 1;
       const lift = d * 0.2;
-      return { x0: g.x, y0: g.y, cx: mx + (dy / d) * lift, cy: my - (dx / d) * lift - d * 0.05, x1: c.x, y1: c.y,
+      return { x0: p.x, y0: p.y, cx: mx + (dy / d) * lift, cy: my - (dx / d) * lift - d * 0.05, x1: c.x, y1: c.y,
         ph: (i * 0.173) % 1, sp: 0.1 + (i % 4) * 0.014 };
-    });
-    // samoloty: luk kwadratowy + tablica dlugosci (stala predkosc po luku), liczone raz na rozmiar
-    const byN = {}; mapaW.city.forEach(c => { byN[c.n] = c; });
-    const Lmax = Math.max(bw, bh) * 0.62;
-    mapaW.flights = LOTY.map((df, k) => {
-      const a = byN[df[0]];
-      let b, kb, ob = false;
-      if (Array.isArray(df[1])) {
-        const fx = offX + projX(df[1][0]) * scale - a.x, fy = offY + projY(df[1][1]) * scale - a.y, d = Math.hypot(fx, fy) || 1;
-        b = { x: a.x + fx / d * Lmax, y: a.y + fy / d * Lmax }; kb = df[1][2]; ob = true;
-      } else { b = byN[df[1]]; kb = KOD[df[1]]; }
-      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
-      const lift = d * 0.16 * (k % 2 ? 1 : -1), cx = mx + (dy / d) * lift, cy = my - (dx / d) * lift;
-      const N = 28, px = new Float32Array(N + 1), py = new Float32Array(N + 1), len = new Float32Array(N + 1);
-      for (let i = 0; i <= N; i++) {
-        const t = i / N, w = 1 - t;
-        px[i] = w * w * a.x + 2 * w * t * cx + t * t * b.x; py[i] = w * w * a.y + 2 * w * t * cy + t * t * b.y;
-        if (i) len[i] = len[i - 1] + Math.hypot(px[i] - px[i - 1], py[i] - py[i - 1]);
-      }
-      return { a, b, ka: KOD[df[0]], kb, ob, lut: { px, py, len }, L: len[N] };
-    });
-    mapaW.slots = []; mapaW.rings = [];
-    for (let i = 0; i < 6; i++) mapaW.slots.push({ f: -1, t0: 0, dur: 1, rev: false, wait: 0.6 + i * 1.1 + Math.random(), lab: '' });
-    mapaSprite();
+    }).filter(e => e.x0 !== e.x1 || e.y0 !== e.y1);
     // sciezki ekranowe wojewodztw (podswietlenie pod kursorem), srodek do podpisu, wielokat do trafienia
     REG.forEach(r => {
       r.path = regPath(r, scale, offX, offY);
@@ -402,24 +352,17 @@
     seg(0, 7 * k, 'rgba(225,29,51,0.10)');
     seg(0, 3.2 * k, 'rgba(225,29,51,0.22)');
     seg(0, 1.3 * k, 'rgba(255,92,110,0.9)');
-    // miasta: kropka + podpis (Geist Mono); Gorlice: wiekszy podpis, sama kropka rysowana dynamicznie
+    // miasta: kropka + podpis (Geist Mono)
     c.textBaseline = 'middle';
     mapaW.city.forEach((m, i) => {
       const lewo = (m.lon < 18.7 && m.n !== 'Szczecin') || m.lon > 22.3;   // podpis od strony wnetrza kraju, nie na granicy
       c.textAlign = lewo ? 'right' : 'left';
       const tx = m.x + (lewo ? -9 : 9);
-      if (i === 0) {
-        c.font = '500 ' + (mapaW.mob ? 12 : 11) + 'px "Geist Mono", ui-monospace, monospace';
-        c.fillStyle = 'rgba(255,255,255,0.95)'; c.fillText('GORLICE', tx, m.y + 14);
-        c.font = '500 ' + (mapaW.mob ? 10.5 : 9.5) + 'px "Geist Mono", ui-monospace, monospace';
-        c.fillStyle = 'rgba(255,214,218,0.75)'; c.fillText('tu piszemy kod', tx, m.y + 27);
-      } else {
         c.fillStyle = 'rgba(255,200,205,0.9)';
         c.beginPath(); c.arc(m.x, m.y, mapaW.mob ? 2.6 : 2.1, 0, 6.2832); c.fill();
         if (mapaW.mob && !MOB_LAB.has(m.n)) return;   // telefon: tylko wieksze miasta, wieksza czcionka
         c.font = '500 ' + (mapaW.mob ? 11 : 10) + 'px "Geist Mono", ui-monospace, monospace';
         c.fillStyle = 'rgba(255,214,218,0.66)'; c.fillText(m.n.toUpperCase(), tx, m.y);
-      }
     });
     mapaW.stat = cv; mapaW.sx = sx; mapaW.sy = sy; mapaW.sw = sw; mapaW.sh = sh;
   }
@@ -440,71 +383,7 @@
     }
     mapaW.hover = hit;
   }
-  const _lp = { x: 0, y: 0, a: 0 }, _lt = { x: 0, y: 0, a: 0 };
-  // samoloty: kilka naraz, kazdy startuje po losowej przerwie na wolnej trasie; zanikaja przy krawedzi kadru
-  function mapaLoty(time, rv) {
-    const FL = mapaW.flights, S = mapaW.slots, nS = slabyCpu ? 3 : (mapaW.mob ? 4 : 6), v = mapaW.mob ? 40 : 58;
-    const spr = mapaW.sprite, sk = (mapaW.mob ? 1.2 : 1) * 32 / 32;
-    for (let i = 0; i < nS; i++) {
-      const s = S[i];
-      if (s.f < 0) {
-        if (time < s.wait || rv < 0.9) continue;
-        let r = (Math.random() * FL.length) | 0, tries = 0;
-        for (; tries < FL.length; tries++, r = (r + 1) % FL.length) {
-          let used = false; for (let j = 0; j < nS; j++) if (S[j].f === r) used = true;
-          if (!used) break;
-        }
-        if (tries === FL.length) continue;
-        const f = FL[r];
-        s.f = r; s.t0 = time; s.dur = f.L / v; s.rev = f.ob ? Math.random() < 0.45 : Math.random() < 0.5;
-        s.lab = (i === 0 || i === 3) ? 'CS ' + (100 + ((Math.random() * 900) | 0)) + ' > ' + (s.rev ? f.ka : f.kb) : '';
-        if (!f.ob || s.rev) mapaW.rings.push({ x: s.rev ? f.b.x : f.a.x, y: s.rev ? f.b.y : f.a.y, t0: time, r: 8 });
-      }
-      const f = FL[s.f], p = (time - s.t0) / s.dur;
-      if (p >= 1) {
-        const lx = s.rev ? f.a.x : f.b.x, ly = s.rev ? f.a.y : f.b.y;
-        if (!f.ob || s.rev) mapaW.rings.push({ x: lx, y: ly, t0: time, r: 15 });
-        s.f = -1; s.wait = time + 0.5 + Math.random() * 2.4; continue;
-      }
-      const e = 0.5 * p + 0.5 * p * p * (3 - 2 * p), d = (s.rev ? 1 - e : e) * f.L;
-      lutAt(f.lut, d, _lp);
-      // przezroczystosc: wejscie 8%, zejscie 16% (lot za kadr znika, krajowy gasnie przy ladowaniu)
-      const al = Math.min(1, p / 0.08, (1 - p) / 0.16) * rv;
-      const ang = s.rev ? _lp.a + Math.PI : _lp.a;
-      // smuga: 3 odcinki za samolotem o malejacej alfie
-      const back = s.rev ? 1 : -1;
-      let ox = _lp.x, oy = _lp.y;
-      for (let q = 1; q <= 3; q++) {
-        lutAt(f.lut, Math.min(f.L, Math.max(0, d + back * q * 9)), _lt);
-        ctx.strokeStyle = 'rgba(255,92,110,' + (0.5 * al / q).toFixed(3) + ')';
-        ctx.lineWidth = 1.6 - q * 0.3;
-        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(_lt.x, _lt.y); ctx.stroke();
-        ox = _lt.x; oy = _lt.y;
-      }
-      ctx.globalAlpha = al;
-      ctx.save(); ctx.translate(_lp.x, _lp.y); ctx.rotate(ang);
-      ctx.drawImage(spr, -16 * sk, -16 * sk, 32 * sk, 32 * sk);
-      ctx.restore();
-      if (s.lab) {
-        ctx.save();
-        ctx.font = '500 ' + (mapaW.mob ? 10 : 9.5) + 'px "Geist Mono", ui-monospace, monospace';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = 'rgba(255,230,233,0.85)'; ctx.fillText(s.lab, _lp.x + 12, _lp.y - 11);
-        ctx.restore();
-      }
-      ctx.globalAlpha = 1;
-    }
-    // pierscienie przy starcie i ladowaniu
-    const R = mapaW.rings;
-    for (let i = R.length - 1; i >= 0; i--) {
-      const q = R[i], f = (time - q.t0) / 1.0;
-      if (f >= 1) { R[i] = R[R.length - 1]; R.pop(); continue; }
-      ctx.strokeStyle = 'rgba(255,92,110,' + (0.75 * (1 - f)).toFixed(3) + ')';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.arc(q.x, q.y, 2 + f * q.r, 0, 6.2832); ctx.stroke();
-    }
-  }
-  // dynamika: luki z ogonem, uderzenia w miasta, samoloty, sygnal Gorlic, wojewodztwo/miasto pod kursorem lub palcem
+  // dynamika: luki z ogonem, uderzenia w miasta, wojewodztwo/miasto pod kursorem lub palcem
   function mapaDraw(time, mA, mx, my) {
     if (!mapaW.on || !PN) return;
     const rv = mapaW.rv;
@@ -536,21 +415,8 @@
             if (f > 0.25) { ctx.strokeStyle = rgba(hot, 0.45 * (1 - f) * ra); ctx.beginPath(); ctx.arc(e.x1, e.y1, 2 + (f - 0.25) * 18, 0, 6.2832); ctx.stroke(); }
           }
         }
-        mapaLoty(time, rv);
       }
     }
-    // Gorlice: rdzen + dwa pierscienie sygnalu
-    const g = mapaW.gor;
-    if (!stoi) {
-      for (let k = 0; k < 2; k++) {
-        const f = ((time / 2.6) + k * 0.5) % 1;
-        ctx.strokeStyle = rgba(hot, 0.8 * (1 - f));
-        ctx.lineWidth = lw;
-        ctx.beginPath(); ctx.arc(g.x, g.y, 4 + f * 26, 0, 6.2832); ctx.stroke();
-      }
-    }
-    ctx.fillStyle = rgba(hot, 0.35); ctx.beginPath(); ctx.arc(g.x, g.y, 7, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.beginPath(); ctx.arc(g.x, g.y, mapaW.mob ? 3.4 : 3, 0, 6.2832); ctx.fill();
     // wskazanie: kursor (komputer) albo ostatni tap (telefon, ~3 s)
     let act = mA, ex = mx, ey = my;
     const tp = mapaW.tap;
@@ -2154,7 +2020,7 @@
     pbFit(); pbCnt.fill(0);
     const mA = mouse.active, mx = mouse.x, my = mouse.y;
     const hovR = mapaW.on ? mapaW.hover : -1;
-    // intro: kropki odslaniaja sie fala od Gorlic (~2 s po wejsciu na Start); bez animacji od razu w calosci
+    // intro: kropki odslaniaja sie fala od srodka mapy (~2 s po wejsciu na Start); bez animacji od razu w calosci
     let revR = 1e9;
     if (mapaW.on && !stoi) {
       const pr = Math.min(1, (t - mapaW.rev0 - 250) / 2000);
@@ -2248,7 +2114,7 @@
       }
     }
 
-    mapaDraw(time, mA, mx, my);   // MAPA 2.0: granice, luki z Gorlic, pakiety, wojewodztwo pod kursorem
+    mapaDraw(time, mA, mx, my);   // MAPA 2.0: granice, luki miedzy miastami, pakiety, wojewodztwo pod kursorem
 
     // circuit-link lines: cursor wakes the map into a live neural net, not just glowing dots
     // P1: odcinki w LB kubelkach alfy, jeden stroke na kubelek (bylo: stroke + string na odcinek)
